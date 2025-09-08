@@ -55,10 +55,10 @@
                     currentSection = field.SectionTitle;
 
                     // افتح قسم جديد
-                    @:<div class="section-box col-span-12 mb-2">
+                    @:<div class="col-span-12 mb-2 section-box">
                         @:<h3 class="section-title">@currentSection</h3>
                         @* @:<div class="form-row"> *@
-                            @:<div class="form-row grid grid-cols-12 gap-6 sm:gap-8">
+                            @:<div class="grid grid-cols-12 gap-6 form-row sm:gap-8">
 
                     sectionOpen = true;
                 }
@@ -109,8 +109,8 @@
                                         x-on:click="togglePanel()"
                                         x-on:keydown.enter="togglePanel()">
                                     <span class="truncate" x-text="displayText()"></span>
-                                    <span class="pointer-events-none absolute inset-y-0 end-0 flex items-center pe-2">
-                                        <svg class="h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                                    <span class="absolute inset-y-0 flex items-center pointer-events-none end-0 pe-2">
+                                        <svg class="w-5 h-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
                                             <path fill-rule="evenodd" d="M10 3a.75.75 0 01.53.22l3.5 3.5a.75.75 0 01-1.06 1.06L10 4.81 6.53 8.28a.75.75 0 01-1.06-1.06l3.5-3.5A.75.75 0 0110 3zm-3.72 9.28a.75.75 0 011.06 0L10 15.19l2.67-2.91a.75.75 0 111.06 1.06l-3.5 3.5a.75.75 0 01-1.06 0l-3.5-3.5a.75.75 0 010-1.06z" clip-rule="evenodd" />
                                         </svg>
                                     </span>
@@ -124,19 +124,18 @@
                                          class="sf-select-panel fixed z-[9999] animate-fade-in"> 
 
                                         <!-- شريط علوي -->
-                                        <div class="p-2 pb-0 flex justify-end">
+                                        <div class="flex justify-end p-2 pb-0">
                                             <button type="button" class="text-xs text-gray-500 hover:text-gray-700" x-on:click="clear()">مسح</button>
                                         </div>
 
                                         <!-- البحث -->
                                         <div class="p-2">
                                             <input type="text" x-model.trim="q" placeholder="بحث..." dir="rtl"
-                                                   class="w-full rounded-md border border-gray-200 px-3 py-2 text-sm
-                                                          focus:outline-none focus:ring-1 focus:ring-emerald-600" />
+                                                   class="w-full px-3 py-2 text-sm border border-gray-200 rounded-md focus:outline-none focus:ring-1 focus:ring-emerald-600" />
                                         </div>
 
                                         <!-- العناصر -->
-                                        <ul class="max-h-60 overflow-y-auto py-1">
+                                        <ul class="py-1 overflow-y-auto max-h-60">
                                             <template x-for="opt in filtered()" :key="opt.value">
                                                 <li class="px-3 py-2 cursor-pointer select-none hover:bg-gray-50"
                                                     :class="opt.disabled ? 'opacity-50 cursor-not-allowed' : ''"
@@ -147,7 +146,7 @@
                                                                   :class="isSelected(opt) ? 'selected' : ''"></span>
                                                         </template>
                                                         <template x-if="multiple">
-                                                            <input type="checkbox" class="h-4 w-4 shrink-0"
+                                                            <input type="checkbox" class="w-4 h-4 shrink-0"
                                                                    :checked="isSelected(opt)" x-on:click.stop>
                                                         </template>
                                                         <span class="truncate grow" x-text="opt.text"></span>
@@ -165,7 +164,7 @@
                                 @* أيقونة *@
                                 @if (!string.IsNullOrWhiteSpace(field.Icon))
                                 {
-                                    <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+                                    <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
                                         <i class="@field.Icon text-gray-400 text-md"></i>
                                     </div>
                                 }
@@ -274,7 +273,7 @@
                                            @(field.Value == "true" ? "checked" : null)
                                            x-on:change="@field.OnChangeJs" />
                                     <label for="@field.Name"
-                                           class="text-md text-gray-700 break-words whitespace-normal leading-relaxed cursor-pointer select-none">
+                                           class="leading-relaxed text-gray-700 break-words whitespace-normal cursor-pointer select-none text-md">
                                         @field.Label @if (field.Required) { <span class="text-red-500">*</span> }
                                     </label>
                                 </div>
@@ -283,12 +282,12 @@
 
                         case "radio":
                             <div class="form-group @field.GetResolvedColCss()">
-                                <div class="mt-1 grid gap-2">
+                                <div class="grid gap-2 mt-1">
                                     <span class="sf-label">@field.Label @if (field.Required) { <span class="text-red-500">*</span> }</span>
                                     @foreach (var opt in field.Options)
                                     {
                                         var radioId = $"{field.Name}_{opt.Value}";
-                                        <label for="@radioId" class="flex items-center gap-2 text-md text-gray-700">
+                                        <label for="@radioId" class="flex items-center gap-2 text-gray-700 text-md">
                                             <input type="radio" id="@radioId" name="@field.Name" value="@opt.Value"
                                                    class="sf-radio"
                                                    @(opt.Selected ? "checked" : null)
@@ -325,7 +324,7 @@
                                 <div class="form-group @field.GetResolvedColCss() relative">
                                     @if (hasIcon)
                                     {
-                                        <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+                                        <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
                                             <i class="@field.Icon text-gray-400 text-md"></i>
                                         </div>
                                     }
@@ -366,12 +365,12 @@
 
                                 <div id="@($"{inputId}__info")" class="mt-2">
                                     <div class="date-info-box">
-                                        <div class="text-xs text-gray-500 flex items-center gap-1">
+                                        <div class="flex items-center gap-1 text-xs text-gray-500">
                                             <i class="fa-regular fa-calendar"></i>
                                             <span>الميلادي:</span>
                                             <span data-greg-full>—</span>
                                         </div>
-                                        <div class="text-xs text-gray-500 mt-1 flex items-center gap-1">
+                                        <div class="flex items-center gap-1 mt-1 text-xs text-gray-500">
                                             <i class="fa-regular fa-moon"></i>
                                             <span>الهجري:</span>
                                             <span data-hijri-full>—</span>
@@ -408,7 +407,7 @@
                                         <div class="relative">
                                             @if (hasIcon)
                                             {
-                                                <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+                                                <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
                                                     <i class="@field.Icon text-gray-400 text-md"></i>
                                                 </div>
                                             }
@@ -446,9 +445,9 @@
                                             }
                                         </div>
                                         <div id="@($"{fromId}__info")" class="mt-2">
-                                            <div class="rounded-lg border border-gray-200 bg-gray-50 p-2">
+                                            <div class="p-2 border border-gray-200 rounded-lg bg-gray-50">
                                                 <div class="text-xs text-gray-500">الميلادي: <span data-greg-full>—</span></div>
-                                                <div class="text-xs text-gray-500 mt-1">الهجري: <span data-hijri-full>—</span></div>
+                                                <div class="mt-1 text-xs text-gray-500">الهجري: <span data-hijri-full>—</span></div>
                                             </div>
                                         </div>
                                     </div>
@@ -458,7 +457,7 @@
                                         <div class="relative">
                                             @if (hasIcon)
                                             {
-                                                <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+                                                <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
                                                     <i class="@field.Icon text-gray-400 text-md"></i>
                                                 </div>
                                             }
@@ -498,19 +497,19 @@
                                         <div id="@($"{toId}__info")" class="mt-2">
                                                 <div class="date-info-box">
                                                 <div class="text-xs text-gray-500">الميلادي: <span data-greg-full>—</span></div>
-                                                <div class="text-xs text-gray-500 mt-1">الهجري: <span data-hijri-full>—</span></div>
+                                                <div class="mt-1 text-xs text-gray-500">الهجري: <span data-hijri-full>—</span></div>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
 
                                 <div id="@($"{baseName}__days")" class="days-counter-box">
-                                    <i class="fa-solid fa-calculator text-gray-500"></i>
+                                    <i class="text-gray-500 fa-solid fa-calculator"></i>
                                     <span class="text-sm text-gray-700">
                                         <span>عدد الأيام:</span>
                                         <span data-days-value>—</span>
                                     </span>
-                                    <span class="text-sm text-red-600 hidden" data-days-error></span>
+                                    <span class="hidden text-sm text-red-600" data-days-error></span>
                                 </div>
                             }
                             break;
@@ -1025,7 +1024,7 @@ case "datatable":
                     <div class="sf-modal" role="dialog" aria-modal="true" x-transition>
                         <div class="sf-modal-header">
                             <h3 x-text="modal.title"></h3>
-                            <button type="button" class="btn btn-light" x-on:click="closeModal()">✕</button>
+                            <button type="button" class="btn btn-light dark:hover:bg-gray-200" x-on:click="closeModal()">✕</button>
                         </div>
                         <div class="sf-modal-body">
                             <template x-if="!modal.loading && !modal.error && modal.html">
@@ -1096,7 +1095,7 @@ break;
                 @if (!string.IsNullOrWhiteSpace(Model.SubmitText))
                 {
                     <button type="submit"
-                            class="btn btn-success border border-emerald-600 focus:ring-offset-2">
+                            class="border btn btn-success border-emerald-600 focus:ring-offset-2">
                         <i class="fa fa-save text-[14px]"></i>
                         <span>@Model.SubmitText</span>
                     </button>
