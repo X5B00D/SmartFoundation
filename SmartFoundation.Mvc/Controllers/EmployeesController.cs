@@ -21,7 +21,7 @@ namespace SmartFoundation.Mvc.Controllers
                     PageSize = 10,
                     PageSizes = new List<int> { 5, 10, 25, 50, 100 },
                     Searchable = true,
-                    SearchPlaceholder = "ابحث بالاسم/البريد/الجوال/المدينة...",
+                    SearchPlaceholder = "ابحث بالاسم/الجوال/المدينة...",
                     QuickSearchFields = new List<string> { "FullName", "Email", "City", "PhoneNumber" },
                     AllowExport = true,
                     AutoRefreshOnSubmit = true,
