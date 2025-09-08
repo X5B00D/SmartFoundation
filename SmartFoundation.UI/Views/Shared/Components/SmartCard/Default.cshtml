@@ -1,0 +1,50 @@
+﻿@model SmartFoundation.UI.ViewModels.SmartCard.SmartCardModel
+
+<div class="@Model.CardClasses" x-data="{ loading:false }">
+    <div class="@Model.HeaderClasses">
+        <h3 class="@Model.TitleClasses">@Model.Title</h3>
+        @if (!string.IsNullOrWhiteSpace(Model.BadgeText))
+        {
+            <span class="inline-flex items-center rounded-full bg-emerald-100 text-emerald-700 text-xs px-2.5 py-1">
+                @Model.BadgeText
+            </span>
+        }
+    </div>
+
+    <div class="@Model.BodyClasses">
+        @Html.Raw(Model.BodyHtml ?? "")
+    </div>
+
+    @if (Model.Buttons?.Any() == true)
+    {
+        <div class="@Model.FooterClasses">
+            @foreach (var btn in Model.Buttons)
+            {
+                if (btn.Type == "link")
+                {
+                    <a href="@btn.Href" title="@btn.Tooltip"
+                       class="inline-flex items-center gap-2 rounded-xl border px-4 py-2 hover:bg-gray-50"
+                       x-on:click="@btn.AlpineClick">
+                        @btn.Text
+                    </a>
+                }
+                else
+                {
+                    <button type="@btn.Type" title="@btn.Tooltip"
+                            class="inline-flex items-center gap-2 rounded-xl bg-emerald-600 px-4 py-2 text-white hover:bg-emerald-700 disabled:opacity-60"
+                            x-bind:class="loading ? 'cursor-wait' : ''"
+                            x-on:click="loading = @((btn.LoadingOnClick).ToString().ToLower()); @btn.AlpineClick">
+                        <span x-show="!loading">@btn.Text</span>
+                        <span x-show="loading" class="inline-flex items-center gap-2">
+                            <svg aria-hidden="true" role="status" class="inline h-4 w-4 animate-spin" viewBox="0 0 100 101" fill="none">
+                                <path d="M100 50.59c0 27.61-22.39 50-50 50S0 78.2 0 50.59 22.39.59 50 .59s50 22.39 50 50Z" fill="#E5E7EB" />
+                                <path d="M93.97 39.04a37.5 37.5 0 0 1-6.74 31.12 37.5 37.5 0 0 1-28.9 14.2v-9.05a28.45 28.45 0 0 0 21.88-10.78 28.45 28.45 0 0 0 5.13-23.62l8.63-1.87Z" fill="currentColor" />
+                            </svg>
+                            جاري التنفيذ...
+                        </span>
+                    </button>
+                }
+            }
+        </div>
+    }
+</div>

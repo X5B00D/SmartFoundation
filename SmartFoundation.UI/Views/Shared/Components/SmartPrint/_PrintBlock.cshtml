@@ -1,0 +1,116 @@
+﻿@using SmartFoundation.UI.ViewModels.SmartPrint
+@model PrintBlock
+
+@{
+    var extraClasses = new List<string>();
+    if (Model.PageBreakBefore) extraClasses.Add("page-break-before");
+    if (Model.PageBreakAfter) extraClasses.Add("page-break-after");
+    if (Model.KeepTogether) extraClasses.Add("keep-together");
+}
+
+<div class="@string.Join(" ", extraClasses) @Model.Css">
+    @switch (Model.Type.ToLower())
+    {
+        case "text":
+            var text = (TextBlock)Model;
+            if (text.IsHtml)
+            {
+                @Html.Raw(text.Text)
+            }
+            else
+            {
+                <p class="mb-3 leading-relaxed text-gray-800">@text.Text</p>
+            }
+            break;
+
+        case "table":
+            var table = (TableBlock)Model;
+
+            // ✅ اجلب البيانات من الـ Dataset حسب اسم الجدول
+            var rows = (ViewData["Datasets"] as Dictionary<string, object?>)?
+            .GetValueOrDefault(table.Dataset) as IEnumerable<Dictionary<string, object?>>;
+
+            <div class="overflow-x-auto my-6 shadow-sm rounded-lg">
+                <table class="min-w-full border border-gray-200 text-sm rounded-lg overflow-hidden">
+                    <thead class="bg-emerald-50 text-emerald-900">
+                        <tr>
+                            @foreach (var col in table.Columns)
+                            {
+                                <th class="border px-3 py-2 text-@col.Align font-semibold">@col.Header</th>
+                            }
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-200">
+                        @if (rows != null && rows.Any())
+                        {
+                            @foreach (var row in rows)
+                            {
+                                <tr class="hover:bg-emerald-50 transition">
+                                    @foreach (var col in table.Columns)
+                                    {
+                                        <td class="border px-3 py-2 text-@col.Align">
+                                            @(row.ContainsKey(col.Field) ? row[col.Field] : "")
+                                        </td>
+                                    }
+                                </tr>
+                            }
+                        }
+                        else
+                        {
+                            <tr>
+                                <td colspan="@table.Columns.Count" class="text-center text-gray-400 py-3">
+                                    (لا توجد بيانات)
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+            break;
+
+        case "keyvalue":
+            var kv = (KeyValueBlock)Model;
+            <div class="grid grid-cols-@kv.Columns gap-4 my-4 bg-gray-50 rounded-lg p-3">
+                @foreach (var item in kv.Items)
+                {
+                    <div class="flex justify-between border-b pb-1 text-gray-700">
+                        <span class="font-semibold">@item.Label</span>
+                        <span>@item.Value</span>
+                    </div>
+                }
+            </div>
+            break;
+
+        case "image":
+            var img = (ImageBlock)Model;
+            <div class="flex justify-center my-6">
+                <img src="@img.Src"
+                     class="shadow-md rounded-lg border"
+                     style="@(img.Width != null ? $"width:{img.Width};" : "") @(img.Height != null ? $"height:{img.Height};" : "")" />
+            </div>
+            break;
+
+        case "signature":
+            var sig = (SignatureBlock)Model;
+            <div class="grid grid-cols-@sig.Placeholders.Count gap-6 mt-12">
+                @foreach (var ph in sig.Placeholders)
+                {
+                    <div class="signature-box border-t-2 border-dashed text-center pt-6 text-sm uppercase tracking-wide text-gray-600">@ph</div>
+                }
+            </div>
+            break;
+
+        case "divider":
+            <hr class="my-8 border-emerald-300" />
+            break;
+
+        case "spacer":
+            var sp = (SpacerBlock)Model;
+            <div class="w-full" style="height:@(sp.HeightCm)cm"></div>
+            break;
+
+        default:
+            <div class="text-red-500 italic">⚠️ نوع Block غير مدعوم: @Model.Type</div>
+            break;
+    }
+</div>

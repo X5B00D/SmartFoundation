@@ -1,0 +1,172 @@
+﻿<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>@ViewData["Title"] - SmartFoundation.Mvc</title>
+
+    <!-- CSS -->
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/datepicker.min.css" />
+    <style>
+        [x-cloak] {
+            display: none !important
+        }</style>
+</head>
+
+<body class="min-h-screen bg-gray-50 text-gray-900">
+
+    <!-- Header -->
+    <header class="border-b bg-white">
+        <nav class="max-w-7xl mx-auto flex items-center justify-between px-4 py-3">
+            <a class="text-xl font-semibold hover:text-emerald-600 transition"
+               asp-area="" asp-controller="Home" asp-action="Index">
+                SmartFoundation.Mvc
+            </a>
+
+            <!-- Desktop Links -->
+            <ul class="hidden md:flex items-center gap-6">
+                <li>
+                    <a class="text-gray-700 hover:text-emerald-600"
+                       asp-area="" asp-controller="Home" asp-action="Index">الرئيسية</a>
+                </li>
+                <li>
+                    <a class="text-gray-700 hover:text-emerald-600"
+                       asp-area="" asp-controller="Home" asp-action="Privacy">الخصوصية</a>
+                </li>
+                <li class="relative">
+                    <button id="navDropBtn" data-dropdown-toggle="navDropMenu"
+                            class="inline-flex items-center rounded-lg border px-3 py-2 text-sm hover:bg-gray-50">
+                        القائمة ▼
+                    </button>
+                    <div id="navDropMenu"
+                         class="z-50 hidden mt-2 w-44 rounded-lg border bg-white text-sm shadow">
+                        <ul class="py-2 text-gray-700">
+                            <li><a class="block px-4 py-2 hover:bg-gray-50" href="#">خيار 1</a></li>
+                            <li><a class="block px-4 py-2 hover:bg-gray-50" href="#">خيار 2</a></li>
+                            <li><a class="block px-4 py-2 hover:bg-gray-50" href="#">خيار 3</a></li>
+                        </ul>
+                    </div>
+                </li>
+            </ul>
+
+            <!-- Mobile Hamburger -->
+            <button class="md:hidden inline-flex items-center rounded-lg p-2 hover:bg-gray-100"
+                    type="button" data-collapse-toggle="mobile-menu" aria-controls="mobile-menu" aria-expanded="false">
+                <span class="sr-only">القائمة</span>
+                <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M4 6h16M4 12h16M4 18h16" />
+                </svg>
+            </button>
+        </nav>
+
+        <!-- Mobile Menu -->
+        <div id="mobile-menu" class="md:hidden hidden border-t">
+            <ul class="space-y-2 bg-white px-4 py-2">
+                <li>
+                    <a class="block rounded-lg px-3 py-2 text-gray-700 hover:bg-gray-50"
+                       asp-area="" asp-controller="Home" asp-action="Index">الرئيسية</a>
+                </li>
+                <li>
+                    <a class="block rounded-lg px-3 py-2 text-gray-700 hover:bg-gray-50"
+                       asp-area="" asp-controller="Home" asp-action="Privacy">الخصوصية</a>
+                </li>
+            </ul>
+        </div>
+    </header>
+
+    <!-- Main -->
+    <main role="main" class="py-6"> 
+        <div class="w-full px-4">
+            @RenderBody()
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="border-t bg-white">
+        <div class="mx-auto max-w-7xl px-4 py-4 text-sm text-gray-600">
+            &copy; @DateTime.UtcNow.Year - SmartFoundation.Mvc -
+            <a class="text-emerald-600 hover:underline"
+               asp-area="" asp-controller="Home" asp-action="Privacy">الخصوصية</a>
+        </div>
+    </footer>
+
+    <!-- ========== Scripts (الترتيب مهم) ========== -->
+    <!-- 0) Utilities عامة لمشروعك -->
+    <script>
+        window.smartForm = function () {
+          return {
+            submitForm(action, method) {
+              const form = document.querySelector('section[x-data] form') || document.querySelector('form');
+              if (!form) return;
+              form.method = (method || 'POST').toUpperCase();
+              form.action = action || form.action || '#';
+              form.submit();
+            },
+            toast(msg, ok) { alert(msg || (ok ? 'تم' : 'حدث خطأ')); }
+          };
+        };
+        document.documentElement.setAttribute('data-theme','light');
+    </script>
+
+    <!-- 1) Flowbite الأساسي (لـ dropdown/header) -->
+    <script src="~/js/flowbite.min.js" defer></script>
+
+    <!-- 2) Datepicker (إن كنت تستخدمه داخل sf-date) -->
+    <script src="~/js/datepicker.min.js"></script>
+    @* أو استبدلها بـ flowbite-datepicker.min.js إذا كان سكربتك يعتمد على Flowbite Datepicker *@
+
+    <!-- 3) مكوّن القائمة المخصّص -->
+    <script src="~/js/sf-select.js"></script>
+
+    <!-- 4) سكربت التاريخ الخاص بك -->
+    <script src="~/js/sf-date.js"></script>
+
+    <!-- 5) Alpine يجب أن يكون أخيرًا (defer) -->
+    <script src="~/js/alpinejs.min.js" defer></script>
+
+    <script src="~/js/sf-form.js"></script>
+    <script src="~/js/sf-table.js"></script>
+
+
+
+    @await RenderSectionAsync("Scripts", required: false)
+
+    <!-- أكشنات إضافية (اختياري) -->
+    <script>
+        window.submitForm = function(actionUrlOrNull, method, includeFormData, spOverride) {
+          try {
+            const el   = document.activeElement;
+            const form = el && el.closest ? el.closest('form') : null;
+            const f    = form || document.querySelector('form');
+            if (!f) return;
+
+            if (actionUrlOrNull) f.action = actionUrlOrNull;
+            if (method)          f.method = method;
+
+            if (spOverride !== undefined && spOverride !== null && spOverride !== '') {
+              let spInput =
+                f.querySelector('input[name="StoredProcedureName"]') ||
+                f.querySelector('input[name="spName"]');
+              if (!spInput) {
+                spInput       = document.createElement('input');
+                spInput.type  = 'hidden';
+                spInput.name  = 'StoredProcedureName';
+                f.appendChild(spInput);
+              }
+              spInput.value = spOverride;
+            }
+
+            if (f.requestSubmit) f.requestSubmit(); else f.submit();
+          } catch (e) { console.error('submitForm error:', e); }
+        };
+
+        window.cancelForm = () => { if (window.history.length > 1) history.back(); };
+        window.editForm   = () => { console.log('editForm: افتح وضع التعديل'); };
+        window.deleteForm = () => { console.log('deleteForm: نفّذ تأكيد ثم submitForm(null, "POST", true, "sp_DeleteUser")'); };
+    </script>
+
+
+</body>
+</html>

@@ -1,0 +1,521 @@
+﻿/* =========================
+   Fonts & FontAwesome
+   ========================= */
+@import url("/lib/fontawesome/css/all.min.css");
+
+@font-face {
+    font-family: "Tajawal";
+    src: url("../fonts/Tajawal-Regular.ttf") format("truetype");
+    font-weight: 400;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: "Tajawal";
+    src: url("../fonts/Tajawal-Bold.ttf") format("truetype");
+    font-weight: 700;
+    font-style: normal;
+}
+
+body, h1, h2, h3, h4, h5, h6, input, textarea, select, button {
+    font-family: "Tajawal", sans-serif !important;
+}
+
+/* =========================
+   Tailwind
+   ========================= */
+@import "tailwindcss";
+
+/* =========================
+   Base
+   ========================= */
+@layer base {
+    html {
+        scroll-behavior: smooth;
+    }
+
+    body {
+        @apply bg-gray-50 text-gray-900;
+    }
+
+    .rtl {
+        direction: rtl;
+    }
+
+    .ltr {
+        direction: ltr;
+    }
+
+    button {
+        @apply bg-transparent;
+    }
+}
+
+/* =========================
+   Components
+   ========================= */
+@layer components {
+    /*الحاوية الرئيسية للفورم*/
+
+    /*.form-container {
+        @apply w-full bg-gray-50 border border-gray-200 rounded-lg shadow p-4 md:p-6;
+    }*/
+
+    .form-container {
+        @apply w-full bg-gray-100 border border-gray-400 rounded-lg shadow p-4 md:p-8;
+    }
+
+    .form-header {
+        @apply flex items-center justify-between border-b border-gray-200 pb-3 mb-4;
+    }
+
+    .form-title {
+        @apply text-lg md:text-xl text-gray-600 flex items-center gap-2;
+    }
+
+    .form-icon {
+        @apply text-emerald-600 text-xl;
+    }
+
+    /* أقسام النموذج */
+    .form-section {
+        @apply col-span-12 rounded-xl border border-gray-200 bg-white p-4 md:p-6 shadow-sm;
+    }
+
+    .form-legend {
+        @apply inline-flex items-center gap-2 -mt-6 bg-white px-3 text-lg font-semibold text-gray-800;
+    }
+
+    .form-row {
+        @apply grid grid-cols-12 gap-6 sm:gap-8;
+    }
+
+    /* الحقول */
+    .form-group {
+        @apply col-span-12;
+    }
+
+    .form-label {
+        @apply block mb-1.5 text-sm font-medium text-gray-800;
+    }
+
+    .form-help {
+        @apply mt-1 text-xs text-gray-500;
+    }
+
+    .form-error {
+        @apply mt-1 text-xs text-red-600;
+    }
+
+    .req {
+        @apply text-red-500;
+    }
+
+    .input {
+        @apply block w-full rounded-md border border-gray-300 bg-white text-gray-900 text-base px-2 py-2 focus:ring-1 focus:ring-emerald-600 focus:border-emerald-600 disabled:bg-gray-100 disabled:text-gray-500 shadow-sm;
+        font-family: "Tajawal", sans-serif;
+    }
+
+    /* شريط الأزرار */
+    .actions-bar {
+        @apply col-span-12 mt-5 border-t border-gray-200 pt-4;
+    }
+
+    .actions-inner {
+        @apply flex flex-col md:flex-row flex-wrap justify-end items-center gap-2.5 md:gap-3;
+    }
+
+    /* عناوين الأقسام */
+    .section-title {
+        @apply text-lg md:text-xl font-medium text-gray-700 bg-gray-200 rounded-md px-2 py-1.5 mb-3 relative pl-4;
+        font-family: "Tajawal", sans-serif;
+        font-weight: 500;
+    }
+
+        .section-title::before {
+            content: "";
+            @apply absolute left-0 top-0 h-full w-1 bg-emerald-500 rounded-l-md;
+        }
+
+    /*.form-title {
+        @apply text-xl md:text-2xl font-medium text-gray-700 mb-5 pb-2 border-b border-gray-200 flex items-center gap-2;
+        font-family: "Tajawal", sans-serif;
+        letter-spacing: 0.2px;
+    }*/
+
+    .section-box {
+        @apply col-span-12 border border-gray-300 rounded-xl bg-white p-4 md:p-6 shadow-sm;
+    }
+
+    .section-legend {
+        @apply inline-block bg-white -mt-6 px-3 text-base md:text-lg font-semibold text-gray-700;
+    }
+
+    .sf-label {
+        @apply block mb-1 text-sm font-medium text-gray-800;
+    }
+
+    .sf-input {
+        @apply w-full rounded-md border border-gray-300 bg-gray-50 text-sm text-gray-900 focus:ring-emerald-500 focus:border-emerald-500;
+    }
+
+    .sf-textarea {
+        @apply w-full rounded-md border border-gray-300 bg-gray-50 text-sm text-gray-900 focus:ring-emerald-500 focus:border-emerald-500 min-h-[120px];
+    }
+
+    .sf-select {
+        @apply relative block w-full rounded-md border border-gray-300 bg-white py-2 ps-2 pe-10 text-gray-900 text-base focus:outline-none focus:ring-1 focus:ring-emerald-600 focus:border-emerald-600 disabled:opacity-60 disabled:cursor-not-allowed shadow-sm transition-colors duration-150;
+        font-family: "Tajawal", sans-serif;
+        text-align: right;
+    }
+
+        .sf-select span.truncate {
+            @apply text-right block text-gray-700;
+        }
+
+    .sf-select-panel {
+        @apply mt-1 w-full rounded-md border border-gray-200 bg-white shadow-lg;
+    }
+
+    .sf-select-radio {
+        @apply inline-block h-4 w-4 rounded-full border border-gray-300 shrink-0;
+    }
+
+        .sf-select-radio.selected {
+            @apply border-emerald-600 bg-emerald-600 shadow-inner;
+        }
+
+    /* الحقول الخاصة بالتاريخ */
+    .sf-date {
+        @apply block w-full rounded-lg border border-gray-300 bg-white text-gray-900 text-base focus:outline-none focus:border-emerald-600 disabled:bg-gray-100 disabled:text-gray-500 shadow-sm transition-colors duration-150;
+        font-family: "Tajawal", sans-serif;
+        direction: ltr;
+        text-align: right;
+    }
+
+    /*صندوق عرض التاريخ واليوم (الميلادي/الهجري)*/
+    .date-info-box {
+        @apply rounded-md border border-emerald-100 bg-emerald-50 p-2 shadow-sm text-sm text-gray-700 space-y-1;
+    }
+
+    .days-counter-box {
+        @apply mt-2 inline-flex items-center gap-2 rounded-md border border-emerald-100 bg-emerald-50 px-3 py-2 text-sm text-gray-700 shadow-sm;
+    }
+
+    /*رفع الملفات*/
+    .sf-file {
+        @apply block w-full rounded-lg border border-gray-300 bg-white text-base text-gray-900 focus:outline-none focus:border-emerald-600 disabled:opacity-60 disabled:cursor-not-allowed shadow-sm transition-colors duration-150;
+        font-family: "Tajawal", sans-serif;
+        padding: 0; /* نشيل الحشو الافتراضي */
+    }
+
+        /* زر اختيار الملف */
+        .sf-file::file-selector-button {
+            @apply bg-emerald-600 text-white text-sm font-medium px-4 py-2 rounded-md border-0 cursor-pointer hover:bg-emerald-700 transition-colors duration-150;
+            margin-inline-start: auto; /* يخليه على اليمين */
+        }
+
+        /* النص بجانب الزر */
+        .sf-file::-webkit-file-upload-text {
+            @apply text-gray-500 text-sm;
+            visibility: hidden; /* نخفي النص الافتراضي (No file chosen) */
+        }
+
+
+    .sf-checkline {
+        @apply flex items-center gap-2 mt-1;
+    }
+
+    .sf-checkbox {
+        @apply w-4 h-4 text-emerald-600 bg-gray-100 border-gray-300 rounded focus:ring-emerald-600;
+    }
+
+    .sf-radio {
+        @apply w-4 h-4 text-emerald-600 border-gray-300 focus:ring-emerald-600;
+    }
+
+
+    /* الأساس */
+    .btn {
+        @apply inline-flex items-center justify-center gap-2 h-8 px-3 md:px-4 rounded-md text-xs font-medium shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-0 disabled:opacity-60 disabled:pointer-events-none;
+    }
+
+    /* الألوان فقط (ما نستعمل @apply btn) */
+    .btn-primary {
+        @apply bg-blue-600 text-white hover:bg-blue-700 focus:ring-blue-400;
+    }
+
+    .btn-secondary {
+        @apply bg-gray-300 text-gray-800 hover:bg-gray-400 focus:ring-gray-500;
+    }
+
+    .btn-success {
+        @apply bg-emerald-600 text-white hover:bg-emerald-700 focus:ring-emerald-400;
+    }
+
+    .btn-danger {
+        @apply bg-red-700 text-white hover:bg-red-800 focus:ring-red-400;
+    }
+
+    .btn-warning {
+        @apply bg-amber-500 text-gray-900 hover:bg-amber-600 focus:ring-amber-400;
+    }
+
+    .btn-info {
+        @apply bg-sky-600 text-white hover:bg-sky-700 focus:ring-sky-400;
+    }
+
+
+
+    input[readonly],
+    textarea[readonly] {
+        @apply bg-gray-200 text-gray-500 cursor-not-allowed;
+    }
+
+
+
+/* =========================
+DataTable Component
+========================= */
+    .sf-table-wrapper {
+        @apply w-full;
+    }
+
+    /* Toolbar */
+    .toolbar {
+        @apply flex flex-col md:flex-row items-stretch md:items-center justify-between gap-2 mb-3;
+    }
+
+    .toolbar-search {
+    @apply flex items-center gap-2 h-8;
+}
+
+
+    .toolbar-actions {
+        @apply flex items-center gap-2 justify-end;
+    }
+
+    .label-sm {
+        @apply text-sm text-gray-600;
+    }
+
+    .search-input {
+        @apply w-full md:w-72 text-sm focus:border-emerald-600;
+    }
+
+    .select-sm {
+        @apply text-xs h-8 w-20 px-2 rounded-md focus:border-emerald-600;
+    }
+
+    .export-btns {
+        @apply flex items-center gap-2;
+    }
+
+    .hidden-md {
+        @apply hidden md:inline;
+    }
+
+    /* Table */
+    .table-box {
+        @apply relative overflow-x-auto rounded-sm border border-gray-300;
+    }
+
+    .sf-table {
+        @apply w-full;
+    }
+
+    .table-head {
+        @apply bg-gray-200 sticky top-0 z-10;
+    }
+
+    .th-cell {
+        @apply px-3 py-2 text-sm font-semibold text-gray-600 select-none;
+    }
+
+    .th-inner {
+        @apply inline-flex items-center gap-1;
+    }
+
+        .th-inner.right {
+            @apply justify-end text-right;
+        }
+
+        .th-inner.center {
+            @apply justify-center text-center;
+        }
+
+        .th-inner.left {
+            @apply justify-start text-left;
+        }
+
+    .sort-icon {
+        @apply text-[12px];
+    }
+
+    /* Table body states */
+    .td-loading {
+        @apply px-3 py-6 text-center text-sm text-gray-500;
+    }
+
+    .td-error {
+        @apply px-3 py-6 text-center text-sm text-red-700;
+    }
+
+    .td-empty {
+        @apply px-3 py-6 text-center text-sm text-gray-500;
+    }
+
+    .tr-row {
+        @apply hover:bg-gray-50;
+    }
+
+    .td-cell {
+        @apply px-3 py-2 text-sm;
+    }
+
+    /* Checkbox selection */
+    .sf-checkbox-row {
+        @apply w-4 h-4 text-emerald-600 bg-gray-100 border-gray-300 rounded focus:ring-emerald-600;
+    }
+
+    .sf-checkbox-all {
+        @apply w-4 h-4 text-emerald-600 bg-gray-100 border-gray-300 rounded focus:ring-emerald-600;
+    }
+
+    /* Actions */
+    .actions-list {
+        @apply flex flex-wrap gap-1 justify-start;
+    }
+
+    /* Pagination */
+    .pagination {
+        @apply flex flex-col md:flex-row items-center justify-between gap-2 mt-3 text-sm text-gray-700;
+    }
+
+    .pagination-info {
+        @apply text-gray-600;
+    }
+
+    .pagination-nav {
+        @apply flex items-center gap-1;
+    }
+
+    .page-text {
+        @apply px-1;
+    }
+
+
+    /* =========================
+   Modal (DataTable Actions)
+   ========================= */
+    .sf-modal-backdrop {
+        @apply fixed inset-0 bg-black/50 flex items-center justify-center z-40;
+    }
+
+    .sf-modal {
+        @apply bg-white rounded-lg shadow-lg w-full max-w-3xl mx-2 md:mx-0 z-50 overflow-hidden;
+    }
+
+    .sf-modal-header {
+        @apply flex items-center justify-between px-4 py-3 border-b border-gray-200;
+    }
+
+    .sf-modal-title {
+        @apply text-lg font-semibold text-gray-800;
+    }
+
+    .sf-modal-close {
+        @apply text-gray-500 hover:text-gray-700 cursor-pointer;
+    }
+
+    .sf-modal-body {
+        @apply p-4 max-h-[70vh] overflow-y-auto;
+    }
+
+    .sf-modal-footer {
+        @apply flex items-center justify-end gap-2 px-4 py-3 border-t border-gray-200;
+    }
+
+    .sf-modal-table {
+        @apply w-full border-collapse;
+    }
+
+        .sf-modal-table th {
+            @apply px-3 py-2 text-sm font-medium text-gray-600 border-b border-gray-200;
+        }
+
+        .sf-modal-table td {
+            @apply px-3 py-2 text-sm border-b border-gray-100;
+        }
+
+
+    /* Checkbox selection */
+    .sf-checkbox-row {
+        @apply w-4 h-4 text-emerald-600 border-gray-300 rounded focus:ring-emerald-600;
+        accent-color: #059669; /* أخضر Tailwind emerald-600 */
+    }
+
+    .sf-checkbox-all {
+        @apply w-4 h-4 text-emerald-600 border-gray-300 rounded focus:ring-emerald-600;
+        accent-color: #059669;
+    }
+
+
+    @media print {
+        /* اخفي كل شيء */
+        body * {
+            visibility: hidden !important;
+        }
+
+        /* اظهر فقط التقرير */
+        .smart-print,
+        .smart-print * {
+            visibility: visible !important;
+        }
+
+        .smart-print {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 100%;
+            margin: 0;
+            padding: 0;
+            background: white;
+        }
+
+        /* فواصل الصفحات */
+        .page-break-before {
+            page-break-before: always;
+        }
+
+        .page-break-after {
+            page-break-after: always;
+        }
+
+        .keep-together {
+            page-break-inside: avoid;
+        }
+
+        /* تحسين شكل الجدول للطباعة */
+        .print-table th,
+        .print-table td {
+            border: 1px solid #ccc !important;
+            padding: 4px 6px !important;
+        }
+
+        /* اخفي النص اللي يطلع من الـ Layout (- SmartFoundation.Mvc) */
+        title,
+        head > title,
+        body:before {
+            display: none !important;
+            content: none !important;
+        }
+
+
+    }
+
+
+}
+
+/* (اختياري) CSS إضافي من Flowbite */
+@import "flowbite";

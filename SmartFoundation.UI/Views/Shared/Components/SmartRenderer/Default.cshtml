@@ -1,0 +1,48 @@
+﻿@*  @model SmartFoundation.UI.ViewModels.SmartPage.SmartPageViewModel
+
+@if (Model.Cards?.Any() == true)
+{
+    @foreach (var card in Model.Cards)
+    {
+        @await Component.InvokeAsync("SmartCard", new { model = card })
+    }
+}
+
+@if (Model.Form is not null)
+{
+    @await Component.InvokeAsync("SmartForm", new { model = Model.Form })
+}  *@
+
+
+@model SmartFoundation.UI.ViewModels.SmartPage.SmartPageViewModel
+
+<!-- ✅ عرض الكروت -->
+@if (Model.Cards?.Any() == true)
+{
+    @foreach (var card in Model.Cards)
+    {
+        @await Component.InvokeAsync("SmartCard", new { model = card })
+    }
+}
+
+<!-- ✅ عرض النموذج -->
+@if (Model.Form is not null)
+{
+    @await Component.InvokeAsync("SmartForm", new { model = Model.Form })
+}
+
+<!-- ✅ عرض التقرير (SmartPrint) -->
+@if (Model.PrintDoc is not null)
+{
+    <div class="mt-10">
+        <h2 class="text-xl font-bold mb-4">📄 نسخة للطباعة</h2>
+
+        @await Component.InvokeAsync("SmartPrint", new { model = Model.PrintDoc })
+
+        <div class="mt-6 flex justify-center">
+            <button onclick="window.print()" class="btn btn-primary">
+                <i class="fa fa-print"></i> طباعة
+            </button>
+        </div>
+    </div>
+}
