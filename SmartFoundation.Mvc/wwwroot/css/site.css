@@ -860,10 +860,6 @@ body, h1, h2, h3, h4, h5, h6, input, textarea, select, button {
   .text-center {
     text-align: center;
   }
-  .text-2xl {
-    font-size: var(--text-2xl);
-    line-height: var(--tw-leading, var(--text-2xl--line-height));
-  }
   .text-lg {
     font-size: var(--text-lg);
     line-height: var(--tw-leading, var(--text-lg--line-height));
@@ -875,10 +871,6 @@ body, h1, h2, h3, h4, h5, h6, input, textarea, select, button {
   .text-xl {
     font-size: var(--text-xl);
     line-height: var(--tw-leading, var(--text-xl--line-height));
-  }
-  .text-xs {
-    font-size: var(--text-xs);
-    line-height: var(--tw-leading, var(--text-xs--line-height));
   }
   .text-\[14px\] {
     font-size: 14px;
@@ -915,9 +907,6 @@ body, h1, h2, h3, h4, h5, h6, input, textarea, select, button {
   .text-emerald-600 {
     color: var(--color-emerald-600);
   }
-  .text-emerald-700 {
-    color: var(--color-emerald-700);
-  }
   .text-emerald-900 {
     color: var(--color-emerald-900);
   }
@@ -939,8 +928,14 @@ body, h1, h2, h3, h4, h5, h6, input, textarea, select, button {
   .text-gray-900 {
     color: var(--color-gray-900);
   }
+  .text-green-600 {
+    color: var(--color-green-600);
+  }
   .text-green-800 {
     color: var(--color-green-800);
+  }
+  .text-red-600 {
+    color: var(--color-red-600);
   }
   .text-red-800 {
     color: var(--color-red-800);
@@ -1260,16 +1255,6 @@ body, h1, h2, h3, h4, h5, h6, input, textarea, select, button {
   .md\:col-span-3 {
     @media (width >= 48rem) {
       grid-column: span 3 / span 3;
-    }
-  }
-  .md\:col-span-4 {
-    @media (width >= 48rem) {
-      grid-column: span 4 / span 4;
-    }
-  }
-  .md\:col-span-6 {
-    @media (width >= 48rem) {
-      grid-column: span 6 / span 6;
     }
   }
   .md\:flex {

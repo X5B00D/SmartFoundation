@@ -8,7 +8,7 @@ namespace SmartFoundation.Mvc.Controllers
     {
         public IActionResult Index()
         {
-            // تعريف الجدول الرئيسي
+            // تعريف الجدول الرئيسي (DataTable)
             var tableField = new FieldConfig
             {
                 Name = "EmployeesTable",
@@ -46,7 +46,7 @@ namespace SmartFoundation.Mvc.Controllers
                         new TableColumn { Field="UpdatedAt", Label="آخر تحديث", Type="datetime", FormatString="{0:yyyy-MM-dd HH:mm}", Sortable=true }
                     },
 
-                    // الإجراءات على كل صف
+                    // الإجراءات على الصفوف
                     RowActions = new List<TableAction>
                     {
                         new TableAction
@@ -139,6 +139,7 @@ namespace SmartFoundation.Mvc.Controllers
                 }
             };
 
+            // نضع الجدول داخل FormConfig
             var form = new FormConfig
             {
                 Title = "قائمة الموظفين",
@@ -147,6 +148,7 @@ namespace SmartFoundation.Mvc.Controllers
                 Fields = new List<FieldConfig> { tableField }
             };
 
+            // ViewModel للصفحة
             var vm = new SmartPageViewModel
             {
                 PageTitle = "الموظفين",
@@ -159,7 +161,7 @@ namespace SmartFoundation.Mvc.Controllers
             return View(vm);
         }
 
-        // يعرض فورم التعديل (أو الإضافة عند id == null)
+        // فورم تعديل/إضافة
         public IActionResult EmployeeForm(int? id)
         {
             var form = new FormConfig
@@ -174,7 +176,6 @@ namespace SmartFoundation.Mvc.Controllers
                 Fields = new List<FieldConfig>
                 {
                     new FieldConfig { Name="EmployeeId", Type="hidden", IsHidden=true, Value = id?.ToString() },
-
                     new FieldConfig { Name="FullName", Label="الاسم", Type="text", Required=true, MaxLength=100, ColCss="6" },
                     new FieldConfig { Name="Email", Label="البريد", Type="text", TextMode="email", Required=true, ColCss="6" },
                     new FieldConfig { Name="NationalId", Label="رقم الهوية", Type="text", Required=true, MaxLength=10, ColCss="6" },

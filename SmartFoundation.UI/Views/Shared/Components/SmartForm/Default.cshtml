@@ -796,102 +796,75 @@ case "datatable":
     <div class="form-group @field.GetResolvedColCss()">
         <div
             x-data='sfTable({
-                endpoint: "@(table.Endpoint ?? "/Smart/Execute")",
+                // API
+                endpoint: "@(table.Endpoint ?? "/smart/execute")",
                 spName: "@(table.StoredProcedureName ?? "")",
                 operation: "@(table.Operation ?? "select")",
 
-                // حجم الصفحة + خيارات الأحجام
+                // الصفحة + الأحجام
                 pageSize: @(table.PageSize > 0 ? table.PageSize : 10),
-                pageSizes: @Html.Raw(JsonSerializer.Serialize(table.PageSizes ?? new List<int> { 5, 10, 25, 50, 100 }, webJson)),
+                pageSizes: @Html.Raw(JsonSerializer.Serialize(table.PageSizes, webJson)),
 
                 // البحث
                 searchable: @table.Searchable.ToString().ToLower(),
-                searchPlaceholder: "@(table.SearchPlaceholder ?? "بحث...")",
-                quickSearchFields: @Html.Raw(JsonSerializer.Serialize(table.QuickSearchFields ?? new List<string> { "fullName","email","phoneNumber","city" }, webJson)),
+                searchPlaceholder: "@(table.SearchPlaceholder ?? "بحث…")",
+                quickSearchFields: @Html.Raw(JsonSerializer.Serialize(table.QuickSearchFields ?? new List<string>(), webJson)),
 
                 // التصدير
-                allowExport: true,
+                allowExport: @table.AllowExport.ToString().ToLower(),
 
                 // رأس/ذيل
-                showHeader: true,
-                showFooter: true,
+                showHeader: @table.ShowHeader.ToString().ToLower(),
+                showFooter: @table.ShowFooter.ToString().ToLower(),
 
                 // تحديث تلقائي بعد الحفظ
-                autoRefresh: true,
+                autoRefresh: @table.AutoRefreshOnSubmit.ToString().ToLower(),
 
-                // أعمدة (مثال)
-                columns: [
-                    { field:"employeeId", label:"ID", sortable:true, width:"60px" },
-                    { field:"fullName", label:"الاسم الكامل", sortable:true },
-                    { field:"email", label:"البريد الإلكتروني", sortable:true },
-                    { field:"phoneNumber", label:"الجوال", sortable:true },
-                    { field:"city", label:"المدينة", sortable:true },
-                    { field:"iban", label:"IBAN" },
-                    { field:"birthDate", label:"تاريخ الميلاد", sortable:true, format:"date" },
-                    { field:"createdAt", label:"تاريخ الإنشاء", format:"datetime" },
-                    { field:"updatedAt", label:"آخر تحديث", format:"datetime" },
-                    { field:"isApproved", label:"موافق؟", format:"bool" }
-                ],
+                // الأعمدة
+                columns: @Html.Raw(JsonSerializer.Serialize(table.Columns, webJson)),
 
                 // الإجراءات داخل الصف
-                actions: [
-                    { key:"view", label:"عرض", icon:"fa fa-eye", color:"secondary", href:"/Employees/Details?id={employeeId}" },
-                    { key:"delete", label:"حذف", icon:"fa fa-trash", color:"danger", op:"delete_employee", confirm:"تأكيد الحذف؟" }
-                ],
+                actions: @Html.Raw(JsonSerializer.Serialize(table.RowActions, webJson)),
 
                 // اختيار متعدد
-                selectable: true,
-                rowIdField: "employeeId",
+                selectable: @table.Selectable.ToString().ToLower(),
+                rowIdField: "@(table.RowIdField ?? "Id")",
 
-                // مفتاح التخزين
-                storageKey: "EmployeesTable",
+                // تجميع
+                groupBy: "@(table.GroupBy ?? "")",
+
+                // التخزين
+                storageKey: "@(table.StorageKey ?? "")",
 
                 // شريط الأدوات
                 toolbar: {
-                    showRefresh: true,
-
-                    showExportExcel: true,
-                    showExportCsv: true,
-
-                    showAdd: true,
-                    add:{ key:"add", label:"إضافة موظف", icon:"fa fa-plus", color:"success",
-                          openModal:true,
-                          openForm:{
-                            formId:"empAdd",
-                            submitText:"حفظ",
-                            fields:[
-                                {name:"fullName", label:"الاسم", type:"text", required:true},
-                                {name:"email", label:"البريد", type:"email"},
-                                {name:"phoneNumber", label:"الجوال", type:"text"},
-                                {name:"city", label:"المدينة", type:"text"},
-                                {name:"iban", label:"IBAN", type:"text"}
-                            ]
-                          },
-                          saveOp:"insert_employee"
-                    },
-
-                    showEdit: true,
-                    edit:{ key:"edit", label:"تعديل موظف", icon:"fa fa-edit", color:"info",
-                           openModal:true, isEdit:true,
-                           formUrl:"/Employees/EditPartial?id={employeeId}",
-                           saveOp:"update_employee"
-                    },
-
-                    showBulkDelete: true,
-                    bulkDeleteOp:"delete_bulk",
-
-                    showAdvancedFilter: false
+                    showAdd: @table.Toolbar.ShowAdd.ToString().ToLower(),
+                    showRefresh: @table.Toolbar.ShowRefresh.ToString().ToLower(),
+                    showColumns: @table.Toolbar.ShowColumns.ToString().ToLower(),
+                    showExportCsv: @table.Toolbar.ShowExportCsv.ToString().ToLower(),
+                    showExportExcel: @table.Toolbar.ShowExportExcel.ToString().ToLower(),
+                    showAdvancedFilter: @table.Toolbar.ShowAdvancedFilter.ToString().ToLower(),
+                    showBulkDelete: @table.Toolbar.ShowBulkDelete.ToString().ToLower(),
+                    add: @Html.Raw(JsonSerializer.Serialize(table.Toolbar.Add, webJson)),
+                    edit: @Html.Raw(JsonSerializer.Serialize(table.Toolbar.Edit, webJson))
                 }
             })'
             x-init="init()"
             x-cloak
             class="sf-table-wrapper">
 
-            <!-- 🔍 شريط الأدوات (بحث + أزرار) -->
+            <!-- 🔍 شريط الأدوات -->
             <div class="toolbar">
                 <div class="toolbar-search" x-show="searchable">
-                    <input type="text" x-model="q" :placeholder="searchPlaceholder" class="sf-input search-input" />
-                    <button type="button" class="btn btn-secondary" x-on:click="refresh()" title="تحديث" x-show="toolbar.showRefresh">
+                    <input type="text" 
+                           x-model="q" 
+                           x-on:input.debounce.500="refresh()" 
+                           :placeholder="searchPlaceholder" 
+                           class="sf-input search-input" />
+                    <button type="button" class="btn btn-secondary" 
+                            x-on:click="refresh()" 
+                            title="تحديث" 
+                            x-show="toolbar.showRefresh">
                         <i class="fa fa-rotate"></i><span class="hidden-md">تحديث</span>
                     </button>
                 </div>
@@ -1080,6 +1053,8 @@ case "datatable":
     </text>
 }
 break;
+
+
 
 
 
