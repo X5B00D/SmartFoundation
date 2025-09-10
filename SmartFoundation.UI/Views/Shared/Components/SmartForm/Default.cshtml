@@ -514,67 +514,75 @@
                             }
                             break;
 
+
+
+
+
 case "datatable":
 {
     var table = field.Table ?? new TableConfig();
+    
+    // إنشاء كائن التهيئة بشكل صحيح
+    var tableConfig = new
+    {
+        // API
+        endpoint = table.Endpoint ?? "/smart/execute",
+        spName = table.StoredProcedureName ?? "",
+        operation = table.Operation ?? "select",
 
-    <text>
+        // الصفحة + الأحجام
+        pageSize = table.PageSize > 0 ? table.PageSize : 10,
+        pageSizes = table.PageSizes ?? new List<int> { 10, 25, 50, 100 },
+
+        // البحث
+        searchable = table.Searchable,
+        searchPlaceholder = table.SearchPlaceholder ?? "بحث…",
+        quickSearchFields = table.QuickSearchFields ?? new List<string>(),
+
+        // التصدير
+        allowExport = table.AllowExport,
+
+        // رأس/ذيل
+        showHeader = table.ShowHeader,
+        showFooter = table.ShowFooter,
+
+        // تحديث تلقائي بعد الحفظ
+        autoRefresh = table.AutoRefreshOnSubmit,
+
+        // الأعمدة
+        columns = table.Columns ?? new List<TableColumn>(),
+
+        // الإجراءات داخل الصف
+        actions = table.RowActions ?? new List<TableAction>(),
+
+        // اختيار متعدد
+        selectable = table.Selectable,
+        rowIdField = table.RowIdField ?? "Id",
+
+        // تجميع
+        groupBy = table.GroupBy ?? "",
+
+        // التخزين
+        storageKey = table.StorageKey ?? "",
+
+        // شريط الأدوات
+        toolbar = new
+        {
+            showAdd = table.Toolbar?.ShowAdd ?? false,
+            showRefresh = table.Toolbar?.ShowRefresh ?? false,
+            showColumns = table.Toolbar?.ShowColumns ?? false,
+            showExportCsv = table.Toolbar?.ShowExportCsv ?? false,
+            showExportExcel = table.Toolbar?.ShowExportExcel ?? false,
+            showAdvancedFilter = table.Toolbar?.ShowAdvancedFilter ?? false,
+            showBulkDelete = table.Toolbar?.ShowBulkDelete ?? false,
+            add = table.Toolbar?.Add,
+            edit = table.Toolbar?.Edit
+        }
+    };
+
     <div class="form-group @field.GetResolvedColCss()">
         <div
-            x-data='sfTable({
-                // API
-                endpoint: "@(table.Endpoint ?? "/smart/execute")",
-                spName: "@(table.StoredProcedureName ?? "")",
-                operation: "@(table.Operation ?? "select")",
-
-                // الصفحة + الأحجام
-                pageSize: @(table.PageSize > 0 ? table.PageSize : 10),
-                pageSizes: @Html.Raw(JsonSerializer.Serialize(table.PageSizes, webJson)),
-
-                // البحث
-                searchable: @table.Searchable.ToString().ToLower(),
-                searchPlaceholder: "@(table.SearchPlaceholder ?? "بحث…")",
-                quickSearchFields: @Html.Raw(JsonSerializer.Serialize(table.QuickSearchFields ?? new List<string>(), webJson)),
-
-                // التصدير
-                allowExport: @table.AllowExport.ToString().ToLower(),
-
-                // رأس/ذيل
-                showHeader: @table.ShowHeader.ToString().ToLower(),
-                showFooter: @table.ShowFooter.ToString().ToLower(),
-
-                // تحديث تلقائي بعد الحفظ
-                autoRefresh: @table.AutoRefreshOnSubmit.ToString().ToLower(),
-
-                // الأعمدة
-                columns: @Html.Raw(JsonSerializer.Serialize(table.Columns, webJson)),
-
-                // الإجراءات داخل الصف
-                actions: @Html.Raw(JsonSerializer.Serialize(table.RowActions, webJson)),
-
-                // اختيار متعدد
-                selectable: @table.Selectable.ToString().ToLower(),
-                rowIdField: "@(table.RowIdField ?? "Id")",
-
-                // تجميع
-                groupBy: "@(table.GroupBy ?? "")",
-
-                // التخزين
-                storageKey: "@(table.StorageKey ?? "")",
-
-                // شريط الأدوات
-                toolbar: {
-                    showAdd: @table.Toolbar.ShowAdd.ToString().ToLower(),
-                    showRefresh: @table.Toolbar.ShowRefresh.ToString().ToLower(),
-                    showColumns: @table.Toolbar.ShowColumns.ToString().ToLower(),
-                    showExportCsv: @table.Toolbar.ShowExportCsv.ToString().ToLower(),
-                    showExportExcel: @table.Toolbar.ShowExportExcel.ToString().ToLower(),
-                    showAdvancedFilter: @table.Toolbar.ShowAdvancedFilter.ToString().ToLower(),
-                    showBulkDelete: @table.Toolbar.ShowBulkDelete.ToString().ToLower(),
-                    add: @Html.Raw(JsonSerializer.Serialize(table.Toolbar.Add, webJson)),
-                    edit: @Html.Raw(JsonSerializer.Serialize(table.Toolbar.Edit, webJson))
-                }
-            })'
+            x-data='sfTable(@Html.Raw(JsonSerializer.Serialize(tableConfig, webJson)))'
             x-init="init()"
             x-cloak
             class="sf-table-wrapper">
@@ -619,9 +627,10 @@ case "datatable":
                     <template x-if="toolbar.showAdd && toolbar.add">
                         <button type="button"
                                 class="btn"
-                                :class="'btn-' + (toolbar.add.color||'success')"
+                                :class="'btn-' + (toolbar.add?.color ?? 'success')"
                                 x-on:click="doAction(toolbar.add, null)">
-                            <i :class="toolbar.add.icon"></i> <span x-text="toolbar.add.label"></span>
+                            <i :class="toolbar.add?.icon ?? ''"></i> 
+                            <span x-text="toolbar.add?.label ?? ''"></span>
                         </button>
                     </template>
 
@@ -629,10 +638,11 @@ case "datatable":
                     <template x-if="toolbar.showEdit && toolbar.edit">
                         <button type="button"
                                 class="btn"
-                                :class="'btn-' + (toolbar.edit.color||'info')"
+                                :class="'btn-' + (toolbar.edit?.color ?? 'info')"
                                 x-on:click="doAction(toolbar.edit, getSingleSelection())"
                                 :disabled="selectedKeys.size !== 1">
-                            <i :class="toolbar.edit.icon"></i> <span x-text="toolbar.edit.label"></span>
+                            <i :class="toolbar.edit?.icon ?? ''"></i> 
+                            <span x-text="toolbar.edit?.label ?? ''"></span>
                         </button>
                     </template>
 
@@ -719,7 +729,8 @@ case "datatable":
                                         <template x-for="act in actions" :key="act.label">
                                             <button type="button" class="btn"
                                                     :class="'btn-' + (act.color||'secondary')"
-                                                    x-on:click="doAction(act, row)" x-show="act.show">
+                                                    x-on:click="doAction(act, row)" 
+                                                    x-show="act.show !== false">
                                                 <i :class="act.icon"></i> <span x-text="act.label"></span>
                                             </button>
                                         </template>
@@ -776,9 +787,11 @@ case "datatable":
 
         </div>
     </div>
-    </text>
 }
 break;
+
+
+
 
                     }
 

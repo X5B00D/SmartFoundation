@@ -883,10 +883,6 @@ body, h1, h2, h3, h4, h5, h6, input, textarea, select, button {
     --tw-leading: calc(var(--spacing) * 9);
     line-height: calc(var(--spacing) * 9);
   }
-  .font-bold {
-    --tw-font-weight: var(--font-weight-bold);
-    font-weight: var(--font-weight-bold);
-  }
   .font-medium {
     --tw-font-weight: var(--font-weight-medium);
     font-weight: var(--font-weight-medium);
@@ -1915,25 +1911,33 @@ body, h1, h2, h3, h4, h5, h6, input, textarea, select, button {
     align-items: center;
     gap: calc(var(--spacing) * 2);
   }
-  .sf-checkbox {
+  .sf-checkbox, .sf-checkbox-row, .sf-checkbox-all, input[type="checkbox"] {
     height: calc(var(--spacing) * 4);
     width: calc(var(--spacing) * 4);
+    cursor: pointer;
     border-radius: 0.25rem;
-    border-color: var(--color-gray-300);
-    background-color: var(--color-gray-100);
-    color: var(--color-emerald-600);
-    &:focus {
-      --tw-ring-color: var(--color-emerald-600);
-    }
+    appearance: none;
+    border: 1px solid #ccc;
+    background-color: #fff;
+    accent-color: #059669;
   }
-  .sf-radio {
+  .sf-checkbox:checked, .sf-checkbox-row:checked, .sf-checkbox-all:checked, input[type="checkbox"]:checked {
+    background-color: #059669;
+    border-color: #059669;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 16 16' fill='white' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M6.173 11.414L3.05 8.293l1.414-1.414L6.173 8.586l5.364-5.364 1.414 1.414z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: 70%;
+  }
+  .sf-radio, input[type="radio"] {
     height: calc(var(--spacing) * 4);
     width: calc(var(--spacing) * 4);
-    border-color: var(--color-gray-300);
-    color: var(--color-emerald-600);
-    &:focus {
-      --tw-ring-color: var(--color-emerald-600);
-    }
+    cursor: pointer;
+    border-radius: calc(infinity * 1px);
+    appearance: none;
+    border: 1px solid #ccc;
+    background-color: #fff;
+    accent-color: #059669;
   }
   .btn {
     display: inline-flex;
@@ -2200,28 +2204,6 @@ body, h1, h2, h3, h4, h5, h6, input, textarea, select, button {
     font-size: var(--text-sm);
     line-height: var(--tw-leading, var(--text-sm--line-height));
   }
-  .sf-checkbox-row {
-    height: calc(var(--spacing) * 4);
-    width: calc(var(--spacing) * 4);
-    border-radius: 0.25rem;
-    border-color: var(--color-gray-300);
-    background-color: var(--color-gray-100);
-    color: var(--color-emerald-600);
-    &:focus {
-      --tw-ring-color: var(--color-emerald-600);
-    }
-  }
-  .sf-checkbox-all {
-    height: calc(var(--spacing) * 4);
-    width: calc(var(--spacing) * 4);
-    border-radius: 0.25rem;
-    border-color: var(--color-gray-300);
-    background-color: var(--color-gray-100);
-    color: var(--color-emerald-600);
-    &:focus {
-      --tw-ring-color: var(--color-emerald-600);
-    }
-  }
   .actions-list {
     display: flex;
     flex-wrap: wrap;
@@ -2345,62 +2327,6 @@ body, h1, h2, h3, h4, h5, h6, input, textarea, select, button {
     padding-block: calc(var(--spacing) * 2);
     font-size: var(--text-sm);
     line-height: var(--tw-leading, var(--text-sm--line-height));
-  }
-  .sf-checkbox-row {
-    height: calc(var(--spacing) * 4);
-    width: calc(var(--spacing) * 4);
-    border-radius: 0.25rem;
-    border-color: var(--color-gray-300);
-    color: var(--color-emerald-600);
-    &:focus {
-      --tw-ring-color: var(--color-emerald-600);
-    }
-    accent-color: #059669;
-  }
-  .sf-checkbox-all {
-    height: calc(var(--spacing) * 4);
-    width: calc(var(--spacing) * 4);
-    border-radius: 0.25rem;
-    border-color: var(--color-gray-300);
-    color: var(--color-emerald-600);
-    &:focus {
-      --tw-ring-color: var(--color-emerald-600);
-    }
-    accent-color: #059669;
-  }
-  @media print {
-    body * {
-      visibility: hidden !important;
-    }
-    .smart-print, .smart-print * {
-      visibility: visible !important;
-    }
-    .smart-print {
-      position: absolute;
-      left: 0;
-      top: 0;
-      width: 100%;
-      margin: 0;
-      padding: 0;
-      background: white;
-    }
-    .page-break-before {
-      page-break-before: always;
-    }
-    .page-break-after {
-      page-break-after: always;
-    }
-    .keep-together {
-      page-break-inside: avoid;
-    }
-    .print-table th, .print-table td {
-      border: 1px solid #ccc !important;
-      padding: 4px 6px !important;
-    }
-    title, head > title, body:before {
-      display: none !important;
-      content: none !important;
-    }
   }
 }
 /*! tailwindcss v4.0.0-beta.10 | MIT License | https://tailwindcss.com */

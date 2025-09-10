@@ -55,12 +55,7 @@ body, h1, h2, h3, h4, h5, h6, input, textarea, select, button {
    Components
    ========================= */
 @layer components {
-    /*الحاوية الرئيسية للفورم*/
-
-    /*.form-container {
-        @apply w-full bg-gray-50 border border-gray-200 rounded-lg shadow p-4 md:p-6;
-    }*/
-
+    /* الحاوية الرئيسية للفورم */
     .form-container {
         @apply w-full bg-gray-100 border border-gray-400 rounded-lg shadow p-4 md:p-8;
     }
@@ -137,12 +132,6 @@ body, h1, h2, h3, h4, h5, h6, input, textarea, select, button {
             @apply absolute left-0 top-0 h-full w-1 bg-emerald-500 rounded-l-md;
         }
 
-    /*.form-title {
-        @apply text-xl md:text-2xl font-medium text-gray-700 mb-5 pb-2 border-b border-gray-200 flex items-center gap-2;
-        font-family: "Tajawal", sans-serif;
-        letter-spacing: 0.2px;
-    }*/
-
     .section-box {
         @apply col-span-12 border border-gray-300 rounded-xl bg-white p-4 md:p-6 shadow-sm;
     }
@@ -193,7 +182,7 @@ body, h1, h2, h3, h4, h5, h6, input, textarea, select, button {
         text-align: right;
     }
 
-    /*صندوق عرض التاريخ واليوم (الميلادي/الهجري)*/
+    /*صندوق عرض التاريخ*/
     .date-info-box {
         @apply rounded-md border border-emerald-100 bg-emerald-50 p-2 shadow-sm text-sm text-gray-700 space-y-1;
     }
@@ -202,45 +191,66 @@ body, h1, h2, h3, h4, h5, h6, input, textarea, select, button {
         @apply mt-2 inline-flex items-center gap-2 rounded-md border border-emerald-100 bg-emerald-50 px-3 py-2 text-sm text-gray-700 shadow-sm;
     }
 
-    /*رفع الملفات*/
+    /* رفع الملفات */
     .sf-file {
         @apply block w-full rounded-lg border border-gray-300 bg-white text-base text-gray-900 focus:outline-none focus:border-emerald-600 disabled:opacity-60 disabled:cursor-not-allowed shadow-sm transition-colors duration-150;
         font-family: "Tajawal", sans-serif;
-        padding: 0; /* نشيل الحشو الافتراضي */
+        padding: 0;
     }
 
-        /* زر اختيار الملف */
         .sf-file::file-selector-button {
             @apply bg-emerald-600 text-white text-sm font-medium px-4 py-2 rounded-md border-0 cursor-pointer hover:bg-emerald-700 transition-colors duration-150;
-            margin-inline-start: auto; /* يخليه على اليمين */
+            margin-inline-start: auto;
         }
 
-        /* النص بجانب الزر */
         .sf-file::-webkit-file-upload-text {
             @apply text-gray-500 text-sm;
-            visibility: hidden; /* نخفي النص الافتراضي (No file chosen) */
+            visibility: hidden;
         }
-
 
     .sf-checkline {
         @apply flex items-center gap-2 mt-1;
     }
 
-    .sf-checkbox {
-        @apply w-4 h-4 text-emerald-600 bg-gray-100 border-gray-300 rounded focus:ring-emerald-600;
+    /* ✅ Checkbox */
+    .sf-checkbox,
+    .sf-checkbox-row,
+    .sf-checkbox-all,
+    input[type="checkbox"] {
+        @apply w-4 h-4 rounded cursor-pointer;
+        appearance: none;
+        border: 1px solid #ccc;
+        background-color: #fff;
+        accent-color: #059669;
     }
 
-    .sf-radio {
-        @apply w-4 h-4 text-emerald-600 border-gray-300 focus:ring-emerald-600;
+        .sf-checkbox:checked,
+        .sf-checkbox-row:checked,
+        .sf-checkbox-all:checked,
+        input[type="checkbox"]:checked {
+            background-color: #059669;
+            border-color: #059669;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 16 16' fill='white' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M6.173 11.414L3.05 8.293l1.414-1.414L6.173 8.586l5.364-5.364 1.414 1.414z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: center;
+            background-size: 70%;
+        }
+
+    /* ✅ Radio */
+    .sf-radio,
+    input[type="radio"] {
+        @apply w-4 h-4 rounded-full cursor-pointer;
+        appearance: none;
+        border: 1px solid #ccc;
+        background-color: #fff;
+        accent-color: #059669;
     }
 
-
-    /* الأساس */
+    /* الأزرار */
     .btn {
         @apply inline-flex items-center justify-center gap-2 h-8 px-3 md:px-4 rounded-md text-xs font-medium shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-0 disabled:opacity-60 disabled:pointer-events-none;
     }
 
-    /* الألوان فقط (ما نستعمل @apply btn) */
     .btn-primary {
         @apply bg-blue-600 text-white hover:bg-blue-700 focus:ring-blue-400;
     }
@@ -265,77 +275,68 @@ body, h1, h2, h3, h4, h5, h6, input, textarea, select, button {
         @apply bg-sky-600 text-white hover:bg-sky-700 focus:ring-sky-400;
     }
 
-
-
     input[readonly],
     textarea[readonly] {
         @apply bg-gray-200 text-gray-500 cursor-not-allowed;
     }
 
-
-
-/* =========================
-Enhanced DataTable Component
-========================= */
+    /* =========================
+       DataTable Component
+       ========================= */
     .sf-table-wrapper {
         @apply w-full;
     }
 
-    /* Enhanced Toolbar */
     .toolbar {
-        @apply flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-3 mb-4 p-4 bg-gradient-to-r from-white to-gray-50 rounded-lg border border-gray-200 shadow-sm;
+        @apply flex flex-col md:flex-row items-stretch md:items-center justify-between gap-2 mb-3;
     }
 
     .toolbar-search {
-        @apply flex flex-1 items-center gap-3 min-w-0;
+        @apply flex items-center gap-2 h-8;
     }
 
     .toolbar-actions {
-        @apply flex items-center gap-2 justify-end flex-wrap;
+        @apply flex items-center gap-2 justify-end;
     }
 
     .label-sm {
-        @apply text-sm text-gray-600 whitespace-nowrap font-medium;
+        @apply text-sm text-gray-600;
     }
 
     .search-input {
-        @apply flex-1 min-w-0 lg:max-w-sm text-sm focus:border-emerald-600 focus:ring-2 focus:ring-emerald-200 transition-all duration-200 rounded-lg shadow-sm;
+        @apply w-full md:w-72 text-sm focus:border-emerald-600;
     }
 
     .select-sm {
-        @apply text-xs h-8 w-20 px-2 rounded-md focus:border-emerald-600 focus:ring-2 focus:ring-emerald-200 transition-all duration-200 shadow-sm;
+        @apply text-xs h-8 w-20 px-2 rounded-md focus:border-emerald-600;
     }
 
     .export-btns {
-        @apply flex items-center gap-1;
+        @apply flex items-center gap-2;
     }
 
     .hidden-md {
         @apply hidden md:inline;
     }
 
-    /* Enhanced Table */
     .table-box {
-        @apply relative overflow-auto rounded-lg border border-gray-300 shadow-sm bg-white;
-        max-height: calc(100vh - 300px);
+        @apply relative overflow-x-auto rounded-sm border border-gray-300;
     }
 
     .sf-table {
-        @apply w-full min-w-full border-collapse;
+        @apply w-full;
     }
 
     .table-head {
-        @apply bg-gradient-to-r from-gray-50 to-gray-100 sticky top-0 z-20;
+        @apply bg-gray-200 sticky top-0 z-10;
     }
 
     .th-cell {
-        @apply px-4 py-3 text-sm font-semibold text-gray-700 select-none border-b-2 border-gray-300 whitespace-nowrap;
-        position: relative;
-        background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+        @apply px-3 py-2 text-sm font-semibold text-gray-600 select-none;
     }
 
     .th-inner {
-        @apply inline-flex items-center gap-2 min-w-0;
+        @apply inline-flex items-center gap-1;
     }
 
         .th-inner.right {
@@ -351,118 +352,39 @@ Enhanced DataTable Component
         }
 
     .sort-icon {
-        @apply text-xs text-gray-400 hover:text-emerald-600 transition-colors;
+        @apply text-[12px];
     }
 
-    /* Table body states */
     .td-loading {
-        @apply px-4 py-8 text-center text-sm text-gray-500 bg-gray-50;
+        @apply px-3 py-6 text-center text-sm text-gray-500;
     }
 
     .td-error {
-        @apply px-4 py-8 text-center text-sm text-red-700 bg-red-50 border border-red-200 rounded-md;
+        @apply px-3 py-6 text-center text-sm text-red-700;
     }
 
     .td-empty {
-        @apply px-4 py-8 text-center text-sm text-gray-500 bg-gray-50;
+        @apply px-3 py-6 text-center text-sm text-gray-500;
     }
 
-    /* Enhanced table rows مع تحسينات جديدة */
     .tr-row {
-        @apply transition-all duration-200 border-b border-gray-100;
-    }
-
-    .tr-row:hover {
-        @apply bg-gradient-to-r from-blue-50 to-indigo-50 shadow-sm transform scale-[1.001];
-    }
-
-    .tr-row.selected {
-        @apply bg-gradient-to-r from-emerald-50 to-green-50 border-emerald-200 shadow-md ring-1 ring-emerald-200;
-    }
-
-    .tr-row:nth-child(even) {
-        @apply bg-gray-25;
-    }
-
-    .tr-row:nth-child(odd) {
-        @apply bg-white;
-    }
-
-    .tr-row.striped:nth-child(even) {
-        @apply bg-gray-50;
-    }
-
-    .tr-row.striped:nth-child(even):hover {
-        @apply bg-gradient-to-r from-blue-75 to-indigo-75;
+        @apply hover:bg-gray-50;
     }
 
     .td-cell {
-        @apply px-4 py-3 text-sm whitespace-nowrap border-l border-gray-100 last:border-l-0 transition-colors duration-200;
+        @apply px-3 py-2 text-sm;
     }
 
-    /* إضافة ظلال خفيفة للخلايا عند التحويم */
-    .tr-row:hover .td-cell {
-        @apply shadow-sm;
-    }
-
-    /* تحسين الحدود */
-    .tr-row:last-child {
-        @apply border-b-2 border-gray-200;
-    }
-
-    /* Density variations */
-    .density-compact .th-cell {
-        @apply px-2 py-1;
-    }
-
-    .density-compact .td-cell {
-        @apply px-2 py-1 text-xs;
-    }
-
-    .density-comfortable .th-cell {
-        @apply px-6 py-4;
-    }
-
-    .density-comfortable .td-cell {
-        @apply px-6 py-4;
-    }
-
-    /* Enhanced checkbox selection */
-    .sf-checkbox-row {
-        @apply w-4 h-4 text-emerald-600 bg-gray-100 border-gray-300 rounded focus:ring-emerald-600 transition-colors;
-        accent-color: #059669;
-    }
-
-    .sf-checkbox-all {
-        @apply w-4 h-4 text-emerald-600 bg-gray-100 border-gray-300 rounded focus:ring-emerald-600 transition-colors;
-        accent-color: #059669;
-    }
-
-    /* Enhanced actions */
     .actions-list {
-        @apply flex flex-wrap gap-1 justify-start items-center;
+        @apply flex flex-wrap gap-1 justify-start;
     }
 
-    .action-btn {
-        @apply inline-flex items-center gap-1 px-2 py-1 text-xs rounded transition-all duration-200 hover:scale-105;
-    }
-
-    /* Column filters */
-    .column-filter {
-        @apply absolute top-full left-0 right-0 p-2 bg-white border-t border-gray-200 shadow-lg z-30;
-    }
-
-    .filter-input {
-        @apply w-full text-xs px-2 py-1 border border-gray-300 rounded focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500;
-    }
-
-    /* Enhanced Pagination */
     .pagination {
-        @apply flex flex-col md:flex-row items-center justify-between gap-3 mt-4 p-3 bg-white rounded-lg border border-gray-200 text-sm text-gray-700;
+        @apply flex flex-col md:flex-row items-center justify-between gap-2 mt-3 text-sm text-gray-700;
     }
 
     .pagination-info {
-        @apply text-gray-600 flex items-center gap-2;
+        @apply text-gray-600;
     }
 
     .pagination-nav {
@@ -470,170 +392,38 @@ Enhanced DataTable Component
     }
 
     .page-text {
-        @apply px-2 py-1 text-gray-600 whitespace-nowrap;
+        @apply px-1;
     }
 
-    .page-btn {
-        @apply px-3 py-1 rounded border border-gray-300 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors;
-    }
-
-    .page-btn.active {
-        @apply bg-emerald-600 text-white border-emerald-600 hover:bg-emerald-700;
-    }
-
-    /* Quick page jumper */
-    .page-jumper {
-        @apply flex items-center gap-2;
-    }
-
-    .page-input {
-        @apply w-16 px-2 py-1 text-center border border-gray-300 rounded text-sm focus:border-emerald-500;
-    }
-
-    /* Row numbers */
-    .row-number {
-        @apply text-gray-400 text-xs font-mono;
-    }
-
-    /* Frozen columns */
-    .frozen-left {
-        @apply sticky left-0 z-10 bg-white border-r border-gray-300;
-    }
-
-    .frozen-right {
-        @apply sticky right-0 z-10 bg-white border-l border-gray-300;
-    }
-
-    /* Group headers */
-    .group-header {
-        @apply bg-gray-50 font-semibold border-b-2 border-gray-300 sticky top-0 z-15;
-    }
-
-    .group-toggle {
-        @apply w-4 h-4 text-gray-500 hover:text-gray-700 cursor-pointer transition-colors;
-    }
-
-    /* Inline editing */
-    .inline-edit {
-        @apply w-full border-0 bg-transparent focus:bg-white focus:border focus:border-emerald-500 focus:rounded px-1 -mx-1;
-    }
-
-    .edit-mode {
-        @apply bg-yellow-50 border border-yellow-300;
-    }
-
-    /* Loading overlay */
-    .loading-overlay {
-        @apply absolute inset-0 bg-white bg-opacity-75 flex items-center justify-center z-40;
-    }
-
-    .loading-spinner {
-        @apply w-8 h-8 text-emerald-600 animate-spin;
-    }
-
-    /* Fullscreen mode */
-    .fullscreen-table {
-        @apply fixed inset-0 z-50 bg-white p-4 overflow-auto;
-    }
-
-    .fullscreen-header {
-        @apply flex items-center justify-between pb-4 mb-4 border-b border-gray-200;
-    }
-
-    /* Column visibility dialog */
-    .columns-dialog {
-        @apply absolute top-full right-0 mt-2 w-64 bg-white border border-gray-200 rounded-lg shadow-lg z-50 p-4;
-    }
-
-    .column-item {
-        @apply flex items-center gap-2 py-1;
-    }
-
-    .column-checkbox {
-        @apply w-4 h-4 text-emerald-600 border-gray-300 rounded focus:ring-emerald-600;
-    }
-
-    /* Advanced filters dialog */
-    .filters-dialog {
-        @apply fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50;
-    }
-
-    .filters-content {
-        @apply bg-white rounded-lg shadow-xl max-w-2xl w-full mx-4 max-h-[80vh] overflow-auto;
-    }
-
-    .filters-header {
-        @apply flex items-center justify-between p-4 border-b border-gray-200;
-    }
-
-    .filters-body {
-        @apply p-4 space-y-4;
-    }
-
-    .filter-row {
-        @apply grid grid-cols-12 gap-3 items-end;
-    }
-
-    .filter-field {
-        @apply col-span-3;
-    }
-
-    .filter-operator {
-        @apply col-span-3;
-    }
-
-    .filter-value {
-        @apply col-span-4;
-    }
-
-    .filter-actions {
-        @apply col-span-2 flex gap-1;
-    }
-
-    /* Context menu */
-    .context-menu {
-        @apply absolute bg-white border border-gray-200 rounded-lg shadow-lg py-1 z-50 min-w-32;
-    }
-
-    .context-item {
-        @apply px-3 py-2 text-sm hover:bg-gray-50 cursor-pointer flex items-center gap-2;
-    }
-
-    .context-item:hover {
-        @apply bg-gray-50;
-    }
-
-    .context-item.disabled {
-        @apply opacity-50 cursor-not-allowed;
-    }
-
-    /* Enhanced Modal */
+    /* =========================
+       Modal (DataTable Actions)
+       ========================= */
     .sf-modal-backdrop {
-        @apply fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4;
+        @apply fixed inset-0 bg-black/50 flex items-center justify-center z-40;
     }
 
     .sf-modal {
-        @apply bg-white rounded-lg shadow-xl w-full max-w-4xl max-h-[90vh] overflow-hidden;
+        @apply bg-white rounded-lg shadow-lg w-full max-w-3xl mx-2 md:mx-0 z-50 overflow-hidden;
     }
 
     .sf-modal-header {
-        @apply flex items-center justify-between px-6 py-4 border-b border-gray-200 bg-gray-50;
+        @apply flex items-center justify-between px-4 py-3 border-b border-gray-200;
     }
 
     .sf-modal-title {
-        @apply text-lg font-semibold text-gray-800 flex items-center gap-2;
+        @apply text-lg font-semibold text-gray-800;
     }
 
     .sf-modal-close {
-        @apply text-gray-500 hover:text-gray-700 cursor-pointer p-1 rounded hover:bg-gray-200 transition-colors;
+        @apply text-gray-500 hover:text-gray-700 cursor-pointer;
     }
 
     .sf-modal-body {
-        @apply p-6 max-h-[60vh] overflow-y-auto;
+        @apply p-4 max-h-[70vh] overflow-y-auto;
     }
 
     .sf-modal-footer {
-        @apply flex items-center justify-end gap-3 px-6 py-4 border-t border-gray-200 bg-gray-50;
+        @apply flex items-center justify-end gap-2 px-4 py-3 border-t border-gray-200;
     }
 
     .sf-modal-table {
@@ -641,285 +431,12 @@ Enhanced DataTable Component
     }
 
         .sf-modal-table th {
-            @apply px-4 py-3 text-sm font-medium text-gray-600 border-b border-gray-200 bg-gray-50;
+            @apply px-3 py-2 text-sm font-medium text-gray-600 border-b border-gray-200;
         }
 
         .sf-modal-table td {
-            @apply px-4 py-3 text-sm border-b border-gray-100;
+            @apply px-3 py-2 text-sm border-b border-gray-100;
         }
-
-    /* Badge enhancements */
-    .badge {
-        @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium;
-    }
-
-    .badge-success {
-        @apply bg-green-100 text-green-800;
-    }
-
-    .badge-danger {
-        @apply bg-red-100 text-red-800;
-    }
-
-    .badge-warning {
-        @apply bg-yellow-100 text-yellow-800;
-    }
-
-    .badge-info {
-        @apply bg-blue-100 text-blue-800;
-    }
-
-    .badge-secondary {
-        @apply bg-gray-100 text-gray-800;
-    }
-
-    /* Responsive enhancements */
-    @media (max-width: 768px) {
-        .sf-table-wrapper {
-            @apply text-xs;
-        }
-
-        .toolbar {
-            @apply flex-col gap-2;
-        }
-
-        .toolbar-actions {
-            @apply w-full justify-between;
-        }
-
-        .th-cell,
-        .td-cell {
-            @apply px-2 py-2;
-        }
-
-        .actions-list {
-            @apply flex-col gap-1;
-        }
-
-        .pagination {
-            @apply flex-col gap-2;
-        }
-
-        .pagination-nav {
-            @apply flex-wrap justify-center;
-        }
-    }
-
-    /* Dark theme support */
-    .dark .sf-table-wrapper {
-        @apply text-gray-100;
-    }
-
-    .dark .table-box {
-        @apply bg-gray-800 border-gray-600;
-    }
-
-    .dark .table-head {
-        @apply bg-gray-700;
-    }
-
-    .dark .th-cell {
-        @apply text-gray-200 border-gray-600;
-    }
-
-    .dark .tr-row:hover {
-        @apply bg-gray-700;
-    }
-
-    .dark .td-cell {
-        @apply border-gray-700;
-    }
-
-    .dark .toolbar {
-        @apply bg-gray-800 border-gray-600;
-    }
-
-    .dark .pagination {
-        @apply bg-gray-800 border-gray-600;
-    }
-
-    /* Accessibility enhancements */
-    .sr-only {
-        @apply absolute w-px h-px p-0 -m-px overflow-hidden whitespace-nowrap border-0;
-        clip: rect(0, 0, 0, 0);
-    }
-
-    /* Focus styles for keyboard navigation */
-    .sf-table:focus-within .tr-row:focus {
-        @apply ring-2 ring-emerald-500 ring-opacity-50;
-    }
-
-    .keyboard-focused {
-        @apply ring-2 ring-emerald-500 ring-opacity-50;
-    }
-
-    /* High contrast mode */
-    .high-contrast .sf-table {
-        @apply border-2 border-black;
-    }
-
-    .high-contrast .th-cell,
-    .high-contrast .td-cell {
-        @apply border border-black;
-    }
-
-    .high-contrast .tr-row:hover {
-        @apply bg-yellow-200;
-    }
-
-    /* Animation classes */
-    .fade-in {
-        animation: fadeIn 0.3s ease-in-out;
-    }
-
-    .slide-down {
-        animation: slideDown 0.3s ease-out;
-    }
-
-    .scale-in {
-        animation: scaleIn 0.2s ease-out;
-    }
-
-    @keyframes fadeIn {
-        from { opacity: 0; }
-        to { opacity: 1; }
-    }
-
-    @keyframes slideDown {
-        from { transform: translateY(-10px); opacity: 0; }
-        to { transform: translateY(0); opacity: 1; }
-    }
-
-    @keyframes scaleIn {
-        from { transform: scale(0.95); opacity: 0; }
-        to { transform: scale(1); opacity: 1; }
-    }
-
-    /* Print optimizations */
-    @media print {
-        .sf-table-wrapper {
-            @apply shadow-none border-0;
-        }
-
-        .toolbar,
-        .pagination,
-        .actions-list {
-            @apply hidden;
-        }
-
-        .sf-table {
-            @apply border border-black;
-        }
-
-        .th-cell,
-        .td-cell {
-            @apply border border-black px-2 py-1;
-        }
-
-        .tr-row {
-            @apply border-0;
-        }
-
-        /* Page breaks */
-        .page-break-before {
-            page-break-before: always;
-        }
-
-        .page-break-after {
-            page-break-after: always;
-        }
-
-        .keep-together {
-            page-break-inside: avoid;
-        }
-
-        /* Hide interactive elements */
-        .sf-checkbox-row,
-        .sf-checkbox-all {
-            @apply hidden;
-        }
-    }
-
-    /* Utility classes للألوان الإضافية */
-    .bg-gray-25 {
-        background-color: #fafafa;
-    }
-
-    .bg-blue-25 {
-        background-color: #f8faff;
-    }
-
-    .bg-blue-75 {
-        background-color: #e0f2fe;
-    }
-
-    .bg-indigo-75 {
-        background-color: #e0e7ff;
-    }
-
-    /* تحسينات إضافية للصفوف */
-    .tr-row-interactive {
-        @apply cursor-pointer;
-    }
-
-    .tr-row-interactive:hover {
-        @apply transform scale-[1.002] shadow-md;
-    }
-
-    /* تأثيرات خاصة للصفوف المحددة */
-    .tr-row.selected {
-        animation: selectedRow 0.3s ease-in-out;
-    }
-
-    @keyframes selectedRow {
-        0% { 
-            transform: scale(1);
-            background: white;
-        }
-        50% { 
-            transform: scale(1.005);
-            background: #dcfce7;
-        }
-        100% { 
-            transform: scale(1);
-            background: #f0fdf4;
-        }
-    }
-
-    /* تحسين مظهر العناصر التفاعلية */
-    .btn:hover {
-        @apply transform -translate-y-0.5 shadow-lg;
-    }
-
-    .btn:active {
-        @apply transform translate-y-0;
-    }
-
-    /* تحسين الفوكس للوصولية */
-    .sf-table:focus-within {
-        @apply ring-2 ring-emerald-500 ring-opacity-50 rounded-lg;
-    }
-
-    /* تحسين مظهر البحث */
-    .search-input:focus {
-        @apply transform scale-[1.02];
-    }
-
-    /* إضافة تأثيرات التحميل */
-    .loading-shimmer {
-        background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
-        background-size: 200% 100%;
-        animation: shimmer 1.5s infinite;
-    }
-
-    @keyframes shimmer {
-        0% {
-            background-position: -200% 0;
-        }
-        100% {
-            background-position: 200% 0;
-        }
-    }
 }
 
 /* (اختياري) CSS إضافي من Flowbite */

@@ -17,13 +17,13 @@
 
             allowExport: !!cfg.allowExport,
 
-            showHeader: !!cfg.showHeader,
-            showFooter: !!cfg.showFooter,
+            showHeader: cfg.showHeader !== false,
+            showFooter: cfg.showFooter !== false,
 
             autoRefresh: !!cfg.autoRefresh,
 
-            columns: cfg.columns || [],
-            actions: cfg.actions || [],
+            columns: Array.isArray(cfg.columns) ? cfg.columns : [],
+            actions: Array.isArray(cfg.actions) ? cfg.actions : [],
 
             selectable: !!cfg.selectable,
             rowIdField: cfg.rowIdField || "Id",
@@ -55,7 +55,59 @@
 
             // ===== تهيئة =====
             init() {
+                this.loadStoredPreferences();
                 this.load();
+                this.setupEventListeners();
+            },
+
+            // ===== تحميل التفضيلات المحفوظة =====
+            loadStoredPreferences() {
+                if (!this.storageKey) return;
+
+                try {
+                    const stored = localStorage.getItem(this.storageKey);
+                    if (stored) {
+                        const prefs = JSON.parse(stored);
+                        this.pageSize = prefs.pageSize || this.pageSize;
+                        this.sort = prefs.sort || this.sort;
+
+                        // حفظ حالة الأعمدة المخفية
+                        if (prefs.columns) {
+                            this.columns = this.columns.map(col => {
+                                const storedCol = prefs.columns.find(c => c.field === col.field);
+                                return storedCol ? { ...col, visible: storedCol.visible } : col;
+                            });
+                        }
+                    }
+                } catch (e) {
+                    console.warn("Failed to load stored preferences", e);
+                }
+            },
+
+            // ===== حفظ التفضيلات =====
+            savePreferences() {
+                if (!this.storageKey) return;
+
+                const prefs = {
+                    pageSize: this.pageSize,
+                    sort: this.sort,
+                    columns: this.columns.map(col => ({
+                        field: col.field,
+                        visible: col.visible !== false
+                    }))
+                };
+
+                localStorage.setItem(this.storageKey, JSON.stringify(prefs));
+            },
+
+            // ===== إعداد مستمعي الأحداث =====
+            setupEventListeners() {
+                // إغلاق المودال عند الضغط على ESC
+                document.addEventListener('keydown', (e) => {
+                    if (e.key === 'Escape' && this.modal.open) {
+                        this.closeModal();
+                    }
+                });
             },
 
             // ===== تحميل البيانات من السيرفر =====
@@ -77,7 +129,9 @@
                                 Op: "contains",
                                 Value: this.q
                             }))
-                            : []
+                            : [],
+                        // إضافة الفلاتر المتقدمة إذا كانت موجودة
+                        AdvancedFilters: this.advancedFilters || []
                     };
 
                     const resp = await fetch(this.endpoint, {
@@ -86,15 +140,21 @@
                         body: JSON.stringify(body)
                     });
 
+                    if (!resp.ok) throw new Error(`HTTP error! status: ${resp.status}`);
+
                     const json = await resp.json();
-                    if (!json.success) throw new Error(json.error || "خطأ");
+                    if (!json.success) throw new Error(json.error || "خطأ في تحميل البيانات");
 
                     this.rows = json.data || [];
                     this.total = json.total || this.rows.length;
                     this.pages = Math.max(1, Math.ceil(this.total / this.pageSize));
+
+                    // حفظ التفضيلات بعد التحميل الناجح
+                    this.savePreferences();
+
                 } catch (e) {
                     console.error("sfTable.load error", e);
-                    this.error = e.message || "⚠️ خطأ غير معروف";
+                    this.error = e.message || "⚠️ خطأ غير معروف في تحميل البيانات";
                 } finally {
                     this.loading = false;
                 }
@@ -108,6 +168,11 @@
             // ===== الأعمدة =====
             visibleColumns() {
                 return this.columns.filter((c) => c.visible !== false);
+            },
+
+            toggleColumnVisibility(col) {
+                col.visible = !col.visible;
+                this.savePreferences();
             },
 
             toggleSort(col) {
@@ -129,17 +194,21 @@
                 } else {
                     this.selectedKeys.add(key);
                 }
-                this.selectAll =
-                    this.rows.length > 0 &&
-                    this.rows.every((r) => this.selectedKeys.has(r[this.rowIdField]));
+                this.updateSelectAllState();
             },
 
             toggleSelectAll() {
                 if (this.selectAll) {
                     this.rows.forEach((r) => this.selectedKeys.add(r[this.rowIdField]));
                 } else {
-                    this.rows.forEach((r) => this.selectedKeys.delete(r[this.rowIdField]));
+                    this.selectedKeys.clear();
                 }
+                this.updateSelectAllState();
+            },
+
+            updateSelectAllState() {
+                this.selectAll = this.rows.length > 0 &&
+                    this.rows.every((r) => this.selectedKeys.has(r[this.rowIdField]));
             },
 
             isSelected(row) {
@@ -154,56 +223,143 @@
                 return null;
             },
 
+            clearSelection() {
+                this.selectedKeys.clear();
+                this.selectAll = false;
+            },
+
             // ===== التصدير =====
             exportData(type) {
                 if (!this.allowExport) return;
-                let csv = "";
-                const headers = this.visibleColumns().map((c) => c.label).join(",");
-                csv += headers + "\n";
-                this.rows.forEach((r) => {
-                    csv += this.visibleColumns()
-                        .map((c) => r[c.field] ?? "")
-                        .join(",") + "\n";
-                });
 
-                const blob = new Blob([csv], {
-                    type:
-                        type === "excel"
-                            ? "application/vnd.ms-excel"
-                            : "text/csv;charset=utf-8;"
-                });
-                const url = URL.createObjectURL(blob);
-                const a = document.createElement("a");
-                a.href = url;
-                a.download = `export.${type === "excel" ? "xls" : "csv"}`;
-                a.click();
-                URL.revokeObjectURL(url);
+                try {
+                    let content = "";
+                    const headers = this.visibleColumns().map((c) => `"${c.label}"`).join(",");
+                    content += headers + "\n";
+
+                    this.rows.forEach((r) => {
+                        const rowData = this.visibleColumns()
+                            .map((c) => {
+                                let value = r[c.field] ?? "";
+                                // معالجة القيم الخاصة للتصدير
+                                if (typeof value === 'string' && value.includes(',')) {
+                                    value = `"${value}"`; // إضافة quotes للقيم التي تحتوي على فواصل
+                                }
+                                return value;
+                            })
+                            .join(",");
+                        content += rowData + "\n";
+                    });
+
+                    const mimeType = type === "excel"
+                        ? "application/vnd.ms-excel"
+                        : "text/csv;charset=utf-8;";
+
+                    const blob = new Blob(["\uFEFF" + content], { type: mimeType }); // BOM للدعم Unicode
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement("a");
+                    a.href = url;
+                    a.download = `export_${new Date().toISOString().split('T')[0]}.${type === "excel" ? "xls" : "csv"}`;
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    URL.revokeObjectURL(url);
+
+                } catch (e) {
+                    console.error("Export error", e);
+                    alert("⚠️ فشل في التصدير: " + e.message);
+                }
             },
 
             // ===== عرض/تنفيذ الإجراءات =====
             async doAction(action, row) {
                 if (!action) return;
 
-                // تأكيد
-                if (action.confirmText) {
-                    if (!confirm(action.confirmText)) return;
-                }
+                try {
+                    // التحقق من شروط التنفيذ
+                    if (action.requireSelection) {
+                        const selectedCount = this.selectedKeys.size;
+                        if (selectedCount < action.minSelection ||
+                            (action.maxSelection > 0 && selectedCount > action.maxSelection)) {
+                            alert(`يجب اختيار بين ${action.minSelection} و ${action.maxSelection} عنصر`);
+                            return;
+                        }
+                    }
 
-                // فتح مودال (تفاصيل أو فورم)
-                if (action.openModal) {
-                    this.openModal(action, row);
+                    // تأكيد
+                    if (action.confirmText) {
+                        if (!confirm(action.confirmText)) return;
+                    }
+
+                    // فتح مودال (تفاصيل أو فورم)
+                    if (action.openModal) {
+                        await this.openModal(action, row);
+                        return;
+                    }
+
+                    // تنفيذ SP مباشر
+                    if (action.saveSp) {
+                        const success = await this.executeSp(action.saveSp, action.saveOp || "execute", row);
+                        if (success && this.autoRefresh) {
+                            this.clearSelection();
+                            this.load();
+                        }
+                        return;
+                    }
+
+                    // تنفيذ JS مخصص
+                    if (action.onClickJs) {
+                        try {
+                            // تمرير السياق للدالة
+                            const func = new Function('table', 'row', 'selectedKeys', action.onClickJs);
+                            func(this, row, this.selectedKeys);
+                        } catch (e) {
+                            console.error("Error executing custom JS", e);
+                        }
+                    }
+
+                } catch (e) {
+                    console.error("Action execution error", e);
+                    alert("⚠️ فشل في تنفيذ الإجراء: " + e.message);
+                }
+            },
+
+            async doBulkDelete() {
+                if (this.selectedKeys.size === 0) {
+                    alert("⚠️ لم يتم اختيار أي عناصر للحذف");
                     return;
                 }
 
-                // تنفيذ SP مباشر
-                if (action.saveSp) {
-                    await this.executeSp(action.saveSp, action.saveOp || "execute", row);
-                    if (this.autoRefresh) this.load();
+                if (!confirm(`هل تريد حقاً حذف ${this.selectedKeys.size} عنصر؟`)) {
+                    return;
                 }
 
-                // لو في JS مخصص
-                if (action.onClickJs) {
-                    eval(action.onClickJs);
+                try {
+                    const body = {
+                        Component: "Table",
+                        SpName: this.spName,
+                        Operation: "bulk_delete",
+                        Params: {
+                            ids: Array.from(this.selectedKeys)
+                        }
+                    };
+
+                    const resp = await fetch(this.endpoint, {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify(body)
+                    });
+
+                    const json = await resp.json();
+                    if (!json.success) throw new Error(json.error || "فشل في الحذف");
+
+                    alert(`✓ تم حذف ${this.selectedKeys.size} عنصر بنجاح`);
+                    this.clearSelection();
+                    this.load();
+
+                } catch (e) {
+                    console.error("Bulk delete error", e);
+                    alert("⚠️ فشل في الحذف: " + e.message);
                 }
             },
 
@@ -222,9 +378,16 @@
                     });
                     const json = await resp.json();
                     if (!json.success) throw new Error(json.error || "فشل العملية");
+
+                    // عرض رسالة النجاح إذا كانت موجودة
+                    if (json.message) {
+                        this.showToast(json.message, 'success');
+                    }
+
                     return true;
                 } catch (e) {
-                    alert("⚠️ " + e.message);
+                    console.error("Execute SP error", e);
+                    this.showToast("⚠️ " + e.message, 'error');
                     return false;
                 }
             },
@@ -243,10 +406,18 @@
                     if (action.formUrl) {
                         const url = this.fillUrl(action.formUrl, row);
                         const resp = await fetch(url);
+                        if (!resp.ok) throw new Error(`Failed to load form: ${resp.status}`);
                         this.modal.html = await resp.text();
+
+                        // تهيئة أي scripts في النموذج
+                        this.$nextTick(() => {
+                            this.initModalScripts();
+                        });
+
                     } else if (action.openForm) {
-                        // TODO: توليد HTML من openForm (ممكن بالـ server-side)
-                        this.modal.html = "<div>📋 فورم مخصص</div>";
+                        // توليد HTML من openForm
+                        this.modal.html = this.generateFormHtml(action.openForm, row);
+
                     } else if (action.modalSp) {
                         const body = {
                             Component: "Table",
@@ -261,100 +432,244 @@
                         });
                         const json = await resp.json();
                         if (!json.success) throw new Error(json.error || "خطأ");
-                        this.modal.html = `<pre>${JSON.stringify(
-                            json.data,
-                            null,
-                            2
-                        )}</pre>`;
+                        this.modal.html = this.formatDetailView(json.data, action.modalColumns);
                     }
                 } catch (e) {
+                    console.error("Modal open error", e);
                     this.modal.error = e.message;
                 } finally {
                     this.modal.loading = false;
                 }
             },
 
+            initModalScripts() {
+                // تهيئة أي scripts في المودال
+                const scripts = this.$el.querySelectorAll('.sf-modal script');
+                scripts.forEach(script => {
+                    const newScript = document.createElement('script');
+                    newScript.textContent = script.textContent;
+                    document.body.appendChild(newScript).remove();
+                });
+            },
+
+            generateFormHtml(formConfig, rowData) {
+                // توليد HTML للنموذج من التكوين
+                let html = `<form id="${formConfig.FormId}" method="${formConfig.Method}" action="${formConfig.ActionUrl}">`;
+
+                formConfig.Fields.forEach(field => {
+                    if (!field.IsHidden) {
+                        html += this.generateFieldHtml(field, rowData);
+                    }
+                });
+
+                html += `<div class="form-actions">
+                    <button type="submit" class="btn btn-primary">${formConfig.SubmitText || 'حفظ'}</button>
+                    <button type="button" class="btn btn-secondary" onclick="this.closest('.sf-modal').__x.$data.closeModal()">إلغاء</button>
+                </div>`;
+                html += '</form>';
+
+                return html;
+            },
+
+            generateFieldHtml(field, rowData) {
+                // توليد HTML للحقل (تبسيط)
+                const value = rowData ? rowData[field.Name] : field.Value;
+                return `
+                <div class="form-group">
+                    <label>${field.Label}${field.Required ? ' *' : ''}</label>
+                    <input type="${field.Type}" name="${field.Name}" value="${value || ''}" 
+                           ${field.Required ? 'required' : ''} class="form-control">
+                </div>`;
+            },
+
+            formatDetailView(data, columns) {
+                if (!data) return "<p>لا توجد بيانات</p>";
+
+                let html = '<div class="detail-view">';
+                const fields = columns || Object.keys(data);
+
+                fields.forEach(field => {
+                    if (data[field] != null) {
+                        html += `
+                        <div class="detail-row">
+                            <strong>${field}:</strong> 
+                            <span>${data[field]}</span>
+                        </div>`;
+                    }
+                });
+
+                html += '</div>';
+                return html;
+            },
+
             closeModal() {
                 this.modal.open = false;
                 this.modal.html = "";
                 this.modal.action = null;
+                this.modal.error = null;
             },
 
             async saveModalChanges() {
                 if (!this.modal.action) return;
-                if (this.modal.action.isEdit || this.modal.action.openForm) {
-                    // إرسال النموذج الموجود داخل المودال
-                    const form = document.querySelector(".sf-modal form");
-                    if (form) {
-                        const formData = new FormData(form);
-                        const body = Object.fromEntries(formData.entries());
-                        await this.executeSp(
-                            this.modal.action.saveSp,
-                            this.modal.action.saveOp || "update",
-                            body
-                        );
-                        if (this.autoRefresh) this.load();
-                        this.closeModal();
+
+                try {
+                    if (this.modal.action.isEdit || this.modal.action.openForm) {
+                        const form = this.$el.querySelector(".sf-modal form");
+                        if (form) {
+                            const formData = new FormData(form);
+                            const body = Object.fromEntries(formData.entries());
+
+                            const success = await this.executeSp(
+                                this.modal.action.saveSp,
+                                this.modal.action.saveOp || "update",
+                                body
+                            );
+
+                            if (success) {
+                                this.closeModal();
+                                if (this.autoRefresh) {
+                                    this.clearSelection();
+                                    this.load();
+                                }
+                            }
+                        }
                     }
+                } catch (e) {
+                    console.error("Save modal changes error", e);
+                    this.showToast("⚠️ فشل في الحفظ: " + e.message, 'error');
                 }
             },
 
-            // ===== أدوات =====
+            // ===== أدوات مساعدة =====
+            showToast(message, type = 'info') {
+                // تنفيذ toast notification
+                const toast = document.createElement('div');
+                toast.className = `toast toast-${type}`;
+                toast.textContent = message;
+                toast.style.cssText = `
+                    position: fixed;
+                    top: 20px;
+                    right: 20px;
+                    padding: 12px 20px;
+                    border-radius: 4px;
+                    color: white;
+                    z-index: 10000;
+                    background: ${type === 'error' ? '#dc3545' : type === 'success' ? '#28a745' : '#17a2b8'};
+                `;
+
+                document.body.appendChild(toast);
+                setTimeout(() => toast.remove(), 3000);
+            },
+
             formatCell(row, col) {
                 let val = row[col.field];
                 if (val == null) return "";
+
                 switch (col.type) {
                     case "date":
-                        return new Date(val).toLocaleDateString();
+                        return new Date(val).toLocaleDateString('ar-SA');
                     case "datetime":
-                        return new Date(val).toLocaleString();
+                        return new Date(val).toLocaleString('ar-SA');
                     case "bool":
                         return val
                             ? '<span class="text-green-600">✔</span>'
                             : '<span class="text-red-600">✘</span>';
                     case "money":
-                        return new Intl.NumberFormat().format(val);
+                        return new Intl.NumberFormat('ar-SA', {
+                            style: 'currency',
+                            currency: 'SAR'
+                        }).format(val);
                     case "badge":
-                        return `<span class="${col.badge?.map?.[val] || col.badge?.defaultClass || "bg-gray-100 text-gray-700"}">${val}</span>`;
+                        const badgeClass = col.badge?.map?.[val] || col.badge?.defaultClass || "bg-gray-100 text-gray-700";
+                        return `<span class="badge ${badgeClass}">${val}</span>`;
+                    case "link":
+                        const linkTemplate = col.linkTemplate || "#";
+                        const href = this.fillUrl(linkTemplate, row);
+                        return `<a href="${href}" class="text-blue-600 hover:underline">${val}</a>`;
+                    case "image":
+                        const imgTemplate = col.imageTemplate || "";
+                        const src = this.fillUrl(imgTemplate, row);
+                        return `<img src="${src}" alt="${val}" class="table-image" style="max-height: 50px;">`;
                     default:
+                        // تطبيق formatter مخصص إذا موجود
+                        if (col.formatterJs && typeof eval(col.formatterJs) === 'function') {
+                            try {
+                                return eval(col.formatterJs)(row, col, this);
+                            } catch (e) {
+                                console.error("Formatter error", e);
+                                return val;
+                            }
+                        }
                         return val;
                 }
             },
 
             fillUrl(url, row) {
-                if (!row) return url;
+                if (!row || !url) return url;
                 return url.replace(/\{(\w+)\}/g, (_, k) => row[k] ?? "");
             },
 
             // ===== الترقيم =====
+            goToPage(page) {
+                const newPage = Math.max(1, Math.min(page, this.pages));
+                if (newPage !== this.page) {
+                    this.page = newPage;
+                    this.load();
+                }
+            },
+
             nextPage() {
                 if (this.page < this.pages) {
                     this.page++;
                     this.load();
                 }
             },
+
             prevPage() {
                 if (this.page > 1) {
                     this.page--;
                     this.load();
                 }
             },
+
             firstPage() {
-                this.page = 1;
-                this.load();
+                this.goToPage(1);
             },
+
             lastPage() {
-                this.page = this.pages;
-                this.load();
+                this.goToPage(this.pages);
             },
+
             rangeText() {
                 if (this.total === 0) return "0 من 0";
                 const start = (this.page - 1) * this.pageSize + 1;
                 const end = Math.min(this.page * this.pageSize, this.total);
                 return `${start} - ${end} من ${this.total}`;
+            },
+
+            // ===== أدوات متقدمة =====
+            toggleFullscreen() {
+                const element = this.$el;
+                if (!document.fullscreenElement) {
+                    element.requestFullscreen?.().catch(err => {
+                        console.error('Error attempting to enable fullscreen:', err);
+                    });
+                } else {
+                    document.exitFullscreen?.();
+                }
+            },
+
+            changeDensity(density) {
+                // تغيير كثافة العرض
+                this.$el.setAttribute('data-density', density);
             }
         }));
     };
-    if (window.Alpine) register();
-    else document.addEventListener("alpine:init", register);
+
+    // التسجيل
+    if (window.Alpine) {
+        register();
+    } else {
+        document.addEventListener("alpine:init", register);
+    }
 })();
