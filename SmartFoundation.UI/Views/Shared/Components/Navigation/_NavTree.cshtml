@@ -1,0 +1,46 @@
+﻿@model IEnumerable<SmartFoundation.UI.ViewModels.Navigation.NavItem>
+
+<ul class="space-y-1">
+    @foreach (var item in Model)
+    {
+        var hasChildren = item.Children?.Any() == true;
+        var current = (ViewContext?.HttpContext?.Request?.Path.Value ?? "").TrimEnd('/');
+        var target = (item.Url ?? "").TrimEnd('/');
+        var isActive = !string.IsNullOrEmpty(target) && current.Equals(target, StringComparison.OrdinalIgnoreCase);
+        var isParentOfActive = IsParentOfActive(item, current);
+        
+        <li class="nav-item">
+            <a href="@(string.IsNullOrWhiteSpace(item.Url) ? "#" : item.Url)"
+               class="flex items-center gap-2 px-3 py-2 rounded-lg text-gray-700 hover:bg-gray-100 @(isActive ? "bg-blue-50 text-blue-700 font-semibold" : "") @(isParentOfActive ? "font-medium" : "")">
+                @if (!string.IsNullOrWhiteSpace(item.Icon))
+                {
+                    <i class="@item.Icon w-5 text-center opacity-80"></i>
+                }
+                <span>@item.Text</span>
+                @if (hasChildren)
+                {
+                    <i class="ms-auto fa fa-chevron-down text-xs transition-transform @(isParentOfActive ? "rotate-180" : "")"></i>
+                }
+            </a>
+            
+            @if (hasChildren)
+            {
+                <div class="ms-5 mt-1 ps-3 border-s border-gray-200 @(!isParentOfActive ? "hidden" : "")">
+                    <partial name="~/Views/Shared/Components/Navigation/_NavTree.cshtml" model="item.Children" />
+                </div>
+            }
+        </li>
+    }
+</ul>
+
+@functions {
+    private bool IsParentOfActive(SmartFoundation.UI.ViewModels.Navigation.NavItem item, string currentUrl)
+    {
+        if (item.Children == null || !item.Children.Any())
+            return false;
+            
+        return item.Children.Any(child => 
+            (!string.IsNullOrEmpty(child.Url) && currentUrl.Equals(child.Url.TrimEnd('/'), StringComparison.OrdinalIgnoreCase)) || 
+            IsParentOfActive(child, currentUrl));
+    }
+}

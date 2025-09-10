@@ -1,0 +1,23 @@
+﻿@model IEnumerable<SmartFoundation.UI.ViewModels.Navigation.NavItem>
+
+@{
+    var current = (ViewContext?.HttpContext?.Request?.Path.Value ?? "").TrimEnd('/');
+}
+
+<div class="flex items-center gap-2">
+    @foreach (var item in Model.Where(n => n.Level <= 1).Take(6))
+    {
+        var target = (item.Url ?? "").TrimEnd('/');
+        var isActive = !string.IsNullOrEmpty(target) && current.Equals(target, StringComparison.OrdinalIgnoreCase);
+
+        <a href="@(string.IsNullOrWhiteSpace(item.Url) ? "#" : item.Url)"
+           class="px-3 py-1.5 rounded-lg hover:bg-gray-100 transition-colors
+                  @(isActive ? "bg-blue-50 text-blue-700 font-semibold" : "text-gray-700")">
+            @if (!string.IsNullOrWhiteSpace(item.Icon))
+            {
+                <i class="@item.Icon me-1.5 opacity-80"></i>
+            }
+            <span>@item.Text</span>
+        </a>
+    }
+</div>

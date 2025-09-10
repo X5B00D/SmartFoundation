@@ -1,0 +1,36 @@
+﻿@model IEnumerable<SmartFoundation.UI.ViewModels.Navigation.NavItem>
+
+<div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+    @{
+        // Group by first level items - we only show top level items with their children
+        var topLevelItems = Model.Where(n => !n.ParentId.HasValue).Take(4);
+    }
+    
+    @foreach (var category in topLevelItems)
+    {
+        <div>
+            <h4 class="font-semibold mb-2 text-gray-800">@category.Text</h4>
+            <ul class="space-y-1">
+                @foreach (var item in category.Children.Take(5))
+                {
+                    <li>
+                        <a href="@(string.IsNullOrWhiteSpace(item.Url) ? "#" : item.Url)" 
+                           class="text-gray-600 hover:text-gray-900 hover:underline text-sm block py-1">
+                            @item.Text
+                        </a>
+                    </li>
+                }
+            </ul>
+        </div>
+    }
+</div>
+
+<div class="flex flex-wrap gap-4 mt-6 pt-4 border-t text-sm text-gray-600">
+    @foreach (var link in Model.Where(n => !n.ParentId.HasValue && !topLevelItems.Contains(n)).Take(6))
+    {
+        <a href="@(string.IsNullOrWhiteSpace(link.Url) ? "#" : link.Url)"
+           class="hover:text-gray-900 hover:underline">
+            @link.Text
+        </a>
+    }
+</div>

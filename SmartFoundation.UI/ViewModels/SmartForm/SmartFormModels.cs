@@ -206,29 +206,79 @@ namespace SmartFoundation.UI.ViewModels.SmartForm
         
     }
 
+    // ===== Enhanced DataTable Models =====
 
-    //خاص بالجدول
+    // خاص بالجدول - تحديد خريطة ألوان للشارات
     public class TableBadgeConfig
     {
         public Dictionary<string, string> Map { get; set; } = new(); // قيمة => CSS Classes
         public string DefaultClass { get; set; } = "bg-gray-100 text-gray-700";
     }
 
+    // تكوين الفلاتر للأعمدة
+    public class TableColumnFilter
+    {
+        public string Type { get; set; } = "text"; // text | select | date | number | range
+        public List<OptionItem> Options { get; set; } = new(); // للـ select
+        public string? Placeholder { get; set; }
+        public bool Enabled { get; set; } = true;
+        public string? DefaultValue { get; set; }
+    }
+
+    // تكوين التجميع
+    public class TableGroupConfig
+    {
+        public string Field { get; set; } = string.Empty;
+        public string Label { get; set; } = string.Empty;
+        public bool Expanded { get; set; } = true;
+        public bool ShowCount { get; set; } = true;
+        public List<string> AggregateFields { get; set; } = new(); // الحقول المراد جمعها
+        public Dictionary<string, string> AggregateTypes { get; set; } = new(); // Field => sum|avg|count|min|max
+    }
+
+    // إعدادات التصدير
+    public class TableExportConfig
+    {
+        public bool EnableExcel { get; set; } = true;
+        public bool EnableCsv { get; set; } = true;
+        public bool EnablePdf { get; set; } = false;
+        public bool EnablePrint { get; set; } = true;
+        public string? ExcelTemplate { get; set; }
+        public string? PdfTemplate { get; set; }
+        public List<string> ExcludeColumns { get; set; } = new();
+        public string? Filename { get; set; }
+    }
+
+    // Enhanced TableColumn
     public class TableColumn
     {
         public string Field { get; set; } = string.Empty; // اسم العمود من الـ SP
         public string Label { get; set; } = string.Empty; // التسمية بالعربي/الانجليزي
         public bool Sortable { get; set; } = true;        // يدعم الفرز
         public bool Visible { get; set; } = true;         // إخفاء/إظهار
+        public bool Resizable { get; set; } = true;       // قابل لتغيير الحجم
+        public bool Reorderable { get; set; } = true;     // قابل لإعادة الترتيب
         public string? Width { get; set; }                // CSS عرض العمود
+        public string? MinWidth { get; set; } = "80px";   // أقل عرض
+        public string? MaxWidth { get; set; }             // أقصى عرض
         public string? Align { get; set; } = "right";     // left | right | center
-        public string? Type { get; set; } = "text";       // text | number | date | badge | bool | money | datetime
+        public string? Type { get; set; } = "text";       // text | number | date | badge | bool | money | datetime | image | link
         public string? FormatString { get; set; }         // "{0:dd/MM/yyyy}"
         public string? FormatterJs { get; set; }          // JS function(row,col,table) => html/text
         public bool ShowInModal { get; set; } = true;     // تخصيص ظهور العمود في المودال
+        public bool ShowInExport { get; set; } = true;    // تخصيص ظهور العمود في التصدير
+        public bool Frozen { get; set; } = false;         // تثبيت العمود
+        public string? FrozenSide { get; set; } = "left"; // left | right
         public TableBadgeConfig? Badge { get; set; }      // خريطة ألوان/كلاسات للشارات
+        public TableColumnFilter? Filter { get; set; }   // إعدادات الفلترة للعمود
+        public bool Aggregatable { get; set; } = false;  // قابل للتجميع/الحساب
+        public string? AggregateType { get; set; }        // sum | avg | count | min | max
+        public string? LinkTemplate { get; set; }         // للنوع link: "/view/{id}"
+        public string? ImageTemplate { get; set; }        // للنوع image: "data:image/png;base64,{data}"
+        public Dictionary<string, object> CustomProperties { get; set; } = new(); // خصائص إضافية
     }
 
+    // Enhanced TableAction
     public class TableAction
     {
         public string Label { get; set; } = "";
@@ -251,8 +301,18 @@ namespace SmartFoundation.UI.ViewModels.SmartForm
         //  الجديد
         public FormConfig? OpenForm { get; set; }
         public string? FormUrl { get; set; }
+        
+        // إضافات جديدة
+        public bool RequireSelection { get; set; } = false; // يتطلب تحديد صف واحد أو أكثر
+        public int MinSelection { get; set; } = 0;          // أقل عدد من الصفوف المطلوبة
+        public int MaxSelection { get; set; } = 0;          // أقصى عدد من الصفوف المسموحة (0 = لا حد)
+        public string? Tooltip { get; set; }                // نص المساعدة
+        public string? KeyboardShortcut { get; set; }       // اختصار لوحة المفاتيح
+        public List<string> Roles { get; set; } = new();    // الأدوار المسموحة
+        public string? Condition { get; set; }              // شرط JavaScript لإظهار الزر
     }
 
+    // Enhanced TableToolbarConfig
     public class TableToolbarConfig
     {
         public bool ShowAdd { get; set; } = false;
@@ -260,16 +320,28 @@ namespace SmartFoundation.UI.ViewModels.SmartForm
         public bool ShowColumns { get; set; } = true;
         public bool ShowExportCsv { get; set; } = true;
         public bool ShowExportExcel { get; set; } = true;
+        public bool ShowExportPdf { get; set; } = false;
+        public bool ShowPrint { get; set; } = true;
         public bool ShowAdvancedFilter { get; set; } = false;
         public bool ShowBulkDelete { get; set; } = false;
+        public bool ShowFullscreen { get; set; } = true;
+        public bool ShowDensityToggle { get; set; } = true; // كثافة العرض
+        public bool ShowThemeToggle { get; set; } = false;  // تبديل الثيم
 
         // زر الإضافة كمثال (بإمكانك لاحقًا تعمل Config لكل زر على حدة)
         public TableAction? Add { get; set; }
 
         public bool ShowEdit { get; set; } = false;
         public TableAction? Edit { get; set; }
+        
+        // إضافات جديدة
+        public List<TableAction> CustomActions { get; set; } = new(); // أزرار مخصصة
+        public TableExportConfig ExportConfig { get; set; } = new();
+        public bool ShowSearch { get; set; } = true;
+        public string? SearchPosition { get; set; } = "left"; // left | right | center
     }
 
+    // Enhanced TableConfig
     public class TableConfig
     {
         public string? Endpoint { get; set; }
@@ -277,6 +349,7 @@ namespace SmartFoundation.UI.ViewModels.SmartForm
         public string Operation { get; set; } = "select";  // اسم العملية في الـ SP
         public int PageSize { get; set; } = 10;
         public List<int> PageSizes { get; set; } = new() { 10, 25, 50, 100 };
+        public int MaxPageSize { get; set; } = 1000;       // أقصى حجم صفحة مسموح
 
         public bool ShowHeader { get; set; } = true;
         public bool ShowFooter { get; set; } = true;
@@ -297,5 +370,35 @@ namespace SmartFoundation.UI.ViewModels.SmartForm
         public string? StorageKey { get; set; }            // لحفظ حالة المستخدم (حجم الصفحة/الأعمدة/الفرز)
 
         public TableToolbarConfig Toolbar { get; set; } = new();
+        
+        // إضافات جديدة للميزات المتقدمة
+        public bool ClientSideMode { get; set; } = false;  // تحميل كل البيانات في المتصفح
+        public bool VirtualScrolling { get; set; } = false; // التمرير الافتراضي للبيانات الكبيرة
+        public bool ResponsiveMode { get; set; } = true;   // التصميم المتجاوب
+        public string? ResponsiveBreakpoint { get; set; } = "md"; // sm | md | lg | xl
+        public bool ShowRowNumbers { get; set; } = false;  // إظهار أرقام الصفوف
+        public bool ShowRowBorders { get; set; } = true;   // إظهار حدود الصفوف
+        public bool HoverHighlight { get; set; } = true;   // إبراز الصف عند التمرير
+        public bool StripedRows { get; set; } = false;     // صفوف متناوبة الألوان
+        public string? Density { get; set; } = "normal";   // compact | normal | comfortable
+        public string? Theme { get; set; } = "light";      // light | dark | auto
+        public bool InlineEditing { get; set; } = false;   // التحرير المباشر
+        public bool AutoSave { get; set; } = false;        // الحفظ التلقائي
+        public int AutoSaveDelay { get; set; } = 2000;     // تأخير الحفظ التلقائي بالميلي ثانية
+        public TableGroupConfig? GroupConfig { get; set; } // إعدادات التجميع
+        public bool EnableKeyboardNavigation { get; set; } = true; // التنقل بلوحة المفاتيح
+        public bool EnableContextMenu { get; set; } = false; // قائمة سياقية بالنقر الأيمن
+        public Dictionary<string, object> CustomSettings { get; set; } = new(); // إعدادات مخصصة
+        
+        // إعدادات الأداء
+        public bool LazyLoading { get; set; } = false;     // التحميل الكسول
+        public int CacheTimeout { get; set; } = 300;       // مهلة انتهاء الكاش بالثواني
+        public bool DebounceSearch { get; set; } = true;   // تأخير البحث
+        public int SearchDebounceDelay { get; set; } = 500; // تأخير البحث بالميلي ثانية
+        
+        // إعدادات إمكانية الوصول
+        public bool EnableScreenReader { get; set; } = true; // دعم قارئ الشاشة
+        public string? AriaLabel { get; set; }              // تسمية الجدول للمكفوفين
+        public bool HighContrast { get; set; } = false;    // التباين العالي
     }
 }

@@ -1,0 +1,106 @@
+﻿@* @model SmartFoundation.UI.ViewModels.Navigation.NavigationViewModel
+
+@{
+    var items = Model.Top ?? Enumerable.Empty<SmartFoundation.UI.ViewModels.Navigation.NavItem>();
+    string current = (Model.CurrentUrl ?? "").TrimEnd('/');
+    string IsActive(string? url)
+        => current.Equals((url ?? "").TrimEnd('/'), StringComparison.OrdinalIgnoreCase)
+           ? "font-semibold text-emerald-700"
+           : "text-gray-700";
+}
+
+<header class="border-b bg-white sticky top-0 z-40">
+    <nav class="mx-auto max-w-7xl flex items-center justify-between px-4 py-3">
+        <a href="/" class="text-xl font-semibold hover:text-emerald-600 transition">@Model.AppName</a>
+
+        <ul class="hidden md:flex items-center gap-2">
+            @foreach (var n in items)
+            {
+                var hasChildren = n.Children?.Count > 0;
+
+                if (!hasChildren)
+                {
+                    var href = string.IsNullOrWhiteSpace(n.Url) ? "#" : n.Url;
+                    <li><a href="@href" class="px-3 py-2 rounded-lg hover:bg-gray-50 @IsActive(n.Url)">@n.Text</a></li>
+                }
+                else
+                {
+                    var ddId = $"dd_{n.Id}";
+                    <li class="relative">
+                        <button id="btn_@ddId" data-dropdown-toggle="@ddId" type="button"
+                                class="inline-flex items-center gap-2 rounded-lg border px-3 py-2 text-sm hover:bg-gray-50">
+                            @if (!string.IsNullOrWhiteSpace(n.Icon))
+                            {
+                                <i class="@n.Icon text-[14px]"></i>
+                            }
+                            <span>@n.Text</span><i class="fa fa-chevron-down text-xs opacity-70"></i>
+                        </button>
+                        <div id="@ddId" class="z-50 hidden mt-2 w-56 rounded-lg border bg-white text-sm shadow">
+                            <ul class="py-2 text-gray-700">
+                                @foreach (var c in n.Children)
+                                {
+                                    var href = string.IsNullOrWhiteSpace(c.Url) ? "#" : c.Url;
+                                    <li><a href="@href" class="block px-4 py-2 hover:bg-gray-50 @IsActive(c.Url)">@c.Text</a></li>
+                                }
+                            </ul>
+                        </div>
+                    </li>
+                }
+            }
+        </ul>
+
+        <div class="hidden md:flex items-center gap-3">
+            <span class="text-sm text-gray-600">@Model.UserName</span>
+            <a class="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-emerald-600 text-white hover:bg-emerald-700" href="/Account/Logout">
+                <i class="fa fa-right-from-bracket"></i><span>خروج</span>
+            </a>
+        </div>
+
+        <button class="md:hidden inline-flex items-center rounded-lg p-2 hover:bg-gray-100"
+                type="button" data-collapse-toggle="mobile-menu" aria-controls="mobile-menu" aria-expanded="false">
+            <span class="sr-only">القائمة</span>
+            <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" /></svg>
+        </button>
+    </nav>
+
+    <div id="mobile-menu" class="md:hidden hidden border-t">
+        <ul class="space-y-1 bg-white px-4 py-2">
+            @foreach (var n in items)
+            {
+                var hasChildren = n.Children?.Count > 0;
+                var href = string.IsNullOrWhiteSpace(n.Url) ? "#" : n.Url;
+
+                if (!hasChildren)
+                {
+                    <li><a href="@href" class="block rounded-lg px-3 py-2 hover:bg-gray-50 @IsActive(n.Url)">@n.Text</a></li>
+                }
+                else
+                {
+                    <li x-data="{open:false}" class="border rounded-lg">
+                        <button class="w-full flex items-center justify-between px-3 py-2" type="button" x-on:click="open=!open">
+                            <span class="@IsActive(n.Url)">@n.Text</span>
+                            <i class="fa fa-chevron-down text-xs opacity-70" x-bind:class="{'rotate-180':open}"></i>
+                        </button>
+                        <div class="px-2 pb-2" x-show="open" x-cloak>
+                            @foreach (var c in n.Children)
+                            {
+                                var chref = string.IsNullOrWhiteSpace(c.Url) ? "#" : c.Url;
+                                <a href="@chref" class="block rounded-md px-3 py-1.5 text-sm hover:bg-gray-50 @IsActive(c.Url)">@c.Text</a>
+                            }
+                        </div>
+                    </li>
+                }
+            }
+
+            <li class="pt-1 border-t mt-1">
+                <div class="flex items-center justify-between px-3 py-2">
+                    <span class="text-sm text-gray-600">@Model.UserName</span>
+                    <a class="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-emerald-600 text-white hover:bg-emerald-700" href="/Account/Logout">
+                        <i class="fa fa-right-from-bracket"></i><span>خروج</span>
+                    </a>
+                </div>
+            </li>
+        </ul>
+    </div>
+</header>
+ *@

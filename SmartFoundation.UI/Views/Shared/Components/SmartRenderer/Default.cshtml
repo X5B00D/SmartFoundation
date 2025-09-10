@@ -16,7 +16,7 @@
 
 @model SmartFoundation.UI.ViewModels.SmartPage.SmartPageViewModel
 
-<!-- ✅ عرض الكروت -->
+@* <!--  عرض الكروت -->
 @if (Model.Cards?.Any() == true)
 {
     @foreach (var card in Model.Cards)
@@ -24,14 +24,14 @@
         @await Component.InvokeAsync("SmartCard", new { model = card })
     }
 }
-
-<!-- ✅ عرض النموذج -->
+ *@
+<!--  عرض النموذج -->
 @if (Model.Form is not null)
 {
     @await Component.InvokeAsync("SmartForm", new { model = Model.Form })
 }
 
-<!-- ✅ عرض التقرير (SmartPrint) -->
+<!--  عرض التقرير (SmartPrint) -->
 @if (Model.PrintDoc is not null)
 {
     <div class="mt-10">

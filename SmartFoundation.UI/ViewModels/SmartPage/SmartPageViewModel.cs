@@ -1,4 +1,4 @@
-﻿using SmartFoundation.UI.ViewModels.SmartCard;
+﻿
 using SmartFoundation.UI.ViewModels.SmartForm;
 using SmartFoundation.UI.ViewModels.SmartPrint;
 
@@ -12,7 +12,7 @@ public class SmartPageViewModel
     public string SpName { get; set; } = "";
     public string Operation { get; set; } = "select";
 
-    public List<SmartCardModel> Cards { get; set; } = new();
+    
     public FormConfig? Form { get; set; }
 
     // ✨ هنا الخاصية الجديدة للطباعة
