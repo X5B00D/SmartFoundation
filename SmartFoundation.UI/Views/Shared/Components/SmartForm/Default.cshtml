@@ -39,29 +39,46 @@
                 <input type="hidden" name="@hidden.Name" value="@hidden.Value" />
             }
 
-            @foreach (var field in Model.Fields.Where(f => !f.IsHidden && !f.Type.Equals("hidden", StringComparison.OrdinalIgnoreCase)))
-            {
-                if (!string.IsNullOrWhiteSpace(field.SectionTitle) && field.SectionTitle != currentSection)
-                {
-                    // لو في قسم مفتوح قبله نقفله
-                    if (sectionOpen)
-                    {
-                        @:</div> <!-- close form-row -->
-                        @:</div> <!-- close section-box -->
-                        sectionOpen = false;
-                    }
+            @{ var defaultRowOpen = false; }
 
-                    // حدث القسم الحالي
-                    currentSection = field.SectionTitle;
+@foreach (var field in Model.Fields.Where(f => !f.IsHidden && !f.Type.Equals("hidden", StringComparison.OrdinalIgnoreCase)))
+{
+    if (string.IsNullOrWhiteSpace(field.SectionTitle))
+    {
+        // افتح grid افتراضي للحقول اللي بدون SectionTitle
+        if (!defaultRowOpen)
+        {
+            @:<div class="grid grid-cols-12 gap-6 form-row sm:gap-8">
+            defaultRowOpen = true;
+        }
+    }
+    else if (field.SectionTitle != currentSection)
+    {
+        // لو فيه grid افتراضي مفتوح سكّره
+        if (defaultRowOpen)
+        {
+            @:</div> <!-- close default form-row -->
+            defaultRowOpen = false;
+        }
 
-                    // افتح قسم جديد
-                    @:<div class="col-span-12 mb-2 section-box">
-                        @:<h3 class="section-title">@currentSection</h3>
-                        @* @:<div class="form-row"> *@
-                            @:<div class="grid grid-cols-12 gap-6 form-row sm:gap-8">
+        // لو فيه قسم مفتوح قبله سكّره
+        if (sectionOpen)
+        {
+            @:</div> <!-- close form-row -->
+            @:</div> <!-- close section-box -->
+            sectionOpen = false;
+        }
 
-                    sectionOpen = true;
-                }
+        // افتح قسم جديد
+        currentSection = field.SectionTitle;
+
+        @:<div class="col-span-12 mb-2 section-box">
+            @:<h3 class="section-title">@currentSection</h3>
+            @:<div class="grid grid-cols-12 gap-6 form-row sm:gap-8">
+
+        sectionOpen = true;
+    }
+
 
                 var colCss = field.GetResolvedColCss();
 
@@ -802,11 +819,16 @@ break;
                 </div>
             }
 
-            @if (sectionOpen)
-            {
-                @:</div> 
-                @:</div>
-            }
+            @if (defaultRowOpen)
+{
+    @:</div> <!-- close default form-row -->
+}
+@if (sectionOpen)
+{
+    @:</div> <!-- close form-row -->
+    @:</div> <!-- close section-box -->
+}
+
 
             <div class="col-span-12 flex flex-col md:flex-row flex-wrap justify-end items-center gap-2.5 md:gap-3 mt-5 border-t border-gray-200 pt-4">
                 @* زر الحفظ *@
