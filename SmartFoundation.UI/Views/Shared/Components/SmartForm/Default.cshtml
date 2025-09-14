@@ -43,7 +43,7 @@
 
 @foreach (var field in Model.Fields.Where(f => !f.IsHidden && !f.Type.Equals("hidden", StringComparison.OrdinalIgnoreCase)))
 {
-    if (string.IsNullOrWhiteSpace(field.SectionTitle))
+    @* if (string.IsNullOrWhiteSpace(field.SectionTitle))
     {
         // افتح grid افتراضي للحقول اللي بدون SectionTitle
         if (!defaultRowOpen)
@@ -77,7 +77,44 @@
             @:<div class="grid grid-cols-12 gap-6 form-row sm:gap-8">
 
         sectionOpen = true;
+    } *@
+
+
+
+    if (!string.IsNullOrWhiteSpace(field.SectionTitle) && field.SectionTitle != currentSection)
+{
+    // اقفل أي سكشن مفتوح
+    if (sectionOpen)
+    {
+        @:</div> <!-- close form-row -->
+        @:</div> <!-- close section-box -->
+        sectionOpen = false;
     }
+
+    // اقفل أي grid افتراضي مفتوح
+    if (defaultRowOpen)
+    {
+        @:</div> <!-- close default form-row -->
+        defaultRowOpen = false;
+    }
+
+    // افتح سكشن جديد
+    currentSection = field.SectionTitle;
+    @:<div class="col-span-12 mb-2 section-box">
+        @:<h3 class="section-title">@currentSection</h3>
+        @:<div class="grid grid-cols-12 gap-6 form-row sm:gap-8">
+    sectionOpen = true;
+}
+else
+{
+    // لو مافيه سكشن مفتوح، افتح grid افتراضي
+    if (!sectionOpen && !defaultRowOpen)
+    {
+        @:<div class="grid grid-cols-12 gap-6 form-row sm:gap-8">
+        defaultRowOpen = true;
+    }
+}
+
 
 
                 var colCss = field.GetResolvedColCss();
