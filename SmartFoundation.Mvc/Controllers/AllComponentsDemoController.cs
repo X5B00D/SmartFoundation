@@ -40,12 +40,13 @@ namespace SmartFoundation.Mvc.Controllers
                         Required=true,
                         Placeholder="حقل عربي فقط",
                         Icon="fa-solid fa-user",
-                        ColCss="col-span-12 md:col-span-3",
+                        ColCss="col-span-12 md:col-span-6",
                         MaxLength=50,
                         TextMode="arsentence",
                     },
                     new FieldConfig
                     {
+                        
                         Name = "Email",
                         Label = "البريد الإلكتروني",
                         Type = "text",
@@ -145,7 +146,7 @@ namespace SmartFoundation.Mvc.Controllers
                             new OptionItem { Value="EG", Text="مصر" },
                             new OptionItem { Value="JO", Text="الأردن" }
                         },
-                        ColCss="3",
+                        ColCss="col-span-12 md:col-span-3",
                     },
                     new FieldConfig
                     {
@@ -155,14 +156,14 @@ namespace SmartFoundation.Mvc.Controllers
                         Required=true,
                         DependsOn="Country",
                         DependsUrl="/api/location/cities",
-                        ColCss="3",
+                        ColCss="col-span-12 md:col-span-3",
                     },
                     new FieldConfig
                     {
                         Name="District",
                         Label="الحي",
                         Type="text",
-                        ColCss="3",
+                        ColCss="col-span-12 md:col-span-3",
                         MaxLength=50,
                         Placeholder="اسم الحي",
                         HelpText="أدخل اسم الحي فقط",
@@ -175,7 +176,7 @@ namespace SmartFoundation.Mvc.Controllers
                         Type="text",
                         Readonly=true,
                         Placeholder="حقل للقراءة فقط",
-                        ColCss="3",
+                        ColCss="col-span-12 md:col-span-3",
                         Value="نص ثابت",
                         HelpText="هذا الحقل للعرض فقط",
                         Icon="fa-solid fa-eye"
@@ -188,7 +189,7 @@ namespace SmartFoundation.Mvc.Controllers
                         MaxLength=200,
                         Placeholder="اكتب عنوانك بالتفصيل",
                         Icon="fa-solid fa-location-dot",
-                        ColCss="3",
+                        ColCss="col-span-12 md:col-span-3",
                         HelpText="الرجاء إدخال العنوان الكامل",
                     },
 
@@ -237,7 +238,8 @@ namespace SmartFoundation.Mvc.Controllers
                     // ========= الملاحظات =========
                     new FieldConfig
                     {
-                        //SectionTitle="ملاحظات",
+
+                        SectionTitle="ملاحظات",
                         Name="Bio",
                         Label="ملاحظات",
                         Type="textarea",
@@ -258,7 +260,7 @@ new FieldConfig
     SectionTitle = "جدول بيانات",
     Name = "DemoTable",
     Type = "datatable",
-    ColCss = "col-span-12",
+    ColCss = "col-span-12 md:col-span-12",
     Table = new TableConfig
     {
         Endpoint = "/AllComponentsDemo/ExecuteDemo",

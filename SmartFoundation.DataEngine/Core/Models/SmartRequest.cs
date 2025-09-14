@@ -5,13 +5,14 @@
         public string Component { get; set; } = "Table";
         public string Operation { get; set; } = "select";
         public string SpName { get; set; } = "";
-        public Dictionary<string, object?> Params { get; set; } = [];
+
+        //   Dictionary 
+        public Dictionary<string, object?> Params { get; set; } = new();
+
         public Paging Paging { get; set; } = new();
         public Sort? Sort { get; set; }
-
-        // يفضل عدم جعلها nullable وتعيين قيمة افتراضية فارغة
-        public List<Filter> Filters { get; set; } = [];
-        public Dictionary<string, object?> Meta { get; set; } = [];
+        public List<Filter> Filters { get; set; } = new();
+        public Dictionary<string, object?> Meta { get; set; } = new();
     }
 
     public sealed class Paging

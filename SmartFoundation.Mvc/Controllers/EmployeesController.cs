@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using SmartFoundation.UI.ViewModels.SmartForm;
 using SmartFoundation.UI.ViewModels.SmartPage;
+
 namespace SmartFoundation.Mvc.Controllers
 {
     public class EmployeesController : Controller
@@ -12,215 +13,71 @@ namespace SmartFoundation.Mvc.Controllers
             {
                 Name = "EmployeesTable",
                 Type = "datatable",
+                ColCss = "col-span-12 md:col-span-12", // الجدول ياخذ العرض كامل
                 Table = new TableConfig
                 {
-                    // API Configuration
+                    // API
                     Endpoint = "/smart/execute",
                     StoredProcedureName = "dbo.sp_SmartFormDemo",
                     Operation = "select_employees",
-                    
-                    // Pagination
+
+                    // الصفحة
                     PageSize = 10,
                     PageSizes = new List<int> { 2, 10, 25, 50, 100 },
                     MaxPageSize = 1000,
-                    
-                    // Search & Filtering
+
+                    // البحث
                     Searchable = true,
                     SearchPlaceholder = "ابحث بالاسم/الجوال/البريد/المدينة...",
                     QuickSearchFields = new List<string> { "FullName", "Email", "City", "PhoneNumber" },
                     DebounceSearch = true,
                     SearchDebounceDelay = 500,
-                    
-                    // Export & Print
-                    AllowExport = false,
-                    
-                    // UI Settings
+
+                    // تصدير
+                    AllowExport = true,
+
+                    // واجهة
                     ShowHeader = true,
                     ShowFooter = true,
                     AutoRefreshOnSubmit = true,
-                    ClientSideMode = false, // Set to true for client-side processing
+                    ClientSideMode = false,
                     ResponsiveMode = true,
                     ShowRowNumbers = true,
                     HoverHighlight = true,
-                    StripedRows = false,
-                    Density = "normal", // compact | normal | comfortable
-                    
-                    // Advanced Features
+                    StripedRows = true,
+                    Density = "normal",
+
+                    // ميزات متقدمة
                     Selectable = true,
                     RowIdField = "EmployeeId",
                     StorageKey = "EmployeesTablePrefs",
                     InlineEditing = false,
                     EnableKeyboardNavigation = true,
                     EnableContextMenu = true,
-                    
-                    // Performance
+
+                    // الأداء
                     LazyLoading = false,
                     CacheTimeout = 300,
                     VirtualScrolling = false,
-                    
-                    // Accessibility
+
+                    // الوصول
                     EnableScreenReader = true,
                     AriaLabel = "جدول الموظفين",
                     HighContrast = false,
 
-                    // الأعمدة مع التحسينات
+                    // الأعمدة
                     Columns = new List<TableColumn>
                     {
-                        new TableColumn 
-                        { 
-                            Field = "EmployeeId", 
-                            Label = "ID", 
-                            Width = "80px", 
-                            MinWidth = "60px",
-                            Align = "center", 
-                            Sortable = true, 
-                            Visible = true,
-                            Type = "number",
-                            Frozen = true,
-                            FrozenSide = "left",
-                            ShowInExport = true,
-                            Filter = new TableColumnFilter
-                            {
-                                Type = "number",
-                                Enabled = true,
-                                Placeholder = "رقم الموظف"
-                            }
-                        },
-                        new TableColumn 
-                        { 
-                            Field = "FullName", 
-                            Label = "الاسم الكامل", 
-                            Sortable = true, 
-                            Resizable = true,
-                            Type = "text",
-                            MinWidth = "150px",
-                            Filter = new TableColumnFilter
-                            {
-                                Type = "text",
-                                Enabled = true,
-                                Placeholder = "اسم الموظف"
-                            }
-                        },
-                        new TableColumn 
-                        { 
-                            Field = "Email", 
-                            Label = "البريد الإلكتروني", 
-                            Sortable = true,
-                            Type = "link",
-                            LinkTemplate = "mailto:{Email}",
-                            MinWidth = "200px",
-                            Filter = new TableColumnFilter
-                            {
-                                Type = "text",
-                                Enabled = true,
-                                Placeholder = "البريد الإلكتروني"
-                            }
-                        },
-                        new TableColumn 
-                        { 
-                            Field = "PhoneNumber", 
-                            Label = "الجوال", 
-                            Width = "120px", 
-                            Sortable = true,
-                            Type = "text",
-                            Filter = new TableColumnFilter
-                            {
-                                Type = "text",
-                                Enabled = true,
-                                Placeholder = "رقم الجوال"
-                            }
-                        },
-                        new TableColumn 
-                        { 
-                            Field = "City", 
-                            Label = "المدينة", 
-                            Sortable = true,
-                            Filter = new TableColumnFilter
-                            {
-                                Type = "select",
-                                Enabled = true,
-                                Options = new List<OptionItem>
-                                {
-                                    new OptionItem { Value = "", Text = "جميع المدن" },
-                                    new OptionItem { Value = "الرياض", Text = "الرياض" },
-                                    new OptionItem { Value = "جدة", Text = "جدة" },
-                                    new OptionItem { Value = "الدمام", Text = "الدمام" },
-                                    new OptionItem { Value = "مكة المكرمة", Text = "مكة المكرمة" },
-                                    new OptionItem { Value = "المدينة المنورة", Text = "المدينة المنورة" },
-                                    new OptionItem { Value = "أبها", Text = "أبها" },
-                                    new OptionItem { Value = "خميس مشيط", Text = "خميس مشيط" }
-                                }
-                            }
-                        },
-                        new TableColumn 
-                        { 
-                            Field = "IBAN", 
-                            Label = "IBAN", 
-                            Sortable = true,
-                            Type = "text",
-                            MinWidth = "180px",
-                            FormatterJs = "row => row.IBAN ? row.IBAN.replace(/(.{4})/g, '$1 ').trim() : ''",
-                            Filter = new TableColumnFilter
-                            {
-                                Type = "text",
-                                Enabled = true,
-                                Placeholder = "IBAN"
-                            }
-                        },
-                        new TableColumn 
-                        { 
-                            Field = "BirthDate", 
-                            Label = "تاريخ الميلاد", 
-                            Type = "date", 
-                            FormatString = "{0:yyyy-MM-dd}", 
-                            Sortable = true,
-                            Width = "120px",
-                            Filter = new TableColumnFilter
-                            {
-                                Type = "date",
-                                Enabled = true,
-                                Placeholder = "تاريخ الميلاد"
-                            }
-                        },
-                        new TableColumn 
-                        { 
-                            Field = "AgreeTerms", 
-                            Label = "موافق؟", 
-                            Type = "bool", 
-                            Align = "center",
-                            Width = "80px",
-                            Filter = new TableColumnFilter
-                            {
-                                Type = "select",
-                                Enabled = true,
-                                Options = new List<OptionItem>
-                                {
-                                    new OptionItem { Value = "", Text = "الكل" },
-                                    new OptionItem { Value = "true", Text = "موافق" },
-                                    new OptionItem { Value = "false", Text = "غير موافق" }
-                                }
-                            }
-                        },
-                        new TableColumn 
-                        { 
-                            Field = "CreatedAt", 
-                            Label = "تاريخ الإنشاء", 
-                            Type = "datetime", 
-                            FormatString = "{0:yyyy-MM-dd HH:mm}", 
-                            Sortable = true,
-                            Width = "150px",
-                            Visible = false
-                        },
-                        new TableColumn 
-                        { 
-                            Field = "UpdatedAt", 
-                            Label = "آخر تحديث", 
-                            Type = "datetime", 
-                            FormatString = "{0:yyyy-MM-dd HH:mm}", 
-                            Sortable = true,
-                            Width = "150px",
-                            Visible = false
-                        }
+                        new TableColumn { Field="EmployeeId", Label="ID", Type="number", Width="80px", Align="center", Sortable=true, Frozen=true, FrozenSide="left" },
+                        new TableColumn { Field="FullName", Label="الاسم الكامل", Type="text", MinWidth="150px", Sortable=true, Resizable=true },
+                        new TableColumn { Field="Email", Label="البريد الإلكتروني", Type="link", LinkTemplate="mailto:{Email}", MinWidth="200px", Sortable=true },
+                        new TableColumn { Field="PhoneNumber", Label="الجوال", Type="text", Width="120px", Sortable=true },
+                        new TableColumn { Field="City", Label="المدينة", Sortable=true },
+                        new TableColumn { Field="IBAN", Label="IBAN", Type="text", MinWidth="180px", Sortable=true, FormatterJs="row => row.IBAN ? row.IBAN.replace(/(.{4})/g, '$1 ').trim() : ''" },
+                        new TableColumn { Field="BirthDate", Label="تاريخ الميلاد", Type="date", FormatString="{0:yyyy-MM-dd}", Width="120px", Sortable=true },
+                        new TableColumn { Field="AgreeTerms", Label="موافق؟", Type="bool", Align="center", Width="80px" },
+                        new TableColumn { Field="CreatedAt", Label="تاريخ الإنشاء", Type="datetime", FormatString="{0:yyyy-MM-dd HH:mm}", Width="150px", Visible=false },
+                        new TableColumn { Field="UpdatedAt", Label="آخر تحديث", Type="datetime", FormatString="{0:yyyy-MM-dd HH:mm}", Width="150px", Visible=false }
                     },
 
                     // شريط الأدوات
@@ -290,7 +147,7 @@ namespace SmartFoundation.Mvc.Controllers
                 }
             };
 
-            // نضع الجدول داخل FormConfig
+            // ضع الجدول داخل فورم
             var form = new FormConfig
             {
                 Title = "قائمة الموظفين",
@@ -299,7 +156,6 @@ namespace SmartFoundation.Mvc.Controllers
                 Fields = new List<FieldConfig> { tableField }
             };
 
-            // ViewModel للصفحة
             var vm = new SmartPageViewModel
             {
                 PageTitle = "الموظفين",

@@ -99,7 +99,7 @@
 
     <!-- ========== Scripts (الترتيب مهم) ========== -->
     <!-- 0) Utilities عامة لمشروعك -->
-    <script>
+    @* <script>
         window.smartForm = function () {
           return {
             submitForm(action, method) {
@@ -113,7 +113,7 @@
           };
         };
         document.documentElement.setAttribute('data-theme','light');
-    </script>
+    </script> *@
 
     <!-- 1) Flowbite الأساسي (لـ dropdown/header) -->
     <script src="~/js/flowbite.min.js" defer></script>
@@ -135,43 +135,7 @@
     <script src="~/js/sf-table.js"></script>
 
 
-
     @await RenderSectionAsync("Scripts", required: false)
-
-    <!-- أكشنات إضافية (اختياري) -->
-    <script>
-        window.submitForm = function(actionUrlOrNull, method, includeFormData, spOverride) {
-          try {
-            const el   = document.activeElement;
-            const form = el && el.closest ? el.closest('form') : null;
-            const f    = form || document.querySelector('form');
-            if (!f) return;
-
-            if (actionUrlOrNull) f.action = actionUrlOrNull;
-            if (method)          f.method = method;
-
-            if (spOverride !== undefined && spOverride !== null && spOverride !== '') {
-              let spInput =
-                f.querySelector('input[name="StoredProcedureName"]') ||
-                f.querySelector('input[name="spName"]');
-              if (!spInput) {
-                spInput       = document.createElement('input');
-                spInput.type  = 'hidden';
-                spInput.name  = 'StoredProcedureName';
-                f.appendChild(spInput);
-              }
-              spInput.value = spOverride;
-            }
-
-            if (f.requestSubmit) f.requestSubmit(); else f.submit();
-          } catch (e) { console.error('submitForm error:', e); }
-        };
-
-        window.cancelForm = () => { if (window.history.length > 1) history.back(); };
-        window.editForm   = () => { console.log('editForm: افتح وضع التعديل'); };
-        window.deleteForm = () => { console.log('deleteForm: نفّذ تأكيد ثم submitForm(null, "POST", true, "sp_DeleteUser")'); };
-    </script>
-
 
 </body>
 </html>

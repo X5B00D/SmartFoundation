@@ -1,4 +1,4 @@
-﻿// كلاس: ينشئ اتصال SQL جديد باستخدام ConnectionStrings:Default.
+﻿// يفتح اتصال SQL
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Configuration;
 
