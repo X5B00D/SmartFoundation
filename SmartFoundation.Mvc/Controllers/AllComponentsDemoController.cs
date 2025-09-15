@@ -2,6 +2,8 @@
 using SmartFoundation.UI.ViewModels.SmartForm;
 using SmartFoundation.UI.ViewModels.SmartPage;
 using SmartFoundation.DataEngine.Core.Models;
+using SmartFoundation.UI.ViewModels.SmartTable;
+
 
 namespace SmartFoundation.Mvc.Controllers
 {
@@ -40,7 +42,7 @@ namespace SmartFoundation.Mvc.Controllers
                         Required=true,
                         Placeholder="حقل عربي فقط",
                         Icon="fa-solid fa-user",
-                        ColCss="col-span-12 md:col-span-6",
+                        ColCss="col-span-12 md:col-span-3",
                         MaxLength=50,
                         TextMode="arsentence",
                     },
@@ -246,7 +248,7 @@ namespace SmartFoundation.Mvc.Controllers
                         MaxLength=500,
                         Placeholder="يسمح بكتابة 500 حرف",
                         Icon="fa-solid fa-file-lines",
-                        ColCss="col-span-12 md:col-span-3",
+                        ColCss="col-span-12 md:col-span-5",
                         Spellcheck=true,
                         Autocapitalize="sentences",
                         HelpText="يمكنك إدخال وصف مختصر هنا"

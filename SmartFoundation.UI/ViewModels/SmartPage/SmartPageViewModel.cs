@@ -1,20 +1,17 @@
-﻿
-using SmartFoundation.UI.ViewModels.SmartForm;
-using SmartFoundation.UI.ViewModels.SmartPrint;
+﻿using SmartFoundation.UI.ViewModels.SmartForm;
+using SmartFoundation.UI.ViewModels.SmartTable;
 
-namespace SmartFoundation.UI.ViewModels.SmartPage;
-
-public class SmartPageViewModel
+namespace SmartFoundation.UI.ViewModels.SmartPage
 {
-    public string? PageTitle { get; set; } = "Smart Demo";
-    public string? PanelTitle { get; set; } = "Smart Demo";
+    public class SmartPageViewModel
+    {
+        public string? PageTitle { get; set; } = "Smart Demo";
+        public string? PanelTitle { get; set; } = "Smart Demo";
 
-    public string SpName { get; set; } = "";
-    public string Operation { get; set; } = "select";
+        public string SpName { get; set; } = "";
+        public string Operation { get; set; } = "select";
 
-    
-    public FormConfig? Form { get; set; }
-
-    // ✨ هنا الخاصية الجديدة للطباعة
-    public SmartPrintDocument? PrintDoc { get; set; }
+        public FormConfig? Form { get; set; }
+        public TableConfig? Table { get; set; }   // ✨ أضفنا هذا السطر
+    }
 }
