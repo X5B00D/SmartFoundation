@@ -124,14 +124,8 @@
                             ? { Field: this.sort.field, Dir: this.sort.dir }
                             : null,
                         Filters: this.q
-                            ? this.quickSearchFields.map((f) => ({
-                                Field: f,
-                                Op: "contains",
-                                Value: this.q
-                            }))
-                            : [],
-                        // إضافة الفلاتر المتقدمة إذا كانت موجودة
-                        AdvancedFilters: this.advancedFilters || []
+                            ? [{ Field: "QuickSearch", Op: "contains", Value: this.q }]
+                            : []
                     };
 
                     const resp = await fetch(this.endpoint, {
@@ -241,9 +235,8 @@
                         const rowData = this.visibleColumns()
                             .map((c) => {
                                 let value = r[c.field] ?? "";
-                                // معالجة القيم الخاصة للتصدير
                                 if (typeof value === 'string' && value.includes(',')) {
-                                    value = `"${value}"`; // إضافة quotes للقيم التي تحتوي على فواصل
+                                    value = `"${value}"`;
                                 }
                                 return value;
                             })
@@ -255,7 +248,7 @@
                         ? "application/vnd.ms-excel"
                         : "text/csv;charset=utf-8;";
 
-                    const blob = new Blob(["\uFEFF" + content], { type: mimeType }); // BOM للدعم Unicode
+                    const blob = new Blob(["\uFEFF" + content], { type: mimeType });
                     const url = URL.createObjectURL(blob);
                     const a = document.createElement("a");
                     a.href = url;
@@ -276,7 +269,6 @@
                 if (!action) return;
 
                 try {
-                    // التحقق من شروط التنفيذ
                     if (action.requireSelection) {
                         const selectedCount = this.selectedKeys.size;
                         if (selectedCount < action.minSelection ||
@@ -286,18 +278,15 @@
                         }
                     }
 
-                    // تأكيد
                     if (action.confirmText) {
                         if (!confirm(action.confirmText)) return;
                     }
 
-                    // فتح مودال (تفاصيل أو فورم)
                     if (action.openModal) {
                         await this.openModal(action, row);
                         return;
                     }
 
-                    // تنفيذ SP مباشر
                     if (action.saveSp) {
                         const success = await this.executeSp(action.saveSp, action.saveOp || "execute", row);
                         if (success && this.autoRefresh) {
@@ -307,10 +296,8 @@
                         return;
                     }
 
-                    // تنفيذ JS مخصص
                     if (action.onClickJs) {
                         try {
-                            // تمرير السياق للدالة
                             const func = new Function('table', 'row', 'selectedKeys', action.onClickJs);
                             func(this, row, this.selectedKeys);
                         } catch (e) {
@@ -379,7 +366,6 @@
                     const json = await resp.json();
                     if (!json.success) throw new Error(json.error || "فشل العملية");
 
-                    // عرض رسالة النجاح إذا كانت موجودة
                     if (json.message) {
                         this.showToast(json.message, 'success');
                     }
@@ -402,20 +388,17 @@
                 this.modal.html = "";
 
                 try {
-                    // تحميل فورم أو بيانات تفاصيل
                     if (action.formUrl) {
                         const url = this.fillUrl(action.formUrl, row);
                         const resp = await fetch(url);
                         if (!resp.ok) throw new Error(`Failed to load form: ${resp.status}`);
                         this.modal.html = await resp.text();
 
-                        // تهيئة أي scripts في النموذج
                         this.$nextTick(() => {
                             this.initModalScripts();
                         });
 
                     } else if (action.openForm) {
-                        // توليد HTML من openForm
                         this.modal.html = this.generateFormHtml(action.openForm, row);
 
                     } else if (action.modalSp) {
@@ -443,7 +426,6 @@
             },
 
             initModalScripts() {
-                // تهيئة أي scripts في المودال
                 const scripts = this.$el.querySelectorAll('.sf-modal script');
                 scripts.forEach(script => {
                     const newScript = document.createElement('script');
@@ -453,34 +435,59 @@
             },
 
             generateFormHtml(formConfig, rowData) {
-                // توليد HTML للنموذج من التكوين
-                let html = `<form id="${formConfig.FormId}" method="${formConfig.Method}" action="${formConfig.ActionUrl}">`;
+                let html = `<form id="${formConfig.formId}" method="${formConfig.method}" action="${formConfig.actionUrl}">
+        <div class="grid grid-cols-12 gap-4">`;
 
-                formConfig.Fields.forEach(field => {
-                    if (!field.IsHidden) {
+                (formConfig.fields || []).forEach(field => {
+                    if (!field.isHidden) {
                         html += this.generateFieldHtml(field, rowData);
                     }
                 });
 
-                html += `<div class="form-actions">
-                    <button type="submit" class="btn btn-primary">${formConfig.SubmitText || 'حفظ'}</button>
-                    <button type="button" class="btn btn-secondary" onclick="this.closest('.sf-modal').__x.$data.closeModal()">إلغاء</button>
-                </div>`;
-                html += '</form>';
+                html += `</div>
+        <div class="form-actions mt-4 flex justify-end space-x-2">
+            <button type="submit" class="btn btn-success">${formConfig.submitText || "حفظ"}</button>
+            <button type="button" class="btn btn-secondary" onclick="this.closest('.sf-modal').__x.$data.closeModal()">
+                ${formConfig.cancelText || "إلغاء"}
+            </button>
+        </div>
+    </form>`;
 
                 return html;
             },
 
+
+
             generateFieldHtml(field, rowData) {
-                // توليد HTML للحقل (تبسيط)
-                const value = rowData ? rowData[field.Name] : field.Value;
+                const value = rowData ? rowData[field.name] : field.value || "";
+                const colCss = field.colCss || field.ColCss || "col-span-12 md:col-span-6";
+
+                if (field.type === "checkbox") {
+                    return `
+        <div class="${colCss} flex items-center space-x-2">
+            <input type="checkbox" name="${field.name}" id="${field.name}"
+                   ${value ? "checked" : ""} 
+                   class="sf-input sf-checkbox">
+            <label for="${field.name}" class="ml-2">${field.label}</label>
+        </div>`;
+                }
+
                 return `
-                <div class="form-group">
-                    <label>${field.Label}${field.Required ? ' *' : ''}</label>
-                    <input type="${field.Type}" name="${field.Name}" value="${value || ''}" 
-                           ${field.Required ? 'required' : ''} class="form-control">
-                </div>`;
+    <div class="${colCss}">
+    <label class="block text-sm font-medium text-gray-700 mb-1">
+        ${field.label}${field.required ? " *" : ""}
+    </label>
+    <input type="${field.type}" 
+           name="${field.name}" 
+           value="${value}" 
+           placeholder="${field.placeholder || ""}" 
+           ${field.required ? "required" : ""} 
+           class="w-full px-3 py-2 border rounded-lg shadow-sm focus:ring focus:ring-blue-300 focus:border-blue-500" />
+</div>`;
             },
+
+
+
 
             formatDetailView(data, columns) {
                 if (!data) return "<p>لا توجد بيانات</p>";
@@ -542,7 +549,6 @@
 
             // ===== أدوات مساعدة =====
             showToast(message, type = 'info') {
-                // تنفيذ toast notification
                 const toast = document.createElement('div');
                 toast.className = `toast toast-${type}`;
                 toast.textContent = message;
@@ -591,7 +597,6 @@
                         const src = this.fillUrl(imgTemplate, row);
                         return `<img src="${src}" alt="${val}" class="table-image" style="max-height: 50px;">`;
                     default:
-                        // تطبيق formatter مخصص إذا موجود
                         if (col.formatterJs && typeof eval(col.formatterJs) === 'function') {
                             try {
                                 return eval(col.formatterJs)(row, col, this);
@@ -660,13 +665,11 @@
             },
 
             changeDensity(density) {
-                // تغيير كثافة العرض
                 this.$el.setAttribute('data-density', density);
             }
         }));
     };
 
-    // التسجيل
     if (window.Alpine) {
         register();
     } else {

@@ -1,31 +1,17 @@
-﻿// يهيّئ خدمات MVC/JSON والضغط، ويسجّل خدمات طبقة البيانات (ConnectionFactory + SmartComponentService).
-
-using SmartFoundation.DataEngine.Core.Interfaces;    // ISmartComponentService
-using SmartFoundation.DataEngine.Core.Services;      // SmartComponentService
-using SmartFoundation.DataEngine.Core.Utilities;     // ConnectionFactory
+﻿using System.Text.Json;
+using SmartFoundation.DataEngine.Core.Interfaces;
+using SmartFoundation.DataEngine.Core.Services;
+using SmartFoundation.DataEngine.Core.Utilities;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// MVC + JSON
-// ✅ مهم: نفعل CamelCase عشان يتطابق spName → SpName, operation → Operation
 builder.Services.AddControllersWithViews()
     .AddJsonOptions(o =>
     {
-        o.JsonSerializerOptions.PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase;
+        o.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
     });
 
-//builder.Services.AddControllers()
-//    .AddJsonOptions(o => {
-//        o.JsonSerializerOptions.PropertyNamingPolicy = null;
-//    });
-
-
-// (اختياري أثناء التطوير)
-// builder.Services.AddControllersWithViews().AddRazorRuntimeCompilation();
-
-builder.Services.AddResponseCompression(); // ضغط الاستجابة يقلل حجم JSON المنقول
-
-// تسجيل خدمات طبقة البيانات (مرة واحدة فقط)
+builder.Services.AddResponseCompression();
 builder.Services.AddSingleton<ConnectionFactory>();
 builder.Services.AddScoped<ISmartComponentService, SmartComponentService>();
 
