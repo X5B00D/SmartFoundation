@@ -495,12 +495,20 @@ debouncedSearch() {
                     colCss = `col-span-12 md:col-span-${n}`;
                 }
 
+                //const wrap = (inner) => `
+                //    <div class="${colCss}">
+                //        <label class="sf-label">${label}${required ? " *" : ""}</label>
+                //        ${inner}
+                //        ${helpText ? `<div class="form-help">${helpText}</div>` : ""}
+                //    </div>`;
+
                 const wrap = (inner) => `
-                    <div class="${colCss}">
-                        <label class="sf-label">${label}${required ? " *" : ""}</label>
-                        ${inner}
-                        ${helpText ? `<div class="form-help">${helpText}</div>` : ""}
-                    </div>`;
+    <div class="form-group ${colCss}">
+        <label class="sf-label">${label}${required ? " *" : ""}</label>
+        ${inner}
+        ${helpText ? `<div class="form-help">${helpText}</div>` : ""}
+    </div>`;
+
 
                 if (type === "checkbox") {
                     return `
@@ -522,14 +530,45 @@ debouncedSearch() {
                     return wrap(`<select class="sf-select" name="${name}" ${required ? "required" : ""}>${opts}</select>`);
                 }
 
+            //    const mapType = (t) => {
+            //        if (["text", "number", "password", "email", "date", "datetime-local", "url", "tel"].includes(t)) return t;
+            //        if (t === "phone") return "tel";
+            //        return "text";
+            //    };
+            //    /*const htmlInputClass = type === "date" ? "sf-date" : "sf-input";*/
+            //    const htmlInputClass = type === "date" ? "sf-date" : "input";
+
+
+
+
+            //    return wrap(`<input class="${htmlInputClass}" type="${mapType(type)}" name="${name}" value="${(value ?? "").toString().replace(/"/g, '&quot;')}" placeholder="${placeholder}" ${required ? "required" : ""} />`);
+                //},
+
                 const mapType = (t) => {
-                    if (["text", "number", "password", "email", "date", "datetime-local", "url", "tel"].includes(t)) return t;
+                    if (["text", "number", "password", "email", "datetime-local", "url", "tel"].includes(t)) return t;
                     if (t === "phone") return "tel";
                     return "text";
                 };
-                const htmlInputClass = type === "date" ? "sf-date" : "sf-input";
 
-                return wrap(`<input class="${htmlInputClass}" type="${mapType(type)}" name="${name}" value="${(value ?? "").toString().replace(/"/g, '&quot;')}" placeholder="${placeholder}" ${required ? "required" : ""} />`);
+                // ✅ معالجة خاصة لحقل التاريخ
+                if (type === "date") {
+                    return wrap(`
+        <input type="text"
+               name="${name}"
+               value="${value ?? ""}"
+               placeholder="YYYY-MM-DD"
+               class="sf-date"
+               autocomplete="off"
+               data-role="sf-date"
+               data-date-format="yyyy-mm-dd"
+               data-calendar="gregory"
+               data-display-lang="ar"
+               ${required ? "required" : ""} />
+    `);
+                }
+
+                // باقي الحقول العادية
+                return wrap(`<input class="input" type="${mapType(type)}" name="${name}" value="${(value ?? "").toString().replace(/"/g, '&quot;')}" placeholder="${placeholder}" ${required ? "required" : ""} />`);
             },
 
             formatDetailView(data, columns) {

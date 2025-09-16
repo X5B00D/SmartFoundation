@@ -37,19 +37,19 @@ namespace SmartFoundation.Mvc.Controllers
                     new TableColumn { Field="PhoneNumber", Label="الجوال", Type="text", Sortable=true },
                     new TableColumn { Field="City", Label="المدينة", Sortable=true },
                     new TableColumn { Field="IBAN", Label="IBAN", Type="text", Sortable=true },
-                    new TableColumn { Field="BirthDate", Label="تاريخ الميلاد", Type="date", FormatString="{0:yyyy-MM-dd}", Sortable=true },
+                    //new TableColumn { Field="BirthDate", Label="تاريخ الميلاد", Type="date", FormatString="{0:yyyy-MM-dd}", Sortable=true },
                     new TableColumn { Field="AgreeTerms", Label="موافق؟", Type="bool", Align="center" }
                 },
 
                 Toolbar = new TableToolbarConfig
                 {
-                    ShowRefresh = true,
+                    ShowRefresh = false,
                     ShowColumns = true,
                     ShowExportCsv = true,
                     ShowExportExcel = true,
                     ShowAdd = true,
                     ShowEdit = true,
-                    ShowBulkDelete = true,
+                    ShowBulkDelete = false,
 
                     // زر الإضافة (فورم ديناميكي)
                     Add = new TableAction
@@ -197,8 +197,45 @@ namespace SmartFoundation.Mvc.Controllers
                         IsEdit = true,
                         OpenModal = true,
                         ModalTitle = "تعديل موظف",
-                        FormUrl = Url.Action("EmployeeFields", "Employees") + "?id={EmployeeId}"
+                        OpenForm = new FormConfig
+                        {
+                            FormId = "employeeEditForm",
+                            Title = "تعديل بيانات الموظف",
+                            ActionUrl = "/smart/execute",
+                            StoredProcedureName = "dbo.sp_SmartFormDemo",
+                            Operation = "update_employee",   // ✨ عملية التعديل
+                            SubmitText = "حفظ التعديلات",
+                            CancelText = "إلغاء",
+
+                            Fields = new List<FieldConfig>
+        {
+            new FieldConfig { Name = "EmployeeId", Type = "hidden" }, // ✨ ضروري عشان يعرف أي موظف
+            new FieldConfig { Name = "FullName", Label = "الاسم الكامل", Type = "text", Required = true, ColCss="3" },
+            new FieldConfig { Name = "Email", Label = "البريد الإلكتروني", Type = "text", TextMode="email", Required = true, ColCss="3" },
+            new FieldConfig { Name = "NationalId", Label = "رقم الهوية", Type = "text", Required = true, ColCss="3" },
+            new FieldConfig { Name = "PhoneNumber", Label = "الجوال", Type = "phone", Required = true, ColCss="3" },
+            new FieldConfig { Name = "PhoneNumber", Label = "الجوال", Type = "phone", Required = true, ColCss="3" },
+            new FieldConfig {
+                Name = "City",
+                Label = "المدينة",
+                Type = "select",
+                Options = new List<OptionItem>{
+                    new OptionItem{Value="RYD",Text="الرياض"},
+                    new OptionItem{Value="JED",Text="جدة"},
+                    new OptionItem{Value="DMM",Text="الدمام"}
+                },
+                ColCss="3"
+            },
+            new FieldConfig { Name = "IBAN", Label = "IBAN", Type = "iban", ColCss="6" },
+            new FieldConfig { Name = "BirthDate", Label = "تاريخ الميلاد", Type = "date", ColCss="6" },
+            new FieldConfig { Name = "Notes", Label = "ملاحظات", Type = "textarea", ColCss="6" },
+            new FieldConfig { Name = "AgreeTerms", Label = "أوافق على الشروط", Type = "checkbox", Required = true, ColCss="6" }
+        }
+                        },
+                        SaveSp = "dbo.sp_SmartFormDemo",
+                        SaveOp = "update_employee"
                     }
+
                 }
             };
 
