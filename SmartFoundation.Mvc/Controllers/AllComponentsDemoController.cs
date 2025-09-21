@@ -358,15 +358,15 @@ new FieldConfig
                 Color = "info",
                 Show = true,
                 OpenModal = true,
-                IsEdit = true,  // ✅ يحدد أنه زر تعديل
+                IsEdit = true,  
                 ModalTitle = "تعديل بيانات المستخدم",
-                ModalSp = "sp_GetUserDetail",   // SP لجلب البيانات للتعديل
+                ModalSp = "sp_GetUserDetail",   
                 ModalOp = "detail",
-                SaveSp = "sp_UpdateUser",       // SP لحفظ التعديلات
+                SaveSp = "sp_UpdateUser",       
                 SaveOp = "update",
                 ModalColumns = new List<TableColumn>
                 {
-                    new TableColumn { Field="Id", Label="رقم", Visible=false }, // رقم معرف فقط
+                    new TableColumn { Field="Id", Label="رقم", Visible=false }, 
                     new TableColumn { Field="FullName", Label="الاسم الكامل" },
                     new TableColumn { Field="Email", Label="البريد الإلكتروني" },
                     new TableColumn { Field="Phone", Label="الهاتف" },
@@ -451,13 +451,13 @@ new FieldConfig
         [HttpPost("ExecuteDemo")]
         public IActionResult ExecuteDemo([FromBody] SmartRequest req)
         {
-            // جلب بيانات الجدول التجريبية
+            
             if (req.SpName == "sp_GetDemoData")
             {
                 // تحديد عدد السجلات المطلوبة حسب الصفحة المطلوبة
                 int pageSize = req.Paging?.Size ?? 10;
                 int pageNumber = req.Paging?.Page ?? 1;
-                int totalItems = 25; // إجمالي السجلات الافتراضية
+                int totalItems = 25; 
                 
                 // حساب السجلات المطلوبة للصفحة الحالية
                 int startIndex = (pageNumber - 1) * pageSize;
@@ -476,7 +476,7 @@ new FieldConfig
                 // فلترة حسب البحث إذا وجد
                 if (req.Filters?.Count > 0)
                 {
-                    // تنفيذ البحث البسيط على البيانات (مثال)
+                   
                     var searchFilter = req.Filters.FirstOrDefault(f => f.Field == "q" || f.Field == "search");
                     if (searchFilter != null && searchFilter.Value != null)
                     {
@@ -491,10 +491,10 @@ new FieldConfig
                     }
                 }
 
-                // ترتيب النتائج
+               
                 if (req.Sort != null && !string.IsNullOrEmpty(req.Sort.Field))
                 {
-                    // تطبيق الترتيب (مثال بسيط)
+                   
                     bool isDesc = req.Sort.Dir?.ToLower() == "desc";
                     
                     if (req.Sort.Field == "Id")

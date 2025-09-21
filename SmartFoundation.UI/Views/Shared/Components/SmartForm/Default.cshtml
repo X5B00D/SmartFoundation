@@ -7,7 +7,7 @@
     string? currentSection = null;
     var sectionOpen = false;
 
-    // خيارات JSON لتأكد أن الأسماء تخرج بصيغة camelCase مثل المطلوب في JavaScript
+    
     var webJson = new JsonSerializerOptions(JsonSerializerDefaults.Web);
 }
 
@@ -27,13 +27,6 @@
             </button>
             
         </div>
-        @* <form id="@formId"
-              method="@Model.Method"
-              action="@Model.ActionUrl"
-              x-on:submit="submitForm('@Model.ActionUrl','@Model.Method')"
-              autocomplete="off"
-              class="w-full"> *@
-
               <section class="w-full mt-6">
 ...
 <form id="@formId"
@@ -63,15 +56,15 @@
     // اقفل أي سكشن مفتوح
     if (sectionOpen)
     {
-        @:</div> <!-- close form-row -->
-        @:</div> <!-- close section-box -->
+        @:</div> 
+        @:</div> 
         sectionOpen = false;
     }
 
-    // اقفل أي grid افتراضي مفتوح
+    
     if (defaultRowOpen)
     {
-        @:</div> <!-- close default form-row -->
+        @:</div> 
         defaultRowOpen = false;
     }
 
@@ -127,11 +120,11 @@ else
                                 class="relative"
                                 x-on:keydown.escape.window="open=false">
 
-                                <!-- الحقل المُرسل للنموذج -->
+                                
                                 <input type="hidden" x-ref="hidden" name="@field.Name" :value="serialize()"
                                        @(field.Required ? "required" : null) @(field.Disabled ? "disabled" : null) />
 
-                                <!-- الزر/العرض -->
+                                
                                 <button type="button"
                                         x-ref="anchor"
                                         class="sf-select @field.ExtraCss"
@@ -147,7 +140,7 @@ else
                                     </span>
                                 </button>
 
-                                <!-- القائمة المنسوخة إلى body -->
+                                
                                 <template x-teleport="body">
                                     <div x-show="open" x-transition x-cloak
                                          x-on:click.outside="open=false"
@@ -192,7 +185,7 @@ else
 
                         default:
                             <div class="form-group @field.GetResolvedColCss() relative">
-                                @* أيقونة *@
+                                
                                 @if (!string.IsNullOrWhiteSpace(field.Icon))
                                 {
                                     <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
@@ -290,7 +283,7 @@ else
                                 }
 
                                 
-                                @* مكان رسائل الخطأ *@
+                                
                                 <span id="@($"{field.Name}_error")" asp-validation-for="@field.Name" class="form-error"></span>
                             </div>
                             break;
@@ -557,17 +550,17 @@ else
 
             @if (defaultRowOpen)
 {
-    @:</div> <!-- close default form-row -->
+    @:</div> 
 }
 @if (sectionOpen)
 {
-    @:</div> <!-- close form-row -->
-    @:</div> <!-- close section-box -->
+    @:</div> 
+    @:</div> 
 }
 
 
             <div class="col-span-12 flex flex-col md:flex-row flex-wrap justify-end items-center gap-2.5 md:gap-3 mt-5 border-t border-gray-200 pt-4">
-                @* زر الحفظ *@
+                
                 @if (!string.IsNullOrWhiteSpace(Model.SubmitText))
                 {
                     <button type="submit"
@@ -577,7 +570,7 @@ else
                     </button>
                 }
 
-                @* زر التفريغ *@
+                
                 @if (Model.ShowReset && !string.IsNullOrWhiteSpace(Model.ResetText))
                 {
                     <button type="reset"
@@ -587,7 +580,7 @@ else
                     </button>
                 }
 
-                @* الأزرار الإضافية من Normalize *@
+                
                 @if (Model.Buttons?.Any(b => b.Show) == true)
                 {
                     @foreach (var b in Model.Buttons.Where(b => b.Show))
@@ -595,7 +588,7 @@ else
                         var btnType = string.IsNullOrWhiteSpace(b.Type) ? "button" : b.Type;
                         var iconHtml = string.IsNullOrWhiteSpace(b.Icon) ? "" : $"<i class=\"{b.Icon} text-[14px]\"></i>";
 
-                        // ✅ استخدم b.Color مباشرة (لأن Normalize ضمنها)
+                        
                         var variant = (b.Color ?? "").Trim().ToLowerInvariant() switch
                         {
                             "success"   => "btn-success",

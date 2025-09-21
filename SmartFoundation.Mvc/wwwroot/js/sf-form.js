@@ -1,4 +1,4 @@
-﻿// ✅ تسجيل مكون Alpine للنموذج
+﻿//  تسجيل مكون Alpine للنموذج
 (function () {
     const register = () => {
         Alpine.data('smartForm', () => ({
@@ -7,7 +7,7 @@
             success: true,
             show: false,
 
-            // ✅ دالة إرسال النموذج (ترسل JSON)
+            //  دالة إرسال النموذج (ترسل JSON)
             async submitForm(actionUrl = "/smart/execute", method = "POST", event) {
                 if (event) event.preventDefault();
 
@@ -45,7 +45,7 @@
 
                     const result = await response.json();
 
-                    // ✅ هنا نعرض الرسائل القادمة من SP أو من السيرفر
+                    
                     if (result.success) {
                         this.showMessage(result.message || "✅ تم حفظ البيانات بنجاح!", true);
                         document.dispatchEvent(new CustomEvent("form-saved", { detail: result }));
@@ -60,7 +60,7 @@
                 }
             },
 
-            // ✅ دالة عرض الرسائل (نجاح/خطأ)
+            //دالة عرض الرسائل (نجاح/خطأ)
             showMessage(message, isSuccess = true) {
                 this.message = message;
                 this.success = isSuccess;
@@ -74,7 +74,7 @@
     else document.addEventListener("alpine:init", register);
 })();
 
-// ✅ دالة عامة للتوستر
+//  دالة عامة للتوستر
 function toast(message, success = true) {
     const elements = document.querySelectorAll('[x-data]');
     let found = false;
@@ -89,7 +89,7 @@ function toast(message, success = true) {
     if (!found) alert(message);
 }
 
-// ✅ دالة إرسال النموذج العامة (خارج Alpine) – JSON
+//  دالة إرسال النموذج العامة (خارج Alpine) – JSON
 async function submitForm(actionUrl = "/smart/execute", method = "POST", formId = null) {
     try {
         let form = formId ? document.getElementById(formId) : document.querySelector("form");
@@ -119,7 +119,7 @@ async function submitForm(actionUrl = "/smart/execute", method = "POST", formId 
         const json = await resp.json();
 
         if (json.success ?? resp.ok) {
-            // ✅ هنا برضه نعرض رسالة السيرفر لو موجودة
+            //  هنا برضه نعرض رسالة السيرفر لو موجودة
             toast(json.message || "✅ تم حفظ البيانات بنجاح!", true);
             document.dispatchEvent(new CustomEvent("form-saved", { detail: json }));
         } else {
@@ -134,7 +134,7 @@ async function submitForm(actionUrl = "/smart/execute", method = "POST", formId 
     }
 }
 
-// ✅ دوال إضافية
+//  دوال إضافية
 function cancelForm() { if (window.history.length > 1) history.back(); }
 function editForm() { console.log("editForm: افتح وضع التعديل"); }
 function deleteForm() { console.log("deleteForm: نفّذ تأكيد ثم submitForm('/smart/execute', 'POST', 'myFormId')"); }

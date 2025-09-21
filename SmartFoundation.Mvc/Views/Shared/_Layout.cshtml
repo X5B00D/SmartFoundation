@@ -77,7 +77,7 @@
     </header>
 
 
-    @* @await Component.InvokeAsync("Navigation") *@
+    
     <!-- End Header -->
 
 
@@ -97,8 +97,8 @@
         </div>
     </footer>
 
-    <!-- ========== Scripts (الترتيب مهم) ========== -->
-    <!-- 0) Utilities عامة لمشروعك -->
+    
+    
     @* <script>
         window.smartForm = function () {
           return {
@@ -115,22 +115,12 @@
         document.documentElement.setAttribute('data-theme','light');
     </script> *@
 
-    <!-- 1) Flowbite الأساسي (لـ dropdown/header) -->
+    
     <script src="~/js/flowbite.min.js" defer></script>
-
-    <!-- 2) Datepicker (إن كنت تستخدمه داخل sf-date) -->
     <script src="~/js/datepicker.min.js"></script>
-    @* أو استبدلها بـ flowbite-datepicker.min.js إذا كان سكربتك يعتمد على Flowbite Datepicker *@
-
-    <!-- 3) مكوّن القائمة المخصّص -->
     <script src="~/js/sf-select.js"></script>
-
-    <!-- 4) سكربت التاريخ الخاص بك -->
     <script src="~/js/sf-date.js"></script>
-
-    <!-- 5) Alpine يجب أن يكون أخيرًا (defer) -->
     <script src="~/js/alpinejs.min.js" defer></script>
-
     <script src="~/js/sf-form.js"></script>
     <script src="~/js/sf-table.js"></script>
 

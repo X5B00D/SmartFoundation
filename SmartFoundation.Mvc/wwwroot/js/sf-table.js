@@ -2,7 +2,7 @@
 (function () {
     const register = () => {
         Alpine.data("sfTable", (cfg) => ({
-            // ===== الخصائص القادمة من الـ Razor =====
+            
             endpoint: cfg.endpoint || "/smart/execute",
             spName: cfg.spName || "",
             operation: cfg.operation || "select",
@@ -66,7 +66,7 @@
                 this.setupEventListeners();
             },
 
-            // ===== تحميل التفضيلات المحفوظة =====
+            
             loadStoredPreferences() {
                 if (!this.storageKey) return;
                 try {
@@ -101,7 +101,7 @@
                 localStorage.setItem(this.storageKey, JSON.stringify(prefs));
             },
 
-            // ===== إعداد مستمعي الأحداث =====
+            
             setupEventListeners() {
                 document.addEventListener('keydown', (e) => {
                     if (e.key === 'Escape' && this.modal.open) {
@@ -123,14 +123,14 @@
                             Component: "Table",
                             SpName: this.spName,
                             Operation: this.operation,
-                            Paging: { Page: 1, Size: 1000000 } // حجم كبير لجلب كل البيانات
+                            Paging: { Page: 1, Size: 1000000 } 
                         };
 
                         const json = await this.postJson(this.endpoint, body);
                         this.allRows = json?.data || [];
                     }
 
-                    // فلترة محلية حسب البحث
+                    
                     let filtered = [...this.allRows];
                     if (this.q) {
                         const qLower = this.q.toLowerCase();
@@ -342,33 +342,6 @@ debouncedSearch() {
                 }
             },
 
-            //async executeSp(sp, op, row) {
-            //    try {
-            //        const body = {
-            //            Component: "Table",
-            //            SpName: sp,
-            //            Operation: op,
-            //            Params: row || {}
-            //        };
-            //        const resp = await fetch(this.endpoint, {
-            //            method: "POST",
-            //            headers: { "Content-Type": "application/json" },
-            //            body: JSON.stringify(body)
-            //        });
-            //        const json = await resp.json();
-            //        if (!json.success) throw new Error(json.error || "فشل العملية");
-            //        if (json.message) {
-            //            this.showToast(json.message, 'success');
-            //        }
-            //        return true;
-            //    } catch (e) {
-            //        console.error("Execute SP error", e);
-            //        this.showToast("⚠️ " + e.message, 'error');
-            //        return false;
-            //    }
-            //},
-
-
             async executeSp(sp, op, params) {
                 try {
                     const body = {
@@ -386,7 +359,7 @@ debouncedSearch() {
                     console.error("Execute SP error", e);
                     this.showToast("⚠️ " + (e.message || "فشل العملية"), 'error');
 
-                    // إن وُجدت أخطاء حقول مفصّلة من الخادم نعرضها داخل المودال
+                    
                     if (e?.server?.errors) this.applyServerErrors(e.server.errors);
                     return false;
                 }
@@ -495,12 +468,6 @@ debouncedSearch() {
                     colCss = `col-span-12 md:col-span-${n}`;
                 }
 
-                //const wrap = (inner) => `
-                //    <div class="${colCss}">
-                //        <label class="sf-label">${label}${required ? " *" : ""}</label>
-                //        ${inner}
-                //        ${helpText ? `<div class="form-help">${helpText}</div>` : ""}
-                //    </div>`;
 
                 const wrap = (inner) => `
     <div class="form-group ${colCss}">
@@ -530,19 +497,7 @@ debouncedSearch() {
                     return wrap(`<select class="sf-select" name="${name}" ${required ? "required" : ""}>${opts}</select>`);
                 }
 
-            //    const mapType = (t) => {
-            //        if (["text", "number", "password", "email", "date", "datetime-local", "url", "tel"].includes(t)) return t;
-            //        if (t === "phone") return "tel";
-            //        return "text";
-            //    };
-            //    /*const htmlInputClass = type === "date" ? "sf-date" : "sf-input";*/
-            //    const htmlInputClass = type === "date" ? "sf-date" : "input";
-
-
-
-
-            //    return wrap(`<input class="${htmlInputClass}" type="${mapType(type)}" name="${name}" value="${(value ?? "").toString().replace(/"/g, '&quot;')}" placeholder="${placeholder}" ${required ? "required" : ""} />`);
-                //},
+            
 
                 const mapType = (t) => {
                     if (["text", "number", "password", "email", "datetime-local", "url", "tel"].includes(t)) return t;
@@ -550,7 +505,7 @@ debouncedSearch() {
                     return "text";
                 };
 
-                // ✅ معالجة خاصة لحقل التاريخ
+                //  حقل التاريخ
                 if (type === "date") {
                     return wrap(`
         <input type="text"
@@ -601,7 +556,7 @@ debouncedSearch() {
                     this.modal.loading = true;
                     this.modal.error = null;
 
-                    // تحويل نموذج المودال إلى كائن (مع تطبيع الأنواع)
+                    
                     const payload = this.serializeForm(form);
 
                     const success = await this.executeSp(
@@ -626,9 +581,9 @@ debouncedSearch() {
             },
 
 
-            // ===== أدوات مساعدة منخفضة المستوى =====
+            
             getCsrfToken() {
-                // يحاول التقاط الـ CSRF من meta أو من input مخفي
+                
                 const meta = document.querySelector('meta[name="request-verification-token"]');
                 if (meta?.content) return meta.content;
                 const input = document.querySelector('input[name="__RequestVerificationToken"]');
@@ -647,28 +602,28 @@ debouncedSearch() {
                 });
 
                 let json = null;
-                try { json = await resp.json(); } catch { /* قد يرجع نص خام */ }
+                try { json = await resp.json(); } catch {}
 
                 if (!resp.ok) {
                     const msg = json?.error || `HTTP ${resp.status}`;
                     throw new Error(msg);
                 }
 
-                // إذا الـ endpoint يوحّد الاستجابة على { success, data, total, error, errors, message }
+                
                 if (json && json.success === false) {
                     const err = new Error(json.error || "فشل العملية");
-                    err.server = json;     // نحتفظ بالأخطاء التفصيلية إن وجدت
+                    err.server = json;     
                     throw err;
                 }
                 return json;
             },
 
             serializeForm(formEl) {
-                // يحوّل FormData إلى كائن JS + يضبط أنواع القيم
+                
                 const fd = new FormData(formEl);
                 const obj = {};
 
-                // إدخال جميع القيم (يدعم multi-value)
+                
                 for (const [k, v] of fd.entries()) {
                     if (obj[k] !== undefined) {
                         if (Array.isArray(obj[k])) obj[k].push(v);
@@ -678,28 +633,28 @@ debouncedSearch() {
                     }
                 }
 
-                // حقول checkbox غير المرسلة = false
+                
                 formEl.querySelectorAll('input[type="checkbox"][name]').forEach(inp => {
                     if (!fd.has(inp.name)) obj[inp.name] = false;
                     else obj[inp.name] = !!inp.checked;
                 });
 
-                // تطبيع الأنواع الشائعة
+               
                 Object.keys(obj).forEach(k => {
                     let val = obj[k];
                     if (typeof val === "string") {
                         let s = val.trim();
 
-                        // سلاسل فارغة -> null
+                        
                         if (s === "") { obj[k] = null; return; }
 
-                        // أرقام صحيحة (بدون leading zero ما لم يكن صفرًا فقط)
+                        
                         if (/^-?\d+$/.test(s) && !/^0\d+/.test(s)) { obj[k] = Number(s); return; }
 
-                        // أرقام عشرية
+                       
                         if (/^-?\d+\.\d+$/.test(s)) { obj[k] = Number(s); return; }
 
-                        // تواريخ ISO (اتركها كسلسلة موحدة)
+                        
                         if (/^\d{4}-\d{2}-\d{2}(T\d{2}:\d{2}(:\d{2})?)?$/.test(s)) { obj[k] = s; return; }
 
                         obj[k] = s;
@@ -710,15 +665,15 @@ debouncedSearch() {
             },
 
             applyServerErrors(errors) {
-                // يعرض أخطاء حقول الخادم داخل المودال (إن وُجدت)
+                
                 const form = this.$el.querySelector('.sf-modal form');
                 if (!form || !errors) return;
 
-                // تنظيف قديم
+                
                 form.querySelectorAll('[data-error-msg]').forEach(el => el.remove());
                 form.querySelectorAll('.ring-red-500').forEach(el => el.classList.remove('ring-red-500'));
 
-                // إظهار جديد
+                
                 Object.entries(errors).forEach(([name, msg]) => {
                     const field = form.querySelector(`[name="${name}"]`);
                     if (!field) return;

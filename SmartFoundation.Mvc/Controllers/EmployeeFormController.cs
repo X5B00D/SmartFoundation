@@ -27,7 +27,7 @@ namespace SmartFoundation.Mvc.Controllers
                     new FieldConfig { Name="PhoneNumber", Label="الجوال", Type="text", Required=true, Autocomplete="on", ColCss="col-span-12 md:col-span-3", InputLang="number" },
                     new FieldConfig { Name="IBAN", Label="الحساب البنكي (IBAN)", Type="text", Autocomplete="on", ColCss="col-span-12 md:col-span-3" },
 
-                    // ✅ تعديل CountryCode عشان يرسل SA/EG/JO مو نص عربي
+                    
                     new FieldConfig
                     {
                         Name="CountryCode",
@@ -45,7 +45,7 @@ namespace SmartFoundation.Mvc.Controllers
                     new FieldConfig { Name="City", Label="المدينة", Type="text", Autocomplete="on", ColCss="col-span-12 md:col-span-3" },
                     new FieldConfig { Name="Address", Label="العنوان", Type="text", Autocomplete="on", ColCss="col-span-12 md:col-span-3" },
 
-                    // ✅ تعديل AgreeTerms عشان يرسل 1 بدل "true"
+                    
                     new FieldConfig {
                         Name="AgreeTerms",
                         Label="الموافقة على الشروط",

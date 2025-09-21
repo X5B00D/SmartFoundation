@@ -9,7 +9,7 @@ namespace SmartFoundation.Mvc.Controllers
     {
         public IActionResult Index()
         {
-            // 🔹 الجدول الرئيسي
+            //  الجدول الرئيسي
             var tableConfig = new TableConfig
             {
                 Endpoint = "/smart/execute",
@@ -37,13 +37,13 @@ namespace SmartFoundation.Mvc.Controllers
                     new TableColumn { Field="PhoneNumber", Label="الجوال", Type="text", Sortable=true },
                     new TableColumn { Field="City", Label="المدينة", Sortable=true },
                     new TableColumn { Field="IBAN", Label="IBAN", Type="text", Sortable=true },
-                    //new TableColumn { Field="BirthDate", Label="تاريخ الميلاد", Type="date", FormatString="{0:yyyy-MM-dd}", Sortable=true },
+                    new TableColumn { Field="BirthDate", Label="تاريخ الميلاد", Type="date", FormatString="{0:yyyy-MM-dd}", Sortable=true },
                     new TableColumn { Field="AgreeTerms", Label="موافق؟", Type="bool", Align="center" }
                 },
 
                 Toolbar = new TableToolbarConfig
                 {
-                    ShowRefresh = false,
+                    ShowRefresh = true,
                     ShowColumns = true,
                     ShowExportCsv = true,
                     ShowExportExcel = true,
@@ -51,7 +51,7 @@ namespace SmartFoundation.Mvc.Controllers
                     ShowEdit = true,
                     ShowBulkDelete = false,
 
-                    // زر الإضافة (فورم ديناميكي)
+                    
                     Add = new TableAction
                     {
                         Label = "إضافة موظف",
@@ -166,7 +166,7 @@ namespace SmartFoundation.Mvc.Controllers
                                 }
                             },
 
-                            // ✅ الأزرار
+                            // الأزرار
                             Buttons = new List<FormButtonConfig>
                             {
                                 new FormButtonConfig {
@@ -203,13 +203,13 @@ namespace SmartFoundation.Mvc.Controllers
                             Title = "تعديل بيانات الموظف",
                             ActionUrl = "/smart/execute",
                             StoredProcedureName = "dbo.sp_SmartFormDemo",
-                            Operation = "update_employee",   // ✨ عملية التعديل
+                            Operation = "update_employee",   //  عملية التعديل
                             SubmitText = "حفظ التعديلات",
                             CancelText = "إلغاء",
 
                             Fields = new List<FieldConfig>
         {
-            new FieldConfig { Name = "EmployeeId", Type = "hidden" }, // ✨ ضروري عشان يعرف أي موظف
+            new FieldConfig { Name = "EmployeeId", Type = "hidden" }, 
             new FieldConfig { Name = "FullName", Label = "الاسم الكامل", Type = "text", Required = true, ColCss="3" },
             new FieldConfig { Name = "Email", Label = "البريد الإلكتروني", Type = "text", TextMode="email", Required = true, ColCss="3" },
             new FieldConfig { Name = "NationalId", Label = "رقم الهوية", Type = "text", Required = true, ColCss="3" },
@@ -251,7 +251,7 @@ namespace SmartFoundation.Mvc.Controllers
             return View(vm);
         }
 
-        // مبدئياً نخليها مجرد نص (للتعديل لاحقاً)
+        
         public IActionResult EmployeeFields(int? id)
         {
             return Content("<div class='p-4 text-gray-700'>هنا يمكن وضع فورم التعديل لاحقاً</div>", "text/html");

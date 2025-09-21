@@ -39,7 +39,7 @@ namespace SmartFoundation.DataEngine.Core.Services
                 if (string.IsNullOrWhiteSpace(request.SpName))
                     throw new ArgumentException("SpName is required.");
 
-                // ✅ أمان: القائمة البيضاء
+                //  القائمة البيضاء
                 var whitelist = _config.GetSection("SmartData:Whitelist").Get<string[]>() ?? [];
                 if (whitelist.Length > 0 && !whitelist.Contains(request.SpName, StringComparer.OrdinalIgnoreCase))
                 {
@@ -65,7 +65,7 @@ namespace SmartFoundation.DataEngine.Core.Services
                     dp.Add("@SortDir", request.Sort!.Dir ?? "asc");
                 }
 
-                // ✅ الفلاتر (JSON)
+                //  الفلاتر (JSON)
                 if (request.Filters is { Count: > 0 })
                 {
                     foreach (var f in request.Filters)
@@ -77,7 +77,7 @@ namespace SmartFoundation.DataEngine.Core.Services
                     dp.Add("@FiltersJson", filtersJson);
                 }
 
-                // ✅ الباراميترات (Normalize JsonElement -> قيمة عادية + دعم null/bool/empty string)
+                //  الباراميترات 
                 if (request.Params is not null)
                 {
                     foreach (var kv in request.Params)
@@ -126,7 +126,7 @@ namespace SmartFoundation.DataEngine.Core.Services
 
                     var total = data.Count;
 
-                    // ✅ لو فيه رسالة في النتيجة الأولى
+                    
                     if (data.Count > 0)
                     {
                         var msgKey = data[0].Keys.FirstOrDefault(k => k.Equals("Message", StringComparison.OrdinalIgnoreCase));
@@ -136,7 +136,7 @@ namespace SmartFoundation.DataEngine.Core.Services
                         }
                     }
 
-                    // ✅ محاولة قراءة إجمالي الصفوف + رسالة من المجموعة الثانية
+                    
                     if (!grid.IsConsumed)
                     {
                         var tRow = await grid.ReadFirstOrDefaultAsync();
@@ -176,7 +176,7 @@ namespace SmartFoundation.DataEngine.Core.Services
                     resp.Data = list;
                     resp.Total = resp.Data.Count;
 
-                    // ✅ برضه نلتقط أي رسالة من النتيجة الأولى
+                    
                     if (list.Count > 0)
                     {
                         var msgKey = list[0].Keys.FirstOrDefault(k => k.Equals("Message", StringComparison.OrdinalIgnoreCase));

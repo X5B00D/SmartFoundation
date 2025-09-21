@@ -145,10 +145,10 @@
     }
 
     // ===== NO datepicker at all =====
-    // نجعل دالة إخفاء الكالندر "وهمية" لضمان توافق بقية الكود.
-    const hidePicker = () => { /* intentionally empty: calendar disabled */ };
+    
+    const hidePicker = () => {};
 
-    // لو كانت هناك سمات قد تفعل كالندر خارجي (بواسطة HTML)، نزيلها وقائيًا.
+    
     function neuterPickerAttributes(input) {
         delete input.dataset.toggle;
         delete input.dataset.datepicker;
@@ -199,13 +199,13 @@
     function setup(input) {
         const cfg = cfgOf(input);
 
-        // أوقف أي كالندر خارجي مُفعل عبر سمات HTML
+        
         neuterPickerAttributes(input);
 
-        // احتياط: منع أي مكتبة من فتح شيء على focus أو click
+        
         input.addEventListener("mousedown", (e) => {
             if (e.target === input) {
-                // لو كانت مكتبة تحاول الاعتراض على mousedown لفتح الكالندر
+               
                 e.stopPropagation();
             }
         }, true);
@@ -213,7 +213,7 @@
             e.stopPropagation();
         }, true);
 
-        // Default today
+        
         if (cfg.defaultToday && !input.value) {
             const today = clampDate(new Date(), cfg.minDate, cfg.maxDate);
             input.value = toISO(today);
@@ -253,7 +253,7 @@
             else applyMaskKeepCaret(input);
         });
 
-        // Blur: ثبّت/صحّح
+       
         input.addEventListener("blur", () => {
             commitIfComplete(input, cfg, { blur: false, focusPartner: false });
         });
