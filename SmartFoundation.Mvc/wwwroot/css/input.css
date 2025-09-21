@@ -213,231 +213,409 @@ body, h1, h2, h3, h4, h5, h6, input, textarea, select, button {
     }
 
     /* ✅ Checkbox */
-    .sf-checkbox,
+    /*.sf-checkbox,
     .sf-checkbox-row,
-    .sf-checkbox-all,
-    input[type="checkbox"] {
+    .sf-checkbox-all,*/
+    /*input[type="checkbox"]*/ /*{
         @apply w-4 h-4 rounded cursor-pointer;
         appearance: none;
         border: 1px solid #ccc;
-        background-color: #fff;
-        accent-color: #059669;
-    }
+        background-color: #fff;*/
+    /*accent-color: #059669;*/
+    /*background-color: #fff;
+    }*/
+}
 
-        .sf-checkbox:checked,
-        .sf-checkbox-row:checked,
-        .sf-checkbox-all:checked,
-        input[type="checkbox"]:checked {
-            background-color: #059669;
-            border-color: #059669;
-            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 16 16' fill='white' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M6.173 11.414L3.05 8.293l1.414-1.414L6.173 8.586l5.364-5.364 1.414 1.414z'/%3E%3C/svg%3E");
-            background-repeat: no-repeat;
-            background-position: center;
-            background-size: 70%;
-        }
+.sf-checkbox:checked,
+.sf-checkbox-row:checked,
+.sf-checkbox-all:checked,
+input[type="checkbox"]:checked {
+    background-color: #059669;
+    border-color: #059669;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 16 16' fill='white' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M6.173 11.414L3.05 8.293l1.414-1.414L6.173 8.586l5.364-5.364 1.414 1.414z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: 70%;
+}
 
-    /* ✅ Radio */
-    .sf-radio,
-    input[type="radio"] {
-        @apply w-4 h-4 rounded-full cursor-pointer;
-        appearance: none;
-        border: 1px solid #ccc;
-        background-color: #fff;
-        accent-color: #059669;
-    }
 
-    /* الأزرار */
-    .btn {
-        @apply inline-flex items-center justify-center gap-2 h-8 px-3 md:px-4 rounded-md text-xs font-medium shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-0 disabled:opacity-60 disabled:pointer-events-none;
-    }
+/* ✅ Radio */
+.sf-radio,
+input[type="radio"] {
+    @apply w-4 h-4 rounded-full cursor-pointer;
+    appearance: none;
+    border: 1px solid #ccc;
+    background-color: #fff;
+    accent-color: #059669;
+}
 
-    .btn-primary {
-        @apply bg-blue-600 text-white hover:bg-blue-700 focus:ring-blue-400;
-    }
+/* الأزرار */
+.btn {
+    @apply inline-flex items-center justify-center gap-2 h-8 px-3 md:px-4 rounded-md text-xs font-medium shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-0 disabled:opacity-60 disabled:pointer-events-none;
+}
 
-    .btn-secondary {
-        @apply bg-gray-300 text-gray-800 hover:bg-gray-400 focus:ring-gray-500;
-    }
+.btn-primary {
+    @apply bg-blue-600 text-white hover:bg-blue-700 focus:ring-blue-400;
+}
 
-    .btn-success {
-        @apply bg-emerald-600 text-white hover:bg-emerald-700 focus:ring-emerald-400;
-    }
+.btn-secondary {
+    @apply bg-gray-300 text-gray-800 hover:bg-gray-400 focus:ring-gray-500;
+}
 
-    .btn-danger {
-        @apply bg-red-700 text-white hover:bg-red-800 focus:ring-red-400;
-    }
+.btn-success {
+    @apply bg-emerald-600 text-white hover:bg-emerald-700 focus:ring-emerald-400;
+}
 
-    .btn-warning {
-        @apply bg-amber-500 text-gray-900 hover:bg-amber-600 focus:ring-amber-400;
-    }
+.btn-danger {
+    @apply bg-red-700 text-white hover:bg-red-800 focus:ring-red-400;
+}
 
-    .btn-info {
-        @apply bg-sky-600 text-white hover:bg-sky-700 focus:ring-sky-400;
-    }
+.btn-warning {
+    @apply bg-amber-500 text-gray-900 hover:bg-amber-600 focus:ring-amber-400;
+}
 
-    input[readonly],
-    textarea[readonly] {
-        @apply bg-gray-200 text-gray-500 cursor-not-allowed;
-    }
+.btn-info {
+    @apply bg-sky-600 text-white hover:bg-sky-700 focus:ring-sky-400;
+}
 
-    /* =========================
+input[readonly],
+textarea[readonly] {
+    @apply bg-gray-200 text-gray-500 cursor-not-allowed;
+}
+
+/* =========================
        DataTable Component
        ========================= */
-    .sf-table-wrapper {
-        @apply w-full;
+
+/*.sf-table-wrapper {
+    @apply w-full max-w-none;
+}
+
+.table-box {*/
+    /* غامق مثل باقي المدخلات */
+    /*@apply w-full max-w-none relative overflow-x-auto rounded-lg border border-gray-400 shadow-sm bg-white;
+}
+
+.sf-table {
+    @apply w-full table-auto;
+}*/
+
+/* رأس الجدول */
+/*.table-head {
+    @apply w-full bg-gradient-to-r from-gray-100 to-gray-200 sticky top-0 z-10 shadow-sm;
+}
+
+.th-cell {
+    @apply px-4 py-3 text-sm font-semibold text-gray-700 uppercase tracking-wide;
+}*/
+
+/* الصفوف */
+/*.tr-row {
+    @apply border-b border-gray-300 transition-colors duration-150;
+}
+
+    .tr-row:nth-child(even) {
+        @apply bg-gray-50/50;
     }
 
-    .toolbar {
-        @apply flex flex-col md:flex-row items-stretch md:items-center justify-between gap-2 mb-3;
+    .tr-row:hover {
+        @apply bg-emerald-50;
+    }*/
+
+/* الخلايا */
+/*.td-cell {
+    @apply px-4 py-2 text-sm text-gray-800;
+}*/
+
+/* كثافة العرض */
+/*.sf-table[data-density="compact"] .td-cell {
+    @apply py-1 text-xs;
+}
+
+.sf-table[data-density="comfortable"] .td-cell {
+    @apply py-4 text-base;
+}*/
+
+/* ✅ Checkbox داخل الجدول */
+/*.sf-table input[type="checkbox"] {
+    @apply w-4 h-4 rounded border border-gray-400 cursor-pointer;
+    -webkit-appearance: none;*/ /* Safari/Chrome */
+    /*-moz-appearance: none;*/ /* Firefox */
+    /*appearance: none;
+    background-color: #fff;
+    accent-color: #059669;
+    border-color: #ccc
+}
+
+
+
+    .sf-table input[type="checkbox"]:checked {
+        background-color: #059669;*/ /* emerald-600 */
+        /*border-color: #059669;
+        background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 16 16' fill='white' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M6.173 11.414L3.05 8.293l1.414-1.414L6.173 8.586l5.364-5.364 1.414 1.414z'/%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: center;
+        background-size: 70%;
+    }*/
+
+
+/* شارات */
+/*.badge {
+    @apply inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium;
+}
+
+.badge-success {
+    @apply bg-emerald-100 text-emerald-800;
+}
+
+.badge-danger {
+    @apply bg-red-100 text-red-800;
+}
+
+.badge-warning {
+    @apply bg-amber-100 text-amber-800;
+}
+
+.badge-info {
+    @apply bg-sky-100 text-sky-800;
+}*/
+
+/* الأدوات */
+/*.toolbar {
+    @apply flex flex-col md:flex-row items-stretch md:items-center justify-between gap-2 mb-3;
+}
+
+.toolbar-search {
+    @apply flex items-center gap-2 h-9;
+}
+
+.search-input {
+    @apply w-full md:w-72 text-sm rounded-md border-gray-400 focus:ring-emerald-600 focus:border-emerald-600;
+}
+
+.select-sm {
+    @apply text-xs h-8 w-24 px-2 rounded-md border-gray-400 focus:border-emerald-600;
+}*/
+
+/* الأكشنات */
+/*.actions-list {
+    @apply flex flex-wrap gap-1 justify-start;
+}
+
+    .actions-list .btn {
+        @apply h-7 px-2 text-xs;
+    }*/
+
+/* الباجينج */
+/*.pagination {
+    @apply flex flex-col md:flex-row items-center justify-between gap-2 mt-3 text-sm text-gray-700;
+}
+
+.pagination-nav button {
+    @apply inline-flex items-center justify-center rounded-md border border-gray-400 bg-white px-3 py-1 text-sm text-gray-700 hover:bg-gray-100 disabled:opacity-50;
+}
+
+.pagination-nav .active {
+    @apply bg-emerald-600 text-white border-emerald-600;
+}*/
+
+
+/* =========================
+   Table Wrapper
+   ========================= */
+.sf-table-wrapper {
+    @apply w-full max-w-none;
+}
+
+.table-box {
+    @apply w-full relative overflow-x-auto rounded-lg border border-gray-200 shadow-sm bg-white;
+}
+
+/* =========================
+   Table Core
+   ========================= */
+.sf-table {
+    @apply w-full border-collapse text-sm;
+}
+
+/* =========================
+   Table Head
+   ========================= */
+.table-head {
+    @apply bg-gray-100 sticky top-0 z-10;
+}
+
+.th-cell {
+    @apply px-4 py-3 text-xs font-semibold text-gray-700 uppercase tracking-wide text-left border-b border-gray-200;
+}
+
+/* =========================
+   Table Rows
+   ========================= */
+.tr-row {
+    @apply border-b border-gray-100 transition-colors duration-150;
+}
+
+    .tr-row:nth-child(even) {
+        @apply bg-gray-50;
     }
 
-    .toolbar-search {
-        @apply flex items-center gap-2 h-8;
+    .tr-row:hover {
+        @apply bg-emerald-50;
     }
 
-    .toolbar-actions {
-        @apply flex items-center gap-2 justify-end;
+/* =========================
+   Table Cells
+   ========================= */
+.td-cell {
+    @apply px-4 py-3 text-sm text-gray-800 align-middle;
+}
+
+/* كثافة العرض */
+.sf-table[data-density="compact"] .td-cell {
+    @apply py-1 text-xs;
+}
+
+.sf-table[data-density="comfortable"] .td-cell {
+    @apply py-4 text-base;
+}
+
+/* =========================
+   Checkbox
+   ========================= */
+.sf-table input[type="checkbox"] {
+    @apply w-4 h-4 rounded border border-gray-300 cursor-pointer transition-colors duration-200;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    background-color: #fff;
+    accent-color: #059669;
+}
+
+    .sf-table input[type="checkbox"]:checked {
+        background-color: #059669;
+        border-color: #059669;
+        background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 16 16' fill='white' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M6.173 11.414L3.05 8.293l1.414-1.414L6.173 8.586l5.364-5.364 1.414 1.414z'/%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: center;
+        background-size: 70%;
     }
 
-    .label-sm {
-        @apply text-sm text-gray-600;
+/* =========================
+   Badges
+   ========================= */
+.badge {
+    @apply inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium;
+}
+
+.badge-success {
+    @apply bg-emerald-100 text-emerald-800;
+}
+
+.badge-danger {
+    @apply bg-red-100 text-red-800;
+}
+
+.badge-warning {
+    @apply bg-amber-100 text-amber-800;
+}
+
+.badge-info {
+    @apply bg-sky-100 text-sky-800;
+}
+
+/* =========================
+   Toolbar
+   ========================= */
+.toolbar {
+    @apply flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3 mb-4;
+}
+
+.toolbar-search {
+    @apply flex items-center gap-2 h-9;
+}
+
+.search-input {
+    @apply w-full md:w-72 text-sm rounded-md border border-gray-300 focus:ring-emerald-600 focus:border-emerald-600;
+}
+
+.select-sm {
+    @apply text-xs h-8 w-28 px-2 rounded-md border-gray-300 focus:ring-emerald-600;
+}
+
+/* =========================
+   Actions
+   ========================= */
+.actions-list {
+    @apply flex flex-wrap gap-1.5 justify-start;
+}
+
+    .actions-list .btn {
+        @apply h-8 px-3 text-xs rounded-md border border-gray-200 bg-white hover:bg-gray-100 transition;
     }
 
-    .search-input {
-        @apply w-full md:w-72 text-sm focus:border-emerald-600;
-    }
+/* =========================
+   Pagination
+   ========================= */
+.pagination {
+    @apply flex flex-col md:flex-row items-center justify-between gap-3 mt-4 text-sm text-gray-700;
+}
 
-    .select-sm {
-        @apply text-xs h-8 w-20 px-2 rounded-md focus:border-emerald-600;
-    }
+.pagination-nav button {
+    @apply inline-flex items-center justify-center rounded-md border border-gray-300 bg-white px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-100 disabled:opacity-50 transition;
+}
 
-    .export-btns {
-        @apply flex items-center gap-2;
-    }
+.pagination-nav .active {
+    @apply bg-emerald-600 text-white border-emerald-600 hover:bg-emerald-700;
+}
 
-    .hidden-md {
-        @apply hidden md:inline;
-    }
 
-    .table-box {
-        @apply relative overflow-x-auto rounded-sm border border-gray-300;
-    }
 
-    .sf-table {
-        @apply w-full;
-    }
 
-    .table-head {
-        @apply bg-gray-200 sticky top-0 z-10;
-    }
 
-    .th-cell {
-        @apply px-3 py-2 text-sm font-semibold text-gray-600 select-none;
-    }
-
-    .th-inner {
-        @apply inline-flex items-center gap-1;
-    }
-
-        .th-inner.right {
-            @apply justify-end text-right;
-        }
-
-        .th-inner.center {
-            @apply justify-center text-center;
-        }
-
-        .th-inner.left {
-            @apply justify-start text-left;
-        }
-
-    .sort-icon {
-        @apply text-[12px];
-    }
-
-    .td-loading {
-        @apply px-3 py-6 text-center text-sm text-gray-500;
-    }
-
-    .td-error {
-        @apply px-3 py-6 text-center text-sm text-red-700;
-    }
-
-    .td-empty {
-        @apply px-3 py-6 text-center text-sm text-gray-500;
-    }
-
-    .tr-row {
-        @apply hover:bg-gray-50;
-    }
-
-    .td-cell {
-        @apply px-3 py-2 text-sm;
-    }
-
-    .actions-list {
-        @apply flex flex-wrap gap-1 justify-start;
-    }
-
-    .pagination {
-        @apply flex flex-col md:flex-row items-center justify-between gap-2 mt-3 text-sm text-gray-700;
-    }
-
-    .pagination-info {
-        @apply text-gray-600;
-    }
-
-    .pagination-nav {
-        @apply flex items-center gap-1;
-    }
-
-    .page-text {
-        @apply px-1;
-    }
-
-    /* =========================
+/* =========================
        Modal (DataTable Actions)
        ========================= */
-    .sf-modal-backdrop {
-        @apply fixed inset-0 bg-black/50 flex items-center justify-center z-40;
-    }
-
-    .sf-modal {
-        @apply bg-white rounded-lg shadow-lg w-full max-w-3xl mx-2 md:mx-0 z-50 overflow-hidden;
-    }
-
-    .sf-modal-header {
-        @apply flex items-center justify-between px-4 py-3 border-b border-gray-200;
-    }
-
-    .sf-modal-title {
-        @apply text-lg font-semibold text-gray-800;
-    }
-
-    .sf-modal-close {
-        @apply text-gray-500 hover:text-gray-700 cursor-pointer;
-    }
-
-    .sf-modal-body {
-        @apply p-4 max-h-[70vh] overflow-y-auto;
-    }
-
-    .sf-modal-footer {
-        @apply flex items-center justify-end gap-2 px-4 py-3 border-t border-gray-200;
-    }
-
-    .sf-modal-table {
-        @apply w-full border-collapse;
-    }
-
-        .sf-modal-table th {
-            @apply px-3 py-2 text-sm font-medium text-gray-600 border-b border-gray-200;
-        }
-
-        .sf-modal-table td {
-            @apply px-3 py-2 text-sm border-b border-gray-100;
-        }
+.sf-modal-backdrop {
+    @apply fixed inset-0 bg-black/50 flex items-center justify-center z-40;
 }
+
+.sf-modal {
+    @apply bg-white rounded-lg shadow-lg w-full max-w-3xl mx-2 md:mx-0 z-50 overflow-hidden;
+}
+
+.sf-modal-header {
+    @apply flex items-center justify-between px-4 py-3 border-b border-gray-200;
+}
+
+.sf-modal-title {
+    @apply text-lg font-semibold text-gray-800;
+}
+
+.sf-modal-close {
+    @apply text-gray-500 hover:text-gray-700 cursor-pointer;
+}
+
+.sf-modal-body {
+    @apply p-4 max-h-[70vh] overflow-y-auto;
+}
+
+.sf-modal-footer {
+    @apply flex items-center justify-end gap-2 px-4 py-3 border-t border-gray-200;
+}
+
+.sf-modal-table {
+    @apply w-full border-collapse;
+}
+
+    .sf-modal-table th {
+        @apply px-3 py-2 text-sm font-medium text-gray-600 border-b border-gray-200;
+    }
+
+    .sf-modal-table td {
+        @apply px-3 py-2 text-sm border-b border-gray-100;
+    }
+
 
 /* (اختياري) CSS إضافي من Flowbite */
 @import "flowbite";
