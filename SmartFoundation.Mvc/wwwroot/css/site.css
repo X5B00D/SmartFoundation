@@ -731,12 +731,6 @@ body, h1, h2, h3, h4, h5, h6, input, textarea, select, button {
       background-color: color-mix(in oklab, var(--color-gray-900) 50%, transparent);
     }
   }
-  .bg-green-100 {
-    background-color: var(--color-green-100);
-  }
-  .bg-red-100 {
-    background-color: var(--color-red-100);
-  }
   .bg-white {
     background-color: var(--color-white);
   }
@@ -940,14 +934,8 @@ body, h1, h2, h3, h4, h5, h6, input, textarea, select, button {
   .text-green-600 {
     color: var(--color-green-600);
   }
-  .text-green-800 {
-    color: var(--color-green-800);
-  }
   .text-red-600 {
     color: var(--color-red-600);
-  }
-  .text-red-800 {
-    color: var(--color-red-800);
   }
   .text-rose-900 {
     color: var(--color-rose-900);
@@ -1947,7 +1935,15 @@ body, h1, h2, h3, h4, h5, h6, input, textarea, select, button {
     gap: calc(var(--spacing) * 2);
   }
 }
-.sf-checkbox:checked, .sf-checkbox-row:checked, .sf-checkbox-all:checked, input[type="checkbox"]:checked {
+input[type="checkbox"], .sf-checkbox, .sf-checkbox-row, .sf-checkbox-all {
+  width: 1rem;
+  height: 1rem;
+  cursor: pointer;
+  border: 1px solid #ccc;
+  border-radius: 0.25rem;
+  background-color: #fff;
+}
+input[type="checkbox"]:checked, .sf-checkbox:checked, .sf-checkbox-row:checked, .sf-checkbox-all:checked {
   background-color: #059669;
   border-color: #059669;
   background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 16 16' fill='white' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M6.173 11.414L3.05 8.293l1.414-1.414L6.173 8.586l5.364-5.364 1.414 1.414z'/%3E%3C/svg%3E");
@@ -1955,15 +1951,20 @@ body, h1, h2, h3, h4, h5, h6, input, textarea, select, button {
   background-position: center;
   background-size: 70%;
 }
-.sf-radio, input[type="radio"] {
-  height: calc(var(--spacing) * 4);
-  width: calc(var(--spacing) * 4);
+input[type="radio"], .sf-radio {
+  width: 1rem;
+  height: 1rem;
   cursor: pointer;
-  border-radius: calc(infinity * 1px);
-  appearance: none;
   border: 1px solid #ccc;
+  border-radius: 50%;
   background-color: #fff;
-  accent-color: #059669;
+}
+input[type="radio"]:checked, .sf-radio:checked {
+  background-color: #059669;
+  border-color: #059669;
+  background-image: radial-gradient(circle at center, white 40%, transparent 45%);
+  background-repeat: no-repeat;
+  background-position: center;
 }
 .btn {
   display: inline-flex;
@@ -2156,33 +2157,6 @@ input[readonly], textarea[readonly] {
   font-size: var(--text-base);
   line-height: var(--tw-leading, var(--text-base--line-height));
 }
-.sf-table input[type="checkbox"] {
-  height: calc(var(--spacing) * 4);
-  width: calc(var(--spacing) * 4);
-  cursor: pointer;
-  border-radius: 0.25rem;
-  border-style: var(--tw-border-style);
-  border-width: 1px;
-  border-color: var(--color-gray-300);
-  transition-property: color, background-color, border-color, outline-color, text-decoration-color, fill, stroke, --tw-gradient-from, --tw-gradient-via, --tw-gradient-to;
-  transition-timing-function: var(--tw-ease, var(--default-transition-timing-function));
-  transition-duration: var(--tw-duration, var(--default-transition-duration));
-  --tw-duration: 200ms;
-  transition-duration: 200ms;
-  -webkit-appearance: none;
-  -moz-appearance: none;
-  appearance: none;
-  background-color: #fff;
-  accent-color: #059669;
-}
-.sf-table input[type="checkbox"]:checked {
-  background-color: #059669;
-  border-color: #059669;
-  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 16 16' fill='white' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M6.173 11.414L3.05 8.293l1.414-1.414L6.173 8.586l5.364-5.364 1.414 1.414z'/%3E%3C/svg%3E");
-  background-repeat: no-repeat;
-  background-position: center;
-  background-size: 70%;
-}
 .badge {
   display: inline-flex;
   align-items: center;
@@ -2252,6 +2226,8 @@ input[readonly], textarea[readonly] {
   height: calc(var(--spacing) * 8);
   width: calc(var(--spacing) * 28);
   border-radius: var(--radius-md);
+  border-style: var(--tw-border-style);
+  border-width: 1px;
   border-color: var(--color-gray-300);
   padding-inline: calc(var(--spacing) * 2);
   font-size: var(--text-xs);
