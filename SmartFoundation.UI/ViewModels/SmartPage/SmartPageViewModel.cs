@@ -12,6 +12,8 @@ namespace SmartFoundation.UI.ViewModels.SmartPage
         public string Operation { get; set; } = "select";
 
         public FormConfig? Form { get; set; }
-        public TableConfig? Table { get; set; }   // ✨ أضفنا هذا السطر
+        public TableConfig? Table { get; set; }  
+                                                  
+
     }
 }

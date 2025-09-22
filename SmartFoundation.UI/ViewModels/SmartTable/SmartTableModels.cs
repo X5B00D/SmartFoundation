@@ -2,7 +2,7 @@
 
 namespace SmartFoundation.UI.ViewModels.SmartTable
 {
-    // خاص بالجدول - تحديد خريطة ألوان للشارات
+    
     public class TableBadgeConfig
     {
         public Dictionary<string, string> Map { get; set; } = new();
