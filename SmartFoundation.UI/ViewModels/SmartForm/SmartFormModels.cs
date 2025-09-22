@@ -85,7 +85,7 @@ namespace SmartFoundation.UI.ViewModels.SmartForm
         public string? ColCssFrom { get; set; }       
         public string? ColCssTo { get; set; }       
 
-        // 🔗 مراجع أخرى (مثلاً جدول مدمج)
+        
         public SmartTable.TableConfig? Table { get; set; }
 
         public string GetResolvedColCss()
@@ -113,7 +113,7 @@ namespace SmartFoundation.UI.ViewModels.SmartForm
                     continue;
                 }
 
-                // 2) col-span-N (أساسي) – أبقيه وعدّ أنه موجود
+                // 2) col-span-N 
                 var mBase = Regex.Match(t, @"^col-span-(\d{1,2})$");
                 if (mBase.Success)
                 {
@@ -123,7 +123,7 @@ namespace SmartFoundation.UI.ViewModels.SmartForm
                     continue;
                 }
 
-                // 3) sm|md|..:col-span-N – أبقيه بعد ضبط N
+                // 3) sm|md|..:col-span-N –
                 var mBpCol = Regex.Match(t, @"^(sm|md|lg|xl|2xl):col-span-(\d{1,2})$");
                 if (mBpCol.Success)
                 {
@@ -133,7 +133,7 @@ namespace SmartFoundation.UI.ViewModels.SmartForm
                     continue;
                 }
 
-                // 4) مجرد رقم (1–12) → col-span-12 md:col-span-N
+                // 4)  رقم (1–12) → col-span-12 md:col-span-N
                 var mNum = Regex.Match(t, @"^0*(\d{1,2})$");
                 if (mNum.Success)
                 {
@@ -144,15 +144,15 @@ namespace SmartFoundation.UI.ViewModels.SmartForm
                     continue;
                 }
 
-                // 5) أي شيء آخر اتركه كما هو
+                
                 outTokens.Add(t);
             }
 
-            // لو ما فيه أساس للموبايل، خليها فل عرض
+            
             if (!hasBase)
                 outTokens.Insert(0, "col-span-12");
 
-            // إزالة التكرار وترتيب
+            
             var result = string.Join(" ", outTokens.Distinct());
             return Regex.Replace(result, @"\s+", " ").Trim();
         }
