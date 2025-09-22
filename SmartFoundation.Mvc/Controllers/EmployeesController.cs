@@ -76,7 +76,7 @@ namespace SmartFoundation.Mvc.Controllers
                                     Label = "الاسم الكامل",
                                     Type = "text",
                                     Required = true,
-                                    ColCss = "3",
+                                    ColCss = "6",
                                     Placeholder = "الاسم الرباعي",
                                     MaxLength = 100,
                                     Icon = "fa fa-user"
@@ -87,7 +87,7 @@ namespace SmartFoundation.Mvc.Controllers
                                     Type = "text",
                                     TextMode = "email",
                                     Required = true,
-                                    ColCss = "3",
+                                    ColCss = "6",
                                     Placeholder = "example@email.com",
                                     MaxLength = 150,
                                     Icon = "fa fa-envelope"
@@ -97,7 +97,7 @@ namespace SmartFoundation.Mvc.Controllers
                                     Label = "رقم الهوية",
                                     Type = "text",
                                     Required = true,
-                                    ColCss = "3",
+                                    ColCss = "6",
                                     Placeholder = "1234567890",
                                     MaxLength = 10,
                                     InputLang = "number",
@@ -109,10 +109,10 @@ namespace SmartFoundation.Mvc.Controllers
                                     Label = "الجوال",
                                     Type = "phone",
                                     Required = true,
-                                    ColCss = "3",
+                                    ColCss = "6",
                                     Placeholder = "05xxxxxxxx",
                                     MaxLength = 10,
-                                    InputLang = "number",
+                                    InputLang = "numeric",
                                     Icon = "fa fa-phone"
                                 },
                                 new FieldConfig {
@@ -124,7 +124,7 @@ namespace SmartFoundation.Mvc.Controllers
                                         new OptionItem{Value="JED",Text="جدة"},
                                         new OptionItem{Value="DMM",Text="الدمام"}
                                     },
-                                    ColCss = "3",
+                                    ColCss = "6",
                                     Placeholder = "اختر المدينة",
                                     Icon = "fa fa-city"
                                 },
