@@ -11,24 +11,6 @@
     var webJson = new JsonSerializerOptions(JsonSerializerDefaults.Web);
 }
 
-
-           @*  <section class="w-full mt-6">
-    <div class="form-container">
-        <div class="form-header">
-            <h2 class="form-title">
-                <i class="fa fa-file-alt form-icon"></i>
-                @Model.Title
-            </h2>
-            <button type="button"
-                    class="btn btn-secondary"
-                    x-on:click="toast('املأ الحقول ثم اضغط حفظ ', true)">
-                <i class="fa fa-circle-info"></i>
-                تعليمات
-            </button>
-            
-        </div> *@
-              @* <section class="w-full mt-6"> *@
-
 <form id="@formId"
       x-data="smartForm"
       x-on:submit.prevent="submitForm('@Model.ActionUrl', '@Model.Method', $event)"
@@ -560,64 +542,58 @@ else
     @:</div> 
 }
 
+            <!-- شريط الأزرار -->
+<div class="actions-bar col-span-12 mt-5 mb-6 border-t border-gray-200 pt-4 px-4">
+    <div class="actions-inner flex flex-wrap justify-end items-center gap-3">
 
-            @* <div class="col-span-12 flex flex-col md:flex-row flex-wrap justify-end items-center gap-2.5 md:gap-3 mt-5 border-t border-gray-200 pt-4"> *@
-                <div class="col-span-12 flex flex-wrap justify-end items-center gap-2.5 md:gap-3 mt-5 mb-6 border-t border-gray-200 pt-4">
+        @if (!string.IsNullOrWhiteSpace(Model.SubmitText))
+        {
+            <button type="submit"
+                    class="border btn btn-success border-emerald-600 focus:ring-offset-2">
+                <i class="fa fa-save text-[14px]"></i>
+                <span>@Model.SubmitText</span>
+            </button>
+        }
 
+        @if (Model.ShowReset && !string.IsNullOrWhiteSpace(Model.ResetText))
+        {
+            <button type="reset"
+                    class="btn btn-secondary focus:ring-offset-2">
+                <i class="fa fa-eraser text-[14px]"></i>
+                <span>@Model.ResetText</span>
+            </button>
+        }
 
+        @if (Model.Buttons?.Any(b => b.Show) == true)
+        {
+            @foreach (var b in Model.Buttons.Where(b => b.Show))
+            {
+                var btnType = string.IsNullOrWhiteSpace(b.Type) ? "button" : b.Type;
+                var iconHtml = string.IsNullOrWhiteSpace(b.Icon) ? "" : $"<i class=\"{b.Icon} text-[14px]\"></i>";
 
-                
-                @if (!string.IsNullOrWhiteSpace(Model.SubmitText))
+                var variant = (b.Color ?? "").Trim().ToLowerInvariant() switch
                 {
-                    <button type="submit"
-                            class="border btn btn-success border-emerald-600 focus:ring-offset-2">
-                        <i class="fa fa-save text-[14px]"></i>
-                        <span>@Model.SubmitText</span>
-                    </button>
-                }
+                    "success"   => "btn-success",
+                    "info"      => "btn-info",
+                    "danger"    => "btn-danger",
+                    "warning"   => "btn-warning",
+                    "secondary" => "btn-secondary",
+                    _           => "btn"
+                };
 
-                
-                @if (Model.ShowReset && !string.IsNullOrWhiteSpace(Model.ResetText))
-                {
-                    <button type="reset"
-                            class="btn btn-secondary focus:ring-offset-2">
-                        <i class="fa fa-eraser text-[14px]"></i>
-                        <span>@Model.ResetText</span>
-                    </button>
-                }
+                var baseClass = "btn";
 
-                
-                @if (Model.Buttons?.Any(b => b.Show) == true)
-                {
-                    @foreach (var b in Model.Buttons.Where(b => b.Show))
-                    {
-                        var btnType = string.IsNullOrWhiteSpace(b.Type) ? "button" : b.Type;
-                        var iconHtml = string.IsNullOrWhiteSpace(b.Icon) ? "" : $"<i class=\"{b.Icon} text-[14px]\"></i>";
+                <button type="@btnType"
+                        class="@(baseClass) @(variant) @(b.CssClass)"
+                        x-on:click="@(b.OnClickJs ?? "")"
+                        data-op="@b.Operation"
+                        data-sp="@b.StoredProcedureName">
+                    @Html.Raw(iconHtml)
+                    <span>@b.Text</span>
+                </button>
+            }
+        }
+    </div>
+</div>
 
-                        
-                        var variant = (b.Color ?? "").Trim().ToLowerInvariant() switch
-                        {
-                            "success"   => "btn-success",
-                            "info"      => "btn-info",
-                            "danger"    => "btn-danger",
-                            "warning"   => "btn-warning",
-                            "secondary" => "btn-secondary",
-                            _           => "btn"
-                        };
-
-                        var baseClass = "btn";
-
-                        <button type="@btnType"
-                                class="@(baseClass) @(variant) @(b.CssClass)"
-                                x-on:click="@(b.OnClickJs ?? "")"
-                                data-op="@b.Operation"
-                                data-sp="@b.StoredProcedureName">
-                            @Html.Raw(iconHtml)
-                            <span>@b.Text</span>
-                        </button>
-                    }
-                }
-            </div>
         </form>  
-    @* </div> 
-</section> *@

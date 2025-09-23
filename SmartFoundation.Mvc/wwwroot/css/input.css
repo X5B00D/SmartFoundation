@@ -103,22 +103,17 @@ body, h1, h2, h3, h4, h5, h6, input, textarea, select, button {
         @apply text-red-500;
     }
 
-    /*.input {
-        @apply block w-full rounded-md border border-gray-300 bg-white text-gray-900 text-base px-2 py-2 focus:ring-1 focus:ring-emerald-600 focus:border-emerald-600 disabled:bg-gray-100 disabled:text-gray-500 shadow-sm;
-        font-family: "Tajawal", sans-serif;
-    }*/
+
 
     .input {
-        @apply block w-full rounded-lg border border-gray-300 bg-white text-gray-900 text-base px-3 py-1.5 shadow-sm transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 disabled:bg-gray-100 disabled:text-gray-500 disabled:cursor-not-allowed placeholder-gray-400;
+        @apply block w-full h-11 rounded-lg border border-gray-300 bg-white text-gray-900 text-base px-3 py-2 leading-relaxed placeholder-gray-400 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-600 disabled:bg-gray-100 disabled:text-gray-500 disabled:cursor-not-allowed read-only:bg-gray-100 read-only:text-gray-500 read-only:cursor-not-allowed;
         font-family: "Tajawal", ui-sans-serif, system-ui, sans-serif;
-        /* من tailwind.config.js */
-        line-height: 1.5; /* وصولية أفضل */
     }
 
 
 
     .actions-bar {
-        @apply col-span-12 mt-5 border-t border-gray-200 pt-4;
+        @apply col-span-12 mt-5 mb-6 border-t border-gray-200 pt-4 px-4;
     }
 
     .actions-inner {
@@ -227,10 +222,13 @@ body, h1, h2, h3, h4, h5, h6, input, textarea, select, button {
 /* =========================
    Buttons
    ========================= */
-.btn {
-    @apply inline-flex items-center justify-center gap-2 h-8 px-3 md:px-4 rounded-md text-xs font-medium shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-0 disabled:opacity-60 disabled:pointer-events-none;
-}
 
+.btn {
+    @apply inline-flex items-center justify-center gap-2 h-8 px-4 rounded-sm text-sm font-medium  focus:outline-none focus:ring-2 focus:ring-offset-0 disabled:opacity-60 disabled:pointer-events-none transition;
+}
+    .btn i {
+        @apply text-sm;
+    }
 .btn-primary {
     @apply bg-blue-600 text-white hover:bg-blue-700 focus:ring-blue-400;
 }
@@ -260,44 +258,50 @@ textarea[readonly] {
     @apply bg-gray-200 text-gray-500 cursor-not-allowed;
 }
 
-/* =========================
-   Table Wrapper
-   ========================= */
 .sf-table-wrapper {
-    @apply w-full max-w-none;
+    @apply w-full max-w-7xl mx-auto bg-white rounded-xl shadow-sm border border-gray-300 p-4;
 }
 
 .table-box {
-    @apply w-full relative overflow-x-auto rounded-lg border border-gray-200 shadow-sm bg-white;
+    @apply w-full relative overflow-x-auto rounded-lg border border-gray-200 bg-white;
 }
 
 .sf-table {
-    @apply w-full border-collapse text-sm;
+    @apply w-full border-collapse text-sm text-center text-gray-800; 
 }
 
 .table-head {
-    @apply bg-gray-100 sticky top-0 z-10;
+    @apply bg-gray-200 sticky top-0 z-10;
+    @apply text-gray-800 font-semibold text-sm uppercase tracking-wide;
 }
 
 .th-cell {
-    @apply px-4 py-3 text-xs font-semibold text-gray-700 uppercase tracking-wide text-left border-b border-gray-200;
+    @apply px-6 py-3 text-sm font-semibold text-gray-900 uppercase tracking-wide text-center; 
+    @apply border-b border-gray-300 align-middle;
 }
 
 .tr-row {
-    @apply border-b border-gray-100 transition-colors duration-150;
+    @apply border-b border-gray-200 transition-colors duration-150;
 }
+
+    .tr-row:last-child {
+        @apply border-b-0;
+    }
 
     .tr-row:nth-child(even) {
         @apply bg-gray-50;
     }
 
     .tr-row:hover {
-        @apply bg-emerald-50;
+        @apply bg-gray-200; 
     }
 
 .td-cell {
-    @apply px-4 py-3 text-sm text-gray-800 align-middle;
+    @apply px-6 py-3 text-sm text-gray-800 text-center align-middle; 
+    @apply whitespace-nowrap;
 }
+
+
 
 .sf-table[data-density="compact"] .td-cell {
     @apply py-1 text-xs;
@@ -334,64 +338,151 @@ textarea[readonly] {
    Toolbar
    ========================= */
 .toolbar {
-    @apply flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3 mb-4;
+    @apply flex flex-col md:flex-row items-stretch md:items-center justify-between gap-4 mb-5;
+    @apply bg-gray-50 px-4 py-3 rounded-lg border border-gray-200;
 }
 
 .toolbar-search {
-    @apply flex items-center gap-2 h-9;
+    @apply flex items-center gap-2 h-10 w-full md:w-auto;
 }
 
 .search-input {
-    @apply w-full md:w-72 text-sm rounded-md border border-gray-300 focus:ring-emerald-600 focus:border-emerald-600;
+    @apply w-full md:w-72 text-sm rounded-md border border-gray-300 bg-white;
+    @apply px-3 py-2 transition-colors duration-150;
+    @apply focus:outline-none focus:border-emerald-100 focus:ring-1 focus:ring-emerald-700;
+    /* لاحظ: ما فيه shadow */
 }
 
 .select-sm {
-    @apply text-xs h-8 w-28 px-2 rounded-md border border-gray-300 focus:ring-emerald-600;
+    @apply text-sm h-9 w-32 px-2 rounded-md border border-gray-300 bg-white;
+    @apply focus:outline-none focus:border-emerald-100 focus:ring-1 focus:ring-emerald-700 transition;
 }
 
 /* =========================
    Actions
    ========================= */
 .actions-list {
-    @apply flex flex-wrap gap-1.5 justify-start;
+    @apply flex flex-wrap gap-2 justify-start;
 }
 
     .actions-list .btn {
-        @apply h-8 px-3 text-xs rounded-md border border-gray-200 bg-white hover:bg-gray-100 transition;
+        @apply h-8 px-3 text-xs font-medium rounded-md border transition-colors duration-150;
+        @apply flex items-center gap-1;
     }
+
+     ألوان حسب نوع الزر 
+    .actions-list .btn-edit {
+        @apply border-sky-300 text-sky-700 bg-sky-50 hover:bg-sky-100;
+    }
+
+    .actions-list .btn-delete {
+        @apply border-red-300 text-red-700 bg-red-50 hover:bg-red-100;
+    }
+
+    .actions-list .btn-view {
+        @apply border-emerald-300 text-emerald-700 bg-emerald-50 hover:bg-emerald-100;
+    }
+
 
 /* =========================
    Pagination
    ========================= */
 .pagination {
-    @apply flex flex-col md:flex-row items-center justify-between gap-3 mt-4 text-sm text-gray-700;
+    @apply flex flex-col md:flex-row items-center justify-between gap-2 mt-3 text-sm text-gray-600;
 }
 
-.pagination-nav button {
-    @apply inline-flex items-center justify-center rounded-md border border-gray-300 bg-white px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-100 disabled:opacity-50 transition;
+/* النص المعلوماتي */
+.pagination-info {
+    @apply text-xs text-gray-500 select-none;
+    @apply font-medium; 
+    @apply leading-relaxed; 
+    @apply whitespace-nowrap; 
+}
+/* أزرار التنقل */
+.pagination-nav {
+    @apply flex items-center gap-1;
 }
 
-.pagination-nav .active {
-    @apply bg-emerald-600 text-white border-emerald-600 hover:bg-emerald-700;
+    .pagination-nav button {
+        @apply inline-flex items-center justify-center min-w-[44px] h-8 rounded-md border border-gray-300 bg-white text-xs font-medium text-gray-900 transition-colors duration-150;
+        
+        @apply focus:outline-none focus:ring-0;
+        
+        @apply active:bg-gray-100 active:border-gray-400;
+        
+        box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+    }
+
+        
+        .pagination-nav button:hover {
+            @apply bg-gray-50;
+        }
+
+    /* زر الصفحة الحالية */
+    .pagination-nav .active {
+        @apply bg-emerald-600 text-white border-emerald-600 hover:bg-emerald-700;
+    }
+
+    /* نص الصفحة */
+    .pagination-nav .page-text {
+        @apply text-xs text-gray-500 mx-2;
+    }
+
+/* =========================
+   Modal Backdrop
+   ========================= */
+.sf-modal-backdrop {
+    @apply fixed inset-0 flex items-center justify-center z-40;
+    @apply bg-black/40;
 }
 
 /* =========================
    Modal
    ========================= */
-.sf-modal-backdrop {
-    @apply fixed inset-0 bg-black/50 flex items-center justify-center z-40;
-}
-
 .sf-modal {
-    @apply bg-white rounded-lg shadow-lg w-full max-w-3xl mx-2 md:mx-0 z-50 overflow-hidden;
+    @apply bg-white rounded-lg  w-full max-w-3xl mx-2 md:mx-0 z-50 overflow-hidden;
+    @apply max-h-[80vh] flex flex-col;
+    @apply transition-transform duration-200 ease-out; /* حركة أنعم */
 }
 
+/* =========================
+   Modal Header
+   ========================= */
 .sf-modal-header {
-    @apply flex items-center justify-between px-4 py-3 border-b border-gray-200;
+    @apply relative flex items-center justify-center px-5 py-4 border-b border-gray-200;
+    @apply bg-gray-200;
+    @apply min-h-[4rem]; /* فصل أنيق */
 }
 
 .sf-modal-title {
-    @apply text-lg font-semibold text-gray-800;
+    @apply text-2xl font-semibold text-gray-900 tracking-normal;
+}
+
+
+.sf-modal-close {
+    @apply absolute right-4 top-1/2 -translate-y-1/2;
+    @apply w-8 h-8 flex items-center justify-center rounded-full;
+    @apply text-gray-400 hover:text-gray-600 hover:bg-gray-200;
+    @apply cursor-pointer transition-colors;
+}
+
+.dark .sf-modal-close {
+    @apply text-gray-400 hover:text-gray-200 hover:bg-gray-700;
+}
+
+/* =========================
+   Dark Mode
+   ========================= */
+.dark .sf-modal-header {
+    @apply bg-gray-900 border-gray-700;
+}
+
+.dark .sf-modal-title {
+    @apply text-gray-100;
+}
+
+.dark .sf-modal-close {
+    @apply text-gray-400 hover:text-gray-200;
 }
 
 .sf-modal-close {
@@ -417,6 +508,66 @@ textarea[readonly] {
     .sf-modal-table td {
         @apply px-3 py-2 text-sm border-b border-gray-100;
     }
+
+    /*البانل بصفحة الرندر*/
+
+.sf-panel {
+    @apply w-full max-w-7xl mx-auto bg-white rounded-xl border border-gray-200 overflow-hidden mb-6;
+}
+
+
+/* ===== Panel Header ===== */
+.sf-panel-header {
+    @apply flex items-center justify-between bg-gray-200 px-4 py-2.5 border-b border-gray-200;
+}
+
+.sf-panel-title {
+    @apply text-sm font-semibold text-gray-700 tracking-wide;
+}
+
+/* ===== Panel Actions ===== */
+.sf-panel-actions {
+    @apply flex items-center gap-2;
+}
+
+    .sf-panel-actions button {
+        @apply w-7 h-7 flex items-center justify-center rounded-full bg-transparent transition;
+    }
+
+    /* أيقونات ملونة */
+    .sf-panel-actions .btn-close i {
+        @apply text-red-500 text-base;
+    }
+
+    .sf-panel-actions .btn-minimize i {
+        @apply text-gray-500 text-base;
+    }
+
+    .sf-panel-actions .btn-refresh i {
+        @apply text-gray-500 text-base;
+    }
+
+    /* تأثير hover */
+    .sf-panel-actions button:hover {
+        @apply bg-gray-100;
+    }
+
+    /*  Tooltip  */
+    .sf-panel-actions button[title]::after {
+        content: attr(title);
+        @apply absolute opacity-0 invisible bg-gray-700 text-white text-xs rounded py-1 px-2;
+        transform: translateY(-150%);
+        transition: opacity 0.2s;
+    }
+
+    .sf-panel-actions button:hover::after {
+        @apply opacity-100 visible;
+    }
+
+/* ===== Panel Body ===== */
+.sf-panel-body {
+    @apply p-6 bg-white;
+}
 
 /* =========================
    Flowbite

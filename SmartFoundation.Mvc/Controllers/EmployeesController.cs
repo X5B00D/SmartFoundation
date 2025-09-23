@@ -43,7 +43,7 @@ namespace SmartFoundation.Mvc.Controllers
 
                 Toolbar = new TableToolbarConfig
                 {
-                    ShowRefresh = true,
+                    ShowRefresh = false,
                     ShowColumns = true,
                     ShowExportCsv = true,
                     ShowExportExcel = true,
@@ -242,7 +242,7 @@ namespace SmartFoundation.Mvc.Controllers
             var vm = new SmartPageViewModel
             {
                 PageTitle = "الموظفين",
-                PanelTitle = "إدارة الموظفين",
+                PanelTitle = "معلومات الموظفين",
                 SpName = "dbo.sp_SmartFormDemo",
                 Operation = "select_employees",
                 Table = tableConfig

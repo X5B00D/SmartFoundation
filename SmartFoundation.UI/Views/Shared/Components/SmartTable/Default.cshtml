@@ -59,9 +59,15 @@
     };
 }
 
+@* <div x-data='sfTable(@Html.Raw(JsonSerializer.Serialize(tableConfig, webJson)))'
+     x-init="init()" x-cloak
+     class="sf-table-wrapper"> *@
+
 <div x-data='sfTable(@Html.Raw(JsonSerializer.Serialize(tableConfig, webJson)))'
      x-init="init()" x-cloak
-     class="sf-table-wrapper">
+     x-on:refresh-table.window="refresh()"
+     @* class="sf-table-wrapper"> *@
+
 
     <!-- ===== Toolbar ===== -->
     <div class="toolbar">

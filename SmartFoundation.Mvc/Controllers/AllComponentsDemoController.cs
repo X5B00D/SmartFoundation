@@ -234,7 +234,7 @@ namespace SmartFoundation.Mvc.Controllers
                         DisplayFormat="yyyy-mm-dd",
                         HelpText="سيتم حساب عدد الأيام تلقائيًا",
                         Icon="fa-regular fa-calendar-days",
-                        ColCss="col-span-12 md:col-span-3",
+                        ColCss="col-span-12 md:col-span-6",
                     },
 
                     // ========= الملاحظات =========
@@ -305,7 +305,7 @@ namespace SmartFoundation.Mvc.Controllers
             var vm = new SmartPageViewModel
             {
                 PageTitle = "جميع المكونات",
-                PanelTitle = "عرض شامل لكل الخصائص",
+                PanelTitle = "عرض الخصائص",
                 SpName = "sp_SaveDemoForm",
                 Operation = "insert",
                 Form = form

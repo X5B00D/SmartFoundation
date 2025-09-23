@@ -1,13 +1,79 @@
 ﻿@model SmartFoundation.UI.ViewModels.SmartPage.SmartPageViewModel
 
-<!-- عرض النموذج -->
+<!-- ===== Page Title ===== -->
+@* @if (!string.IsNullOrEmpty(Model.PageTitle))
+{
+    <div class="mb-6">
+        <h1 class="text-2xl font-bold text-gray-800">@Model.PageTitle</h1>
+    </div>
+} *@
+
+<!-- ===== Form Panel ===== -->
 @if (Model.Form is not null)
 {
-    @await Component.InvokeAsync("SmartForm", new { model = Model.Form })
+    <div x-data="{ open: true }" class="sf-panel">
+        <div class="sf-panel-header">
+            <h3 class="sf-panel-title">@Model.PanelTitle</h3>
+
+            <div class="sf-panel-actions">
+                <!-- تحديث -->
+                <button type="button" class="btn-refresh" title="تحديث"
+                        x-on:click="$dispatch('refresh-form')">
+                    <i class="fa fa-rotate"></i>
+                </button>
+
+                <!-- تصغير -->
+                <button type="button" class="btn-minimize" title="تصغير"
+                        x-on:click="open = !open">
+                    <span x-show="open">−</span>
+                    <span x-show="!open">+</span>
+                </button>
+
+                <!-- إغلاق -->
+                <button type="button" class="btn-close" title="إغلاق"
+                        x-on:click="$el.closest('.sf-panel').remove()">
+                    ×
+                </button>
+            </div>
+        </div>
+
+        <div class="sf-panel-body" x-show="open">
+            @await Component.InvokeAsync("SmartForm", new { model = Model.Form })
+        </div>
+    </div>
 }
 
-<!-- عرض الجدول -->
+<!-- ===== Table Panel ===== -->
 @if (Model.Table is not null)
 {
-    @await Component.InvokeAsync("SmartTable", new { model = Model.Table })
+    <div x-data="{ open: true }" class="sf-panel">
+        <div class="sf-panel-header">
+            <h3 class="sf-panel-title">@Model.PanelTitle</h3>
+
+            <div class="sf-panel-actions">
+                <!-- تحديث -->
+                <button type="button" class="btn-refresh" title="تحديث"
+                        x-on:click="$dispatch('refresh-table')">
+                    <i class="fa fa-rotate"></i>
+                </button>
+
+                <!-- تصغير -->
+                <button type="button" class="btn-minimize" title="تصغير"
+                        x-on:click="open = !open">
+                    <span x-show="open">−</span>
+                    <span x-show="!open">+</span>
+                </button>
+
+                <!-- إغلاق -->
+                <button type="button" class="btn-close" title="إغلاق"
+                        x-on:click="$el.closest('.sf-panel').remove()">
+                    ×
+                </button>
+            </div>
+        </div>
+
+        <div class="sf-panel-body" x-show="open">
+            @await Component.InvokeAsync("SmartTable", new { model = Model.Table })
+        </div>
+    </div>
 }
