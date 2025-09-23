@@ -366,189 +366,7 @@ debouncedSearch() {
             },
 
 
-            // ===== المودال =====
-    //        async openModal(action, row) {
-    //            this.modal.open = true;
-    //            this.modal.title = action.modalTitle || action.label || "";
-    //            this.modal.action = action;
-    //            this.modal.loading = true;
-    //            this.modal.error = null;
-    //            this.modal.html = "";
-
-    //            try {
-    //                if (action.formUrl) {
-    //                    const url = this.fillUrl(action.formUrl, row);
-    //                    const resp = await fetch(url);
-    //                    if (!resp.ok) throw new Error(`Failed to load form: ${resp.status}`);
-    //                    this.modal.html = await resp.text();
-    //                    this.$nextTick(() => {
-    //                        this.initModalScripts();
-    //                    });
-    //                } else if (action.openForm) {
-    //                    this.modal.html = this.generateFormHtml(action.openForm, row);
-    //                    this.$nextTick(() => {
-    //                        const formEl = this.$el.querySelector('.sf-modal form');
-    //                        if (formEl) {
-    //                            formEl.addEventListener('submit', (e) => {
-    //                                e.preventDefault();
-    //                                this.saveModalChanges();
-    //                            });
-    //                        }
-    //                        this.initModalScripts();
-    //                    });
-    //                } else if (action.modalSp) {
-    //                    const body = {
-    //                        Component: "Table",
-    //                        SpName: action.modalSp,
-    //                        Operation: action.modalOp || "detail",
-    //                        Params: row || {}
-    //                    };
-    //                    const resp = await fetch(this.endpoint, {
-    //                        method: "POST",
-    //                        headers: { "Content-Type": "application/json" },
-    //                        body: JSON.stringify(body)
-    //                    });
-    //                    const json = await resp.json();
-    //                    if (!json.success) throw new Error(json.error || "خطأ");
-    //                    this.modal.html = this.formatDetailView(json.data, action.modalColumns);
-    //                }
-    //            } catch (e) {
-    //                console.error("Modal open error", e);
-    //                this.modal.error = e.message;
-    //            } finally {
-    //                this.modal.loading = false;
-    //            }
-    //        },
-
-    //        initModalScripts() {
-    //            const scripts = this.$el.querySelectorAll('.sf-modal script');
-    //            scripts.forEach(script => {
-    //                const newScript = document.createElement('script');
-    //                newScript.textContent = script.textContent;
-    //                document.body.appendChild(newScript).remove();
-    //            });
-    //        },
-
-    //        // ===== توليد الفورم =====
-    //        generateFormHtml(formConfig, rowData) {
-    //            const formId = formConfig?.formId || "smartModalForm";
-    //            const method = (formConfig?.method || "POST").toUpperCase();
-    //            const action = formConfig?.actionUrl || "#";
-
-    //            let html = `<form id="${formId}" method="${method}" action="${action}">
-    //                <div class="grid grid-cols-12 gap-4">`;
-
-    //            (formConfig?.fields || []).forEach(field => {
-    //                if (field?.isHidden || field?.type === "hidden") {
-    //                    const v = rowData ? (rowData[field?.name] ?? field?.value ?? "") : (field?.value ?? "");
-    //                    html += `<input type="hidden" name="${field?.name}" value="${v}">`;
-    //                } else {
-    //                    html += this.generateFieldHtml(field, rowData);
-    //                }
-    //            });
-
-    //            html += `</div></form>`;
-    //            return html;
-    //        },
-
-    //        // ===== توليد الحقول =====
-    //        generateFieldHtml(field, rowData) {
-    //            const type = (field?.type || "text").toLowerCase();
-    //            const name = field?.name || "";
-    //            const label = field?.label || "";
-    //            const required = !!field?.required;
-    //            const placeholder = field?.placeholder || "";
-    //            const helpText = field?.helpText || "";
-    //            const options = Array.isArray(field?.options) ? field.options : [];
-    //            const value = rowData ? (rowData[name] ?? field?.value ?? "") : (field?.value ?? "");
-
-    //            let colCss = field?.colCss || field?.ColCss || "col-span-12 md:col-span-6";
-    //            if (/^\d{1,2}$/.test(colCss)) {
-    //                const n = Math.max(1, Math.min(12, parseInt(colCss, 10)));
-    //                colCss = `col-span-12 md:col-span-${n}`;
-    //            }
-
-
-    //            const wrap = (inner) => `
-    //<div class="form-group ${colCss}">
-    //    <label class="sf-label">${label}${required ? " *" : ""}</label>
-    //    ${inner}
-    //    ${helpText ? `<div class="form-help">${helpText}</div>` : ""}
-    //</div>`;
-
-
-    //            if (type === "checkbox") {
-    //                return `
-    //                <div class="${colCss} flex items-center gap-2">
-    //                    <input type="checkbox" class="sf-checkbox" id="${name}" name="${name}" ${value ? "checked" : ""}>
-    //                    <label for="${name}">${label}${required ? " *" : ""}</label>
-    //                </div>`;
-    //            }
-
-    //            if (type === "textarea") {
-    //                return wrap(`<textarea class="sf-textarea" name="${name}" placeholder="${placeholder}" ${required ? "required" : ""}>${value ?? ""}</textarea>`);
-    //            }
-
-    //            if (type === "select") {
-    //                const opts = options.map(o => {
-    //                    const sel = o?.selected || (value != null && String(value) === String(o?.value));
-    //                    return `<option value="${o?.value ?? ""}" ${sel ? "selected" : ""} ${o?.disabled ? "disabled" : ""}>${o?.text ?? ""}</option>`;
-    //                }).join("");
-    //                return wrap(`<select class="sf-select" name="${name}" ${required ? "required" : ""}>${opts}</select>`);
-    //            }
-
-
-
-    //            const mapType = (t) => {
-    //                if (["text", "number", "password", "email", "datetime-local", "url", "tel"].includes(t)) return t;
-    //                if (t === "phone") return "tel";
-    //                return "text";
-    //            };
-
-    //            //  حقل التاريخ
-    //            if (type === "date") {
-    //                return wrap(`
-    //    <input type="text"
-    //           name="${name}"
-    //           value="${value ?? ""}"
-    //           placeholder="YYYY-MM-DD"
-    //           class="sf-date"
-    //           autocomplete="off"
-    //           data-role="sf-date"
-    //           data-date-format="yyyy-mm-dd"
-    //           data-calendar="gregory"
-    //           data-display-lang="ar"
-    //           ${required ? "required" : ""} />
-    //`);
-    //            }
-
-    //            // باقي الحقول العادية
-    //            return wrap(`<input class="input" type="${mapType(type)}" name="${name}" value="${(value ?? "").toString().replace(/"/g, '&quot;')}" placeholder="${placeholder}" ${required ? "required" : ""} />`);
-    //        },
-
-    //        formatDetailView(data, columns) {
-    //            if (!data) return "<p>لا توجد بيانات</p>";
-    //            let html = '<div class="detail-view">';
-    //            const fields = columns || Object.keys(data);
-    //            fields.forEach(field => {
-    //                if (data[field] != null) {
-    //                    html += `<div class="detail-row"><strong>${field}:</strong> <span>${data[field]}</span></div>`;
-    //                }
-    //            });
-    //            html += '</div>';
-    //            return html;
-    //        },
-
-    //        closeModal() {
-    //            this.modal.open = false;
-    //            this.modal.html = "";
-    //            this.modal.action = null;
-    //            this.modal.error = null;
-    //                },
-
-
-
-
+            
 
             // ===== المودال =====
             async openModal(action, row) {
@@ -780,50 +598,152 @@ debouncedSearch() {
 
             // ===== توليد الحقول =====
             generateFieldHtml(field, rowData) {
-                // ---- مساعدات عامة ----
-                const get = (k, alt) => field?.[k] ?? field?.[k?.charAt(0).toUpperCase() + k.slice(1)] ?? alt;
-                const esc = (s) => String(s ?? "").replace(/"/g, '&quot;');
+                // ====== أدوات مساعدة محلية ======
+                const get = (k, alt) => {
+                    // جرب الحصول على القيمة بالأسماء المختلفة للخاصية
+                    return field?.[k] ?? 
+                           field?.[k?.charAt(0).toUpperCase() + k.slice(1)] ?? 
+                           alt;
+                };
+                
+                const esc = (s) => String(s ?? "").replace(/"/g, '&quot;').replace(/'/g, '&#39;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
                 const yes = (b, k) => b ? k : "";
                 const num = (v, d = null) => (v === 0 || v) ? v : d;
 
-                // colCss: يقبل رقم أو سلاسل جاهزة. يدعم صيغ بسيطة مثل "3" أو "col-span-6 md:col-span-3"
+                // حل CSS للأعمدة بشكل متقدم
                 const resolveColCss = (raw) => {
-                    let colCss = (raw || "col-span-12 md:col-span-6").trim();
+                    if (!raw) return "col-span-12 md:col-span-6";
+                    let colCss = raw.trim();
+                    
+                    // إذا كان رقماً فقط (1-12)
                     if (/^\d{1,2}$/.test(colCss)) {
                         const n = Math.max(1, Math.min(12, parseInt(colCss, 10)));
                         return `col-span-12 md:col-span-${n}`;
                     }
-                    // لو لم يحتوي أساس للموبايل، أضف col-span-12
-                    if (!/\bcol-span-\d{1,2}\b/.test(colCss)) colCss = `col-span-12 ${colCss}`.trim();
+                    
+                    // إذا لم يحتوي على col-span أساسي، أضفه
+                    if (!/\bcol-span-\d{1,2}\b/.test(colCss)) {
+                        colCss = `col-span-12 ${colCss}`.trim();
+                    }
                     return colCss;
                 };
 
-                const type = String(get("type", "text")).toLowerCase();
+                // بناء خيارات Select/Radio/Checkbox
+                const buildOptions = (opts, val, multiple = false) => {
+                    const selectedSet = new Set(
+                        multiple
+                            ? Array.isArray(val) ? val.map(String)
+                                : typeof val === "string" ? val.split(",").map(s => s.trim()).filter(Boolean)
+                                    : []
+                            : []
+                    );
+
+                    const render = (list) => list.map(o => {
+                        const hasChildren = Array.isArray(o?.options) && o.options.length;
+                        if (hasChildren) {
+                            return `<optgroup label="${esc(o?.label ?? o?.Text ?? o?.text ?? "")}">${render(o.options)}</optgroup>`;
+                        }
+                        const v = o?.value ?? o?.Value ?? "";
+                        const t = o?.text ?? o?.Text ?? o?.label ?? o?.Label ?? v;
+                        const dis = !!(o?.disabled ?? o?.Disabled);
+                        const sel = multiple
+                            ? selectedSet.has(String(v)) || !!(o?.selected ?? o?.Selected)
+                            : !!(o?.selected ?? o?.Selected) || (val != null && String(val) === String(v));
+                        const icon = o?.icon ?? o?.Icon ?? "";
+                        const iconHtml = icon ? `<i class="${esc(icon)} mr-1"></i>` : "";
+                        
+                        return `<option value="${esc(v)}" ${sel ? "selected" : ""} ${dis ? "disabled" : ""} data-icon="${esc(icon)}">${iconHtml}${esc(t)}</option>`;
+                    }).join("");
+
+                    return render(opts || []);
+                };
+
+                // تحديد نوع Input للمتصفح
+                const mapType = (t) => {
+                    const std = ["text", "number", "password", "email", "datetime-local", "url", "tel", "search", "date", "time", "month", "week"];
+                    if (std.includes(t)) return t;
+                    if (t === "phone") return "tel";
+                    if (t === "iban") return "text";
+                    return "text";
+                };
+
+                // التعامل مع TextMode
+                const getTextModeAttributes = (textMode) => {
+                    const patterns = {
+                        arabic: '[\\u0600-\\u06FF\\u0750-\\u077F\\u08A0-\\u08FF\\uFB50-\\uFDFF\\uFE70-\\uFEFF\\s]*',
+                        english: '[a-zA-Z\\s]*',
+                        numeric: '[0-9]*',
+                        alphanumeric: '[a-zA-Z0-9]*',
+                        arabicnum: '[\\u0600-\\u06FF\\u0750-\\u077F\\u08A0-\\u08FF\\uFB50-\\uFDFF\\uFE70-\\uFEFF0-9\\s]*',
+                        engsentence: '[a-zA-Z0-9\\s\\.,;:!?\\-]*',
+                        arsentence: '[\\u0600-\\u06FF\\u0750-\\u077F\\u08A0-\\u08FF\\uFB50-\\uFDFF\\uFE70-\\uFEFF0-9\\s\\.,;:!?\\-]*',
+                        email: '[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}',
+                        url: 'https?://[\\w\\-]+(\\.[\\w\\-]+)+([\\w\\-\\.,@?^=%&:/~\\+#]*[\\w\\-\\@?^=%&/~\\+#])?'
+                    };
+                    
+                    if (!textMode || textMode === 'custom') return '';
+                    const pattern = patterns[textMode];
+                    return pattern ? `data-text-mode="${esc(textMode)}" pattern="${esc(pattern)}"` : '';
+                };
+
+                // أقسام الحقول
+                const wrapSectionStart = (title) => title ? `
+<div class="section-box col-span-12">
+  <span class="section-legend">${esc(title)}</span>
+  <div class="form-row grid grid-cols-12 gap-4">` : "";
+
+                const wrapSectionEnd = (title) => title ? `
+  </div>
+</div>` : "";
+
+                // تغليف الحقل
+                const wrapField = ({ inner, label, required, helpText, colCss, withLabel = true, iconCls = "" }) => {
+                    const iconHtml = iconCls ? `<i class="${esc(iconCls)} mr-1"></i>` : "";
+                    const innerWithIcon = iconCls ? `<div class="flex items-center gap-2">${iconHtml}<div class="flex-1">${inner}</div></div>` : inner;
+                    return `
+<div class="form-group ${colCss}">
+  ${withLabel ? `<label class="sf-label">${esc(label)}${required ? " <span class='req'>*</span>" : ""}</label>` : ""}
+  ${innerWithIcon}
+  ${helpText ? `<div class="form-help">${esc(helpText)}</div>` : ""}
+</div>`;
+                };
+
+                // ====== قراءة جميع خصائص FieldConfig ======
+                
+                // الخصائص الأساسية
                 const name = String(get("name", ""));
                 const label = String(get("label", ""));
-                const required = !!get("required", false);
+                const type = String(get("type", "text")).toLowerCase();
                 const placeholder = get("placeholder", "") || "";
                 const helpText = get("helpText", "") || "";
-                const options = Array.isArray(get("options", [])) ? get("options", []) : [];
-                const extraCss = get("extraCss", "") || "";
-                const iconCls = get("icon", "") || "";
-                const onChangeJs = get("onChangeJs", "") || "";
-                const dependsOn = get("dependsOn", "") || "";
-                const dependsUrl = get("dependsUrl", "") || "";
-                const multiple = !!get("multiple", false);
+                const required = !!get("required", false);
                 const readonly = !!get("readonly", false);
                 const disabled = !!get("disabled", false);
+                const multiple = !!get("multiple", false);
                 const isHidden = !!get("isHidden", false);
 
-                // قيود عامة
+                // القيود العامة
                 const min = get("min", null);
                 const max = get("max", null);
                 const maxLength = get("maxLength", null);
                 const pattern = get("pattern", null);
                 const inputPattern = get("inputPattern", null);
                 const inputLang = get("inputLang", null);
+
+                // تنسيق وواجهة
+                const colCss = resolveColCss(get("colCss", ""));
+                const extraCss = get("extraCss", "") || "";
+                const iconCls = get("icon", "") || "";
+                const onChangeJs = get("onChangeJs", "") || "";
+                const dependsOn = get("dependsOn", "") || "";
+                const dependsUrl = get("dependsUrl", "") || "";
+                const sectionTitle = get("sectionTitle", null);
+                const options = Array.isArray(get("options", [])) ? get("options", []) : [];
+
+                // أنواع خاصة
                 const isNumericOnly = !!get("isNumericOnly", false);
                 const isIban = !!get("isIban", false);
+                const textMode = get("textMode", null);
 
                 // خصائص المتصفح
                 const autocomplete = get("autocomplete", "off");
@@ -832,7 +752,7 @@ debouncedSearch() {
                 const autocorrect = get("autocorrect", null);
 
                 // التاريخ المتقدم
-                const calendar = get("calendar", "gregorian");          // gregorian | hijri | both
+                const calendar = get("calendar", "gregorian");
                 const dateInputCalendar = get("dateInputCalendar", "gregorian");
                 const mirrorName = get("mirrorName", null);
                 const mirrorCalendar = get("mirrorCalendar", "hijri");
@@ -846,20 +766,21 @@ debouncedSearch() {
                 const colCssFrom = get("colCssFrom", null);
                 const colCssTo = get("colCssTo", null);
 
+                // جدول مضمن
+                const tableConfig = get("table", null);
+
                 // القيمة
                 const rawValue = rowData ? (rowData[name] ?? get("value", "")) : get("value", "");
                 const value = rawValue ?? "";
 
-                // colCss النهائي
-                const colCss = resolveColCss(get("colCss", get("ColCss", "")));
-
-                // بناء سلاسل صفات شائعة
+                // سمات HTML عامة مشتركة
                 const baseReq = yes(required, "required");
                 const basePh = placeholder ? `placeholder="${esc(placeholder)}"` : "";
                 const baseMaxLen = maxLength ? `maxlength="${maxLength}"` : "";
                 const baseMin = (min ?? null) !== null ? `min="${min}"` : "";
                 const baseMax = (max ?? null) !== null ? `max="${max}"` : "";
                 const basePat = pattern ? `pattern="${esc(pattern)}"` : "";
+                const baseInputPat = inputPattern ? `data-input-pattern="${esc(inputPattern)}"` : "";
                 const baseReadOnly = yes(readonly, "readonly");
                 const baseDisabled = yes(disabled, "disabled");
                 const baseMulti = yes(multiple, "multiple");
@@ -867,211 +788,169 @@ debouncedSearch() {
                 const baseSpell = (spellcheck !== null) ? `spellcheck="${spellcheck ? "true" : "false"}"` : "";
                 const baseCap = autocapitalize ? `autocapitalize="${esc(autocapitalize)}"` : "";
                 const baseCorr = autocorrect ? `autocorrect="${esc(autocorrect)}"` : "";
-                const baseDir = inputLang === "number" ? `inputmode="numeric"` : "";
+                const baseDir = inputLang === "number" ? `inputmode="numeric"` : inputLang ? `inputmode="${esc(inputLang)}"` : "";
                 const baseOnChange = onChangeJs ? `onchange="${esc(onChangeJs)}"` : "";
                 const baseDependsOn = dependsOn ? `data-depends-on="${esc(dependsOn)}"` : "";
                 const baseDependsUrl = dependsUrl ? `data-depends-url="${esc(dependsUrl)}"` : "";
                 const baseIban = isIban ? `data-iban="1"` : "";
                 const baseNumOnly = isNumericOnly ? `data-numeric-only="1"` : "";
-                const baseInPat = inputPattern ? `pattern="${esc(inputPattern)}"` : "";
+                const baseTextMode = getTextModeAttributes(textMode);
 
-                // إضافة أيقونة داخل الحقل عند الطلب
-                const iconHtml = iconCls ? `<i class="${esc(iconCls)} mr-1"></i>` : "";
+                // بداية ونهاية الأقسام
+                const sectionStart = wrapSectionStart(sectionTitle);
+                const sectionEnd = wrapSectionEnd(sectionTitle);
 
-                // تغليف مع التسمية والمساعدة + دعم SectionTitle
-                const wrap = (inner, overrideLabel = true) => `
-${get("sectionTitle", null) ? `
-<div class="section-box col-span-12">
-  <span class="section-legend">${esc(get("sectionTitle", ""))}</span>
-  <div class="form-row">
-` : ""}
+                // ====== توليد أنواع الحقول المختلفة ======
 
-<div class="form-group ${colCss}">
-  ${overrideLabel !== false ? `<label class="sf-label">${esc(label)}${required ? " <span class='req'>*</span>" : ""}</label>` : ""}
-  ${iconCls ? `<div class="flex items-center gap-2">${iconHtml}<div class="flex-1">${inner}</div></div>` : inner}
-  ${helpText ? `<div class="form-help">${esc(helpText)}</div>` : ""}
-</div>
-
-${get("sectionTitle", null) ? `
-  </div>
-</div>` : ""}`;
-
-                // توليد <option> و <optgroup>
-                const buildOptions = (opts, val) => {
-                    return opts.map(o => {
-                        const hasChildren = Array.isArray(o?.options) && o.options.length;
-                        if (hasChildren) {
-                            const children = buildOptions(o.options, val);
-                            return `<optgroup label="${esc(o?.label ?? o?.Text ?? "")}">${children}</optgroup>`;
-                        }
-                        const v = o?.value ?? o?.Value ?? "";
-                        const t = o?.text ?? o?.Text ?? o?.label ?? "";
-                        const dis = !!(o?.disabled ?? o?.Disabled);
-                        const sel = !!(o?.selected ?? o?.Selected) || (val != null && String(val) === String(v));
-                        return `<option value="${esc(v)}" ${sel ? "selected" : ""} ${dis ? "disabled" : ""}>${esc(t)}</option>`;
-                    }).join("");
-                };
-
-                // عناصر input النوعية
-                const mapType = (t) => {
-                    if (["text", "number", "password", "email", "datetime-local", "url", "tel", "search"].includes(t)) return t;
-                    if (t === "phone") return "tel";
-                    if (t === "iban") return "text";
-                    return "text";
-                };
-
-                // مخفي
+                // حقل مخفي
                 if (isHidden || type === "hidden") {
-                    return `<input type="hidden" name="${esc(name)}" value="${esc(value)}">`;
+                    return `${sectionStart}<input type="hidden" name="${esc(name)}" value="${esc(value)}" ${baseDependsOn} ${baseDependsUrl}>${sectionEnd}`;
                 }
 
-                // ===== أنواع خاصة =====
-
-                // Checkbox مفرد
+                // checkbox مفرد
                 if (type === "checkbox") {
-                    const checked = !!value;
-                    return `
-<div class="${colCss} flex items-center gap-2">
-  <input type="checkbox" class="sf-checkbox ${extraCss}" id="${esc(name)}" name="${esc(name)}"
+                    const checked = !!value || value === "true" || value === "1" || value === 1;
+                    const inner = `
+<label class="inline-flex items-center gap-2 cursor-pointer">
+  <input type="checkbox" class="sf-checkbox ${extraCss}" id="${esc(name)}" name="${esc(name)}" value="1"
          ${checked ? "checked" : ""} ${baseReq} ${baseReadOnly} ${baseDisabled}
-         ${baseAuto} ${baseSpell} ${baseCap} ${baseCorr}
-         ${baseDependsOn} ${baseDependsUrl} ${baseOnChange} ${baseIban} ${baseNumOnly}>
-  <label for="${esc(name)}">${esc(label)}${required ? " <span class='req'>*</span>" : ""}</label>
-  ${helpText ? `<div class="form-help">${esc(helpText)}</div>` : ""}
-</div>`;
+         ${baseAuto} ${baseSpell} ${baseCap} ${baseCorr} ${baseOnChange}
+         ${baseDependsOn} ${baseDependsUrl} ${baseIban} ${baseNumOnly}>
+  <span class="checkbox-label">${esc(label)}${required ? " <span class='req'>*</span>" : ""}</span>
+</label>`;
+                    return `${sectionStart}${wrapField({ inner, label, required, helpText, colCss, withLabel: false, iconCls })}${sectionEnd}`;
                 }
 
-                // مجموعة checkboxes
+                // checkbox-group
                 if (type === "checkbox-group") {
                     const sel = new Set(
                         Array.isArray(value) ? value.map(String)
                             : typeof value === 'string' ? value.split(',').map(s => s.trim()).filter(Boolean)
                                 : []
                     );
-                    const items = options.map((o, i) => {
+                    const items = (options || []).map(o => {
                         const v = o?.value ?? o?.Value ?? "";
-                        const t = o?.text ?? o?.Text ?? o?.label ?? v;
+                        const t = o?.text ?? o?.Text ?? o?.label ?? o?.Label ?? v;
                         const dis = !!(o?.disabled ?? o?.Disabled);
                         const ckd = sel.has(String(v));
+                        const icon = o?.icon ?? o?.Icon ?? "";
+                        const iconHtml = icon ? `<i class="${esc(icon)} mr-1"></i>` : "";
+                        
                         return `
-<label class="inline-flex items-center gap-2 mr-4">
+<label class="inline-flex items-center gap-2 mr-4 cursor-pointer">
   <input type="checkbox" name="${esc(name)}" value="${esc(v)}" ${ckd ? "checked" : ""} ${dis ? "disabled" : ""}
          ${baseReadOnly} ${baseReq} ${baseAuto} ${baseSpell} ${baseCap} ${baseCorr}
-         ${baseDependsOn} ${baseDependsUrl} ${baseOnChange} class="${extraCss}">
-  <span>${esc(t)}</span>
+         ${baseDependsOn} ${baseDependsUrl} ${baseOnChange} class="sf-checkbox ${extraCss}">
+  <span class="checkbox-label">${iconHtml}${esc(t)}</span>
 </label>`;
                     }).join("");
-                    return wrap(`<div class="flex flex-wrap items-center">${items}</div>`);
+                    const inner = `<div class="flex flex-wrap items-center gap-2">${items}</div>`;
+                    return `${sectionStart}${wrapField({ inner, label, required, helpText, colCss, iconCls })}${sectionEnd}`;
                 }
 
-                // مجموعة radio
+                // radio buttons
                 if (type === "radio") {
-                    const items = options.map((o, i) => {
+                    const items = (options || []).map(o => {
                         const v = o?.value ?? o?.Value ?? "";
-                        const t = o?.text ?? o?.Text ?? o?.label ?? v;
+                        const t = o?.text ?? o?.Text ?? o?.label ?? o?.Label ?? v;
                         const dis = !!(o?.disabled ?? o?.Disabled);
                         const ckd = String(value) === String(v);
+                        const icon = o?.icon ?? o?.Icon ?? "";
+                        const iconHtml = icon ? `<i class="${esc(icon)} mr-1"></i>` : "";
+                        
                         return `
-<label class="inline-flex items-center gap-2 mr-4">
+<label class="inline-flex items-center gap-2 mr-4 cursor-pointer">
   <input type="radio" name="${esc(name)}" value="${esc(v)}" ${ckd ? "checked" : ""} ${dis ? "disabled" : ""}
          ${baseReadOnly} ${baseReq} ${baseAuto} ${baseSpell} ${baseCap} ${baseCorr}
-         ${baseDependsOn} ${baseDependsUrl} ${baseOnChange} class="${extraCss}">
-  <span>${esc(t)}</span>
+         ${baseDependsOn} ${baseDependsUrl} ${baseOnChange} class="sf-radio ${extraCss}">
+  <span class="radio-label">${iconHtml}${esc(t)}</span>
 </label>`;
                     }).join("");
-                    return wrap(`<div class="flex flex-wrap items-center">${items}</div>`);
+                    const inner = `<div class="flex flex-wrap items-center gap-2">${items}</div>`;
+                    return `${sectionStart}${wrapField({ inner, label, required, helpText, colCss, iconCls })}${sectionEnd}`;
                 }
 
                 // textarea
                 if (type === "textarea") {
                     const rows = num(get("rows", null), 3);
-                    return wrap(
-                        `<textarea class="sf-textarea ${extraCss}" name="${esc(name)}" rows="${rows}"
-    ${basePh} ${baseReq} ${baseReadOnly} ${baseDisabled}
-    ${baseMaxLen} ${baseAuto} ${baseSpell} ${baseCap} ${baseCorr}
-    ${baseDependsOn} ${baseDependsUrl} ${baseOnChange}>${esc(value)}</textarea>`
-                    );
+                    const autoResize = !!get("autoResize", false);
+                    const inner = `<textarea class="sf-textarea ${extraCss}" name="${esc(name)}" rows="${rows}"
+      ${basePh} ${baseReq} ${baseReadOnly} ${baseDisabled} ${baseMaxLen} 
+      ${baseAuto} ${baseSpell} ${baseCap} ${baseCorr} ${baseOnChange}
+      ${baseDependsOn} ${baseDependsUrl} ${baseInputPat} ${baseTextMode}
+      ${autoResize ? 'data-auto-resize="1"' : ""}>${esc(value)}</textarea>`;
+                    return `${sectionStart}${wrapField({ inner, label, required, helpText, colCss, iconCls })}${sectionEnd}`;
                 }
 
-                // select
+                // select dropdown
                 if (type === "select") {
                     const asyncSrc = dependsUrl ? `data-source="${esc(dependsUrl)}"` : "";
-                    // multiple
-                    let selectedSet = new Set();
-                    if (multiple) {
-                        selectedSet = new Set(
-                            Array.isArray(value) ? value.map(String) :
-                                typeof value === "string" ? value.split(",").map(s => s.trim()).filter(Boolean) : []
-                        );
-                    }
-                    const optsHtml = multiple
-                        ? options.map(o => {
-                            const v = o?.value ?? o?.Value ?? "";
-                            const t = o?.text ?? o?.Text ?? o?.label ?? v;
-                            const dis = !!(o?.disabled ?? o?.Disabled);
-                            const sel = selectedSet.has(String(v)) || !!(o?.selected ?? o?.Selected);
-                            return `<option value="${esc(v)}" ${sel ? "selected" : ""} ${dis ? "disabled" : ""}>${esc(t)}</option>`;
-                        }).join("")
-                        : buildOptions(options, value);
-
-                    return wrap(
-                        `<select class="sf-select ${extraCss}" name="${esc(name)}" ${baseMulti}
-    ${baseReq} ${baseReadOnly} ${baseDisabled} ${asyncSrc}
-    ${baseAuto} ${baseSpell} ${baseCap} ${baseCorr}
-    ${baseDependsOn} ${baseDependsUrl} ${baseOnChange}>
-  ${optsHtml}
-</select>`
-                    );
+                    const optsHtml = buildOptions(options, value, multiple);
+                    const emptyOption = !multiple && !required ? `<option value="">${esc(placeholder || "اختر...")}</option>` : "";
+                    
+                    const inner = `<select class="sf-select ${extraCss}" name="${esc(name)}" ${baseMulti}
+      ${baseReq} ${baseReadOnly} ${baseDisabled} ${asyncSrc}
+      ${baseAuto} ${baseSpell} ${baseCap} ${baseCorr} ${baseOnChange}
+      ${baseDependsOn} ${baseDependsUrl}>
+      ${emptyOption}${optsHtml}
+    </select>`;
+                    return `${sectionStart}${wrapField({ inner, label, required, helpText, colCss, iconCls })}${sectionEnd}`;
                 }
 
-                // autocomplete (datalist + مصدر اختياري)
+                // autocomplete (input + datalist + optional remote)
                 if (type === "autocomplete") {
-                    const listId = `${name}_list`;
+                    const listId = `${name}_list_${Date.now()}`;
                     const src = dependsUrl ? `data-source="${esc(dependsUrl)}"` : "";
                     const minlen = num(get("minLength", null), 2);
-                    return wrap(
-                        `<input class="input ${extraCss}" type="text" name="${esc(name)}" value="${esc(value)}"
-    ${basePh} ${baseReq} list="${esc(listId)}" data-role="sf-autocomplete" ${src}
-    data-minlen="${minlen}" ${baseReadOnly} ${baseDisabled}
-    ${baseMaxLen} ${baseAuto} ${baseSpell} ${baseCap} ${baseCorr}
-    ${baseDependsOn} ${baseDependsUrl} ${baseOnChange} />
-<datalist id="${esc(listId)}"></datalist>`
-                    );
+                    const inner = `
+<input class="sf-input ${extraCss}" type="text" name="${esc(name)}" value="${esc(value)}"
+  ${basePh} ${baseReq} list="${listId}" data-role="sf-autocomplete" ${src}
+  data-minlen="${minlen}" ${baseReadOnly} ${baseDisabled} ${baseMaxLen}
+  ${baseAuto} ${baseSpell} ${baseCap} ${baseCorr} ${baseOnChange}
+  ${baseDependsOn} ${baseDependsUrl} ${baseInputPat} ${baseTextMode} />
+<datalist id="${listId}">
+  ${buildOptions(options, value, false)}
+</datalist>`;
+                    return `${sectionStart}${wrapField({ inner, label, required, helpText, colCss, iconCls })}${sectionEnd}`;
                 }
 
-                // date / time / datetime
+                // date field
                 if (type === "date") {
-                    // ملاحظات: data-... تشمل كل مفاتيح التقويم المتقدمة
                     const theVal = value || (defaultToday ? new Date().toISOString().slice(0, 10) : "");
-                    return wrap(
-                        `<input type="text" name="${esc(name)}" value="${esc(theVal)}" ${basePh || `placeholder="${esc(displayFormat || 'YYYY-MM-DD')}"`}
-    class="sf-date ${extraCss}" autocomplete="off" data-role="sf-date"
-    data-date-format="${esc(displayFormat || 'yyyy-mm-dd')}"
-    data-calendar="${esc(calendar)}" data-input-calendar="${esc(dateInputCalendar)}"
-    data-display-lang="${esc(dateDisplayLang)}" data-numerals="${esc(dateNumerals)}"
-    data-show-dayname="${showDayName ? "1" : "0"}"
-    ${minDateStr ? `data-min="${esc(minDateStr)}"` : ""} ${maxDateStr ? `data-max="${esc(maxDateStr)}"` : ""}
-    ${mirrorName ? `data-mirror="${esc(mirrorName)}"` : ""} ${mirrorCalendar ? `data-mirror-cal="${esc(mirrorCalendar)}"` : ""}
-    ${baseReq} ${baseReadOnly} ${baseDisabled} ${baseAuto} ${baseSpell} ${baseCap} ${baseCorr}
-    ${baseDependsOn} ${baseDependsUrl} ${baseOnChange} />`
-                    );
-                }
-                if (type === "time") {
-                    return wrap(
-                        `<input class="input ${extraCss}" type="time" name="${esc(name)}" value="${esc(value)}"
-    ${baseReq} ${baseReadOnly} ${baseDisabled} ${baseAuto} ${baseSpell} ${baseCap} ${baseCorr}
-    ${baseDependsOn} ${baseDependsUrl} ${baseOnChange} />`
-                    );
-                }
-                if (type === "datetime" || type === "datetime-local") {
-                    return wrap(
-                        `<input class="input ${extraCss}" type="datetime-local" name="${esc(name)}" value="${esc(value)}"
-    ${baseReq} ${baseReadOnly} ${baseDisabled} ${baseAuto} ${baseSpell} ${baseCap} ${baseCorr}
-    ${baseDependsOn} ${baseDependsUrl} ${baseOnChange} />`
-                    );
+                    const inner = `
+<input type="text" name="${esc(name)}" value="${esc(theVal)}" 
+  ${basePh || `placeholder="${esc(displayFormat || 'YYYY-MM-DD')}"`}
+  class="sf-date ${extraCss}" autocomplete="off" data-role="sf-date"
+  data-date-format="${esc(displayFormat || 'yyyy-mm-dd')}"
+  data-calendar="${esc(calendar)}" data-input-calendar="${esc(dateInputCalendar)}"
+  data-display-lang="${esc(dateDisplayLang)}" data-numerals="${esc(dateNumerals)}"
+  data-show-dayname="${showDayName ? "1" : "0"}"
+  ${minDateStr ? `data-min="${esc(minDateStr)}"` : ""} 
+  ${maxDateStr ? `data-max="${esc(maxDateStr)}"` : ""}
+  ${mirrorName ? `data-mirror="${esc(mirrorName)}"` : ""} 
+  ${mirrorCalendar ? `data-mirror-cal="${esc(mirrorCalendar)}"` : ""}
+  ${baseReq} ${baseReadOnly} ${baseDisabled} ${baseAuto} ${baseSpell} 
+  ${baseCap} ${baseCorr} ${baseOnChange} ${baseDependsOn} ${baseDependsUrl} />`;
+                    return `${sectionStart}${wrapField({ inner, label, required, helpText, colCss, iconCls })}${sectionEnd}`;
                 }
 
-                // date-range: حقلا "من" و"إلى" مع خصائص التقويم المتقدم
+                // time field
+                if (type === "time") {
+                    const inner = `<input class="sf-input ${extraCss}" type="time" name="${esc(name)}" value="${esc(value)}"
+      ${baseReq} ${baseReadOnly} ${baseDisabled} ${baseAuto} ${baseSpell} 
+      ${baseCap} ${baseCorr} ${baseOnChange} ${baseDependsOn} ${baseDependsUrl} />`;
+                    return `${sectionStart}${wrapField({ inner, label, required, helpText, colCss, iconCls })}${sectionEnd}`;
+                }
+
+                // datetime-local field
+                if (type === "datetime" || type === "datetime-local") {
+                    const inner = `<input class="sf-input ${extraCss}" type="datetime-local" name="${esc(name)}" value="${esc(value)}"
+      ${baseReq} ${baseReadOnly} ${baseDisabled} ${baseAuto} ${baseSpell} 
+      ${baseCap} ${baseCorr} ${baseOnChange} ${baseDependsOn} ${baseDependsUrl} />`;
+                    return `${sectionStart}${wrapField({ inner, label, required, helpText, colCss, iconCls })}${sectionEnd}`;
+                }
+
+                // date-range field
                 if (type === "date-range") {
                     const fromName = `${name}_from`;
                     const toName = `${name}_to`;
@@ -1081,196 +960,271 @@ ${get("sectionTitle", null) ? `
                     const colFrom = resolveColCss(colCssFrom || "col-span-12 md:col-span-6");
                     const colTo = resolveColCss(colCssTo || "col-span-12 md:col-span-6");
 
-                    const inputTpl = (n, v, place) => `
-<div class="form-group ${n === fromName ? colFrom : colTo}">
-  <label class="sf-label">${n === fromName ? "من" : "إلى"}${required ? " <span class='req'>*</span>" : ""}</label>
-  <input type="text" name="${esc(n)}" value="${esc(v)}" ${place ? `placeholder="${esc(place)}"` : ""}
+                    const inputTpl = (n, v, labelText, sideCss) => `
+<div class="form-group ${sideCss}">
+  <label class="sf-label">${labelText}${required ? " <span class='req'>*</span>" : ""}</label>
+  <input type="text" name="${esc(n)}" value="${esc(v)}" 
+         ${basePh || `placeholder="${esc(displayFormat || 'YYYY-MM-DD')}"`}
          class="sf-date ${extraCss}" autocomplete="off" data-role="sf-date-range"
          data-date-format="${esc(displayFormat || 'yyyy-mm-dd')}"
          data-calendar="${esc(calendar)}" data-input-calendar="${esc(dateInputCalendar)}"
          data-display-lang="${esc(dateDisplayLang)}" data-numerals="${esc(dateNumerals)}"
          data-range="${esc(name)}" ${baseReq} ${baseReadOnly} ${baseDisabled}
-         ${minDateStr ? `data-min="${esc(minDateStr)}"` : ""} ${maxDateStr ? `data-max="${esc(maxDateStr)}"` : ""}
-         ${baseAuto} ${baseSpell} ${baseCap} ${baseCorr} ${baseDependsOn} ${baseDependsUrl} ${baseOnChange} />
+         ${minDateStr ? `data-min="${esc(minDateStr)}"` : ""} 
+         ${maxDateStr ? `data-max="${esc(maxDateStr)}"` : ""}
+         ${baseAuto} ${baseSpell} ${baseCap} ${baseCorr} 
+         ${baseDependsOn} ${baseDependsUrl} ${baseOnChange} />
 </div>`;
 
                     return `
-${get("sectionTitle", null) ? `
-<div class="section-box col-span-12">
-  <span class="section-legend">${esc(get("sectionTitle", ""))}</span>
-  <div class="form-row">
-` : ""}
-
-${inputTpl(fromName, vFrom, displayFormat || "YYYY-MM-DD")}
-${inputTpl(toName, vTo, displayFormat || "YYYY-MM-DD")}
+${sectionStart}
+${inputTpl(fromName, vFrom, "من", colFrom)}
+${inputTpl(toName, vTo, "إلى", colTo)}
 ${helpText ? `<div class="col-span-12"><div class="form-help">${esc(helpText)}</div></div>` : ""}
-
-${get("sectionTitle", null) ? `
-  </div>
-</div>` : ""}`;
+${sectionEnd}`;
                 }
 
                 // range / slider
                 if (type === "range" || type === "slider") {
-                    const vmin = num(min, 0), vmax = num(max, 100), vstep = num(get("step", null), 1);
-                    return wrap(
-                        `<input class="sf-range w-full ${extraCss}" type="range" name="${esc(name)}" value="${esc(value ?? vmin)}"
-    min="${vmin}" max="${vmax}" step="${vstep}" ${baseReq} ${baseReadOnly} ${baseDisabled}
-    ${baseDependsOn} ${baseDependsUrl} ${baseOnChange}>
-<div class="text-xs text-gray-500 mt-1"><span>${vmin}</span> - <span>${vmax}</span></div>`
-                    );
+                    const vmin = num(min, 0);
+                    const vmax = num(max, 100);
+                    const vstep = num(get("step", null), 1);
+                    const showValue = !!get("showValue", true);
+                    const inner = `
+<div class="range-container">
+  <input class="sf-range w-full ${extraCss}" type="range" name="${esc(name)}" 
+    value="${esc(value ?? vmin)}" min="${vmin}" max="${vmax}" step="${vstep}" 
+    ${baseReq} ${baseReadOnly} ${baseDisabled} ${baseOnChange}
+    ${baseDependsOn} ${baseDependsUrl}>
+  ${showValue ? `<div class="range-value text-xs text-gray-500 mt-1 text-center">
+    <span class="current-value">${esc(value ?? vmin)}</span>
+    <span class="range-limits"> (${vmin} - ${vmax})</span>
+  </div>` : ""}
+</div>`;
+                    return `${sectionStart}${wrapField({ inner, label, required, helpText, colCss, iconCls })}${sectionEnd}`;
                 }
 
-                // color
+                // color picker
                 if (type === "color") {
-                    return wrap(
-                        `<input class="input ${extraCss}" type="color" name="${esc(name)}" value="${esc(value || '#000000')}"
-    ${baseReq} ${baseReadOnly} ${baseDisabled} ${baseDependsOn} ${baseDependsUrl} ${baseOnChange} />`
-                    );
+                    const inner = `<input class="sf-input ${extraCss}" type="color" name="${esc(name)}" 
+      value="${esc(value || '#000000')}" ${baseReq} ${baseReadOnly} ${baseDisabled} 
+      ${baseOnChange} ${baseDependsOn} ${baseDependsUrl} />`;
+                    return `${sectionStart}${wrapField({ inner, label, required, helpText, colCss, iconCls })}${sectionEnd}`;
                 }
 
-                // file
+                // file upload
                 if (type === "file") {
                     const accept = get("accept", null);
                     const preview = !!get("preview", false);
-                    const previewBox = preview ? `<div class="mt-2" data-image-preview></div>` : "";
-                    return wrap(
-                        `<input class="sf-file ${extraCss}" type="file" name="${esc(name)}" ${baseMulti}
-    ${accept ? `accept="${esc(accept)}"` : ""} ${baseReq} ${baseReadOnly} ${baseDisabled}
-    ${baseDependsOn} ${baseDependsUrl} ${baseOnChange} ${yes(preview, 'data-preview="1"')} />
-${previewBox}`
-                    );
+                    const maxSize = get("maxSize", null);
+                    const inner = `
+<input class="sf-file ${extraCss}" type="file" name="${esc(name)}" ${baseMulti}
+  ${accept ? `accept="${esc(accept)}"` : ""} ${baseReq} ${baseReadOnly} ${baseDisabled}
+  ${maxSize ? `data-max-size="${maxSize}"` : ""} ${yes(preview, 'data-preview="1"')}
+  ${baseOnChange} ${baseDependsOn} ${baseDependsUrl} />
+${preview ? `<div class="mt-2 image-preview" data-image-preview></div>` : ""}`;
+                    return `${sectionStart}${wrapField({ inner, label, required, helpText, colCss, iconCls })}${sectionEnd}`;
                 }
 
-                // rating
+                // rating stars
                 if (type === "rating") {
                     const rmax = Number(get("max", 5) || 5);
                     const cur = Number(value || 0);
                     const stars = Array.from({ length: rmax }, (_, i) => i + 1).map(i => `
-<button type="button" data-star="${i}" class="text-2xl leading-none ${i <= cur ? '' : 'opacity-30'}" aria-pressed="${i <= cur ? 'true' : 'false'}">★</button>
-`).join("");
-                    return wrap(
-                        `<div class="inline-flex items-center gap-1 select-none" data-role="sf-rating" ${baseDependsOn} ${baseDependsUrl}>
+<button type="button" data-star="${i}" class="rating-star text-2xl leading-none ${i <= cur ? 'text-yellow-400' : 'text-gray-300'}" 
+  aria-pressed="${i <= cur ? 'true' : 'false'}" ${baseDisabled ? 'disabled' : ''}>★</button>`).join("");
+                    
+                    const inner = `
+<div class="rating-container inline-flex items-center gap-1 select-none" 
+     data-role="sf-rating" ${baseDependsOn} ${baseDependsUrl}>
   ${stars}
   <input type="hidden" name="${esc(name)}" value="${cur}">
-</div>`
-                    );
+  <span class="rating-value ml-2 text-sm text-gray-600">(${cur}/${rmax})</span>
+</div>`;
+                    return `${sectionStart}${wrapField({ inner, label, required, helpText, colCss, iconCls })}${sectionEnd}`;
                 }
 
-                // currency
+                // currency input
                 if (type === "currency") {
                     const symbol = get("symbol", "﷼");
-                    return wrap(
-                        `<div class="flex items-stretch">
-  <span class="inline-flex items-center px-2 border border-r-0 rounded-l-md">${esc(symbol)}</span>
-  <input class="input rounded-l-none ${extraCss}" type="text" name="${esc(name)}" value="${esc(value)}"
-         data-mask="currency" data-symbol="${esc(symbol)}"
-         ${basePh} ${baseReq} ${baseReadOnly} ${baseDisabled}
-         ${baseMaxLen} ${baseAuto} ${baseSpell} ${baseCap} ${baseCorr}
-         ${baseNumOnly} ${baseDependsOn} ${baseDependsUrl} ${baseOnChange} />
-</div>`
-                    );
+                    const precision = num(get("precision", null), 2);
+                    const inner = `
+<div class="currency-input flex items-stretch">
+  <span class="currency-symbol inline-flex items-center px-3 border border-r-0 bg-gray-50 text-gray-700 rounded-l-md">${esc(symbol)}</span>
+  <input class="sf-input rounded-l-none ${extraCss}" type="text" name="${esc(name)}" value="${esc(value)}"
+         data-mask="currency" data-symbol="${esc(symbol)}" data-precision="${precision}"
+         ${basePh} ${baseReq} ${baseReadOnly} ${baseDisabled} ${baseMaxLen}
+         ${baseAuto} ${baseSpell} ${baseCap} ${baseCorr} ${baseNumOnly} 
+         ${baseOnChange} ${baseDependsOn} ${baseDependsUrl} />
+</div>`;
+                    return `${sectionStart}${wrapField({ inner, label, required, helpText, colCss, iconCls })}${sectionEnd}`;
                 }
 
-                // percent
+                // percentage input
                 if (type === "percent") {
-                    return wrap(
-                        `<div class="flex items-stretch">
-  <input class="input rounded-r-none ${extraCss}" type="text" name="${esc(name)}" value="${esc(value)}"
-         data-mask="percent" ${basePh} ${baseReq} ${baseReadOnly} ${baseDisabled}
-         ${baseMaxLen} ${baseAuto} ${baseSpell} ${baseCap} ${baseCorr}
-         ${baseNumOnly} ${baseDependsOn} ${baseDependsUrl} ${baseOnChange} />
-  <span class="inline-flex items-center px-2 border border-l-0 rounded-r-md">%</span>
-</div>`
-                    );
+                    const inner = `
+<div class="percent-input flex items-stretch">
+  <input class="sf-input rounded-r-none ${extraCss}" type="text" name="${esc(name)}" value="${esc(value)}"
+         data-mask="percent" ${basePh} ${baseReq} ${baseReadOnly} ${baseDisabled} 
+         ${baseMaxLen} ${baseAuto} ${baseSpell} ${baseCap} ${baseCorr} ${baseNumOnly}
+         ${baseOnChange} ${baseDependsOn} ${baseDependsUrl} />
+  <span class="percent-symbol inline-flex items-center px-3 border border-l-0 bg-gray-50 text-gray-700 rounded-r-md">%</span>
+</div>`;
+                    return `${sectionStart}${wrapField({ inner, label, required, helpText, colCss, iconCls })}${sectionEnd}`;
                 }
 
-                // tags
+                // tags input
                 if (type === "tags") {
                     const sep = get("separator", ",");
                     const display = Array.isArray(value) ? value.join(sep) : (value ?? "");
-                    return wrap(
-                        `<div data-role="sf-tags" data-separator="${esc(sep)}">
-  <div class="flex flex-wrap gap-2 mb-2" data-tags-list></div>
+                    const maxTags = get("maxTags", null);
+                    const inner = `
+<div class="tags-input" data-role="sf-tags" data-separator="${esc(sep)}" ${maxTags ? `data-max-tags="${maxTags}"` : ""}>
+  <div class="tags-list flex flex-wrap gap-2 mb-2 p-2 border rounded-md min-h-[2.5rem]" data-tags-list></div>
   <input type="hidden" name="${esc(name)}" value="${esc(display)}">
-  <input type="text" class="input ${extraCss}" ${basePh} ${baseReadOnly} ${baseDisabled}
-         ${baseMaxLen} ${baseAuto} ${baseSpell} ${baseCap} ${baseCorr}
-         ${baseDependsOn} ${baseDependsUrl} ${baseOnChange} />
-</div>`
-                    );
+  <input type="text" class="sf-input ${extraCss}" ${basePh || 'placeholder="اكتب وأضغط Enter"'} 
+         ${baseReadOnly} ${baseDisabled} ${baseMaxLen} ${baseAuto} ${baseSpell} 
+         ${baseCap} ${baseCorr} ${baseOnChange} ${baseDependsOn} ${baseDependsUrl} />
+</div>`;
+                    return `${sectionStart}${wrapField({ inner, label, required, helpText, colCss, iconCls })}${sectionEnd}`;
                 }
 
                 // switch/toggle
                 if (type === "switch" || type === "toggle") {
-                    return wrap(
-                        `<label class="inline-flex items-center cursor-pointer">
-  <input type="checkbox" name="${esc(name)}" ${value ? "checked" : ""} class="sr-only peer"
-         ${baseReq} ${baseReadOnly} ${baseDisabled}
-         ${baseDependsOn} ${baseDependsUrl} ${baseOnChange}>
-  <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:bg-green-500 relative after:content-[''] after:absolute after:top-0.5 after:right-[22px] peer-checked:after:right-0.5 after:bg-white after:border after:rounded-full after:h-5 after:w-5 after:transition-all"></div>
-  <span class="ms-2 text-sm">${esc(label)}</span>
-</label>`, false);
+                    const checked = !!value || value === "true" || value === "1" || value === 1;
+                    const inner = `
+<label class="switch-container inline-flex items-center cursor-pointer">
+  <input type="checkbox" name="${esc(name)}" value="1" ${checked ? "checked" : ""} 
+         class="switch-input sr-only peer" ${baseReq} ${baseReadOnly} ${baseDisabled}
+         ${baseOnChange} ${baseDependsOn} ${baseDependsUrl}>
+  <div class="switch-slider relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+  <span class="switch-label ms-3 text-sm font-medium text-gray-900">${esc(label)}</span>
+</label>`;
+                    return `${sectionStart}${wrapField({ inner, label, required, helpText, colCss, withLabel: false, iconCls })}${sectionEnd}`;
                 }
 
-                // code
+                // code editor
                 if (type === "code") {
                     const lang = get("language", "javascript");
                     const rows = num(get("rows", null), 8);
-                    return wrap(
-                        `<textarea class="sf-textarea font-mono ${extraCss}" name="${esc(name)}" rows="${rows}"
-    ${basePh} ${baseReq} ${baseReadOnly} ${baseDisabled}
-    ${baseMaxLen} ${baseAuto} ${baseSpell} ${baseCap} ${baseCorr}
-    ${baseDependsOn} ${baseDependsUrl} ${baseOnChange}>${esc(value)}</textarea>
-<div class="text-xs text-gray-500 mt-1">اللغة: ${esc(lang)}</div>`
-                    );
+                    const theme = get("theme", "light");
+                    const inner = `
+<div class="code-editor">
+  <div class="code-header flex justify-between items-center p-2 bg-gray-100 border-b text-xs">
+    <span class="language-label">لغة: ${esc(lang)}</span>
+    <span class="theme-label">المظهر: ${esc(theme)}</span>
+  </div>
+  <textarea class="sf-textarea code-textarea font-mono ${extraCss}" name="${esc(name)}" rows="${rows}"
+    ${basePh} ${baseReq} ${baseReadOnly} ${baseDisabled} ${baseMaxLen} 
+    ${baseAuto} ${baseSpell} ${baseCap} ${baseCorr} ${baseOnChange}
+    ${baseDependsOn} ${baseDependsUrl} ${baseInputPat} 
+    data-language="${esc(lang)}" data-theme="${esc(theme)}">${esc(value)}</textarea>
+</div>`;
+                    return `${sectionStart}${wrapField({ inner, label, required, helpText, colCss, iconCls })}${sectionEnd}`;
                 }
 
-                // mask
+                // mask input (based on pattern or inputPattern)
                 if (type === "mask") {
-                    // يعتمد على pattern أو inputPattern
-                    const pat = pattern || inputPattern;
-                    return wrap(
-                        `<input class="input ${extraCss}" type="text" name="${esc(name)}" value="${esc(value)}"
-    ${pat ? `pattern="${esc(pat)}"` : ""} ${basePh} ${baseReq} ${baseReadOnly} ${baseDisabled}
-    ${baseMaxLen} ${baseAuto} ${baseSpell} ${baseCap} ${baseCorr}
-    ${baseDependsOn} ${baseDependsUrl} ${baseOnChange} />`
-                    );
+                    const maskPattern = pattern || inputPattern;
+                    const maskPlaceholder = get("maskPlaceholder", "");
+                    const inner = `<input class="sf-input ${extraCss}" type="text" name="${esc(name)}" value="${esc(value)}"
+      ${maskPattern ? `data-mask="${esc(maskPattern)}"` : ""} 
+      ${maskPlaceholder ? `data-mask-placeholder="${esc(maskPlaceholder)}"` : ""}
+      ${basePh} ${baseReq} ${baseReadOnly} ${baseDisabled} ${baseMaxLen} 
+      ${baseAuto} ${baseSpell} ${baseCap} ${baseCorr} ${baseOnChange}
+      ${baseDependsOn} ${baseDependsUrl} ${baseInputPat} ${baseTextMode} />`;
+                    return `${sectionStart}${wrapField({ inner, label, required, helpText, colCss, iconCls })}${sectionEnd}`;
                 }
 
-                // table (حقل خاص يعرض جدولاً داخليًا لو تم تمرير TableConfig)
-                if (type === "table" && field?.table) {
-                    // هنا مجرد Placeholder. يفترض أنك تولّد مكوّن الجدول بـ Alpine من config.
-                    return wrap(
-                        `<div x-data="sfTable(${JSON.stringify(field.table)})" class="${extraCss}">
-  <!-- توليد الجدول يتم خارج هذه الدالة حسب sf-table.js -->
-  <div class="label-sm text-gray-500">مكوّن جدول مضمّن</div>
-</div>`
-                    );
+                // embedded table
+                if (type === "table" && tableConfig) {
+                    const tableJson = JSON.stringify(tableConfig);
+                    const inner = `
+<div class="embedded-table-container ${extraCss}" x-data="sfTable(${tableJson})">
+  <div class="table-label text-sm text-gray-500 mb-2">جدول مضمّن: ${esc(label)}</div>
+  <!-- هنا سيتم عرض الجدول المضمّن -->
+</div>`;
+                    return `${sectionStart}${wrapField({ inner, label, required, helpText, colCss, iconCls })}${sectionEnd}`;
                 }
 
-                // number
+                // number input
                 if (type === "number") {
                     const step = get("step", null);
-                    return wrap(
-                        `<input class="input ${extraCss}" type="number" name="${esc(name)}" value="${esc(value)}"
-    ${baseMin} ${baseMax} ${step != null ? `step="${step}"` : ""} ${basePh} ${baseReq}
-    ${baseReadOnly} ${baseDisabled} ${baseMaxLen}
-    ${baseAuto} ${baseSpell} ${baseCap} ${baseCorr} ${baseDir} ${baseInPat}
-    ${baseDependsOn} ${baseDependsUrl} ${baseOnChange} />`
-                    );
+                    const precision = get("precision", null);
+                    const inner = `<input class="sf-input ${extraCss}" type="number" name="${esc(name)}" value="${esc(value)}"
+      ${baseMin} ${baseMax} ${step != null ? `step="${step}"` : ""} 
+      ${precision != null ? `data-precision="${precision}"` : ""} ${basePh} ${baseReq}
+      ${baseReadOnly} ${baseDisabled} ${baseMaxLen} ${baseAuto} ${baseSpell} 
+      ${baseCap} ${baseCorr} ${baseDir} ${baseOnChange} ${baseDependsOn} 
+      ${baseDependsUrl} ${baseInputPat} ${baseNumOnly} />`;
+                    return `${sectionStart}${wrapField({ inner, label, required, helpText, colCss, iconCls })}${sectionEnd}`;
                 }
 
-                // الافتراضي (text/password/email/…)
-                return wrap(
-                    `<input class="input ${extraCss}" type="${mapType(type)}" name="${esc(name)}" value="${esc(value)}"
-    ${basePh} ${baseReq} ${baseReadOnly} ${baseDisabled}
-    ${baseMaxLen} ${baseAuto} ${baseSpell} ${baseCap} ${baseCorr} ${baseDir} ${baseInPat} ${basePat} ${baseIban} ${baseNumOnly}
-    ${baseDependsOn} ${baseDependsUrl} ${baseOnChange} />`
-                );
+                // email input
+                if (type === "email") {
+                    const inner = `<input class="sf-input ${extraCss}" type="email" name="${esc(name)}" value="${esc(value)}"
+      ${basePh} ${baseReq} ${baseReadOnly} ${baseDisabled} ${baseMaxLen} 
+      ${baseAuto} ${baseSpell} ${baseCap} ${baseCorr} ${baseOnChange}
+      ${baseDependsOn} ${baseDependsUrl} ${baseInputPat} ${baseTextMode} />`;
+                    return `${sectionStart}${wrapField({ inner, label, required, helpText, colCss, iconCls })}${sectionEnd}`;
+                }
+
+                // password input
+                if (type === "password") {
+                    const showToggle = !!get("showToggle", false);
+                    const inner = `
+<div class="password-container relative">
+  <input class="sf-input ${extraCss} ${showToggle ? 'pr-10' : ''}" type="password" name="${esc(name)}" value="${esc(value)}"
+    ${basePh} ${baseReq} ${baseReadOnly} ${baseDisabled} ${baseMaxLen} 
+    ${baseAuto} ${baseSpell} ${baseCap} ${baseCorr} ${baseOnChange}
+    ${baseDependsOn} ${baseDependsUrl} ${baseInputPat} ${baseTextMode} />
+  ${showToggle ? `<button type="button" class="password-toggle absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500" onclick="this.previousElementSibling.type = this.previousElementSibling.type === 'password' ? 'text' : 'password'">👁</button>` : ""}
+</div>`;
+                    return `${sectionStart}${wrapField({ inner, label, required, helpText, colCss, iconCls })}${sectionEnd}`;
+                }
+
+                // phone/tel input  
+                if (type === "phone" || type === "tel") {
+                    const countryCode = get("countryCode", "+966");
+                    const inner = `
+<div class="phone-container flex">
+  ${countryCode ? `<span class="country-code inline-flex items-center px-3 border border-r-0 bg-gray-50 text-gray-700 rounded-l-md">${esc(countryCode)}</span>` : ""}
+  <input class="sf-input ${countryCode ? 'rounded-l-none' : ''} ${extraCss}" type="tel" name="${esc(name)}" value="${esc(value)}"
+    ${basePh} ${baseReq} ${baseReadOnly} ${baseDisabled} ${baseMaxLen} 
+    ${baseAuto} ${baseSpell} ${baseCap} ${baseCorr} ${baseOnChange}
+    ${baseDependsOn} ${baseDependsUrl} ${baseInputPat} ${baseTextMode} />
+</div>`;
+                    return `${sectionStart}${wrapField({ inner, label, required, helpText, colCss, iconCls })}${sectionEnd}`;
+                }
+
+                // url input
+                if (type === "url") {
+                    const inner = `<input class="sf-input ${extraCss}" type="url" name="${esc(name)}" value="${esc(value)}"
+      ${basePh} ${baseReq} ${baseReadOnly} ${baseDisabled} ${baseMaxLen} 
+      ${baseAuto} ${baseSpell} ${baseCap} ${baseCorr} ${baseOnChange}
+      ${baseDependsOn} ${baseDependsUrl} ${baseInputPat} ${baseTextMode} />`;
+                    return `${sectionStart}${wrapField({ inner, label, required, helpText, colCss, iconCls })}${sectionEnd}`;
+                }
+
+                // search input
+                if (type === "search") {
+                    const inner = `<input class="sf-input ${extraCss}" type="search" name="${esc(name)}" value="${esc(value)}"
+      ${basePh} ${baseReq} ${baseReadOnly} ${baseDisabled} ${baseMaxLen} 
+      ${baseAuto} ${baseSpell} ${baseCap} ${baseCorr} ${baseOnChange}
+      ${baseDependsOn} ${baseDependsUrl} ${baseInputPat} ${baseTextMode} />`;
+                    return `${sectionStart}${wrapField({ inner, label, required, helpText, colCss, iconCls })}${sectionEnd}`;
+                }
+
+                // default text input (fallback for any unhandled type)
+                const inputType = mapType(type);
+                const inner = `<input class="sf-input ${extraCss}" type="${inputType}" name="${esc(name)}" value="${esc(value)}"
+    ${basePh} ${baseReq} ${baseReadOnly} ${baseDisabled} ${baseMaxLen} 
+    ${baseMin} ${baseMax} ${basePat} ${baseAuto} ${baseSpell} ${baseCap} ${baseCorr} 
+    ${baseDir} ${baseOnChange} ${baseDependsOn} ${baseDependsUrl} 
+    ${baseInputPat} ${baseIban} ${baseNumOnly} ${baseTextMode} />`;
+                
+                return `${sectionStart}${wrapField({ inner, label, required, helpText, colCss, iconCls })}${sectionEnd}`;
             },
-
-
-
 
             formatDetailView(data, columns) {
                 if (!data) return "<p>لا توجد بيانات</p>";
@@ -1564,5 +1518,6 @@ ${previewBox}`
         document.addEventListener("alpine:init", register);
     }
 })();
+
 
 

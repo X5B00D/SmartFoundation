@@ -59,14 +59,11 @@
     };
 }
 
-@* <div x-data='sfTable(@Html.Raw(JsonSerializer.Serialize(tableConfig, webJson)))'
-     x-init="init()" x-cloak
-     class="sf-table-wrapper"> *@
 
 <div x-data='sfTable(@Html.Raw(JsonSerializer.Serialize(tableConfig, webJson)))'
      x-init="init()" x-cloak
      x-on:refresh-table.window="refresh()"
-     @* class="sf-table-wrapper"> *@
+     
 
 
     <!-- ===== Toolbar ===== -->
@@ -241,6 +238,7 @@
         </div>
     </div>
 
+
     <!-- ===== Modal ===== -->
     <template x-if="modal.open">
         <div class="sf-modal-backdrop" x-transition.opacity>
@@ -270,5 +268,6 @@
                 </div>
             </div>
         </div>
+
     </template>
 </div>
