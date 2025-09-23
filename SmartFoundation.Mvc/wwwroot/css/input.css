@@ -103,10 +103,19 @@ body, h1, h2, h3, h4, h5, h6, input, textarea, select, button {
         @apply text-red-500;
     }
 
-    .input {
+    /*.input {
         @apply block w-full rounded-md border border-gray-300 bg-white text-gray-900 text-base px-2 py-2 focus:ring-1 focus:ring-emerald-600 focus:border-emerald-600 disabled:bg-gray-100 disabled:text-gray-500 shadow-sm;
         font-family: "Tajawal", sans-serif;
+    }*/
+
+    .input {
+        @apply block w-full rounded-lg border border-gray-300 bg-white text-gray-900 text-base px-3 py-1.5 shadow-sm transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 disabled:bg-gray-100 disabled:text-gray-500 disabled:cursor-not-allowed placeholder-gray-400;
+        font-family: "Tajawal", ui-sans-serif, system-ui, sans-serif;
+        /* من tailwind.config.js */
+        line-height: 1.5; /* وصولية أفضل */
     }
+
+
 
     .actions-bar {
         @apply col-span-12 mt-5 border-t border-gray-200 pt-4;
@@ -132,8 +141,9 @@ body, h1, h2, h3, h4, h5, h6, input, textarea, select, button {
     }
 
     .section-legend {
-        @apply inline-block bg-white -mt-6 px-3 text-base md:text-lg font-semibold text-gray-700;
+        @apply inline-block -mt-6 px-3 text-base md:text-lg font-semibold text-gray-700;
     }
+
 
     .sf-label {
         @apply block mb-1 text-sm font-medium text-gray-800;
@@ -190,6 +200,8 @@ body, h1, h2, h3, h4, h5, h6, input, textarea, select, button {
         padding: 0;
     }
 
+
+
         .sf-file::file-selector-button {
             @apply bg-emerald-600 text-white text-sm font-medium px-4 py-2 rounded-md border-0 cursor-pointer hover:bg-emerald-700 transition-colors duration-150;
             margin-inline-start: auto;
@@ -200,56 +212,17 @@ body, h1, h2, h3, h4, h5, h6, input, textarea, select, button {
             visibility: hidden;
         }
 
+    .sf-checkbox {
+        @apply h-4 w-4 appearance-none rounded-sm border border-gray-300 bg-white text-emerald-600 shadow-sm cursor-pointer focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 checked:bg-emerald-600 checked:border-emerald-600 disabled:bg-gray-100 disabled:border-gray-200 disabled:cursor-not-allowed;
+        margin-top: 5px;
+    }
+
+
     .sf-checkline {
         @apply flex items-center gap-2 mt-1;
     }
 }
 
-/* =========================
-   Checkboxes & Radios (أخضر ثابت)
-   ========================= */
-input[type="checkbox"],
-.sf-checkbox,
-.sf-checkbox-row,
-.sf-checkbox-all {
-    width: 1rem;
-    height: 1rem;
-    cursor: pointer;
-    border: 1px solid #ccc;
-    border-radius: 0.25rem;
-    background-color: #fff;
-}
-
-    input[type="checkbox"]:checked,
-    .sf-checkbox:checked,
-    .sf-checkbox-row:checked,
-    .sf-checkbox-all:checked {
-        background-color: #059669;
-        border-color: #059669;
-        background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 16 16' fill='white' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M6.173 11.414L3.05 8.293l1.414-1.414L6.173 8.586l5.364-5.364 1.414 1.414z'/%3E%3C/svg%3E");
-        background-repeat: no-repeat;
-        background-position: center;
-        background-size: 70%;
-    }
-
-input[type="radio"],
-.sf-radio {
-    width: 1rem;
-    height: 1rem;
-    cursor: pointer;
-    border: 1px solid #ccc;
-    border-radius: 50%;
-    background-color: #fff;
-}
-
-    input[type="radio"]:checked,
-    .sf-radio:checked {
-        background-color: #059669;
-        border-color: #059669;
-        background-image: radial-gradient(circle at center, white 40%, transparent 45%);
-        background-repeat: no-repeat;
-        background-position: center;
-    }
 
 /* =========================
    Buttons

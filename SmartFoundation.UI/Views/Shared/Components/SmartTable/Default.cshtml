@@ -145,7 +145,7 @@
             <thead x-show="showHeader" class="table-head">
                 <tr>
                     <th x-show="selectable" class="th-cell">
-                        <input type="checkbox" class="sf-checkbox-all"
+                        <input type="checkbox" class="sf-checkbox"
                                x-model="selectAll" x-on:click="toggleSelectAll()" />
                     </th>
 
@@ -195,7 +195,7 @@
                 <template x-for="(row, idx) in rows" :key="row[rowIdField] ?? idx">
                     <tr class="tr-row">
                         <td x-show="selectable" class="td-cell">
-                            <input type="checkbox" :value="row[rowIdField]"
+                            <input type="checkbox" class="sf-checkbox" :value="row[rowIdField]"
                                    x-on:click="toggleRow(row)" :checked="isSelected(row)" />
                         </td>
 

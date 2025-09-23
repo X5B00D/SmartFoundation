@@ -150,7 +150,7 @@ namespace SmartFoundation.Mvc.Controllers
                                     Name = "Notes",
                                     Label = "ملاحظات",
                                     Type = "textarea",
-                                    ColCss = "6",
+                                    ColCss = "4",
                                     MaxLength = 500,
                                     Placeholder = "اكتب ملاحظات إضافية هنا...",
                                     Icon = "fa fa-note-sticky"

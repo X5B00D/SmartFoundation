@@ -12,7 +12,7 @@
 }
 
 
-            <section class="w-full mt-6">
+           @*  <section class="w-full mt-6">
     <div class="form-container">
         <div class="form-header">
             <h2 class="form-title">
@@ -26,9 +26,9 @@
                 تعليمات
             </button>
             
-        </div>
-              <section class="w-full mt-6">
-...
+        </div> *@
+              @* <section class="w-full mt-6"> *@
+
 <form id="@formId"
       x-data="smartForm"
       x-on:submit.prevent="submitForm('@Model.ActionUrl', '@Model.Method', $event)"
@@ -55,11 +55,12 @@
 {
     // اقفل أي سكشن مفتوح
     if (sectionOpen)
-    {
-        @:</div> 
-        @:</div> 
-        sectionOpen = false;
-    }
+{
+    @:</div> 
+    @:</fieldset> 
+    sectionOpen = false;
+}
+
 
     
     if (defaultRowOpen)
@@ -68,12 +69,13 @@
         defaultRowOpen = false;
     }
 
-    // افتح سكشن جديد
-    currentSection = field.SectionTitle;
-    @:<div class="col-span-12 mb-2 section-box">
-        @:<h3 class="section-title">@currentSection</h3>
-        @:<div class="grid grid-cols-12 gap-6 form-row sm:gap-8">
-    sectionOpen = true;
+    // افتح سكشن جديد باستخدام fieldset
+currentSection = field.SectionTitle;
+@:<fieldset class="col-span-12 mb-2 section-box">
+    @:<legend class="section-legend">@currentSection</legend>
+    @:<div class="grid grid-cols-12 gap-6 form-row sm:gap-8">
+sectionOpen = true;
+
 }
 else
 {
@@ -559,7 +561,11 @@ else
 }
 
 
-            <div class="col-span-12 flex flex-col md:flex-row flex-wrap justify-end items-center gap-2.5 md:gap-3 mt-5 border-t border-gray-200 pt-4">
+            @* <div class="col-span-12 flex flex-col md:flex-row flex-wrap justify-end items-center gap-2.5 md:gap-3 mt-5 border-t border-gray-200 pt-4"> *@
+                <div class="col-span-12 flex flex-wrap justify-end items-center gap-2.5 md:gap-3 mt-5 mb-6 border-t border-gray-200 pt-4">
+
+
+
                 
                 @if (!string.IsNullOrWhiteSpace(Model.SubmitText))
                 {
@@ -613,5 +619,5 @@ else
                 }
             </div>
         </form>  
-    </div> 
-</section>
+    @* </div> 
+</section> *@
