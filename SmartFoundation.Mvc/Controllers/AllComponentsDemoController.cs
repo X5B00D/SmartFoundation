@@ -35,6 +35,7 @@ namespace SmartFoundation.Mvc.Controllers
                     // ========= البيانات الشخصية =========
                     new FieldConfig
                     {
+                        
                         SectionTitle="البيانات",
                         Name="FullName",
                         Label="إدخال نص",
@@ -42,14 +43,14 @@ namespace SmartFoundation.Mvc.Controllers
                         Required=true,
                         Placeholder="حقل عربي فقط",
                         Icon="fa-solid fa-user",
-                        ColCss="col-span-12 md:col-span-3",
+                        ColCss="col-span-12 md:col-span-6",
                         MaxLength=50,
                         TextMode="arsentence",
                     },
                     new FieldConfig
                     {
-                        
-                        Name = "Email",
+
+                        Name="Email",
                         Label = "البريد الإلكتروني",
                         Type = "text",
                         Required = true,
@@ -66,7 +67,7 @@ namespace SmartFoundation.Mvc.Controllers
                     },
                     new FieldConfig
                     {
-                        Name="Password",
+                        Name="Email",
                         Label="كلمة المرور",
                         Type="password",
                         Required=true,
@@ -305,7 +306,7 @@ namespace SmartFoundation.Mvc.Controllers
             var vm = new SmartPageViewModel
             {
                 PageTitle = "جميع المكونات",
-                PanelTitle = "عرض الخصائص",
+                PanelTitle = "عرض ",
                 SpName = "sp_SaveDemoForm",
                 Operation = "insert",
                 Form = form
