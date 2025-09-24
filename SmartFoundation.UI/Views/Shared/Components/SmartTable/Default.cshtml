@@ -63,7 +63,7 @@
 <div x-data='sfTable(@Html.Raw(JsonSerializer.Serialize(tableConfig, webJson)))'
      x-init="init()" x-cloak
      x-on:refresh-table.window="refresh()"
-     
+
 
 
     <!-- ===== Toolbar ===== -->
@@ -157,11 +157,12 @@
                             :style="col.width ? `width:${col.width}` : ''"
                             :class="col.sortable ? 'cursor-pointer' : ''"
                             x-on:click="toggleSort(col)">
-                            <div class="th-inner" :class="col.align">
+                            <div class="th-inner flex items-center gap-1" :class="col.align">
                                 <span x-text="col.label"></span>
                                 <template x-if="col.sortable && sort.field===col.field">
-                                    <i class="fa sort-icon"
-                                       :class="sort.dir==='asc' ? 'fa-arrow-down-short-wide' : 'fa-arrow-up-wide-short'"></i>
+                                    <i class="fas text-xs text-gray-400 ml-1" :class="sort.dir === 'asc' ? 'fa-sort-up' : 'fa-sort-down'"></i>
+
+                                      
                                 </template>
                             </div>
                         </th>

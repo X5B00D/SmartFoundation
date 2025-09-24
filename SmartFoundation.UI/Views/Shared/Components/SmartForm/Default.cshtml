@@ -38,7 +38,8 @@
     // اقفل أي سكشن مفتوح
     if (sectionOpen)
 {
-    @:</div> 
+    
+    @* @:</div>  *@
     @:</fieldset> 
     sectionOpen = false;
 }
@@ -47,6 +48,7 @@
     
     if (defaultRowOpen)
     {
+        @:<div>
         @:</div> 
         defaultRowOpen = false;
     }
@@ -112,8 +114,8 @@ else
                                 <button type="button"
                                         x-ref="anchor"
                                         class="sf-select @field.ExtraCss"
-                                        :disabled="disabled || readonly"
-                                        :aria-expanded="open.toString()"
+                                        x-bind:disabled="disabled || readonly"
+                                        x-bind:aria-expanded="open.toString()"
                                         x-on:click="togglePanel()"
                                         x-on:keydown.enter="togglePanel()">
                                     <span class="truncate" x-text="displayText()"></span>
@@ -128,12 +130,12 @@ else
                                 <template x-teleport="body">
                                     <div x-show="open" x-transition x-cloak
                                          x-on:click.outside="open=false"
-                                         :style="panelStyle"
+                                         x-bind:style="panelStyle"
                                          class="sf-select-panel fixed z-[9999] animate-fade-in"> 
 
                                         <!-- شريط علوي -->
                                         <div class="flex justify-end p-2 pb-0">
-                                            <button type="button" class="text-xs text-gray-500 hover:text-gray-700" x-on:click="clear()">مسح</button>
+                                            <button type="button" class="text-xs text-gray-600 hover:text-gray-700" x-on:click="clear()">مسح</button>
                                         </div>
 
                                         <!-- البحث -->
@@ -146,7 +148,7 @@ else
                                         <ul class="py-1 overflow-y-auto max-h-60">
                                             <template x-for="opt in filtered()" :key="opt.value">
                                                 <li class="px-3 py-2 cursor-pointer select-none hover:bg-gray-50"
-                                                    :class="opt.disabled ? 'opacity-50 cursor-not-allowed' : ''"
+                                                    :class="opt.disabled ? 'opacity-50 cursor-not-allowed' : ''"        
                                                     x-on:click.stop="toggle(opt)">
                                                     <div class="flex items-center gap-3">
                                                         <template x-if="!multiple">
@@ -198,7 +200,7 @@ else
                                               data-dependsurl="@field.DependsUrl"
                                               data-textmode="@field.TextMode"
                                               dir="@(field.IsNumericOnly ? "ltr" : "rtl")"
-                                              class="input text-md text-right @field.ExtraCss @(string.IsNullOrWhiteSpace(field.Icon) ? "" : "pl-10")"
+                                              class="sf-textarea text-md text-right @field.ExtraCss @(string.IsNullOrWhiteSpace(field.Icon) ? "" : "pl-10")"
                                               @(field.Required ? "required" : null)
                                               @(field.Disabled ? "disabled" : null)
                                               @(field.Readonly ? "readonly" : null)
@@ -539,7 +541,7 @@ else
 @if (sectionOpen)
 {
     @:</div> 
-    @:</div> 
+    @:</fieldset>
 }
 
             <!-- شريط الأزرار -->
@@ -596,4 +598,4 @@ else
     </div>
 </div>
 
-        </form>  
+</form>  
