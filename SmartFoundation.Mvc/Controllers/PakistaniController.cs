@@ -16,13 +16,13 @@ namespace SmartFoundation.Mvc.Controllers
                 Method = "POST",
                 ActionUrl = "/AllComponentsDemo/ExecuteDemo",
                 SubmitText = "حفظ1",
-                //ResetText = "تفريغ",
-                //ShowPanel = true,
-                ////ShowReset = true,
-                //StoredProcedureName = "sp_SaveDemoForm",
-                //Operation = "insert",
-                //StoredSuccessMessageField = "Message",
-                //StoredErrorMessageField = "Error",
+                ResetText = "تفريغ",
+                ShowPanel = true,
+                //ShowReset = true,
+                StoredProcedureName = "sp_SaveDemoForm",
+                Operation = "insert",
+                StoredSuccessMessageField = "Message",
+                StoredErrorMessageField = "Error",
 
                 Fields = new List<FieldConfig>
                 {
