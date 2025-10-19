@@ -7,6 +7,7 @@ using SmartFoundation.DataEngine.Core.Models;
 using SmartFoundation.DataEngine.Core.Utilities;
 using System.Data;
 using System.Diagnostics;
+using System.Linq;
 using System.Text.Json;
 
 namespace SmartFoundation.DataEngine.Core.Services
@@ -39,7 +40,7 @@ namespace SmartFoundation.DataEngine.Core.Services
                 if (string.IsNullOrWhiteSpace(request.SpName))
                     throw new ArgumentException("SpName is required.");
 
-                //  القائمة البيضاء
+                // القائمة البيضاء
                 var whitelist = _config.GetSection("SmartData:Whitelist").Get<string[]>() ?? [];
                 if (whitelist.Length > 0 && !whitelist.Contains(request.SpName, StringComparer.OrdinalIgnoreCase))
                 {
@@ -54,7 +55,6 @@ namespace SmartFoundation.DataEngine.Core.Services
                 await conn.OpenAsync(ct);
 
                 var dp = new DynamicParameters();
-
                 dp.Add("@Operation", request.Operation ?? "select");
                 dp.Add("@Page", resp.Page);
                 dp.Add("@Size", resp.Size);
@@ -65,19 +65,18 @@ namespace SmartFoundation.DataEngine.Core.Services
                     dp.Add("@SortDir", request.Sort!.Dir ?? "asc");
                 }
 
-                //  الفلاتر (JSON)
+                // الفلاتر (JSON)
                 if (request.Filters is { Count: > 0 })
                 {
                     foreach (var f in request.Filters)
-                    {
                         if (string.IsNullOrWhiteSpace(f.Field))
                             throw new ArgumentException("Filter field name is required.");
-                    }
+
                     var filtersJson = JsonSerializer.Serialize(request.Filters);
                     dp.Add("@FiltersJson", filtersJson);
                 }
 
-                //  الباراميترات 
+                // الباراميترات
                 if (request.Params is not null)
                 {
                     foreach (var kv in request.Params)
@@ -100,10 +99,8 @@ namespace SmartFoundation.DataEngine.Core.Services
                             };
                         }
 
-                        if (val is bool b)
-                            val = b ? 1 : 0;
-                        if (val is string s && string.IsNullOrWhiteSpace(s))
-                            val = null;
+                        if (val is bool b) val = b ? 1 : 0;
+                        if (val is string s && string.IsNullOrWhiteSpace(s)) val = null;
 
                         dp.Add("@" + kv.Key, val ?? DBNull.Value);
                     }
@@ -115,58 +112,56 @@ namespace SmartFoundation.DataEngine.Core.Services
                     using var grid = await conn.QueryMultipleAsync(
                         new CommandDefinition(request.SpName, dp, commandType: CommandType.StoredProcedure, cancellationToken: ct));
 
-                    var rowsDyn = await grid.ReadAsync();
-                    List<Dictionary<string, object?>> data = [];
+                    var datasets = new List<List<Dictionary<string, object?>>>();
 
-                    foreach (var row in rowsDyn)
+                    while (!grid.IsConsumed)
                     {
-                        var dict = (IDictionary<string, object?>)row;
-                        data.Add(dict.ToDictionary(kv => kv.Key, kv => kv.Value));
-                    }
-
-                    var total = data.Count;
-
-                    
-                    if (data.Count > 0)
-                    {
-                        var msgKey = data[0].Keys.FirstOrDefault(k => k.Equals("Message", StringComparison.OrdinalIgnoreCase));
-                        if (msgKey != null && data[0][msgKey] != null)
+                        var rows = await grid.ReadAsync();
+                        var list = new List<Dictionary<string, object?>>();
+                        foreach (var row in rows)
                         {
-                            resp.Message = data[0][msgKey]?.ToString();
+                            var dict = (IDictionary<string, object?>)row;
+                            list.Add(dict.ToDictionary(kv => kv.Key, kv => kv.Value));
                         }
+                        datasets.Add(list);
                     }
 
-                    
-                    if (!grid.IsConsumed)
+                    resp.Datasets = datasets;
+
+                    resp.Data = datasets.FirstOrDefault() ?? new();
+                    resp.Total = resp.Data.Count;
+
+                    // رسالة من أول مجموعة إن وجدت
+                    var firstSet = datasets.FirstOrDefault();
+                    if (firstSet?.Count > 0)
                     {
-                        var tRow = await grid.ReadFirstOrDefaultAsync();
-                        if (tRow is not null)
-                        {
-                            var tDict = (IDictionary<string, object?>)tRow;
-
-                            if (tDict.TryGetValue("Total", out var t)) total = Convert.ToInt32(t ?? 0);
-                            else if (tDict.TryGetValue("total", out t)) total = Convert.ToInt32(t ?? 0);
-                            else if (tDict.Values.FirstOrDefault() is { } any && int.TryParse(any?.ToString(), out var parsed)) total = parsed;
-
-                            var msgKey = tDict.Keys.FirstOrDefault(k => k.Equals("Message", StringComparison.OrdinalIgnoreCase));
-                            if (msgKey != null && tDict[msgKey] != null)
-                            {
-                                resp.Message = tDict[msgKey]?.ToString();
-                            }
-                        }
+                        var msgKey = firstSet[0].Keys.FirstOrDefault(k => k.Equals("Message", StringComparison.OrdinalIgnoreCase));
+                        if (msgKey != null && firstSet[0][msgKey] != null)
+                            resp.Message = firstSet[0][msgKey]?.ToString();
                     }
 
-                    resp.Data = data;
-                    resp.Total = total;
+                    // استخراج Total/Message من آخر مجموعة إن كانت ملخصاً
+                    var lastSet = datasets.LastOrDefault();
+                    if (lastSet?.Count == 1)
+                    {
+                        var tDict = lastSet[0];
+                        if (tDict.TryGetValue("Total", out var t) || tDict.TryGetValue("total", out t))
+                            resp.Total = Convert.ToInt32(t ?? 0);
+
+                        var msgKey = tDict.Keys.FirstOrDefault(k => k.Equals("Message", StringComparison.OrdinalIgnoreCase));
+                        if (msgKey != null && tDict[msgKey] != null)
+                            resp.Message = tDict[msgKey]?.ToString();
+                    }
                 }
                 catch (Exception ex)
                 {
                     _logger.LogWarning(ex, "فشل في قراءة Multiple Result Sets لـ {SpName}", request.SpName);
 
+                    // Fallback: نتيجة واحدة
                     var rowsDyn = await conn.QueryAsync(
                         new CommandDefinition(request.SpName, dp, commandType: CommandType.StoredProcedure, cancellationToken: ct));
 
-                    List<Dictionary<string, object?>> list = [];
+                    var list = new List<Dictionary<string, object?>>();
                     foreach (var row in rowsDyn)
                     {
                         var dict = (IDictionary<string, object?>)row;
@@ -174,21 +169,25 @@ namespace SmartFoundation.DataEngine.Core.Services
                     }
 
                     resp.Data = list;
-                    resp.Total = resp.Data.Count;
+                    resp.Datasets = new List<List<Dictionary<string, object?>>> { list };
+                    resp.Total = list.Count;
 
-                    
                     if (list.Count > 0)
                     {
                         var msgKey = list[0].Keys.FirstOrDefault(k => k.Equals("Message", StringComparison.OrdinalIgnoreCase));
                         if (msgKey != null && list[0][msgKey] != null)
-                        {
                             resp.Message = list[0][msgKey]?.ToString();
-                        }
                     }
                 }
 
+                // تتبّع عدّ المجموعات لإثبات التحميل الصحيح
+                _logger.LogInformation("SETS={Count}", resp.Datasets?.Count ?? -1);
+                resp.Message = resp.Message is not null && resp.Message.Length > 0
+                    ? $"{resp.Message} | SETS={(resp.Datasets?.Count ?? 0)}"
+                    : $"SETS={(resp.Datasets?.Count ?? 0)}";
+
                 resp.Success = true;
-                _logger.LogInformation("تم تنفيذ {SpName} بنجاح في {Duration}ms مع {Count} سجل",
+                _logger.LogInformation("تم تنفيذ {SpName} في {Duration}ms مع {Count} سجل",
                     request.SpName, sw.ElapsedMilliseconds, resp.Total);
             }
             catch (Exception ex)
