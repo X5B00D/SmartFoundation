@@ -26,6 +26,8 @@ body, h1, h2, h3, h4, h5, h6, input, textarea, select, button {
    ========================= */
 @import "tailwindcss";
 
+@custom-variant dark (&:where(.dark, .dark *));
+
 /* =========================
    Base
    ========================= */

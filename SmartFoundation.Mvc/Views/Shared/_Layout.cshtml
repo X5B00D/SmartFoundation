@@ -8,112 +8,61 @@
     <!-- CSS -->
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/datepicker.min.css" />
+
     <style>
-        [x-cloak] {
-            display: none !important
-        }</style>
+        [x-cloak] { display: none !important; }
+
+        /* Unify borders in dark mode */
+        html.dark .border-gray-200 {
+            border-color: #1f2937 !important;
+        }
+
+        /* Prevent background flash when switching themes */
+        body {
+            transition: background-color 0.2s ease, color 0.2s ease;
+        }
+    </style>
+
+    <script>
+        // Apply dark theme before render to prevent flash
+        if (localStorage.getItem('color-theme') === 'dark' ||
+           (!('color-theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.add('dark');
+        } else {
+            document.documentElement.classList.remove('dark');
+        }
+    </script>
 </head>
 
-<body class="min-h-screen bg-gray-50 text-gray-900">
+<body class="text-gray-900 bg-gray-50 dark:bg-gray-900 dark:text-gray-100">
 
-    <!-- Header -->
-    <header class="border-b bg-white">
-        <nav class="max-w-7xl mx-auto flex items-center justify-between px-4 py-3">
-            <a class="text-xl font-semibold hover:text-emerald-600 transition"
-               asp-area="" asp-controller="Home" asp-action="Index">
-                SmartFoundation.Mvc
-            </a>
+    <!-- ✅ Navbar + Sidebar -->
+    @await Component.InvokeAsync("MenuItems")
 
-            <!-- Desktop Links -->
-            <ul class="hidden md:flex items-center gap-6">
-                <li>
-                    <a class="text-gray-700 hover:text-emerald-600"
-                       asp-area="" asp-controller="Home" asp-action="Index">الرئيسية</a>
-                </li>
-                <li>
-                    <a class="text-gray-700 hover:text-emerald-600"
-                       asp-area="" asp-controller="Home" asp-action="Privacy">الخصوصية</a>
-                </li>
-                <li class="relative">
-                    <button id="navDropBtn" data-dropdown-toggle="navDropMenu"
-                            class="inline-flex items-center rounded-lg border px-3 py-2 text-sm hover:bg-gray-50">
-                        القائمة ▼
-                    </button>
-                    <div id="navDropMenu"
-                         class="z-50 hidden mt-2 w-44 rounded-lg border bg-white text-sm shadow">
-                        <ul class="py-2 text-gray-700">
-                            <li><a class="block px-4 py-2 hover:bg-gray-50" href="#">خيار 1</a></li>
-                            <li><a class="block px-4 py-2 hover:bg-gray-50" href="#">خيار 2</a></li>
-                            <li><a class="block px-4 py-2 hover:bg-gray-50" href="#">خيار 3</a></li>
-                        </ul>
-                    </div>
-                </li>
-            </ul>
+    <!-- ✅ Main content area -->
+    <div id="main-content"
+         class="relative z-0 flex flex-col min-h-screen pt-16 transition-all duration-300 bg-gray-50 dark:bg-gray-900 sm:mr-64">
 
-            <!-- Mobile Hamburger -->
-            <button class="md:hidden inline-flex items-center rounded-lg p-2 hover:bg-gray-100"
-                    type="button" data-collapse-toggle="mobile-menu" aria-controls="mobile-menu" aria-expanded="false">
-                <span class="sr-only">القائمة</span>
-                <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                          d="M4 6h16M4 12h16M4 18h16" />
-                </svg>
-            </button>
-        </nav>
+        <!-- Content -->
+        <main class="flex-1 px-4 pt-6">
+            <div class="p-6 bg-white border border-gray-200 rounded-lg shadow-sm dark:bg-gray-800 dark:border-gray-700">
+                @RenderBody()
+            </div>
+        </main>
 
-        <!-- Mobile Menu -->
-        <div id="mobile-menu" class="md:hidden hidden border-t">
-            <ul class="space-y-2 bg-white px-4 py-2">
-                <li>
-                    <a class="block rounded-lg px-3 py-2 text-gray-700 hover:bg-gray-50"
-                       asp-area="" asp-controller="Home" asp-action="Index">الرئيسية</a>
-                </li>
-                <li>
-                    <a class="block rounded-lg px-3 py-2 text-gray-700 hover:bg-gray-50"
-                       asp-area="" asp-controller="Home" asp-action="Privacy">الخصوصية</a>
-                </li>
-            </ul>
-        </div>
-    </header>
+        <!-- ✅ Footer -->
+        <footer class="mt-auto bg-white border-t border-gray-200 dark:bg-gray-800 dark:border-gray-700">
+            <div class="px-4 py-4 text-sm text-center text-gray-600 dark:text-gray-400">
+                &copy; @DateTime.UtcNow.Year - SmartFoundation.Mvc -
+                <a asp-area="" asp-controller="Home" asp-action="Privacy"
+                   class="text-emerald-600 hover:underline dark:text-emerald-400">
+                   الخصوصية
+                </a>
+            </div>
+        </footer>
+    </div>
 
-
-
-    <!-- End Header -->
-    <!-- Main -->
-    <main role="main" class="py-6">
-        <div class="w-full px-4">
-            @RenderBody()
-        </div>
-    </main>
-
-    <!-- Footer -->
-    <footer class="border-t bg-white">
-        <div class="mx-auto max-w-7xl px-4 py-4 text-sm text-gray-600">
-            &copy; @DateTime.UtcNow.Year - SmartFoundation.Mvc -
-            <a class="text-emerald-600 hover:underline"
-               asp-area="" asp-controller="Home" asp-action="Privacy">الخصوصية</a>
-        </div>
-    </footer>
-
-
-
-    @* <script>
-        window.smartForm = function () {
-          return {
-            submitForm(action, method) {
-              const form = document.querySelector('section[x-data] form') || document.querySelector('form');
-              if (!form) return;
-              form.method = (method || 'POST').toUpperCase();
-              form.action = action || form.action || '#';
-              form.submit();
-            },
-            toast(msg, ok) { alert(msg || (ok ? 'تم' : 'حدث خطأ')); }
-          };
-        };
-        document.documentElement.setAttribute('data-theme','light');
-    </script> *@
-
-
+    <!-- ✅ Scripts -->
     <script src="~/js/flowbite.min.js" defer></script>
     <script src="~/js/datepicker.min.js"></script>
     <script src="~/js/sf-select.js"></script>
@@ -122,8 +71,48 @@
     <script src="~/js/sf-form.js"></script>
     <script src="~/js/sf-table.js"></script>
 
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const btn = document.getElementById('theme-toggle');
+            const darkIcon = document.getElementById('theme-toggle-dark-icon');
+            const lightIcon = document.getElementById('theme-toggle-light-icon');
+
+            if (!btn || !darkIcon || !lightIcon) return;
+
+            // Set correct icon initially
+            if (localStorage.getItem('color-theme') === 'dark' ||
+               (!('color-theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+                lightIcon.classList.remove('hidden');
+            } else {
+                darkIcon.classList.remove('hidden');
+            }
+
+            // Toggle theme
+            btn.addEventListener('click', () => {
+                darkIcon.classList.toggle('hidden');
+                lightIcon.classList.toggle('hidden');
+
+                if (localStorage.getItem('color-theme')) {
+                    if (localStorage.getItem('color-theme') === 'light') {
+                        document.documentElement.classList.add('dark');
+                        localStorage.setItem('color-theme', 'dark');
+                    } else {
+                        document.documentElement.classList.remove('dark');
+                        localStorage.setItem('color-theme', 'light');
+                    }
+                } else {
+                    if (document.documentElement.classList.contains('dark')) {
+                        document.documentElement.classList.remove('dark');
+                        localStorage.setItem('color-theme', 'light');
+                    } else {
+                        document.documentElement.classList.add('dark');
+                        localStorage.setItem('color-theme', 'dark');
+                    }
+                }
+            });
+        });
+    </script>
 
     @await RenderSectionAsync("Scripts", required: false)
-
 </body>
 </html>

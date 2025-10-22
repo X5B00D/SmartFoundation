@@ -255,8 +255,127 @@ namespace SmartFoundation.Mvc.Controllers
                         HelpText="يمكنك إدخال وصف مختصر هنا"
                     },
 
+                    // ========= جدول للتجربة =========
                     
+new FieldConfig
+{
+    SectionTitle = "جدول بيانات",
+    Name = "DemoTable",
+    Type = "datatable",
+    ColCss = "col-span-12",
+    Table = new TableConfig
+    {
+        Endpoint = "/AllComponentsDemo/ExecuteDemo",
+        StoredProcedureName = "sp_GetDemoData",
+        Operation = "select",
+        PageSize = 6,
+        PageSizes = new List<int> { 5, 10, 25, 50, 100 },
+        ShowHeader = true,
+        ShowFooter = true,
+        Searchable = true,
+        SearchPlaceholder = "اكتب للبحث...",
+        QuickSearchFields = new List<string> { "FullName", "Email" },
+        AllowExport = false,
+        AutoRefreshOnSubmit = true,
+        Selectable = true,
+        RowIdField = "Id",
+        GroupBy = null,
+        StorageKey = "demo_table_storage",
 
+        Columns = new List<TableColumn>
+        {
+            new TableColumn { Field="Id", Label="رقم", Sortable=true, Visible=true, Width="80px", Align="center", Type="number", ShowInModal=true },
+            new TableColumn { Field="FullName", Label="الاسم الكامل", Sortable=true, Align="right", Type="text", ShowInModal=true },
+            new TableColumn { Field="Email", Label="البريد الإلكتروني", Sortable=true, Align="left", Type="text", ShowInModal=true },
+            new TableColumn { Field="CreatedAt", Label="تاريخ الإدخال", Sortable=true, Type="datetime", FormatString="yyyy-MM-dd HH:mm", ShowInModal=true },
+            new TableColumn { Field="Status", Label="الحالة", Sortable=false, Type="badge", Badge=new TableBadgeConfig {
+                Map = new Dictionary<string,string> {
+                    { "نشط", "bg-green-100 text-green-800" },
+                    { "موقوف", "bg-red-100 text-red-800" }
+                },
+                DefaultClass = "bg-gray-100 text-gray-600"
+            }, ShowInModal=true }
+        },
+
+        //RowActions = new List<TableAction>
+        //{
+        //    new TableAction
+        //    {
+        //        Label="حذف",
+        //        Icon="fa fa-trash",
+        //        Color="danger",
+        //        Show=true,
+        //        ConfirmText="هل أنت متأكد من حذف هذا السجل؟",
+        //        OnClickJs="alert('تنفيذ حذف للسجل رقم: ' + row.Id)"
+        //    },
+        //    new TableAction
+        //    {
+        //        Label="تنبيه",
+        //        Icon="fa fa-bell",
+        //        Color="warning",
+        //        Show=true,
+        //        OnClickJs="alert('تم الضغط على تنبيه للسجل: ' + row.Id)"
+        //    }
+        //},
+
+        Toolbar = new TableToolbarConfig
+        {
+            ShowAdd = true,
+            ShowEdit = false,
+            ShowRefresh = false,
+            ShowColumns = true,
+            ShowExportCsv = false,
+            ShowExportExcel = false,
+            ShowAdvancedFilter = true,
+            ShowBulkDelete = true,
+
+            // زر الإضافة
+            Add = new TableAction
+            {
+                Label = "إضافة",
+                Icon = "fa fa-plus",
+                Color = "success",
+                Show = true,
+                OpenModal = true,
+                ModalTitle = "إضافة سجل جديد",
+                ModalSp = "sp_AddDemoData",
+                ModalOp = "insert",
+                SaveSp = "sp_AddDemoData",
+                SaveOp = "insert",
+                ModalColumns = new List<TableColumn>
+                {
+                    new TableColumn { Field="FullName", Label="الاسم الكامل" },
+                    new TableColumn { Field="Email", Label="البريد الإلكتروني" },
+                    new TableColumn { Field="Phone", Label="الهاتف" }
+                }
+            },
+
+            // زر التعديل
+            Edit = new TableAction
+            {
+                Label = "تعديل",
+                Icon = "fa fa-edit",
+                Color = "info",
+                Show = false,
+                OpenModal = true,
+                IsEdit = true,  // ✅ يحدد أنه زر تعديل
+                ModalTitle = "تعديل بيانات المستخدم",
+                ModalSp = "sp_GetUserDetail",   // SP لجلب البيانات للتعديل
+                ModalOp = "detail",
+                SaveSp = "sp_UpdateUser",       // SP لحفظ التعديلات
+                SaveOp = "update",
+                ModalColumns = new List<TableColumn>
+                {
+                    new TableColumn { Field="Id", Label="رقم", Visible=false }, // رقم معرف فقط
+                    new TableColumn { Field="FullName", Label="الاسم الكامل" },
+                    new TableColumn { Field="Email", Label="البريد الإلكتروني" },
+                    new TableColumn { Field="Phone", Label="الهاتف" },
+                    new TableColumn { Field="Address", Label="العنوان" }
+                }
+            }
+        }
+    }
+},
                     // ========= إقرار =========
                     new FieldConfig
                     {

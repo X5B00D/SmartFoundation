@@ -55,25 +55,30 @@ namespace SmartFoundation.DataEngine.Core.Services
                 await conn.OpenAsync(ct);
 
                 var dp = new DynamicParameters();
-                dp.Add("@Operation", request.Operation ?? "select");
-                dp.Add("@Page", resp.Page);
-                dp.Add("@Size", resp.Size);
 
-                if (!string.IsNullOrWhiteSpace(request.Sort?.Field))
+                // Only add paging, sorting and filtering for select operations
+                if (request.Operation?.ToLower() == "select")
                 {
-                    dp.Add("@SortField", request.Sort!.Field);
-                    dp.Add("@SortDir", request.Sort!.Dir ?? "asc");
-                }
+                    dp.Add("@Operation", "select");
+                    dp.Add("@Page", resp.Page);
+                    dp.Add("@Size", resp.Size);
 
-                // الفلاتر (JSON)
-                if (request.Filters is { Count: > 0 })
-                {
-                    foreach (var f in request.Filters)
-                        if (string.IsNullOrWhiteSpace(f.Field))
-                            throw new ArgumentException("Filter field name is required.");
+                    if (!string.IsNullOrWhiteSpace(request.Sort?.Field))
+                    {
+                        dp.Add("@SortField", request.Sort!.Field);
+                        dp.Add("@SortDir", request.Sort!.Dir ?? "asc");
+                    }
 
-                    var filtersJson = JsonSerializer.Serialize(request.Filters);
-                    dp.Add("@FiltersJson", filtersJson);
+                    // الفلاتر (JSON)
+                    if (request.Filters is { Count: > 0 })
+                    {
+                        foreach (var f in request.Filters)
+                            if (string.IsNullOrWhiteSpace(f.Field))
+                                throw new ArgumentException("Filter field name is required.");
+
+                        var filtersJson = JsonSerializer.Serialize(request.Filters);
+                        dp.Add("@FiltersJson", filtersJson);
+                    }
                 }
 
                 // الباراميترات
