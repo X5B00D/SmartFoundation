@@ -5,10 +5,11 @@ module.exports = {
     darkMode: 'class',
 
     content: [
-        './Views/**/*.{cshtml,js}',
-        './wwwroot/js/**/*.js',
-        '../SmartFoundation.UI/Views/**/*.cshtml',
-        '../SmartFoundation.UI/**/*.{cshtml,js}',
+        './Views/**/*.{cshtml,js,html}',
+        './Pages/**/*.{cshtml,js,html}',
+        './wwwroot/**/*.{html,js}',
+        '../SmartFoundation.UI/Views/**/*.{cshtml,js,html}',
+        '../SmartFoundation.UI/**/*.{cshtml,js,html}',
         './src/**/*.{js,ts}',
         './tools/**/*.{js,ts}',
         './node_modules/flowbite/**/*.js',
@@ -17,7 +18,7 @@ module.exports = {
     safelist: [
 
         'animate-fade-in',
-        
+
         'bg-gradient-to-b', 'border', 'rounded-md', 'transition', 'text-sm', 'font-semibold',
         'h-10', 'px-5', 'md:px-6', 'gap-2', 'gap-2.5', 'gap-3', 'active:shadow-inner',
         'from-emerald-50', 'via-emerald-50', 'to-emerald-200',
