@@ -6,6 +6,52 @@ SmartFoundation is a multi-layered ASP.NET Core 8.0 application following Clean 
 
 ---
 
+## MCP Tools Usage
+
+### Context7 MCP - Documentation Lookup
+
+**When to use:**
+
+- ✅ **ALWAYS** use Context7 MCP (`mcp_context7_resolve-library-id` and `mcp_context7_get-library-docs`) when needing to look up documentation for any library, framework, or package
+- Use for ASP.NET Core, Entity Framework, .NET libraries, npm packages, or any third-party dependencies
+- Provides up-to-date, accurate documentation directly from official sources
+
+**Fallback:**
+
+- ❌ If Context7 MCP is not running or encounters errors, fall back to default documentation approaches
+- Log the issue and continue with alternative methods
+
+**Example usage:**
+
+```
+User asks: "How do I use dependency injection in ASP.NET Core?"
+→ Use Context7 MCP to fetch latest ASP.NET Core DI documentation
+```
+
+### TaskMaster AI MCP - Task Management
+
+**When to use:**
+
+- ✅ **ALWAYS** use TaskMaster AI MCP tools when user asks about tasks, task status, or project planning
+- Use `mcp_task-master-a_get_tasks` to retrieve task lists
+- Use `mcp_task-master-a_get_task` for specific task details
+- Use `mcp_task-master-a_set_task_status` to update task progress
+- Use other TaskMaster tools for task creation, expansion, and management when applicable
+
+**When NOT to use:**
+
+- Simple TODO tracking within a conversation (use manage_todo_list instead)
+- When TaskMaster is not initialized in the project
+
+**Example usage:**
+
+```
+User asks: "What tasks are pending?"
+→ Use mcp_task-master-a_get_tasks with status filter
+```
+
+---
+
 ## Architecture Layers
 
 ### 1. Presentation Layer (`SmartFoundation.Mvc`)
