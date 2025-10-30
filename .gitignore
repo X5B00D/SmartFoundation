@@ -38,6 +38,8 @@ bld/
 #wwwroot/
 
 # Visual Studio 2017 auto generated files
+[SmartFoundation.Mvc/appsettings.json]
+[SmartFoundation.Mvc/appsettings.Development.json]
 Generated\ Files/
 
 # MSTest test Results
