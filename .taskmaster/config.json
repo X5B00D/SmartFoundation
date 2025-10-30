@@ -1,0 +1,39 @@
+{
+  "models": {
+    "main": {
+      "provider": "google",
+      "modelId": "gemini-2.5-pro",
+      "maxTokens": 8192,
+      "temperature": 0.2,
+      "baseURL": "https://generativelanguage.googleapis.com/v1beta"
+    },
+    "research": {
+      "provider": "google",
+      "modelId": "gemini-2.5-pro",
+      "maxTokens": 8192,
+      "temperature": 0.1,
+      "baseURL": "https://generativelanguage.googleapis.com/v1beta"
+    },
+    "fallback": {
+      "provider": "google",
+      "modelId": "gemini-2.5-flash",
+      "maxTokens": 8192,
+      "temperature": 0.2,
+      "baseURL": "https://generativelanguage.googleapis.com/v1beta"
+    }
+  },
+  "global": {
+    "logLevel": "info",
+    "debug": false,
+    "defaultNumTasks": 10,
+    "defaultSubtasks": 5,
+    "defaultPriority": "medium",
+    "defaultTag": "master",
+    "projectName": "SmartFoundation",
+    "ollamaBaseURL": "http://localhost:11434/api",
+    "azureBaseURL": "https://your-endpoint.azure.com/openai/deployments",
+    "vertexProjectId": "your-gcp-project-id",
+    "vertexLocation": "us-central1",
+    "responseLanguage": "English"
+  }
+}
