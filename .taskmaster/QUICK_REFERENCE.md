@@ -201,6 +201,7 @@ Edit `.taskmaster/config.json`:
 ```
 
 API keys go in `.env`:
+
 ```bash
 ANTHROPIC_API_KEY=your-key-here
 GOOGLE_API_KEY=your-key-here
@@ -226,6 +227,7 @@ OPENAI_API_KEY=your-key-here
 ## 🎓 Pro Tips
 
 ### Tip 1: Use Research Mode for Complex Tasks
+
 ```powershell
 # Better task breakdown with AI research
 task-master-a expand --id 5 --research
@@ -233,6 +235,7 @@ task-master-a analyze --research
 ```
 
 ### Tip 2: Work with Multiple Tasks
+
 ```powershell
 # View multiple tasks at once
 task-master-a get --id "1,3,5"
@@ -242,6 +245,7 @@ task-master-a status --id "1,2,3" --status done
 ```
 
 ### Tip 3: Filter by Status
+
 ```powershell
 # See what you're currently working on
 task-master-a list --status in-progress
@@ -251,6 +255,7 @@ task-master-a list --status blocked
 ```
 
 ### Tip 4: Use Subtasks for Better Tracking
+
 ```powershell
 # Always expand complex tasks
 task-master-a expand --id 5 --num 5
@@ -261,6 +266,7 @@ task-master-a status --id 5.2 --status done
 ```
 
 ### Tip 5: Let AI Help Plan
+
 ```powershell
 # Get recommended next task (considers dependencies)
 task-master-a next
@@ -274,12 +280,14 @@ task-master-a analyze --threshold 7
 ## 🆘 Troubleshooting
 
 ### Command Not Found
+
 ```powershell
 # Use npx instead
 npx task-master-a list
 ```
 
 ### API Key Issues
+
 ```powershell
 # Check .env file
 Select-String -Path .env -Pattern "API_KEY"
@@ -290,6 +298,7 @@ Select-String -Path .env -Pattern "API_KEY"
 ```
 
 ### Tasks Not Showing
+
 ```powershell
 # Check if tasks exist
 ls .taskmaster\tasks\tasks.json
@@ -305,19 +314,21 @@ task-master-a add --prompt "Setup project structure"
 - **Full Guide:** `.taskmaster\SETUP_GUIDE.md`
 - **Command Help:** `task-master-a --help`
 - **Specific Command:** `task-master-a list --help`
-- **GitHub:** https://github.com/kosasam/task-master-ai
+- **GitHub:** <https://github.com/kosasam/task-master-ai>
 
 ---
 
 ## 💡 Remember
 
 ✅ **DO:**
+
 - Keep tasks updated regularly
 - Break down complex tasks
 - Use `next` to stay focused
 - Update status as you progress
 
 ❌ **DON'T:**
+
 - Commit tasks to Git (they're personal!)
 - Share API keys
 - Let tasks get stale
@@ -325,4 +336,4 @@ task-master-a add --prompt "Setup project structure"
 
 ---
 
-**Print this and keep it next to your monitor! 🖨️**
+Print this and keep it next to your monitor! 🖨️

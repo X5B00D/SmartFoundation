@@ -1116,6 +1116,280 @@ dotnet run
 
 ---
 
+## Markdown Documentation Best Practices
+
+When creating or editing markdown files in this project, follow these standards to ensure consistency and proper linting:
+
+### General Formatting Rules
+
+1. **Headings (MD022 - blanks-around-headings)**
+
+   - Always surround headings with blank lines (one line before, one line after)
+   - Exception: First heading in file doesn't need blank line before it
+
+   ```markdown
+   Some text here.
+
+   ## My Heading
+
+   Content starts here.
+   ```
+
+2. **Fenced Code Blocks (MD031 - blanks-around-fences)**
+
+   - Always add blank lines before AND after code blocks
+   - This applies to all code fence types (`bash, `csharp, ```powershell, etc.)
+
+   ````markdown
+   Some text here.
+
+   ```bash
+   echo "Hello World"
+   ```
+   ````
+
+   More text here.
+
+   ```
+
+   ```
+
+3. **Code Block Language (MD040 - fenced-code-language)**
+
+   - Always specify the language for code blocks
+   - Use appropriate language identifiers: `csharp`, `bash`, `powershell`, `json`, `markdown`, etc.
+
+   ````markdown
+   <!-- ✅ GOOD -->
+
+   ```csharp
+   var x = 10;
+   ```
+   ````
+
+   <!-- ❌ BAD -->
+
+   ```
+   var x = 10;
+   ```
+
+   ```
+
+   ```
+
+4. **Emphasis and Strong (MD036, MD037)**
+
+   - Never use bold/emphasis as a heading replacement
+   - No spaces inside emphasis markers
+
+   ```markdown
+   <!-- ✅ GOOD -->
+
+   This is **bold** text and _italic_ text.
+
+   <!-- ❌ BAD -->
+
+   **This Should Be A Heading**
+   This is ** bold ** text with spaces.
+   ```
+
+5. **Lists (MD032 - blanks-around-lists)**
+
+   - Add blank lines before and after lists
+   - Add blank line between list label and list items
+
+   ```markdown
+   Some text.
+
+   **DO:**
+
+   - First item
+   - Second item
+   - Third item
+
+   More text.
+   ```
+
+6. **URLs (MD034 - no-bare-urls)**
+
+   - Don't use bare URLs - wrap them in angle brackets or use link syntax
+   - Bare URLs break proper markdown rendering
+
+   ```markdown
+   <!-- ✅ GOOD -->
+
+   Visit <https://github.com/example/repo>
+   Or [GitHub](https://github.com/example/repo)
+
+   <!-- ❌ BAD -->
+
+   Visit https://github.com/example/repo
+   ```
+
+7. **Line Length (MD013)**
+
+   - Keep lines under 120 characters when possible
+   - Exception: URLs, code, and tables can exceed this limit
+
+8. **Multiple Blank Lines (MD012)**
+
+   - Use only one blank line between elements
+   - No multiple consecutive blank lines
+
+9. **Trailing Spaces (MD009)**
+
+   - Remove trailing spaces from lines
+   - Exception: Two spaces at end of line for hard line break
+
+10. **Hard Tabs (MD010)**
+    - Use spaces, not tabs
+    - Configure editor to convert tabs to spaces
+
+### List Formatting
+
+1. **Consistent List Markers**
+
+   - Use `-` for unordered lists (be consistent)
+   - Use `1.` for ordered lists with proper numbering
+
+2. **List Indentation (MD007)**
+
+   - Indent nested lists by 2 or 4 spaces consistently
+   - Align list content properly
+
+   ```markdown
+   - Parent item
+     - Child item (2 spaces)
+       - Grandchild item (4 spaces)
+   ```
+
+3. **Task Lists**
+
+   - Use proper GitHub-flavored markdown task list syntax
+
+   ```markdown
+   - [ ] Unchecked task
+   - [x] Checked task
+   ```
+
+### Table Formatting
+
+1. **Table Pipes (MD055)**
+
+   - Use consistent leading/trailing pipes
+
+   ```markdown
+   | Header 1 | Header 2 |
+   | -------- | -------- |
+   | Cell 1   | Cell 2   |
+   ```
+
+2. **Blank Lines Around Tables (MD058)**
+   - Always surround tables with blank lines
+
+### Link and Image Formatting
+
+1. **Link Text (MD039 - no-space-in-links)**
+
+   - No spaces inside link text brackets
+
+   ```markdown
+   <!-- ✅ GOOD -->
+
+   [Link text](https://example.com)
+
+   <!-- ❌ BAD -->
+
+   [ Link text ](https://example.com)
+   ```
+
+2. **Reference Links**
+
+   - Define reference links at bottom of file
+   - Use descriptive reference names
+
+   ```markdown
+   See the [documentation][docs] for details.
+
+   [docs]: https://example.com/docs
+   ```
+
+3. **Alt Text for Images (MD045)**
+
+   - Always provide alt text for images
+
+   ```markdown
+   ![Architecture Diagram](./images/architecture.png)
+   ```
+
+### Special Considerations for Technical Documentation
+
+1. **XML Documentation in Code Blocks**
+
+   - Use `csharp` language identifier for C# code with XML comments
+   - Escape special characters if needed
+
+2. **Configuration Files**
+
+   - Use appropriate language identifiers: `json`, `yaml`, `xml`, etc.
+   - Always include language identifier even for configuration
+
+3. **Terminal Commands**
+   - Use `bash`, `powershell`, or `cmd` as appropriate
+   - Include comments for complex commands
+
+### Disabling Rules (Use Sparingly)
+
+When absolutely necessary, you can disable specific rules:
+
+```markdown
+<!-- markdownlint-disable MD013 -->
+
+This line can be very long and won't trigger the line-length rule.
+
+<!-- markdownlint-enable MD013 -->
+
+<!-- markdownlint-disable-next-line MD034 -->
+
+This bare URL is intentional: https://example.com
+```
+
+### Validation
+
+Before committing markdown files:
+
+1. Run markdownlint to check for errors
+2. Fix all linting errors
+3. Ensure consistent formatting throughout
+4. Verify all links work
+5. Check that code examples are correct
+
+### Common Mistakes to Avoid
+
+- ❌ Missing blank lines around headings
+- ❌ Missing blank lines around code blocks
+- ❌ Using bold text instead of proper headings
+- ❌ Bare URLs without angle brackets
+- ❌ Code blocks without language specifiers
+- ❌ Spaces inside emphasis markers
+- ❌ Inconsistent list formatting
+- ❌ Missing alt text for images
+
+### Quick Checklist for New Markdown Files
+
+- [ ] All headings surrounded by blank lines
+- [ ] All code blocks surrounded by blank lines
+- [ ] All code blocks have language specified
+- [ ] No bare URLs (use angle brackets or link syntax)
+- [ ] No bold text used as headings
+- [ ] Lists properly formatted with blank lines
+- [ ] No trailing spaces
+- [ ] No multiple consecutive blank lines
+- [ ] All links and images have proper formatting
+- [ ] File ends with single newline
+
+---
+
 ## Contact & Resources
 
 **Team Leader:** [Name]  
@@ -1140,6 +1414,18 @@ When generating code for this project:
 8. **Use async/await** - All I/O operations must be async
 9. **Validate input** - Controllers validate, not services
 10. **Keep it DRY** - Extract common logic to base methods
+
+**When creating or editing markdown files:**
+
+- Follow the Markdown Documentation Best Practices section above
+- Always add blank lines around headings and code blocks
+- Specify language for all code blocks (csharp, bash, powershell, json, etc.)
+- Wrap URLs in angle brackets: `<https://example.com>` or use link syntax
+- Never use bold text as a heading replacement
+- Add blank lines around lists and between list labels and items
+- No trailing spaces, no multiple consecutive blank lines
+- Use proper emphasis formatting without spaces: `**bold**` not `** bold **`
+- Verify markdown passes linting before committing
 
 **When suggesting refactoring:**
 
