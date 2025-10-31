@@ -37,7 +37,7 @@
     "azureBaseURL": "https://your-endpoint.azure.com/openai/deployments",
     "vertexProjectId": "your-gcp-project-id",
     "vertexLocation": "us-central1",
-    "userId": "change-this-to-your-id"
+    "userId": "your-unique-id"
   },
   "claudeCode": {},
   "codexCli": {},
