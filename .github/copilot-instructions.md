@@ -618,17 +618,33 @@ public static class ServiceCollectionExtensions
 
 ### Unit Tests
 
+**Testing Framework:** xUnit
+
+**Mocking Framework:** Moq
+
+**Assertion Library:** xUnit.Assert (built-in)
+
 **Test Structure:**
 
 ```csharp
 public class EmployeeServiceTests
 {
+    private readonly Mock<ISmartComponentService> _mockDataEngine;
+    private readonly Mock<ILogger<EmployeeService>> _mockLogger;
+    private readonly EmployeeService _service;
+
+    public EmployeeServiceTests()
+    {
+        _mockDataEngine = new Mock<ISmartComponentService>();
+        _mockLogger = new Mock<ILogger<EmployeeService>>();
+        _service = new EmployeeService(_mockDataEngine.Object, _mockLogger.Object);
+    }
+
     [Fact]
     public async Task GetEmployeeList_WithValidParams_ReturnsSuccess()
     {
         // Arrange
-        var mockDataEngine = new Mock<ISmartComponentService>();
-        mockDataEngine
+        _mockDataEngine
             .Setup(x => x.ExecuteAsync(It.IsAny<SmartRequest>(), default))
             .ReturnsAsync(new SmartResponse
             {
@@ -636,20 +652,19 @@ public class EmployeeServiceTests
                 Data = new List<Dictionary<string, object?>>()
             });
 
-        var service = new EmployeeService(mockDataEngine.Object);
-        var parameters = new Dictionary<string, object>
+        var parameters = new Dictionary<string, object?>
         {
             { "pageNumber", 1 },
             { "pageSize", 10 }
         };
 
         // Act
-        var result = await service.GetEmployeeList(parameters);
+        var result = await _service.GetEmployeeList(parameters);
 
         // Assert
         Assert.NotNull(result);
-        var json = JsonSerializer.Deserialize<JsonElement>(result);
-        Assert.True(json.GetProperty("success").GetBoolean());
+        var json = JsonDocument.Parse(result);
+        Assert.True(json.RootElement.GetProperty("success").GetBoolean());
     }
 }
 ```
@@ -1387,6 +1402,358 @@ Before committing markdown files:
 - [ ] No multiple consecutive blank lines
 - [ ] All links and images have proper formatting
 - [ ] File ends with single newline
+
+---
+
+## Mermaid Diagrams for Documentation
+
+### When to Use Mermaid Diagrams
+
+Use Mermaid diagrams in documentation files to visually explain complex concepts, architectures, workflows, and relationships. Mermaid is a JavaScript-based diagramming tool that renders diagrams from markdown-like text definitions.
+
+**Use Mermaid diagrams when:**
+
+- ✅ Explaining system architecture or component relationships
+- ✅ Documenting workflows, processes, or state transitions
+- ✅ Illustrating data models or entity relationships
+- ✅ Showing class hierarchies or dependency graphs
+- ✅ Visualizing sequence of operations or API interactions
+- ✅ Clarifying complex decision trees or conditional logic
+
+**Don't use Mermaid when:**
+
+- ❌ Simple text explanation is clearer
+- ❌ Screenshots or actual UI examples are more appropriate
+- ❌ The diagram would be too complex to maintain in text format
+
+### Supported Diagram Types
+
+#### 1. Flowcharts
+
+Use for workflows, decision trees, and process flows.
+
+```mermaid
+flowchart TD
+    A[User Request] --> B{Valid Input?}
+    B -->|Yes| C[Call Service]
+    B -->|No| D[Return Error]
+    C --> E[Execute Stored Procedure]
+    E --> F[Return JSON Response]
+    D --> F
+```
+
+**Example Use Case:** Document controller action flow in SmartFoundation.
+
+#### 2. Sequence Diagrams
+
+Use for API interactions, method calls, and communication flows.
+
+```mermaid
+sequenceDiagram
+    participant C as Controller
+    participant S as Service
+    participant D as DataEngine
+    participant DB as Database
+
+    C->>S: GetEmployeeList(parameters)
+    S->>D: ExecuteAsync(request)
+    D->>DB: Execute SP
+    DB-->>D: Return Data
+    D-->>S: SmartResponse
+    S-->>C: JSON String
+```
+
+**Example Use Case:** Show the Clean Architecture data flow in SmartFoundation.
+
+#### 3. Class Diagrams
+
+Use for showing class relationships, inheritance, and composition.
+
+```mermaid
+classDiagram
+    class BaseService {
+        <<abstract>>
+        #ISmartComponentService _dataEngine
+        #ILogger _logger
+        +ExecuteOperation(module, operation, parameters)
+    }
+
+    class EmployeeService {
+        +GetEmployeeList(parameters)
+        +CreateEmployee(parameters)
+        +UpdateEmployee(parameters)
+        +DeleteEmployee(parameters)
+    }
+
+    class MenuService {
+        +GetUserMenu(parameters)
+        +GetAllMenus(parameters)
+    }
+
+    BaseService <|-- EmployeeService
+    BaseService <|-- MenuService
+```
+
+**Example Use Case:** Document service class hierarchy in the Application Layer.
+
+#### 4. Entity Relationship Diagrams
+
+Use for database schemas and data model relationships.
+
+```mermaid
+erDiagram
+    CUSTOMER ||--o{ ORDER : places
+    CUSTOMER {
+        int id PK
+        string name
+        string email
+    }
+    ORDER ||--|{ ORDER_ITEM : contains
+    ORDER {
+        int id PK
+        int customer_id FK
+        date order_date
+    }
+    ORDER_ITEM {
+        int id PK
+        int order_id FK
+        int product_id FK
+        int quantity
+    }
+    PRODUCT ||--o{ ORDER_ITEM : "ordered in"
+    PRODUCT {
+        int id PK
+        string name
+        decimal price
+    }
+```
+
+**Example Use Case:** Document database schema for SmartFoundation modules.
+
+#### 5. State Diagrams
+
+Use for lifecycle management and state transitions.
+
+```mermaid
+stateDiagram-v2
+    [*] --> Pending
+    Pending --> InProgress: Start Task
+    InProgress --> Review: Submit for Review
+    Review --> InProgress: Request Changes
+    Review --> Done: Approve
+    Done --> [*]
+    InProgress --> Cancelled: Cancel
+    Cancelled --> [*]
+```
+
+**Example Use Case:** Document task workflow states in TaskMaster.
+
+#### 6. Gantt Charts
+
+Use for project timelines and task scheduling.
+
+```mermaid
+gantt
+    title SmartFoundation Implementation Timeline
+    dateFormat YYYY-MM-DD
+    section Phase 1
+    Setup BaseService           :done, 2025-10-28, 1d
+    Implement MenuService       :done, 2025-10-29, 1d
+    section Phase 2
+    Implement EmployeeService   :done, 2025-10-30, 1d
+    Implement DashboardService  :done, 2025-10-31, 1d
+    section Phase 3
+    Write Unit Tests            :active, 2025-11-01, 2d
+    Code Review                 :2025-11-03, 1d
+```
+
+**Example Use Case:** Show project milestones and phases.
+
+### Mermaid Syntax Guidelines
+
+**1. Always specify language identifier:**
+
+````markdown
+```mermaid
+graph TD
+    A --> B
+```
+````
+
+**2. Add blank lines before and after diagrams:**
+
+````markdown
+Some text here.
+
+```mermaid
+flowchart LR
+    A --> B
+```
+````
+
+More text here.
+
+````
+
+**3. Include descriptive titles when helpful:**
+
+```mermaid
+---
+title: SmartFoundation Clean Architecture
+---
+flowchart LR
+    MVC[Presentation Layer] --> App[Application Layer]
+    App --> Data[DataEngine Layer]
+    Data --> DB[(Database)]
+````
+
+**4. Use meaningful node IDs and labels:**
+
+```mermaid
+flowchart TD
+    %% ✅ GOOD: Descriptive
+    validateInput[Validate Input] --> callService[Call Service]
+
+    %% ❌ BAD: Generic
+    A[Step 1] --> B[Step 2]
+```
+
+**5. Add comments for clarity:**
+
+```mermaid
+flowchart LR
+    %% This is a comment explaining the flow
+    Start --> Process
+    Process --> End
+```
+
+**6. Use consistent styling:**
+
+```mermaid
+flowchart TD
+    classDef successStyle fill:#90EE90,stroke:#006400,stroke-width:2px
+    classDef errorStyle fill:#FFB6C1,stroke:#8B0000,stroke-width:2px
+
+    A[Start]:::successStyle --> B{Check}
+    B -->|Valid| C[Success]:::successStyle
+    B -->|Invalid| D[Error]:::errorStyle
+```
+
+### Integration with Documentation Files
+
+**In README.md files:**
+
+````markdown
+# SmartFoundation Architecture
+
+The application follows Clean Architecture principles:
+
+```mermaid
+flowchart TB
+    subgraph Presentation
+        Controllers
+        Views
+    end
+
+    subgraph Application
+        Services
+        ProcedureMapper
+    end
+
+    subgraph DataAccess
+        DataEngine
+        SmartComponentService
+    end
+
+    Presentation --> Application
+    Application --> DataAccess
+    DataAccess --> Database[(SQL Server)]
+```
+````
+
+This ensures clear separation of concerns.
+
+````
+
+**In Implementation Guides:**
+
+```markdown
+## Service Method Execution Flow
+
+When a controller calls a service method:
+
+```mermaid
+sequenceDiagram
+    Controller->>Service: MethodCall(parameters)
+    Service->>ProcedureMapper: GetProcedureName(module, operation)
+    ProcedureMapper-->>Service: SP Name
+    Service->>DataEngine: ExecuteAsync(request)
+    DataEngine->>Database: Execute SP
+    Database-->>DataEngine: Result Set
+    DataEngine-->>Service: SmartResponse
+    Service-->>Controller: JSON String
+````
+
+````
+
+### Best Practices
+
+1. **Keep diagrams focused** - One concept per diagram
+2. **Use consistent terminology** - Match code/documentation names
+3. **Update diagrams with code changes** - Keep them in sync
+4. **Test diagram rendering** - Verify they display correctly
+5. **Add diagram descriptions** - Explain what the diagram shows
+6. **Use appropriate diagram types** - Choose the right visualization
+7. **Avoid over-complexity** - Split complex diagrams into multiple simpler ones
+8. **Include legends when needed** - Clarify symbols and colors
+
+### Common SmartFoundation Diagram Patterns
+
+**Clean Architecture Flow:**
+
+```mermaid
+flowchart LR
+    Controller[Controller] -->|1. Inject| Service[Service]
+    Service -->|2. Use| Mapper[ProcedureMapper]
+    Service -->|3. Call| Engine[DataEngine]
+    Engine -->|4. Execute| SP[(Stored Procedure)]
+    SP -->|5. Return| Engine
+    Engine -->|6. SmartResponse| Service
+    Service -->|7. JSON| Controller
+````
+
+**Service Class Hierarchy:**
+
+```mermaid
+classDiagram
+    class BaseService {
+        <<abstract>>
+        +ExecuteOperation()*
+    }
+    BaseService <|-- EmployeeService
+    BaseService <|-- MenuService
+    BaseService <|-- DashboardService
+```
+
+**Error Handling Flow:**
+
+```mermaid
+flowchart TD
+    A[Request] --> B{Validate Input}
+    B -->|Invalid| C[Return Error]
+    B -->|Valid| D[Call Service]
+    D --> E{Try Execute}
+    E -->|Success| F[Return JSON Success]
+    E -->|Exception| G[Log Error]
+    G --> H[Return JSON Error]
+```
+
+### Tools and Resources
+
+- **Mermaid Live Editor:** <https://mermaid.live> - Test diagrams online
+- **VS Code Extension:** Mermaid Preview (mermaid-chart.vscode-mermaid-preview)
+- **Documentation:** <https://mermaid.js.org>
+- **Syntax Guide:** <https://mermaid.js.org/intro/syntax-reference.html>
 
 ---
 

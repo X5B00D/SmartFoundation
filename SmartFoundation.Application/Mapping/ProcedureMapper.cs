@@ -17,6 +17,7 @@ public static class ProcedureMapper
         
         // Menu operations
         { "menu:list", "dbo.ListOfMenuByUser_MVC" },
+        { "menu:listAll", "dbo.sp_GetAllMenuItems" },
         
         // Dashboard operations
         { "dashboard:summary", "dbo.sp_GetDashboardSummary" },

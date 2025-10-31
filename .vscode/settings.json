@@ -1,3 +1,52 @@
 {
-  "markdown.validate.enabled": false
+  "markdown.validate.enabled": false,
+
+  // C# Settings
+  "dotnet.defaultSolution": "SmartFoundation.sln",
+  "omnisharp.enableEditorConfigSupport": true,
+  "omnisharp.enableRoslynAnalyzers": true,
+  "omnisharp.enableImportCompletion": true,
+  "omnisharp.organizeImportsOnFormat": true,
+
+  // Debugging Settings
+  "debug.internalConsoleOptions": "openOnSessionStart",
+  "debug.openDebug": "openOnDebugBreak",
+  "debug.showInlineBreakpointCandidates": true,
+  "debug.showBreakpointsInOverviewRuler": true,
+  "debug.console.fontSize": 14,
+  "debug.console.lineHeight": 20,
+
+  // C# Editor Settings
+  "csharp.semanticHighlighting.enabled": true,
+  "csharp.suppressDotnetRestoreNotification": true,
+  "csharp.suppressBuildAssetsNotification": true,
+
+  // IntelliSense Settings
+  "editor.suggest.showWords": false,
+  "editor.quickSuggestions": {
+    "other": true,
+    "comments": false,
+    "strings": false
+  },
+  "editor.parameterHints.enabled": true,
+  "editor.inlineSuggest.enabled": true,
+
+  // Auto Save (optional)
+  "files.autoSave": "afterDelay",
+  "files.autoSaveDelay": 1000,
+
+  // Problem Matcher
+  "files.exclude": {
+    "**/bin": true,
+    "**/obj": true
+  },
+
+  // Watch Files
+  "files.watcherExclude": {
+    "**/bin/**": true,
+    "**/obj/**": true,
+    "**/.git/objects/**": true,
+    "**/.git/subtree-cache/**": true,
+    "**/node_modules/**": true
+  }
 }

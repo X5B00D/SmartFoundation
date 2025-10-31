@@ -1,4 +1,5 @@
 using Microsoft.Extensions.DependencyInjection;
+using SmartFoundation.Application.Services;
 
 namespace SmartFoundation.Application.Extensions;
 
@@ -19,9 +20,9 @@ public static class ServiceCollectionExtensions
     // Use Scoped lifetime for services that depend on per-request data
 
     // TODO: Uncomment these lines when the concrete service classes are created:
-    // services.AddScoped<EmployeeService>();
-    // services.AddScoped<MenuService>();
-    // services.AddScoped<DashboardService>();
+    services.AddScoped<EmployeeService>();
+    services.AddScoped<MenuService>();
+    services.AddScoped<DashboardService>();
 
     // Add more services as they are created:
     // services.AddScoped<YourNewService>();
