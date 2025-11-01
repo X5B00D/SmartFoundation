@@ -8,6 +8,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\SmartFoundation.Application\SmartFoundation.Application.csproj" />
     <ProjectReference Include="..\SmartFoundation.DataEngine\SmartFoundation.DataEngine.csproj" />
     <ProjectReference Include="..\SmartFoundation.UI\SmartFoundation.UI.csproj" />
   </ItemGroup>

@@ -38,6 +38,8 @@ bld/
 #wwwroot/
 
 # Visual Studio 2017 auto generated files
+[SmartFoundation.Mvc/appsettings.json]
+[SmartFoundation.Mvc/appsettings.Development.json]
 Generated\ Files/
 
 # MSTest test Results
@@ -399,3 +401,16 @@ FodyWeavers.xsd
 
 # JetBrains Rider
 *.sln.iml
+
+# Environment variables (contains API keys)
+.env
+SmartFoundation.Mvc/appsettings.json
+.gitignore
+docs/ImplementationGuide.md
+docs/PRD.md
+
+# Task Master AI - Personal Tasks and Reports
+# Each team member should create their own tasks from their PRD
+.taskmaster/tasks/
+.taskmaster/reports/
+.taskmaster/.initialized
