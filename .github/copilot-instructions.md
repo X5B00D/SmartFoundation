@@ -50,6 +50,27 @@ User asks: "What tasks are pending?"
 → Use mcp_task-master-a_get_tasks with status filter
 ```
 
+Sequential Thinking MCP - Stepwise Reasoning & Problem Breakdown
+
+**When to use:**
+
+- ✅ **ALWAYS** use Sequential Thinking MCP (mcp_sequential-th_sequentialthinking) when you need to break down complex problems, plan multi-step solutions, or require step-by-step reasoning
+- Use for architectural decisions, migration planning, debugging, code reviews, and any scenario requiring structured thought
+- Provides stepwise recommendations, tool suggestions, and confidence scores for each reasoning step
+- Use in combination with other MCP tools for optimal results
+
+**Fallback:**
+
+- ❌ If Sequential Thinking MCP is not running or encounters errors, fall back to manual stepwise reasoning and document your process
+- Log the issue and continue with alternative methods
+
+**Example usage:**
+
+```
+User asks: "How should I migrate legacy controllers to Clean Architecture?"
+→ Use Sequential Thinking MCP to break down migration steps, recommend tools, and track reasoning
+```
+
 ---
 
 ## Architecture Layers
