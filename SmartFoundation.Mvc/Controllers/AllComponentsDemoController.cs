@@ -43,7 +43,7 @@ namespace SmartFoundation.Mvc.Controllers
                         Required=true,
                         Placeholder="حقل عربي فقط",
                         Icon="fa-solid fa-user",
-                        ColCss="col-span-12 md:col-span-6",
+                        ColCss="col-span-12 md:col-span-3",
                         MaxLength=50,
                         TextMode="arsentence",
                     },
@@ -62,7 +62,7 @@ namespace SmartFoundation.Mvc.Controllers
                         Autocomplete = "email",
                         Autocapitalize = "none",
                         Autocorrect = "off",
-                        Spellcheck = false,
+                        Spellcheck = true,
                         HelpText="أدخل بريد إلكتروني صحيح"
                     },
                     new FieldConfig
