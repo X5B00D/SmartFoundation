@@ -513,20 +513,20 @@ textarea[readonly] {
 
     /*البانل بصفحة الرندر*/
 
+/* ===== لوحة العرض (Panel) ===== */
 .sf-panel {
-    @apply w-full mx-auto mb-6 overflow-hidden bg-white border border-gray-200 rounded-xl;
+    @apply relative w-full mx-auto mt-10 mb-6 overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm;
 }
 
-
-/* ===== Panel Header ===== */
+/* ===== ترويسة اللوحة ===== */
 .sf-panel-header {
-    @apply flex items-center justify-between bg-gray-200 px-4 py-2.5 border-b border-gray-200;
+    @apply sticky top-0 z-10 flex items-center justify-between border-b border-gray-200 bg-gray-100 px-4 py-3;
 }
 
-.sf-panel-title {
-    @apply text-sm font-semibold tracking-wide text-gray-700;
+/* ===== جسم اللوحة ===== */
+.sf-panel-body {
+    @apply relative p-5 bg-white;
 }
-
 /* ===== Panel Actions ===== */
 .sf-panel-actions {
     @apply flex items-center gap-2;

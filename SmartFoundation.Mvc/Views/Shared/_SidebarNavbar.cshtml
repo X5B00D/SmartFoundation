@@ -27,23 +27,37 @@
         </a>
         <form action="#" method="GET" class="block lg:ps-3.5">
           <label for="topbar-search" class="sr-only">بحث</label>
-          <div class="relative mt-1 lg:w-96">
-            <div class="absolute inset-y-0 right-0 flex items-center pointer-events-none pe-3"
-              style="margin-right: 36px;">
-              <svg class="w-5 h-5 text-gray-500 dark:text-gray-400" fill="currentColor" viewBox="0 0 20 20"
-                xmlns="http://www.w3.org/2000/svg">
-                <path fill-rule="evenodd"
-                  d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z"
-                  clip-rule="evenodd"></path>
-              </svg>
-            </div>
-            <input type="text" name="search" id="topbar-search"
-              class="bg-gray-50 border  text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full pe-10 p-2.5"
-              placeholder="بحث" style="border-color: rgb(229 231 235)">
-          </div>
+          
+                    <div class="relative mt-1 lg:w-96" dir="rtl">
+                        <div class="absolute inset-y-0 left-0 flex items-center ps-3 pointer-events-none">
+                            <svg class="w-10 h-5 text-gray-500" fill="currentColor" viewBox="0 0 20 20"
+                                 xmlns="http://www.w3.org/2000/svg">
+                                <path fill-rule="evenodd"
+                                      d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z"
+                                      clip-rule="evenodd"></path>
+                            </svg>
+                        </div>
+                        <input type="text" id="topbar-search"
+                               class="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 ps-10 text-sm text-gray-900 focus:border-primary-500 focus:ring-primary-500"
+                               placeholder="بحث">
+                    </div>
+
         </form>
       </div>
-      <div class="flex items-center">
+      @* <div class="flex items-center"> *@
+            <div class="flex items-center gap-3">
+                <!-- روابط سريعة -->
+                <nav class="flex items-center gap-2 me-4 flex-none" dir="rtl" aria-label="روابط سريعة">
+                    <a href="/" class="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm text-gray-700 rounded-md hover:bg-gray-100">
+                        <i class="fa-solid fa-house text-[14px]"></i>
+                        <span>الصفحة الرئيسية</span>
+                    </a>
+
+                    <a href="/Account/ChangePassword" class="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm text-gray-700 rounded-md hover:bg-gray-100">
+                        <i class="fa-solid fa-key text-[14px]"></i>
+                        <span>تغيير كلمة المرور</span>
+                    </a>
+                </nav>
         <button type="button" data-dropdown-toggle="notification-dropdown"
           class="p-2 text-gray-500 rounded-lg hover:text-gray-900 hover:bg-gray-100 dark:text-gray-400 dark:hover:text-white dark:hover:bg-gray-700">
           <span class="sr-only">عرض الإشعارات</span>
@@ -130,7 +144,7 @@
           </div>
         </div>
 
-        <button id="theme-toggle" type="button"
+        @* <button id="theme-toggle" type="button"
           class="p-2.5 text-gray-500 rounded-lg hover:text-gray-900 hover:bg-gray-100 focus:outline-none focus:ring-4 focus:ring-gray-200 dark:text-gray-400 dark:hover:bg-gray-700 dark:focus:ring-gray-700 dark:hover:text-white">
           <svg id="theme-toggle-dark-icon" class="hidden w-5 h-5" fill="currentColor" viewBox="0 0 20 20"
             xmlns="http://www.w3.org/2000/svg">
@@ -142,7 +156,7 @@
               d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z">
             </path>
           </svg>
-        </button>
+        </button> *@
 
         <div class="flex items-center ms-3">
           <div>
@@ -155,7 +169,7 @@
             </button>
           </div>
 
-          <div
+          @* <div
             class="z-50 hidden my-4 text-base list-none bg-white divide-y divide-gray-100 rounded shadow dark:bg-gray-700 dark:divide-gray-600"
             id="user-dropdown">
             <div class="px-4 py-3" role="none">
@@ -183,7 +197,45 @@
                   role="menuitem">تسجيل الخروج</a>
               </li>
             </ul>
-          </div>
+          </div> *@
+
+
+                    <!-- User dropdown START -->
+                    <div id="user-dropdown"
+                         class="z-50 hidden my-2 w-56 overflow-hidden rounded-lg bg-white ring-1 ring-gray-200 shadow-lg">
+                        <div class="px-4 py-3">
+                            <p class="text-sm font-medium text-gray-900">المستخدم</p>
+                            <p class="mt-0.5 text-xs text-gray-500 truncate">user@smartfoundation.com</p>
+                        </div>
+                        <ul class="py-1">
+                            <li>
+                                <a href="/Dashboard"
+                                   class="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">
+                                    <i class="fa-solid fa-gauge text-[13px] text-gray-500"></i>
+                                    لوحة التحكم
+                                </a>
+                            </li>
+                            <li>
+                                <a href="/Settings"
+                                   class="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">
+                                    <i class="fa-solid fa-gear text-[13px] text-gray-500"></i>
+                                    الإعدادات
+                                </a>
+                            </li>
+
+                            <li><hr class="my-1 border-gray-200"></li>
+
+                            <li>
+                                <a href="/Account/Logout"
+                                   class="flex items-center gap-2 px-4 py-2 text-sm text-red-600 hover:bg-gray-50">
+                                    <i class="fa-solid fa-right-from-bracket text-[13px]"></i>
+                                    تسجيل الخروج
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                    <!-- User dropdown END -->
+
         </div>
       </div>
     </div>
