@@ -66,25 +66,7 @@ namespace SmartFoundation.Mvc.Controllers
                         HelpText="أدخل بريد إلكتروني صحيح"
                     },
 
-                    new FieldConfig
-                    {
-                        
-                        Name="user",
-                        Label = "ابو اسامة",
-                        Type = "text",
-                        Required = true,
-                        Placeholder = "اسم المستخدم",
-
-                        //Icon = "",
-                        ColCss = "col-span-12 md:col-span-3",
-                        MaxLength = 100,
-                        TextMode = "email",
-                        Autocomplete = "email",
-                        Autocapitalize = "none",
-                        Autocorrect = "off",
-                        Spellcheck = true,
-                        HelpText="أدخل بريد إلكتروني صحيح"
-                    },
+                    
                     new FieldConfig
                     {
                         Name="Email",
