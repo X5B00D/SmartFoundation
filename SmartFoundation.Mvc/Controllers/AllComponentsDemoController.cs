@@ -35,7 +35,7 @@ namespace SmartFoundation.Mvc.Controllers
                     // ========= البيانات الشخصية =========
                     new FieldConfig
                     {
-                        
+
                         SectionTitle="البيانات",
                         Name="FullName",
                         Label="إدخال نص",
@@ -49,13 +49,33 @@ namespace SmartFoundation.Mvc.Controllers
                     },
                     new FieldConfig
                     {
-
+                        
                         Name="Email",
                         Label = "البريد الإلكتروني",
                         Type = "text",
                         Required = true,
                         Placeholder = "example@example.com",
                         Icon = "fa-solid fa-envelope",
+                        ColCss = "col-span-12 md:col-span-3",
+                        MaxLength = 100,
+                        TextMode = "email",
+                        Autocomplete = "email",
+                        Autocapitalize = "none",
+                        Autocorrect = "on",
+                        Spellcheck = true,
+                        HelpText="أدخل بريد إلكتروني صحيح"
+                    },
+
+                    new FieldConfig
+                    {
+                        
+                        Name="user",
+                        Label = "ابو اسامة",
+                        Type = "text",
+                        Required = true,
+                        Placeholder = "اسم المستخدم",
+
+                        //Icon = "",
                         ColCss = "col-span-12 md:col-span-3",
                         MaxLength = 100,
                         TextMode = "email",
@@ -408,8 +428,8 @@ new FieldConfig
                         Color="danger",
                         OnClickJs="window.print();"
                     },
-                    
-                    
+
+
                     new FormButtonConfig
                     {
                         Text="رجوع",
@@ -418,7 +438,7 @@ new FieldConfig
                         Color="info",
                         OnClickJs="history.back();"
                     },
-                    
+
                 }
             };
 
