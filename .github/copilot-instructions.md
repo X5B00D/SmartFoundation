@@ -79,12 +79,41 @@ User asks: "How should I migrate legacy controllers to Clean Architecture?"
 
 **Purpose:** User interface and request handling
 
+**Key Components:**
+
+- **Controllers**: Traditional MVC controllers for page rendering
+- **SmartComponentController**: Intelligent routing hub for all AJAX data operations
+- **Views**: Razor views with JavaScript components
+
+**SmartComponentController Responsibilities:**
+
+- Receive all AJAX requests from client-side JavaScript (POST /smart/execute)
+- Query ProcedureMapper to determine routing path
+- Route to Application Layer services when mappings exist
+- Fall back to DataEngine for unmigrated stored procedures
+- Use reflection for dynamic service method invocation
+- Comprehensive logging and error handling
+
+**Intelligent Routing Flow:**
+
+```plaintext
+Client Request → SmartComponentController.Execute(spName, operation, params)
+                    ↓
+         ProcedureMapper.GetServiceRoute(spName, operation)
+                    ↓
+              [ServiceRoute Found?]
+                ↙              ↘
+           Yes: Route to     No: Fallback to
+           Application       Legacy DataEngine
+           Layer Service     (Backward Compatible)
+```
+
 **Responsibilities:**
 
 - Render views and handle HTTP requests/responses
 - Validate user input at the edge
 - Extract session data and prepare parameters
-- Call Application Layer services (never DataEngine directly)
+- Route requests via SmartComponentController OR inject services directly
 - Pass data to views for rendering
 - Handle authentication and authorization
 
@@ -93,7 +122,7 @@ User asks: "How should I migrate legacy controllers to Clean Architecture?"
 - ❌ NO hard-coded stored procedure names
 - ❌ NO direct calls to `ISmartComponentService`
 - ❌ NO business logic in controllers
-- ✅ Inject Application Layer services only
+- ✅ Inject Application Layer services only (or use SmartComponentController for AJAX)
 - ✅ Keep controllers thin (orchestration only)
 - ✅ Validate user input before passing to services
 - ✅ Use `async/await` for all service calls
@@ -229,21 +258,63 @@ public async Task<string> GetEmployeeList(Dictionary<string, object> parameters)
 
 **ProcedureMapper Pattern:**
 
+The ProcedureMapper serves two purposes:
+
+1. **Routing Configuration** (for SmartComponentController) - Uses `GetServiceRoute`
+2. **SP Name Lookup** (for BaseService.ExecuteOperation) - Uses `GetProcedureName`
+
 ```csharp
 public static class ProcedureMapper
 {
+    // SERVICE REGISTRY: Maps stored procedures to service types for routing
+    private static readonly Dictionary<string, ServiceRoute> _serviceRegistry = new(StringComparer.OrdinalIgnoreCase)
+    {
+        // Format: "SP Name" => ServiceRoute(module, serviceType, methodName, spName)
+        { "dbo.sp_SmartFormDemo", new ServiceRoute("employee", typeof(Services.EmployeeService), null!, "dbo.sp_SmartFormDemo") },
+        { "dbo.ListOfMenuByUser_MVC", new ServiceRoute("menu", typeof(Services.MenuService), null!, "dbo.ListOfMenuByUser_MVC") }
+    };
+
+    // OPERATION METHOD MAP: Maps operation names to method names
+    private static readonly Dictionary<string, string> _operationMethodMap = new(StringComparer.OrdinalIgnoreCase)
+    {
+        { "select", "GetEmployeeList" },
+        { "insert", "CreateEmployee" },
+        { "update", "UpdateEmployee" },
+        { "delete", "DeleteEmployee" },
+        { "getById", "GetEmployeeById" }
+    };
+
+    // PROCEDURE NAME MAP: Maps module:operation to stored procedure names (for BaseService)
     private static readonly Dictionary<string, string> _mappings = new()
     {
-        // Format: "module:operation" => "stored_procedure_name"
         { "employee:list", "dbo.sp_GetEmployees" },
         { "employee:insert", "dbo.sp_InsertEmployee" },
-        { "employee:update", "dbo.sp_UpdateEmployee" },
-        { "menu:list", "dbo.ListOfMenuByUser_MVC" },
-        { "dashboard:summary", "dbo.sp_GetDashboardSummary" }
+        { "menu:list", "dbo.ListOfMenuByUser_MVC" }
     };
 
     /// <summary>
-    /// Gets the stored procedure name for a given module and operation.
+    /// Gets the service route for intelligent routing (used by SmartComponentController).
+    /// Returns null if no mapping exists (triggers DataEngine fallback).
+    /// </summary>
+    public static ServiceRoute? GetServiceRoute(string spName, string? operation)
+    {
+        if (!_serviceRegistry.TryGetValue(spName, out var route))
+            return null; // Fallback to DataEngine
+
+        // If explicit method name provided, use it. Otherwise, map from operation.
+        if (route.MethodName == null && operation != null)
+        {
+            if (_operationMethodMap.TryGetValue(operation, out var methodName))
+            {
+                return route with { MethodName = methodName };
+            }
+        }
+
+        return route;
+    }
+
+    /// <summary>
+    /// Gets the stored procedure name for a given module and operation (used by BaseService).
     /// </summary>
     public static string GetProcedureName(string module, string operation)
     {
@@ -256,6 +327,47 @@ public static class ProcedureMapper
             $"Available mappings: {string.Join(", ", _mappings.Keys)}");
     }
 }
+
+/// <summary>
+/// Service route configuration for intelligent routing.
+/// </summary>
+/// <param name="Module">Module name (e.g., "employee", "menu")</param>
+/// <param name="ServiceType">Service type to instantiate (e.g., typeof(EmployeeService))</param>
+/// <param name="MethodName">Optional explicit method name; if null, uses _operationMethodMap</param>
+/// <param name="StoredProcedure">Stored procedure name</param>
+public record ServiceRoute(
+    string Module,
+    Type ServiceType,
+    string? MethodName,
+    string StoredProcedure
+);
+```
+
+**Usage Pattern:**
+
+**In SmartComponentController (Routing):**
+
+```csharp
+var serviceRoute = ProcedureMapper.GetServiceRoute(spName, operation);
+if (serviceRoute != null)
+{
+    // Route to Application Layer service
+    var service = _serviceProvider.GetService(serviceRoute.ServiceType);
+    var method = serviceRoute.ServiceType.GetMethod(serviceRoute.MethodName);
+    // Invoke method via reflection...
+}
+else
+{
+    // Fallback to DataEngine
+    await _dataEngine.ExecuteAsync(request);
+}
+```
+
+**In BaseService.ExecuteOperation (Internal):**
+
+```csharp
+var spName = ProcedureMapper.GetProcedureName("employee", "list");
+// Returns: "dbo.sp_GetEmployees"
 ```
 
 **When to Create New Service:**
@@ -589,6 +701,25 @@ See [Usage Examples](docs/usage.md)
 See [Architecture Diagram](docs/architecture.md)
 ```
 
+### Architecture Documentation
+
+**Primary Documentation:**
+
+- **[Architecture Guide](../docs/architecture.md)** - **START HERE** - Complete system architecture with diagrams
+- **[Migration Guide](../docs/MIGRATION_GUIDE.md)** - Step-by-step guide for creating Application Layer services
+- **[Usage Examples](./docs/usage.md)** - Practical code examples and patterns
+
+**These documents provide:**
+
+- Clean Architecture flow diagrams
+- Intelligent routing system explanation (SmartComponentController)
+- Data flow visualizations
+- Complete DepartmentService example (copy-paste ready)
+- Troubleshooting guide
+- Best practices checklist
+
+**When creating new services, always reference the Migration Guide first.**
+
 ---
 
 ## Dependency Injection
@@ -699,6 +830,60 @@ public class EmployeeServiceTests
 - ✅ Edge cases
 - ✅ Parameter validation
 - ✅ ProcedureMapper lookups
+
+### Testing SmartComponentController
+
+Since SmartComponentController uses reflection and dynamic routing, test both paths:
+
+```csharp
+[Fact]
+public async Task Execute_WithValidServiceRoute_InvokesApplicationService()
+{
+    // Arrange - Test Application Layer path
+    var mockServiceProvider = new Mock<IServiceProvider>();
+    var realEmployeeService = new EmployeeService(_mockDataEngine.Object, _mockLogger.Object);
+    mockServiceProvider.Setup(sp => sp.GetService(typeof(EmployeeService)))
+        .Returns(realEmployeeService);
+
+    var controller = new SmartComponentController(
+        mockServiceProvider.Object,
+        _mockDataEngine.Object,
+        _mockLogger.Object
+    );
+
+    var parameters = new Dictionary<string, object?> { { "pageNumber", 1 } };
+
+    // Act
+    var result = await controller.Execute("dbo.sp_SmartFormDemo", "select", parameters);
+
+    // Assert - Verify service was invoked
+    Assert.IsType<JsonResult>(result);
+}
+
+[Fact]
+public async Task Execute_WithNullServiceRoute_InvokesLegacyDataEngine()
+{
+    // Arrange - Test DataEngine fallback path
+    var unmappedSP = "dbo.sp_UnmigratedProcedure";
+    var parameters = new Dictionary<string, object?>();
+
+    _mockDataEngine
+        .Setup(de => de.ExecuteAsync(It.IsAny<SmartRequest>(), default))
+        .ReturnsAsync(new SmartResponse { Success = true });
+
+    // Act
+    var result = await controller.Execute(unmappedSP, "select", parameters);
+
+    // Assert - Verify DataEngine fallback was used
+    _mockDataEngine.Verify(
+        de => de.ExecuteAsync(
+            It.Is<SmartRequest>(r => r.SpName == unmappedSP),
+            default
+        ),
+        Times.Once
+    );
+}
+```
 
 ---
 
@@ -1038,15 +1223,21 @@ public async Task<IActionResult> ActionName(/* parameters */)
 
 ## Migration Checklist (For Existing Controllers)
 
+**📚 See [MIGRATION_GUIDE.md](../docs/MIGRATION_GUIDE.md) for detailed step-by-step instructions with complete code examples.**
+
+**Quick Checklist:**
+
 When migrating a controller to use Application Layer:
 
+- [ ] **Read the Migration Guide** - Follow the detailed guide in docs/MIGRATION_GUIDE.md
 - [ ] Identify all stored procedure names in controller
-- [ ] Add mappings to `ProcedureMapper` for each SP
+- [ ] Add mappings to `ProcedureMapper._serviceRegistry` for routing
+- [ ] Add mappings to `ProcedureMapper._mappings` for BaseService
 - [ ] Create or update service in Application Layer
 - [ ] Implement service methods for each operation
 - [ ] Add XML documentation to service methods
 - [ ] Write unit tests for service methods
-- [ ] Update controller to inject service
+- [ ] Update controller to inject service (or use SmartComponentController)
 - [ ] Replace direct DataEngine calls with service calls
 - [ ] Remove hard-coded SP names from controller
 - [ ] Test functionality end-to-end
@@ -1783,7 +1974,9 @@ flowchart TD
 **Team Leader:** [Name]  
 **Technical Lead:** [Name]  
 **Documentation:** See `/docs` folder  
-**Architecture Diagram:** See `/docs/architecture.md`  
+**Architecture:** See [docs/architecture.md](../docs/architecture.md)  
+**Migration Guide:** See [docs/MIGRATION_GUIDE.md](../docs/MIGRATION_GUIDE.md)  
+**Usage Examples:** See [.github/docs/usage.md](./docs/usage.md)  
 **PRD:** See `/docs/prd.md`
 
 ---

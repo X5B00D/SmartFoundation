@@ -24,6 +24,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\SmartFoundation.Application\SmartFoundation.Application.csproj" />
+    <ProjectReference Include="..\SmartFoundation.Mvc\SmartFoundation.Mvc.csproj" />
   </ItemGroup>
 
 </Project>

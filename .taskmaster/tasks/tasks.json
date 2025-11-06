@@ -206,7 +206,7 @@
           2,
           3
         ],
-        "status": "pending",
+        "status": "done",
         "subtasks": [
           {
             "id": 1,
@@ -214,7 +214,7 @@
             "description": "Modify the constructor of `SmartComponentController` to accept `IServiceProvider` and `ILogger<SmartComponentController>` via dependency injection and store them in private fields for later use.",
             "dependencies": [],
             "details": "In `SmartFoundation.Mvc/Controllers/SmartComponentController.cs`, update the constructor to accept `IServiceProvider serviceProvider` and `ILogger<SmartComponentController> logger`. Initialize new private readonly fields for these services.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Compile the project to ensure the dependency injection container can construct the controller without errors. Unit tests for subsequent tasks will verify the usage of these injected services."
           },
           {
@@ -225,7 +225,7 @@
               1
             ],
             "details": "Within the `Execute` method, call `ProcedureMapper.GetServiceRoute(request.SpName, request.Operation)`. Store the result in a variable. Create an `if (route != null)` block for the new service logic and an `else` block for the legacy fallback.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "In a unit test, mock `ProcedureMapper.GetServiceRoute`. Verify that when a valid route is returned, the code enters the `if` block, and when null is returned, it enters the `else` block."
           },
           {
@@ -236,7 +236,7 @@
               2
             ],
             "details": "Inside the `if (route != null)` block, use `_serviceProvider.GetRequiredService(route.ServiceType)` to get the service. Then, use `route.ServiceType.GetMethod(route.MethodName)` and `method.Invoke()` to execute the service method, passing `request.Params`. Use `JsonSerializer.Deserialize` on the string result.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Unit test with a mocked `IServiceProvider` and a sample service. Verify that the correct service method is invoked with the expected parameters and that the JSON string returned by the mock is correctly deserialized."
           },
           {
@@ -247,7 +247,7 @@
               2
             ],
             "details": "In the `else` block of the `if (route != null)` check, place the existing call: `return await _dataEngine.ExecuteAsync(request, ct);`. This ensures that any request not mapped to a new service behaves exactly as it did before the refactor.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "In a unit test, mock `ProcedureMapper.GetServiceRoute` to return null. Verify that the mock `_dataEngine.ExecuteAsync` method is called exactly once with the original request object."
           },
           {
@@ -259,7 +259,7 @@
               4
             ],
             "details": "Add a `try-catch` block around the service resolution, reflection, and deserialization logic. Catch specific exceptions like `InvalidOperationException` for service resolution failures and `JsonException` for parsing errors. Use the injected `ILogger` to log which path is taken and any errors that occur.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Write unit tests that force exceptions during service resolution, method invocation, and JSON deserialization. Verify that the exceptions are caught, the logger is called with the correct error message, and a proper error `SmartResponse` is returned."
           }
         ]
@@ -274,7 +274,7 @@
         "dependencies": [
           2
         ],
-        "status": "pending",
+        "status": "done",
         "subtasks": [
           {
             "id": 1,
@@ -282,7 +282,7 @@
             "description": "Create the `ProcedureMapperTests.cs` file and set up the basic test class structure. Implement the first unit test to verify that `GetServiceRoute` returns the correct `ServiceRoute` object for a valid, registered stored procedure name and operation.",
             "dependencies": [],
             "details": "In the `SmartFoundation.Application.Tests` project, create the file `ProcedureMapperTests.cs`. Using xUnit, write the test `GetServiceRoute_ValidSpNameAndOperation_ReturnsCorrectRoute`. Assert that the returned `ServiceRoute` is not null and its properties match the expected values.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Run `dotnet test`. The test should pass, confirming the basic setup and the correct mapping for a valid input."
           },
           {
@@ -293,7 +293,7 @@
               1
             ],
             "details": "Add the test case `GetServiceRoute_UnregisteredSpName_ReturnsNull` to `ProcedureMapperTests.cs`. Call `GetServiceRoute` with a string that does not correspond to any registered stored procedure. Assert that the method returns `null`.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Run `dotnet test`. The new test should pass, verifying that the mapper correctly ignores unregistered procedures."
           },
           {
@@ -304,7 +304,7 @@
               1
             ],
             "details": "Add the test case `GetServiceRoute_CaseInsensitiveSpName_ReturnsCorrectRoute`. Call `GetServiceRoute` with a valid stored procedure name but with varied casing (e.g., 'uSP_GET_DATA', 'usp_get_data'). Assert that the correct `ServiceRoute` is returned.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Run `dotnet test`. The test should pass, ensuring the lookup logic correctly uses a case-insensitive comparison."
           },
           {
@@ -315,7 +315,7 @@
               1
             ],
             "details": "Add the test case `GetServiceRoute_NullSpName_ReturnsNull`. Call `GetServiceRoute` with `null` as the `spName` argument. Assert that the result is `null` to prevent potential null reference exceptions in the calling code.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Run `dotnet test`. The test should pass, confirming robust handling of null inputs."
           },
           {
@@ -326,7 +326,7 @@
               1
             ],
             "details": "Add the test case `GetServiceRoute_ValidSpNameButUnmappedOperation_ReturnsRouteWithNullMethodName`. Call `GetServiceRoute` with a valid `spName` but an `operation` that doesn't exist in its mapping. Assert that a `ServiceRoute` object is returned with the correct `ServiceType` but its `MethodName` property is `null`.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Run `dotnet test`. The test should pass, verifying the logic for handling partially matched routes where only the service is identified."
           }
         ]
@@ -341,7 +341,7 @@
         "dependencies": [
           3
         ],
-        "status": "pending",
+        "status": "done",
         "subtasks": [
           {
             "id": 1,
@@ -349,7 +349,7 @@
             "description": "Create the `EmployeeServiceTests.cs` file and set up the basic test class structure, including the mock for `ISmartComponentService` and the System Under Test (SUT), `EmployeeService`.",
             "dependencies": [],
             "details": "In the `SmartFoundation.Application.Tests` project, create the `EmployeeServiceTests.cs` file. Use Moq to create a `Mock<ISmartComponentService>`. In the test class constructor, instantiate `EmployeeService`, passing the mocked service object (`mock.Object`).",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "This is a setup task. Its success is verified by the compilation of the test file and the successful execution of the tests that depend on it."
           },
           {
@@ -360,7 +360,7 @@
               1
             ],
             "details": "Create a test method for `CreateEmployee`. Mock the `ExecuteAsync` method on the `ISmartComponentService` mock to return a predefined `SmartResponse`. Call `employeeService.CreateEmployee()`. Use `Moq.Verify()` to confirm `ExecuteAsync` was called with a `SmartRequest` containing `SpName` 'usp_Employee' and `Operation` 'Create'. Assert the returned JSON string matches the mocked response.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Execute the test using `dotnet test`. The test should pass if the `Verify()` call succeeds and the returned JSON string matches the expected value from the mocked `SmartResponse`."
           },
           {
@@ -371,7 +371,7 @@
               1
             ],
             "details": "Create a test method for retrieving an employee. Mock `ExecuteAsync` to return a `SmartResponse` with sample employee data. Call the 'Get' method on the service with a test ID. Verify `ExecuteAsync` was called with `SpName` 'usp_Employee' and `Operation` 'Get'. Assert the returned JSON string is correctly formatted based on the mock response.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Execute the test using `dotnet test`. The test should pass, confirming the correct parameters are sent to the data engine mock and the response is handled properly."
           },
           {
@@ -382,7 +382,7 @@
               1
             ],
             "details": "Create a test method for `UpdateEmployee`. Mock the `ExecuteAsync` method to return a successful `SmartResponse`. Call `employeeService.UpdateEmployee()` with test data. Verify `ExecuteAsync` was called with `SpName` 'usp_Employee' and `Operation` 'Update'. Assert the returned JSON string matches the expected output from the mocked response.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Execute the test using `dotnet test`. The test should pass, confirming the update logic correctly calls the underlying service with the correct parameters."
           },
           {
@@ -393,7 +393,7 @@
               1
             ],
             "details": "Create a test method for `DeleteEmployee`. Mock the `ExecuteAsync` method to return a successful `SmartResponse` indicating deletion. Call `employeeService.DeleteEmployee()` with a test ID. Verify `ExecuteAsync` was called with `SpName` 'usp_Employee' and `Operation` 'Delete'. Assert the returned JSON string is as expected.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Execute the test using `dotnet test`. The test should pass, confirming the delete logic correctly interacts with the data engine mock and verifies the call parameters."
           }
         ]
@@ -408,7 +408,7 @@
         "dependencies": [
           4
         ],
-        "status": "pending",
+        "status": "done",
         "subtasks": [
           {
             "id": 1,
@@ -416,7 +416,7 @@
             "description": "Create the `SmartComponentControllerTests.cs` file and set up the necessary using statements, the test class structure, and initialize the core mocks required for all subsequent tests.",
             "dependencies": [],
             "details": "In the MVC test project, create the `SmartComponentControllerTests.cs` file. Define the test class and create private fields for mocks of `IServiceProvider`, `ILogger<SmartComponentController>`, `ISmartComponentService`, and `IProcedureMapper`. Use a constructor to initialize these mocks using `new Mock<T>()`.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "This is a setup task. Verification is complete once the test project compiles successfully without any errors in the new test file."
           },
           {
@@ -427,7 +427,7 @@
               1
             ],
             "details": "Create a test method `Execute_WithValidServiceRoute_InvokesApplicationService`. Mock `IProcedureMapper.GetServiceRoute` to return a valid `ServiceRoute`. Mock `IServiceProvider` to return a mock `EmployeeService`. Mock the target method on `EmployeeService` to return a JSON string. Call the controller's `Execute` method. Verify the `EmployeeService` method was called and the result is an `OkObjectResult` containing a deserialized `SmartResponse`.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Use xUnit's `Assert` to check the result type (`OkObjectResult`) and the content of the `SmartResponse`. Use `Moq.Verify()` to confirm the correct service method was called exactly once."
           },
           {
@@ -438,7 +438,7 @@
               1
             ],
             "details": "Create a test method `Execute_WithNullServiceRoute_InvokesLegacyDataEngine`. Mock `IProcedureMapper.GetServiceRoute` to return null. Mock `ISmartComponentService.ExecuteAsync` to return a successful `SmartResponse`. Call the controller's `Execute` method. Verify that `ISmartComponentService.ExecuteAsync` was called and its response is returned directly as an `OkObjectResult`.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Use `Assert` to check that the returned `OkObjectResult` contains the exact `SmartResponse` object returned by the mocked `ISmartComponentService`. Use `Moq.Verify()` to confirm `ExecuteAsync` was called."
           },
           {
@@ -449,7 +449,7 @@
               1
             ],
             "details": "Create a test method `Execute_WhenServiceNotResolved_ReturnsErrorResponse`. Mock `IProcedureMapper.GetServiceRoute` to return a valid `ServiceRoute`. Configure the mock `IServiceProvider.GetService` to return null for the requested service type. Call the controller's `Execute` method. Assert that the result is a `StatusCodeResult` with a 500 status code.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Assert the HTTP status code of the result is 500. Verify that the `ILogger` was called with an error-level message indicating the service could not be resolved."
           },
           {
@@ -461,7 +461,7 @@
               2
             ],
             "details": "Create a test method `Execute_WhenServiceMethodThrowsException_ReturnsErrorResponse`. Mock `IProcedureMapper.GetServiceRoute` to return a valid route and `IServiceProvider` to return a mock `EmployeeService`. Configure the mock `EmployeeService` method to throw an exception when called. Call the controller's `Execute` method. Assert that the result is a `StatusCodeResult` with a 500 status code.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Assert the HTTP status code of the result is 500. Use `Moq.Verify()` to confirm that the `ILogger` was called with an error-level message containing the exception details."
           }
         ]
@@ -520,7 +520,7 @@
               3
             ],
             "details": "Edit `README.md` to include a high-level overview of the new request flow. Update `architecture.md` with diagrams and descriptions showing how requests are routed to services or fall back to the legacy DataEngine. Ensure all changes are clear and concise.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Peer review of the updated documentation by another team member to ensure clarity, accuracy, and completeness."
           },
           {
@@ -531,7 +531,7 @@
               4
             ],
             "details": "Create a new markdown file, `MIGRATION_GUIDE.md`. Document the process: 1. Create a new service class. 2. Implement methods for each operation. 3. Register the service in `ProcedureMapper`. 4. Add the service to the DI container in `ServiceCollectionExtensions.cs`.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Have a developer who was not involved in the initial implementation follow the guide to create a new, simple service. If they can do so successfully without assistance, the guide is considered complete."
           }
         ]
@@ -539,7 +539,7 @@
     ],
     "metadata": {
       "created": "2025-11-06T08:20:43.086Z",
-      "updated": "2025-11-06T09:05:24.439Z",
+      "updated": "2025-11-06T11:13:15.413Z",
       "description": "Tasks for master context"
     }
   }
