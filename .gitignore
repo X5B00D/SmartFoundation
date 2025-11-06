@@ -382,12 +382,12 @@ MigrationBackup/
 FodyWeavers.xsd
 
 # VS Code files for those working on multiple tools
-.vscode/*
-!.vscode/settings.json
-!.vscode/tasks.json
-!.vscode/launch.json
-!.vscode/extensions.json
-*.code-workspace
+# .vscode/*
+# !.vscode/settings.json
+# !.vscode/tasks.json
+# !.vscode/launch.json
+# !.vscode/extensions.json
+# *.code-workspace
 
 # Local History for Visual Studio Code
 .history/
@@ -411,6 +411,6 @@ docs/PRD.md
 
 # Task Master AI - Personal Tasks and Reports
 # Each team member should create their own tasks from their PRD
-.taskmaster/tasks/
-.taskmaster/reports/
-.taskmaster/.initialized
+# .taskmaster/tasks/
+# .taskmaster/reports/
+# .taskmaster/.initialized
