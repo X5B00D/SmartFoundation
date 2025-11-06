@@ -1,5 +1,5 @@
-using SmartFoundation.DataEngine.Core.Interfaces;
 using Microsoft.Extensions.Logging;
+using SmartFoundation.DataEngine.Core.Interfaces;
 
 namespace SmartFoundation.Application.Services;
 
@@ -50,6 +50,31 @@ public class EmployeeService : BaseService
   {
     // Use base class method - no hard-coded SP names!
     return await ExecuteOperation("employee", "list", parameters);
+  }
+
+  /// <summary>
+  /// Retrieves a single employee record by their unique identifier.
+  /// </summary>
+  /// <param name="parameters">
+  /// Dictionary containing:
+  /// - employeeId (int, required): Unique identifier of the employee to retrieve
+  /// </param>
+  /// <returns>
+  /// JSON string containing:
+  /// - success (bool): Whether the operation succeeded
+  /// - data (object): Employee object with all details, or null if not found
+  /// - message (string): Success or error message
+  /// </returns>
+  /// <example>
+  /// var parameters = new Dictionary&lt;string, object?&gt;
+  /// {
+  ///     { "employeeId", 42 }
+  /// };
+  /// var result = await employeeService.GetEmployeeById(parameters);
+  /// </example>
+  public async Task<string> GetEmployeeById(Dictionary<string, object?> parameters)
+  {
+    return await ExecuteOperation("employee", "getById", parameters);
   }
 
   /// <summary>

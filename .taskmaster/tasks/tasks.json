@@ -9,7 +9,7 @@
         "testStrategy": "Verification will be done by running the application and ensuring it starts without DI-related errors. A simple unit test can be written to resolve `EmployeeService` from a test service provider to confirm its registration.",
         "priority": "high",
         "dependencies": [],
-        "status": "pending",
+        "status": "done",
         "subtasks": [
           {
             "id": 1,
@@ -17,7 +17,7 @@
             "description": "Create the new file `ServiceCollectionExtensions.cs` in the `SmartFoundation.Application/Extensions` directory to house the DI extension methods.",
             "dependencies": [],
             "details": "In the `SmartFoundation.Application` project, create a new folder named `Extensions`. Inside this folder, create a new C# class file named `ServiceCollectionExtensions.cs`. This file will contain the static class for DI extensions.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Verify that the file `SmartFoundation.Application/Extensions/ServiceCollectionExtensions.cs` is created and the project compiles."
           },
           {
@@ -28,7 +28,7 @@
               1
             ],
             "details": "In `ServiceCollectionExtensions.cs`, create the public static class and the method `public static IServiceCollection AddApplicationServices(this IServiceCollection services)`. The method should initially just return the `services` collection.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Compile the `SmartFoundation.Application` project to ensure the new class and method are syntactically correct."
           },
           {
@@ -39,7 +39,7 @@
               2
             ],
             "details": "Within the `AddApplicationServices` method, add the line `services.AddScoped<EmployeeService>();` to register the service with the dependency injection container for a scoped lifetime.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "A unit test can be created to build a `ServiceCollection`, call this extension method, and then verify that `EmployeeService` can be resolved from the resulting `ServiceProvider`."
           },
           {
@@ -50,7 +50,7 @@
               3
             ],
             "details": "In the `SmartFoundation.Mvc/Program.cs` file, add the line `builder.Services.AddApplicationServices();` to the service configuration section. Ensure the appropriate `using` statement for the `SmartFoundation.Application.Extensions` namespace is added.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Compile the `SmartFoundation.Mvc` project. The build should succeed, indicating that the extension method is correctly referenced."
           },
           {
@@ -61,7 +61,7 @@
               4
             ],
             "details": "Launch the `SmartFoundation.Mvc` application. The application should start without throwing any `InvalidOperationException` or other DI-related errors, confirming that the `EmployeeService` and its dependencies are correctly registered.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Run the application and observe the console output for any exceptions. A successful startup without errors confirms the DI setup is valid."
           }
         ]
@@ -74,7 +74,7 @@
         "testStrategy": "Create a new unit test file `ProcedureMapperTests.cs`. Write tests to cover: returning a valid `ServiceRoute` for a mapped SP/operation, returning null for an unmapped SP, case-insensitive lookups, and graceful handling of null or empty input parameters.",
         "priority": "high",
         "dependencies": [],
-        "status": "pending",
+        "status": "done",
         "subtasks": [
           {
             "id": 1,
@@ -82,7 +82,7 @@
             "description": "Create the `ServiceRoute` record type within the `ProcedureMapper.cs` file. This record will serve as the data structure for holding resolved service routing information.",
             "dependencies": [],
             "details": "In the file `SmartFoundation.Application/Mapping/ProcedureMapper.cs`, add the following public record definition: `public record ServiceRoute(string ServiceName, Type ServiceType, string MethodName, string SpName);`.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Code compilation will verify the record is defined correctly. No specific unit test is required for a data record."
           },
           {
@@ -93,7 +93,7 @@
               1
             ],
             "details": "In `ProcedureMapper.cs`, declare the static dictionaries `_serviceRegistry` and `_operationMethodMap`, ensuring they are initialized with `StringComparer.OrdinalIgnoreCase`. Add the provided example mappings for 'dbo.sp_SmartFormDemo' and the standard CRUD operations.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Verification will be done through the unit tests for the `GetServiceRoute` method which will rely on these dictionaries being populated correctly."
           },
           {
@@ -104,7 +104,7 @@
               2
             ],
             "details": "Implement the logic for `GetServiceRoute`. The method should first attempt to find a route in `_serviceRegistry` using the `spName`. If a route is found, it should then look up the corresponding method name in `_operationMethodMap` using the `operation`. Finally, it should return a new `ServiceRoute` instance with the resolved method name. If the `spName` is not found, the method must return null.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "This will be tested via dedicated unit tests covering successful lookups, fallback scenarios, and case-insensitivity."
           },
           {
@@ -115,7 +115,7 @@
               3
             ],
             "details": "In the test project for the Application layer, create a new C# class file named `ProcedureMapperTests.cs`. Add the necessary using statements for xUnit and the project being tested. Define the public test class `ProcedureMapperTests`.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "The successful creation and compilation of this file will confirm this task is complete. The file should contain at least one empty, passing test to start."
           },
           {
@@ -126,7 +126,7 @@
               4
             ],
             "details": "In `ProcedureMapperTests.cs`, add specific xUnit tests to validate the following scenarios: 1) A valid `ServiceRoute` is returned for a mapped SP and operation. 2) Null is returned for an unmapped SP. 3) Lookups are case-insensitive for both `spName` and `operation`. 4) The method handles null or empty string inputs gracefully without throwing exceptions.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Run `dotnet test` and confirm that all tests for `ProcedureMapperTests` pass successfully, covering all specified scenarios."
           }
         ]
@@ -141,7 +141,7 @@
         "dependencies": [
           1
         ],
-        "status": "pending",
+        "status": "done",
         "subtasks": [
           {
             "id": 1,
@@ -149,7 +149,7 @@
             "description": "Add the `CreateEmployee` method to `EmployeeService.cs`. This method will handle the creation of new employee records by delegating to the `BaseService.ExecuteOperation`.",
             "dependencies": [],
             "details": "In `SmartFoundation.Application/Services/EmployeeService.cs`, define a public async method `CreateEmployee(Dictionary<string, object?> parameters)` that returns a `Task<string>`. The implementation should be a single line: `return await ExecuteOperation(\"employee\", \"insert\", parameters);`. Add complete XML documentation explaining the method, its parameters, and the JSON string it returns.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Unit tests will be created in a subsequent task to verify this method calls `ExecuteOperation` with the correct module ('employee') and operation ('insert')."
           },
           {
@@ -158,7 +158,7 @@
             "description": "Add the `GetEmployeeById` method to `EmployeeService.cs` to retrieve a single employee record by their ID, following the `BaseService` pattern.",
             "dependencies": [],
             "details": "In `SmartFoundation.Application/Services/EmployeeService.cs`, define a public async method `GetEmployeeById(Dictionary<string, object?> parameters)` that returns a `Task<string>`. The implementation should be a single line: `return await ExecuteOperation(\"employee\", \"getById\", parameters);`. Add complete XML documentation explaining the method, its parameters, and the JSON string it returns.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Unit tests will be created in a subsequent task to verify this method calls `ExecuteOperation` with the correct module ('employee') and operation ('getById')."
           },
           {
@@ -167,7 +167,7 @@
             "description": "Add the `UpdateEmployee` method to `EmployeeService.cs` to handle updates to existing employee records by delegating to the `BaseService`.",
             "dependencies": [],
             "details": "In `SmartFoundation.Application/Services/EmployeeService.cs`, define a public async method `UpdateEmployee(Dictionary<string, object?> parameters)` that returns a `Task<string>`. The implementation should be a single line: `return await ExecuteOperation(\"employee\", \"update\", parameters);`. Add complete XML documentation explaining the method, its parameters, and the JSON string it returns.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Unit tests will be created in a subsequent task to verify this method calls `ExecuteOperation` with the correct module ('employee') and operation ('update')."
           },
           {
@@ -176,7 +176,7 @@
             "description": "Add the `DeleteEmployee` method to `EmployeeService.cs` to handle the deletion of employee records, completing the CRUD functionality.",
             "dependencies": [],
             "details": "In `SmartFoundation.Application/Services/EmployeeService.cs`, define a public async method `DeleteEmployee(Dictionary<string, object?> parameters)` that returns a `Task<string>`. The implementation should be a single line: `return await ExecuteOperation(\"employee\", \"delete\", parameters);`. Add complete XML documentation explaining the method, its parameters, and the JSON string it returns.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Unit tests will be created in a subsequent task to verify this method calls `ExecuteOperation` with the correct module ('employee') and operation ('delete')."
           },
           {
@@ -190,7 +190,7 @@
               4
             ],
             "details": "In the test project, create `EmployeeServiceTests.cs`. Using a mocking framework, mock the `ISmartComponentService` dependency. For each of the four methods, write tests to verify that `ExecuteOperation` is called with the correct 'module' and 'operation' strings. Test both success and failure scenarios by mocking the return value from the data engine.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Run the tests using `dotnet test`. All tests must pass, and code coverage for `EmployeeService.cs` should be verified to be above an acceptable threshold."
           }
         ]
@@ -539,7 +539,7 @@
     ],
     "metadata": {
       "created": "2025-11-06T08:20:43.086Z",
-      "updated": "2025-11-06T08:20:43.087Z",
+      "updated": "2025-11-06T09:05:24.439Z",
       "description": "Tasks for master context"
     }
   }
