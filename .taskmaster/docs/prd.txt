@@ -1,0 +1,1377 @@
+# Product Requirements Document (PRD)
+# Smart Component Controller Refactoring for Clean Architecture
+# =============================================================================
+# Project: SmartFoundation - Application Layer Integration
+# Version: 1.0
+# Date: November 6, 2025
+# Author: SmartFoundation Development Team
+# =============================================================================
+
+## Executive Summary
+
+This PRD outlines the architectural refactoring of SmartComponentController to fully implement Clean Architecture principles by establishing the Application Layer as the mandatory intermediary between the Presentation Layer (MVC) and the Data Access Layer (DataEngine). This refactoring eliminates direct coupling between controllers and the DataEngine while maintaining 100% backward compatibility during the transition period.
+
+**Key Objective:** Transform SmartComponentController from a direct DataEngine proxy into an intelligent routing controller that leverages the Application Layer for all business operations, only falling back to direct DataEngine calls for legacy components not yet migrated.
+
+**Scope**: This PRD focuses on establishing the architectural foundation and creating the first reference implementation (EmployeeService). It does NOT involve migrating existing traditional MVC controllers or creating new UI components.
+
+---
+
+## Business Goals
+
+1. **Clean Architecture Compliance**: Enforce the dependency rule where MVC Layer → Application Layer → DataEngine Layer → Database, eliminating any direct MVC-to-DataEngine coupling.
+
+2. **Maintainability**: Centralize business logic in the Application Layer, making it easier to update, test, and extend functionality without modifying multiple controllers.
+
+3. **Testability**: Enable comprehensive unit testing of business logic independently from the presentation layer and data access layer.
+
+4. **Scalability**: Create a flexible routing mechanism that allows easy addition of new services and operations without modifying core controller logic.
+
+5. **Zero Breaking Changes**: Ensure that existing front-end code (JavaScript, Razor views) requires no modifications during this refactoring. The SmartComponentController acts as a transparent router.
+
+---
+
+## Scope Definition
+
+### What IS Included
+
+1. **SmartComponentController Refactoring**
+   - Transform into intelligent router with Application Layer integration
+   - Implement service resolution via ProcedureMapper
+   - Maintain backward compatibility via fallback mechanism
+
+2. **ProcedureMapper Enhancement**
+   - Add service routing capability
+   - Create SP-to-Service mappings
+   - Create Operation-to-Method mappings
+
+3. **EmployeeService Completion**
+   - Implement full CRUD operations
+   - Serve as reference implementation for future services
+   - Comprehensive documentation and testing
+
+4. **Infrastructure Setup**
+   - Dependency injection configuration
+   - Extension methods for service registration
+   - Logging and error handling patterns
+
+5. **Testing Suite**
+   - Unit tests for ProcedureMapper
+   - Unit tests for EmployeeService
+   - Unit tests for SmartComponentController routing
+   - Integration tests with sf-table.js
+
+6. **Documentation**
+   - API documentation
+   - Architecture documentation
+   - Migration guides and templates
+
+### What IS NOT Included
+
+1. **Traditional MVC Controllers**
+   - No refactoring of existing MVC controllers (if any exist)
+   - No creation of new traditional controller views
+   - Focus is solely on API-based SmartComponentController
+
+2. **UI Components**
+   - No changes to Razor views
+   - No changes to sf-table.js or other front-end components
+   - No new UI features or modifications
+
+3. **Database Changes**
+   - No stored procedure modifications
+   - No schema changes
+   - Use existing stored procedures as-is
+
+4. **Other Modules**
+   - No migration of Menu, Dashboard, or other modules (if they exist)
+   - Only EmployeeService is fully implemented as reference
+   - Other services will be migrated in future phases
+
+5. **Performance Optimization**
+   - No database query optimization
+   - No caching implementation
+   - No load balancing or scaling changes
+
+6. **Authentication/Authorization**
+   - No changes to security model
+   - Use existing authentication as-is
+
+**Note**: Any existing controllers in the project (e.g., test controllers, demo controllers) are NOT part of this refactoring. They serve as examples but will not be modified or referenced in the implementation.
+
+---
+
+## Current State Analysis
+
+### Current Architecture Issues
+
+1. **Direct Coupling**: `SmartComponentController` currently calls `ISmartComponentService` (DataEngine) directly, bypassing the Application Layer entirely.
+
+2. **Business Logic Location**: No business logic layer exists between the API and database operations - the controller directly passes raw requests to stored procedures.
+
+3. **Hard-Coded Dependencies**: The controller has a hard dependency on DataEngine, making it impossible to insert business logic or validation between the API and data layers.
+
+4. **Testing Limitations**: Cannot unit test business logic separately from data access and HTTP concerns.
+
+5. **Scalability Issues**: Adding new operations requires modifying the DataEngine directly, with no centralized business logic layer.
+
+### Current Request Flow (❌ Non-Compliant)
+
+```
+Browser (sf-table.js) 
+  → POST /smart/execute (SmartComponentController)
+    → ISmartComponentService.ExecuteAsync() (DataEngine) 
+      → SQL Server (Stored Procedure)
+```
+
+**Problem**: Skips Application Layer completely, violating Clean Architecture.
+
+### Target Request Flow (✅ Clean Architecture Compliant)
+
+```
+Browser (sf-table.js)
+  → POST /smart/execute (SmartComponentController) [Presentation Layer]
+    → ProcedureMapper.GetServiceRoute() [Routing Logic]
+      → {ModuleService}.{MethodName}() [Application Layer]
+        → ISmartComponentService.ExecuteAsync() [DataEngine Layer]
+          → SQL Server (Stored Procedure) [Database]
+```
+
+**Example**: When a request comes in with `spName: "dbo.sp_SmartFormDemo"` and `operation: "select"`:
+- ProcedureMapper resolves it to a service (e.g., `EmployeeService.GetEmployeeList()`)
+- Service executes the business logic and calls DataEngine
+- Result flows back through the layers
+
+**Fallback Path** (for unmigrated legacy components):
+
+```
+Browser (sf-table.js)
+  → POST /smart/execute (SmartComponentController) [Presentation Layer]
+    → ProcedureMapper.GetServiceRoute() returns null
+      → ISmartComponentService.ExecuteAsync() [Direct DataEngine fallback]
+        → SQL Server (Stored Procedure) [Database]
+```
+
+**Example**: When a request comes in for an unmapped stored procedure:
+- ProcedureMapper returns null (no route found)
+- Controller falls back to direct DataEngine execution
+- Maintains backward compatibility with legacy code
+
+---
+
+## Architecture Principles
+
+### Clean Architecture Layer Rules
+
+1. **Presentation Layer (SmartFoundation.Mvc)**
+   - ✅ CAN: Accept user input, validate requests, render responses
+   - ✅ CAN: Depend on Application Layer services
+   - ❌ CANNOT: Directly call DataEngine services
+   - ❌ CANNOT: Contain business logic
+   - ❌ CANNOT: Know about database or stored procedures
+
+2. **Application Layer (SmartFoundation.Application)**
+   - ✅ CAN: Contain business logic and orchestration
+   - ✅ CAN: Depend on DataEngine interfaces
+   - ✅ CAN: Call multiple stored procedures and combine results
+   - ❌ CANNOT: Know about HTTP, controllers, or views
+   - ❌ CANNOT: Directly construct SQL queries (must use DataEngine)
+
+3. **Data Access Layer (SmartFoundation.DataEngine)**
+   - ✅ CAN: Execute stored procedures
+   - ✅ CAN: Manage database connections
+   - ✅ CAN: Return raw data structures
+   - ❌ CANNOT: Contain business logic
+   - ❌ CANNOT: Know about Application Layer or Presentation Layer
+
+### Dependency Flow
+
+```
+┌─────────────────────────────────────────────┐
+│   Presentation Layer (MVC Controllers)      │
+│   - SmartComponentController (API)          │
+│   - Future: Traditional MVC Controllers     │
+└──────────────┬──────────────────────────────┘
+               │ depends on ↓
+┌──────────────▼──────────────────────────────┐
+│   Application Layer (Services)              │
+│   - ModuleServices (e.g., EmployeeService)  │
+│   - BaseService (abstract)                  │
+│   - ProcedureMapper (Routing)               │
+└──────────────┬──────────────────────────────┘
+               │ depends on ↓
+┌──────────────▼──────────────────────────────┐
+│   DataEngine Layer (Data Access)            │
+│   - ISmartComponentService                  │
+│   - SmartRequest / SmartResponse            │
+└──────────────┬──────────────────────────────┘
+               │ depends on ↓
+┌──────────────▼──────────────────────────────┐
+│   Database Layer (SQL Server)               │
+│   - Stored Procedures                       │
+│   - Tables / Views                          │
+└─────────────────────────────────────────────┘
+```
+
+---
+
+## Core Features & Requirements
+
+### Feature 1: Enhanced ProcedureMapper with Service Routing
+
+**Description**: Transform ProcedureMapper from a simple SP name lookup utility into a comprehensive routing system that maps stored procedures to Application Layer services and operations.
+
+**Current Functionality**:
+- Maps module:operation keys to stored procedure names
+- Example: `"employee:list"` → `"dbo.sp_SmartFormDemo"`
+
+**New Functionality**:
+- Map stored procedure names to service handlers
+- Map front-end operation names to standardized service method names
+- Provide routing information for SmartComponentController
+
+**User Stories**:
+- As a developer, I want ProcedureMapper to tell me which service handles a specific stored procedure, so I can route requests correctly.
+- As a developer, I want to map front-end operation names to service method names, so I can standardize API contracts.
+- As a developer, I want ProcedureMapper to return null for unmapped operations, so I can implement graceful fallback logic.
+
+**Acceptance Criteria**:
+- [ ] Create `ServiceRoute` record/class containing: ServiceName, ServiceType, MethodName, SpName
+- [ ] Create `_serviceRegistry` dictionary mapping SP names (case-insensitive) to ServiceRoute objects
+- [ ] Create `_operationMethodMap` dictionary mapping front-end operations to standardized method names
+- [ ] Implement `GetServiceRoute(string spName, string operation)` method
+- [ ] Return null if no route found (enables fallback to direct DataEngine)
+- [ ] Method must be case-insensitive for SP name lookups
+- [ ] Method must handle null/empty parameters gracefully
+- [ ] Add XML documentation for all new public members
+- [ ] Add unit tests covering: valid routes, invalid routes, null handling, case-insensitivity
+
+**Technical Requirements**:
+- **File**: `SmartFoundation.Application/Mapping/ProcedureMapper.cs`
+- **New Types**: 
+  ```csharp
+  public record ServiceRoute(
+      string ServiceName,      // e.g., "employee"
+      Type ServiceType,        // e.g., typeof(EmployeeService)
+      string MethodName,       // e.g., "GetEmployeeList"
+      string SpName            // e.g., "dbo.sp_SmartFormDemo"
+  );
+  ```
+- **New Fields**:
+  ```csharp
+  private static readonly Dictionary<string, ServiceRoute> _serviceRegistry = new(StringComparer.OrdinalIgnoreCase);
+  private static readonly Dictionary<string, string> _operationMethodMap = new(StringComparer.OrdinalIgnoreCase);
+  ```
+- **Example Mappings**:
+  ```csharp
+  // Service Registry (SP Name → Service Route)
+  { "dbo.sp_SmartFormDemo", new ServiceRoute("employee", typeof(EmployeeService), null, "dbo.sp_SmartFormDemo") }
+  { "dbo.ListOfMenuByUser_MVC", new ServiceRoute("menu", typeof(MenuService), null, "dbo.ListOfMenuByUser_MVC") }
+  
+  // Operation Method Map (Front-end operation → Service method)
+  { "select", "GetList" }
+  { "select_employees", "GetEmployeeList" }
+  { "insert", "Create" }
+  { "insert_employee", "CreateEmployee" }
+  { "update", "Update" }
+  { "update_employee", "UpdateEmployee" }
+  { "delete", "Delete" }
+  { "delete_employee", "DeleteEmployee" }
+  ```
+- **Method Signature**:
+  ```csharp
+  public static ServiceRoute? GetServiceRoute(string spName, string operation)
+  ```
+
+**Implementation Notes for AI**:
+1. Keep existing `_mappings` dictionary unchanged - it's still used by services
+2. Add new dictionaries alongside existing ones
+3. The `GetServiceRoute` method should:
+   - First look up the SP name in `_serviceRegistry`
+   - If found, look up the operation in `_operationMethodMap`
+   - Combine both to create a complete ServiceRoute
+   - Return null if SP not registered (enables fallback)
+4. Use `StringComparer.OrdinalIgnoreCase` for all dictionary comparisons
+5. Handle edge cases: null parameters, empty strings, whitespace
+6. The method should be flexible to allow multiple operations per SP (e.g., "select_employees", "select_products" both map to different services)
+
+---
+
+### Feature 2: Complete CRUD Methods in EmployeeService
+
+**Description**: Add full Create, Read (GetById), Update, Delete operations to EmployeeService using the established BaseService pattern. This serves as a **reference implementation** for all future services.
+
+**Current State**: 
+- EmployeeService exists with only `GetEmployeeList()` method
+- This will be the **first complete service** demonstrating the pattern
+- Acts as template for migrating other modules
+
+**User Stories**:
+- As a developer, I want a complete reference service implementation, so I can follow the same pattern for other modules.
+- As a developer, I want to create, update, and delete employee records through EmployeeService, so business logic is centralized.
+- As a developer, I want to retrieve individual employee records by ID, so I can build detail views.
+
+**Acceptance Criteria**:
+- [ ] Implement `CreateEmployee(Dictionary<string, object?> parameters)` method
+- [ ] Implement `UpdateEmployee(Dictionary<string, object?> parameters)` method
+- [ ] Implement `DeleteEmployee(Dictionary<string, object?> parameters)` method
+- [ ] Implement `GetEmployeeById(Dictionary<string, object?> parameters)` method
+- [ ] All methods must use `BaseService.ExecuteOperation()` pattern
+- [ ] All methods must return JSON string format: `{ success: bool, data: object, message: string }`
+- [ ] All methods must have comprehensive XML documentation
+- [ ] Document required vs optional parameters in XML comments
+- [ ] Add usage examples in XML documentation
+- [ ] Add unit tests for each new method (happy path + error cases)
+- [ ] This service serves as the reference implementation for future services
+
+**Technical Requirements**:
+- **File**: `SmartFoundation.Application/Services/EmployeeService.cs`
+- **Pattern**: Each method calls `ExecuteOperation(module, operation, parameters)`
+- **Module Name**: `"employee"`
+- **Operation Names**: `"insert"`, `"update"`, `"delete"`, `"getById"`
+- **ProcedureMapper Mappings Required**:
+  ```csharp
+  // These already exist in ProcedureMapper._mappings
+  { "employee:insert", "dbo.sp_SmartFormDemo" },
+  { "employee:update", "dbo.sp_SmartFormDemo" },
+  { "employee:delete", "dbo.sp_SmartFormDemo" },
+  { "employee:getById", "dbo.sp_SmartFormDemo" }
+  ```
+
+**Method Specifications**:
+
+1. **CreateEmployee**
+   - Parameters: firstName, lastName, email, phone, departmentId, salary, hireDate (customize based on actual DB schema)
+   - Returns: Created employee object with new ID
+   - Example in XML docs required
+
+2. **UpdateEmployee**
+   - Parameters: employeeId (required), other fields (optional)
+   - Returns: Updated employee object
+   - Example in XML docs required
+
+3. **DeleteEmployee**
+   - Parameters: employeeId (required)
+   - Returns: Success confirmation
+   - Example in XML docs required
+
+4. **GetEmployeeById**
+   - Parameters: employeeId (required)
+   - Returns: Single employee object
+   - Example in XML docs required
+
+**Implementation Notes for AI**:
+1. Follow the exact same pattern as existing `GetEmployeeList()` - don't deviate
+2. Use one-line method implementation: `return await ExecuteOperation(...);`
+3. XML documentation must be complete - see existing `GetEmployeeList()` for template
+4. Add `<param>` tags for parameters dictionary contents
+5. Add `<returns>` tag describing JSON structure
+6. Add `<example>` tag with actual code sample
+7. Don't add any business logic - just routing to BaseService.ExecuteOperation
+8. **This service is a reference implementation** - it should be exemplary in documentation and code quality
+
+---
+
+### Feature 3: Smart Routing in SmartComponentController
+
+**Description**: Transform SmartComponentController from a simple DataEngine proxy into an intelligent router that consults ProcedureMapper to determine whether to use Application Layer services or fall back to direct DataEngine calls.
+
+**Current Implementation**:
+```csharp
+[HttpPost("execute")]
+public async Task<ActionResult<SmartResponse>> Execute([FromBody] SmartRequest request, CancellationToken ct)
+{
+    var result = await _service.ExecuteAsync(request, ct);
+    return Ok(result);
+}
+```
+
+**Target Implementation**: Multi-stage routing with fallback
+
+**User Stories**:
+- As a developer, I want SmartComponentController to automatically route requests to the correct Application Layer service, so I don't need to update multiple controllers.
+- As a developer, I want unmigrated stored procedures to still work via direct DataEngine calls, so the migration can be gradual.
+- As a user, I want my existing front-end code to work without changes, so there's no disruption to my workflow.
+
+**Acceptance Criteria**:
+- [ ] Inject `IServiceProvider` to dynamically resolve services
+- [ ] Keep `ISmartComponentService` injection for fallback path
+- [ ] In Execute method, call `ProcedureMapper.GetServiceRoute()` first
+- [ ] If route found: Resolve service from IServiceProvider, call method via reflection, convert JSON result to SmartResponse
+- [ ] If route not found: Fall back to direct `_dataEngine.ExecuteAsync()` call
+- [ ] Log routing decisions (which path taken) for debugging
+- [ ] Handle reflection errors gracefully with detailed error messages
+- [ ] Maintain exact same API contract (input SmartRequest, output SmartResponse)
+- [ ] Add comprehensive error handling for service resolution failures
+- [ ] Add comprehensive error handling for method invocation failures
+- [ ] Add unit tests for: valid routes, invalid routes, fallback path, error cases
+
+**Technical Requirements**:
+- **File**: `SmartFoundation.Mvc/Controllers/SmartComponentController.cs`
+- **New Dependency**: `IServiceProvider` (injected via constructor)
+- **Keep Existing**: `ISmartComponentService` (for fallback)
+- **Logging**: Use `ILogger<SmartComponentController>`
+
+**Detailed Algorithm**:
+
+```csharp
+[HttpPost("execute")]
+public async Task<ActionResult<SmartResponse>> Execute([FromBody] SmartRequest request, CancellationToken ct)
+{
+    // STEP 1: Log incoming request
+    _logger.LogInformation("SmartComponentController.Execute called: SpName={SpName}, Operation={Operation}", 
+        request.SpName, request.Operation);
+
+    // STEP 2: Check if Application Layer service exists for this SP
+    var route = ProcedureMapper.GetServiceRoute(request.SpName, request.Operation);
+    
+    if (route != null)
+    {
+        // STEP 3A: APPLICATION LAYER PATH (New Clean Architecture Path)
+        _logger.LogInformation("Routing to Application Layer: {ServiceName}.{MethodName}", 
+            route.ServiceName, route.MethodName);
+        
+        try
+        {
+            // Resolve service from DI container
+            var service = _serviceProvider.GetRequiredService(route.ServiceType);
+            
+            // Get the method to invoke
+            var method = route.ServiceType.GetMethod(route.MethodName);
+            if (method == null)
+                throw new InvalidOperationException($"Method {route.MethodName} not found on {route.ServiceType.Name}");
+            
+            // Invoke method - all service methods accept Dictionary<string, object?> and return Task<string>
+            var task = method.Invoke(service, new object[] { request.Params }) as Task<string>;
+            if (task == null)
+                throw new InvalidOperationException($"Method {route.MethodName} did not return Task<string>");
+            
+            var jsonResult = await task;
+            
+            // Convert JSON string result to SmartResponse
+            var responseData = JsonSerializer.Deserialize<JsonElement>(jsonResult);
+            var smartResponse = new SmartResponse
+            {
+                Success = responseData.GetProperty("success").GetBoolean(),
+                Data = responseData.GetProperty("data").ValueKind != JsonValueKind.Null 
+                    ? JsonSerializer.Deserialize<List<Dictionary<string, object?>>>(responseData.GetProperty("data").GetRawText())
+                    : new List<Dictionary<string, object?>>(),
+                Message = responseData.TryGetProperty("message", out var msg) ? msg.GetString() : null
+            };
+            
+            _logger.LogInformation("Application Layer request completed successfully");
+            return Ok(smartResponse);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error invoking Application Layer service: {ServiceName}.{MethodName}", 
+                route.ServiceName, route.MethodName);
+            
+            return Ok(new SmartResponse
+            {
+                Success = false,
+                Error = $"Application Layer error: {ex.Message}",
+                Message = "Failed to execute operation via Application Layer"
+            });
+        }
+    }
+    else
+    {
+        // STEP 3B: DATAENGINE FALLBACK PATH (Legacy Path)
+        _logger.LogInformation("No Application Layer route found, falling back to direct DataEngine for: {SpName}", 
+            request.SpName);
+        
+        var result = await _dataEngine.ExecuteAsync(request, ct);
+        return Ok(result);
+    }
+}
+```
+
+**Implementation Notes for AI**:
+1. The reflection code must be robust - handle all edge cases
+2. All service methods have signature: `Task<string> MethodName(Dictionary<string, object?> parameters)`
+3. The service methods return JSON strings, not SmartResponse objects
+4. Must convert JSON string → SmartResponse for API consistency
+5. Logging is CRITICAL for debugging routing decisions
+6. The fallback path ensures 100% backward compatibility
+7. Use `GetRequiredService()` not `GetService()` - fail fast if service missing
+8. Handle `JsonException` when parsing service results
+9. Test thoroughly with both paths (Application Layer + fallback)
+
+---
+
+### Feature 4: Dependency Injection Verification
+
+**Description**: Ensure all Application Layer services are properly registered in the DI container with correct lifetimes and dependencies.
+
+**User Stories**:
+- As a developer, I want all services registered in DI, so SmartComponentController can resolve them dynamically.
+- As a developer, I want to use scoped lifetimes for services, so each HTTP request gets its own service instance.
+
+**Acceptance Criteria**:
+- [ ] Verify `EmployeeService` registered as scoped
+- [ ] Verify `MenuService` registered as scoped (if exists)
+- [ ] Verify `DashboardService` registered as scoped (if exists)
+- [ ] Verify `ISmartComponentService` registered (existing)
+- [ ] Verify `IServiceProvider` is available (built-in)
+- [ ] Document all service registrations in code comments
+- [ ] Create or update extension method for Application Layer registration
+- [ ] Ensure all services follow scoped lifetime pattern
+
+**Technical Requirements**:
+- **File**: `SmartFoundation.Mvc/Program.cs` OR `SmartFoundation.Application/Extensions/ServiceCollectionExtensions.cs`
+- **Registration Pattern**:
+  ```csharp
+  // DataEngine Layer
+  builder.Services.AddScoped<ISmartComponentService, SmartComponentService>();
+  
+  // Application Layer
+  builder.Services.AddScoped<EmployeeService>();
+  builder.Services.AddScoped<MenuService>();  // If exists
+  builder.Services.AddScoped<DashboardService>();  // If exists
+  // Add more services as they are created
+  
+  // OR use extension method (recommended)
+  builder.Services.AddApplicationServices();
+  ```
+
+**Extension Method Pattern** (recommended):
+```csharp
+public static class ServiceCollectionExtensions
+{
+    /// <summary>
+    /// Registers all Application Layer services with dependency injection.
+    /// Add new services here as they are created.
+    /// </summary>
+    public static IServiceCollection AddApplicationServices(this IServiceCollection services)
+    {
+        // Register all Application Layer services
+        services.AddScoped<EmployeeService>();
+        
+        // Add MenuService if it exists
+        // services.AddScoped<MenuService>();
+        
+        // Add DashboardService if it exists
+        // services.AddScoped<DashboardService>();
+        
+        // Add more services here as they are created
+        // services.AddScoped<ProductService>();
+        // services.AddScoped<OrderService>();
+        
+        return services;
+    }
+}
+```
+
+**Implementation Notes for AI**:
+1. Don't remove or modify existing registrations
+2. Only ADD if not already present
+3. Use scoped lifetime (one instance per HTTP request)
+4. Extension method is OPTIONAL - only create if it improves organization
+5. If extension method exists, use it instead of individual registrations
+
+---
+
+### Feature 5: Comprehensive Testing Suite
+
+**Description**: Create unit tests for all new functionality to ensure correctness and prevent regression.
+
+**User Stories**:
+- As a developer, I want unit tests for ProcedureMapper routing, so I can verify correct service resolution.
+- As a developer, I want unit tests for EmployeeService methods, so I can ensure they call the correct stored procedures.
+- As a developer, I want unit tests for SmartComponentController routing logic, so I can verify both Application Layer and fallback paths work correctly.
+
+**Acceptance Criteria**:
+- [ ] Create `ProcedureMapperTests.cs` with tests for GetServiceRoute
+- [ ] Create `EmployeeServiceTests.cs` with tests for all CRUD methods
+- [ ] Create `SmartComponentControllerTests.cs` with routing tests
+- [ ] All tests must use Moq for mocking dependencies
+- [ ] All tests must follow Arrange-Act-Assert pattern
+- [ ] All tests must have descriptive names: `MethodName_Scenario_ExpectedResult`
+- [ ] Achieve minimum 80% code coverage for new code
+- [ ] All tests must pass before considering feature complete
+
+**Test Specifications**:
+
+**ProcedureMapperTests**:
+- ✅ `GetServiceRoute_ValidSpName_ReturnsCorrectRoute`
+- ✅ `GetServiceRoute_InvalidSpName_ReturnsNull`
+- ✅ `GetServiceRoute_NullSpName_ReturnsNull`
+- ✅ `GetServiceRoute_CaseInsensitiveSpName_ReturnsCorrectRoute`
+- ✅ `GetServiceRoute_ValidOperation_MapsToCorrectMethodName`
+
+**EmployeeServiceTests**:
+- ✅ `GetEmployeeList_ValidParams_ReturnsSuccessJson`
+- ✅ `CreateEmployee_ValidParams_ReturnsSuccessJson`
+- ✅ `UpdateEmployee_ValidParams_ReturnsSuccessJson`
+- ✅ `DeleteEmployee_ValidParams_ReturnsSuccessJson`
+- ✅ `GetEmployeeById_ValidParams_ReturnsSuccessJson`
+- ✅ `CreateEmployee_DataEngineError_ReturnsErrorJson`
+- ✅ `UpdateEmployee_InvalidMapping_ReturnsErrorJson`
+
+**SmartComponentControllerTests**:
+- ✅ `Execute_RouteFound_CallsApplicationLayer`
+- ✅ `Execute_RouteNotFound_FallsBackToDataEngine`
+- ✅ `Execute_ServiceResolutionFails_ReturnsError`
+- ✅ `Execute_MethodInvocationFails_ReturnsError`
+- ✅ `Execute_ApplicationLayerSuccess_ReturnsSmartResponse`
+
+**Technical Requirements**:
+- **Location**: `SmartFoundation.Application.Tests/`
+- **Framework**: xUnit
+- **Mocking**: Moq
+- **Coverage Tool**: Built-in .NET coverage
+- **Assertions**: xUnit Assert
+
+**Implementation Notes for AI**:
+1. Use `Mock<T>` for all dependencies
+2. Setup mock behaviors with `.Setup()` and `.Returns()`
+3. Verify method calls with `.Verify()`
+4. Use descriptive test names that explain the scenario
+5. Keep tests simple and focused on one thing
+6. Don't test framework behavior - only test our code
+7. Mock ISmartComponentService to return fake SmartResponse
+8. Mock ILogger to avoid null reference exceptions
+
+---
+
+## Non-Functional Requirements
+
+### Performance
+- **Response Time**: Application Layer routing overhead must be < 5ms
+- **Throughput**: Must support 1000+ requests/second without degradation
+- **Memory**: Service resolution via IServiceProvider must not cause memory leaks
+- **Reflection Performance**: Method invocation via reflection acceptable for this use case (< 1ms overhead)
+
+### Security
+- **Authorization**: Maintain existing authorization mechanisms (no changes)
+- **Input Validation**: Controllers continue to validate input before passing to services
+- **SQL Injection**: Protected by parameterized stored procedures (existing mechanism)
+- **Logging**: Do NOT log sensitive data (passwords, tokens, PII)
+
+### Scalability
+- **Service Registration**: Easy to add new services - just add to ProcedureMapper and register in DI
+- **Operation Addition**: Easy to add new operations - just add method to service and mapping to ProcedureMapper
+- **Performance**: Reflection overhead negligible compared to database I/O
+
+### Reliability
+- **Backward Compatibility**: 100% - unmigrated SPs continue to work via fallback path
+- **Error Handling**: Graceful degradation - errors logged and returned as structured responses
+- **Logging**: Comprehensive logging at INFO and ERROR levels for debugging
+
+### Maintainability
+- **Code Organization**: Clear separation of concerns across layers
+- **Documentation**: XML documentation on all public members
+- **Testing**: Comprehensive unit tests for all new code
+- **Patterns**: Consistent patterns (BaseService, ExecuteOperation, JSON responses)
+
+---
+
+## Technology Stack
+
+### Backend
+- **Framework**: ASP.NET Core 8.0
+- **Language**: C# 12
+- **Database**: SQL Server (via stored procedures)
+- **DI Container**: Microsoft.Extensions.DependencyInjection
+
+### Libraries
+- **Serialization**: System.Text.Json
+- **Logging**: Microsoft.Extensions.Logging
+- **Reflection**: System.Reflection
+
+### Testing
+- **Test Framework**: xUnit
+- **Mocking**: Moq
+- **Assertion**: xUnit.Assert
+- **Coverage**: Built-in .NET coverage tools
+
+---
+
+## Data Model & Architecture
+
+### Key Domain Entities
+1. **ServiceRoute**: Routing information for request dispatching
+   - ServiceName: Logical service identifier
+   - ServiceType: Concrete service class type
+   - MethodName: Service method to invoke
+   - SpName: Stored procedure name
+
+2. **SmartRequest**: Incoming API request structure (existing)
+   - Operation: CRUD operation type
+   - SpName: Stored procedure name
+   - Params: Key-value parameters
+
+3. **SmartResponse**: Outgoing API response structure (existing)
+   - Success: Operation success flag
+   - Data: Result dataset
+   - Message: User-facing message
+   - Error: Error details if failed
+
+### Request/Response Flow Diagram
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│ 1. Browser JavaScript (sf-table.js)                            │
+│    → POST /smart/execute                                        │
+│    → Body: { spName, operation, params }                       │
+└──────────────────────┬──────────────────────────────────────────┘
+                       │
+                       ▼
+┌─────────────────────────────────────────────────────────────────┐
+│ 2. SmartComponentController.Execute()                          │
+│    → Deserialize SmartRequest                                   │
+│    → Call ProcedureMapper.GetServiceRoute()                    │
+│    → Route decision: Application Layer vs Fallback             │
+└──────────────────────┬──────────────────────────────────────────┘
+                       │
+        ┌──────────────┴──────────────┐
+        ▼                              ▼
+┌──────────────────┐      ┌──────────────────────┐
+│ 3A. App Layer    │      │ 3B. Fallback Path   │
+│ (NEW PATH)       │      │ (LEGACY PATH)        │
+│                  │      │                      │
+│ → Resolve Service│      │ → Direct DataEngine  │
+│ → Invoke Method  │      │   ExecuteAsync()     │
+│ → Get JSON       │      │ → Get SmartResponse  │
+└────────┬─────────┘      └──────────┬───────────┘
+         │                           │
+         └───────────┬───────────────┘
+                     ▼
+┌─────────────────────────────────────────────────────────────────┐
+│ 4. DataEngine Layer (ISmartComponentService)                   │
+│    → Build SQL command                                          │
+│    → Execute stored procedure                                   │
+│    → Map results to SmartResponse                              │
+└──────────────────────┬──────────────────────────────────────────┘
+                       │
+                       ▼
+┌─────────────────────────────────────────────────────────────────┐
+│ 5. SQL Server                                                   │
+│    → Execute stored procedure                                   │
+│    → Return result sets                                         │
+└──────────────────────┬──────────────────────────────────────────┘
+                       │
+                       ▼
+┌─────────────────────────────────────────────────────────────────┐
+│ 6. Response Path (reverse)                                      │
+│    → DataEngine maps to SmartResponse                           │
+│    → Controller returns OK(response)                            │
+│    → Browser receives JSON                                      │
+│    → sf-table.js renders data                                  │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+---
+
+## Implementation Phases
+
+### Phase 1: Foundation - ProcedureMapper Enhancement (Week 1, Days 1-2)
+
+**Objective**: Establish the routing infrastructure
+
+**Tasks**:
+- [ ] Create `ServiceRoute` record type in ProcedureMapper.cs
+- [ ] Add `_serviceRegistry` dictionary with initial employee mappings
+- [ ] Add `_operationMethodMap` dictionary with CRUD operations
+- [ ] Implement `GetServiceRoute()` method with null handling
+- [ ] Write comprehensive XML documentation
+- [ ] Create unit tests for ProcedureMapper routing logic
+- [ ] Verify all tests pass
+
+**Deliverables**:
+- Updated ProcedureMapper.cs with routing capability
+- Unit tests achieving 90%+ coverage
+- Documentation complete
+
+**Success Criteria**:
+- `GetServiceRoute()` returns correct routes for registered SPs
+- Returns null for unregistered SPs (fallback path)
+- All unit tests pass
+- Code review approved
+
+---
+
+### Phase 2: Application Layer - EmployeeService CRUD (Week 1, Days 3-4)
+
+**Objective**: Complete the EmployeeService with all CRUD operations
+
+**Tasks**:
+- [ ] Add `CreateEmployee()` method to EmployeeService
+- [ ] Add `UpdateEmployee()` method to EmployeeService
+- [ ] Add `DeleteEmployee()` method to EmployeeService
+- [ ] Add `GetEmployeeById()` method to EmployeeService
+- [ ] Add corresponding mappings to ProcedureMapper._mappings
+- [ ] Write comprehensive XML documentation with examples
+- [ ] Create unit tests for each new method
+- [ ] Verify all tests pass
+
+**Deliverables**:
+- Complete EmployeeService with all CRUD methods
+- Updated ProcedureMapper with employee:insert, employee:update, employee:delete, employee:getById
+- Unit tests achieving 85%+ coverage
+- XML documentation complete with examples
+
+**Success Criteria**:
+- All methods follow BaseService.ExecuteOperation pattern
+- All methods return standardized JSON format
+- All unit tests pass
+- Code review approved
+
+---
+
+### Phase 3: Controller Refactoring - Smart Routing (Week 1, Day 5)
+
+**Objective**: Transform SmartComponentController into intelligent router
+
+**Tasks**:
+- [ ] Add IServiceProvider dependency to SmartComponentController
+- [ ] Implement routing logic in Execute() method
+- [ ] Add Application Layer path with service resolution
+- [ ] Add fallback path to direct DataEngine
+- [ ] Implement reflection-based method invocation
+- [ ] Add JSON-to-SmartResponse conversion
+- [ ] Add comprehensive logging (INFO and ERROR levels)
+- [ ] Add error handling for all failure scenarios
+- [ ] Create unit tests for controller routing
+- [ ] Verify both paths work correctly
+
+**Deliverables**:
+- Refactored SmartComponentController with smart routing
+- Comprehensive logging infrastructure
+- Unit tests for routing logic
+- Zero breaking changes to existing APIs
+
+**Success Criteria**:
+- Registered SPs route to Application Layer
+- Unregistered SPs fall back to DataEngine
+- All error cases handled gracefully
+- All unit tests pass
+- Integration tests pass (manual testing with sf-table.js)
+- Code review approved
+
+---
+
+### Phase 4: Testing & Validation (Week 2, Days 1-2)
+
+**Objective**: Comprehensive testing and validation
+
+**Tasks**:
+- [ ] Run all unit tests (target 80%+ coverage)
+- [ ] Perform integration testing with real database
+- [ ] Test with sf-table.js front-end (employee list, create, update, delete)
+- [ ] Test fallback path with unmigrated stored procedures
+- [ ] Load testing (verify no performance regression)
+- [ ] Review all log output for debugging info
+- [ ] Fix any bugs discovered
+- [ ] Update documentation if needed
+
+**Deliverables**:
+- All tests passing
+- Integration test report
+- Performance test results
+- Bug fixes (if any)
+
+**Success Criteria**:
+- 80%+ code coverage achieved
+- No breaking changes to existing functionality
+- Performance overhead < 5ms
+- All integration tests pass
+- Code review approved
+
+---
+
+### Phase 5: Documentation & Deployment (Week 2, Day 3)
+
+**Objective**: Finalize documentation and deploy
+
+**Tasks**:
+- [ ] Update SmartFoundation README with new architecture
+- [ ] Document routing mechanism in architecture.md
+- [ ] Create migration guide for adding new services
+- [ ] Update COMMIT_INSTRUCTIONS.md if needed
+- [ ] Final code review
+- [ ] Merge to main branch
+- [ ] Deploy to staging environment
+- [ ] Monitor logs and performance
+- [ ] Deploy to production (if staging successful)
+
+**Deliverables**:
+- Updated documentation
+- Deployment checklist
+- Production deployment
+- Monitoring dashboard
+
+**Success Criteria**:
+- All documentation up-to-date
+- Staging deployment successful
+- Production deployment successful
+- No errors in production logs
+- Performance metrics normal
+
+---
+
+## Success Metrics
+
+### Key Performance Indicators (KPIs)
+
+1. **Architectural Compliance**: 100% of requests through SmartComponentController use Application Layer (no direct DataEngine calls from presentation logic)
+
+2. **Code Coverage**: ≥ 80% unit test coverage for new code (ProcedureMapper, SmartComponentController routing, EmployeeService methods)
+
+3. **Performance**: ≤ 5ms overhead for Application Layer routing vs direct DataEngine (measured via performance tests)
+
+4. **Backward Compatibility**: 100% of existing front-end code works without modification (all sf-table.js configurations remain functional)
+
+5. **Error Rate**: < 0.1% error rate in production for routed requests
+
+6. **Migration Foundation**: EmployeeService serves as reference implementation for migrating other modules (minimum 3 other modules use this pattern within 6 months)
+
+### Quality Metrics
+
+1. **Code Review**: All code reviewed and approved by at least one senior developer
+
+2. **Documentation**: 100% of public methods have XML documentation
+
+3. **Testing**: All unit tests pass, all integration tests pass
+
+4. **Logging**: All key operations logged at appropriate levels
+
+---
+
+## Risks & Mitigation
+
+### Technical Risks
+
+1. **Risk**: Reflection performance overhead
+   **Impact**: Low (reflection is fast, database I/O dominates)
+   **Mitigation**: Performance testing, consider compiled expressions if needed
+   **Likelihood**: Low
+
+2. **Risk**: Service resolution failures at runtime
+   **Impact**: Medium (requests fail)
+   **Mitigation**: Comprehensive error handling, fallback to DataEngine, extensive logging
+   **Likelihood**: Low (DI registration validated at startup)
+
+3. **Risk**: JSON deserialization errors
+   **Impact**: Medium (requests fail)
+   **Mitigation**: Try-catch around all JSON operations, return structured errors
+   **Likelihood**: Low (services return predictable JSON format)
+
+4. **Risk**: Breaking changes to existing front-end
+   **Impact**: High (user-facing errors)
+   **Mitigation**: Maintain exact SmartRequest/SmartResponse contract, comprehensive testing
+   **Likelihood**: Very Low (API contract unchanged)
+
+### Business Risks
+
+1. **Risk**: Development timeline overrun
+   **Impact**: Medium (delayed feature delivery)
+   **Mitigation**: Clear task breakdown, daily progress tracking, buffer time in estimate
+   **Likelihood**: Low (well-defined tasks)
+
+2. **Risk**: Increased complexity for developers
+   **Impact**: Low (temporary learning curve)
+   **Mitigation**: Comprehensive documentation, code examples, team training
+   **Likelihood**: Medium
+
+---
+
+## Dependencies & Constraints
+
+### Dependencies
+
+**Internal**:
+- SmartFoundation.DataEngine (existing) - Must remain stable during refactoring
+- SmartFoundation.Application (existing) - BaseService pattern established
+- SmartFoundation.Mvc (existing) - Controllers and views
+
+**External**:
+- ASP.NET Core 8.0 runtime
+- SQL Server database
+- Stored procedures (must exist for each operation)
+
+### Constraints
+
+**Timeline**: 2 weeks maximum for complete implementation and testing
+
+**Resources**: 1-2 developers full-time
+
+**Compatibility**: Must maintain 100% backward compatibility with existing front-end code
+
+**Testing**: Must achieve 80% code coverage minimum
+
+**Documentation**: All public APIs must have XML documentation
+
+---
+
+## Migration Strategy
+
+### Gradual Migration Approach
+
+The architecture supports gradual migration from direct DataEngine calls to Application Layer services. This refactoring establishes the **foundation** for future migrations.
+
+**Phase 1** (This PRD): **Foundation & Reference Implementation**
+- Enhance ProcedureMapper with routing capability
+- Implement SmartComponentController smart routing
+- Complete EmployeeService as reference implementation
+- All employee operations routed to EmployeeService
+- All other operations fall back to direct DataEngine
+- **Result**: Foundation established, one module fully migrated
+
+**Phase 2** (Future): **Expand to Additional Modules**
+- Create new services following EmployeeService pattern (e.g., ProductService, OrderService)
+- Add routes to ProcedureMapper for each new service
+- Register services in DI
+- Test routing with SmartComponentController
+- **Result**: Multiple modules using Application Layer
+
+**Phase 3** (Future): **Legacy Module Migration**
+- Migrate existing modules (Menu, Dashboard, etc.) if they exist
+- Add corresponding routes to ProcedureMapper
+- Update or create services as needed
+- **Result**: Most modules migrated to Application Layer
+
+**Phase N** (Future): **Complete Migration**
+- All modules migrated to Application Layer
+- Consider removing fallback code from SmartComponentController
+- Optionally make DataEngine dependency optional
+- **Result**: Full Clean Architecture compliance
+
+### Migration Checklist per Module
+
+To migrate a module from direct DataEngine to Application Layer (use EmployeeService as reference):
+
+1. [ ] Create service in SmartFoundation.Application/Services (inherit from BaseService)
+2. [ ] Implement CRUD methods using ExecuteOperation pattern
+3. [ ] Add comprehensive XML documentation
+4. [ ] Add module:operation mappings in ProcedureMapper._mappings
+5. [ ] Add SP-to-Service mappings in ProcedureMapper._serviceRegistry
+6. [ ] Add Operation-to-Method mappings in ProcedureMapper._operationMethodMap
+7. [ ] Register service in ServiceCollectionExtensions
+8. [ ] Write unit tests for service methods
+9. [ ] Test routing with SmartComponentController
+10. [ ] Verify front-end works without changes (if applicable)
+11. [ ] Update documentation
+12. [ ] Code review and deployment
+
+**Reference Implementation**: `SmartFoundation.Application/Services/EmployeeService.cs`
+
+**Templates Available**:
+- Service Template: `docs/templates/NewApplicationServiceTemplate.cs`
+- Controller Template (future): `docs/templates/MigratedControllerTemplate.cs`
+
+---
+
+## Glossary
+
+**Application Layer**: The business logic layer between Presentation (MVC) and Data Access (DataEngine). Contains services like EmployeeService.
+
+**BaseService**: Abstract base class that all Application Layer services inherit from. Provides ExecuteOperation() method.
+
+**Clean Architecture**: Architectural pattern emphasizing separation of concerns and dependency inversion. Inner layers are independent of outer layers.
+
+**DataEngine**: Data access layer (SmartFoundation.DataEngine) responsible for executing stored procedures and returning results. Should only be called from Application Layer (or via fallback for legacy code).
+
+**Fallback Path**: Code path in SmartComponentController that calls DataEngine directly when no Application Layer service is registered for a stored procedure. Ensures backward compatibility during migration.
+
+**ProcedureMapper**: Centralized mapping utility that translates business operations to stored procedure names and routes requests to services.
+
+**Reflection**: Runtime inspection and invocation of types and methods. Used in SmartComponentController to dynamically call service methods.
+
+**ServiceRoute**: Record containing routing information: which service handles which stored procedure and which method to call.
+
+**SmartComponentController**: API controller at `/smart/execute` that receives requests from front-end (sf-table.js) and intelligently routes them to Application Layer services or falls back to DataEngine for legacy operations.
+
+**SmartRequest**: API request model containing: operation, spName, params, filters, sorting, pagination. Sent from front-end JavaScript to SmartComponentController.
+
+**SmartResponse**: API response model containing: success flag, data array, message, error details, metadata. Returned from SmartComponentController to front-end.
+
+**Stored Procedure (SP)**: Pre-compiled SQL code stored in database. All data operations in SmartFoundation use stored procedures (parameterized for security).
+
+**sf-table.js**: Front-end JavaScript component that renders data tables and forms. Communicates with SmartComponentController via AJAX POST requests to `/smart/execute`.
+
+---
+
+## Appendix A: Code Examples
+
+### Example 1: Adding a New Service Operation
+
+**Scenario**: Add GetEmployeesByDepartment operation
+
+**Step 1**: Add method to EmployeeService
+```csharp
+public async Task<string> GetEmployeesByDepartment(Dictionary<string, object?> parameters)
+    => await ExecuteOperation("employee", "listByDepartment", parameters);
+```
+
+**Step 2**: Add mapping to ProcedureMapper
+```csharp
+// In _mappings
+{ "employee:listByDepartment", "dbo.sp_GetEmployeesByDepartment" }
+
+// In _operationMethodMap
+{ "selectByDepartment", "GetEmployeesByDepartment" }
+```
+
+**Step 3**: Front-end calls it
+```javascript
+const config = {
+    spName: "dbo.sp_GetEmployeesByDepartment",
+    operation: "selectByDepartment",
+    // ... rest of config
+};
+```
+
+**Step 4**: SmartComponentController automatically routes it to EmployeeService.GetEmployeesByDepartment()
+
+---
+
+### Example 2: Testing a Service Method
+
+```csharp
+[Fact]
+public async Task GetEmployeeList_ValidParams_ReturnsSuccessJson()
+{
+    // Arrange
+    var mockDataEngine = new Mock<ISmartComponentService>();
+    var mockLogger = new Mock<ILogger<EmployeeService>>();
+    
+    mockDataEngine
+        .Setup(x => x.ExecuteAsync(It.IsAny<SmartRequest>(), default))
+        .ReturnsAsync(new SmartResponse
+        {
+            Success = true,
+            Data = new List<Dictionary<string, object?>>
+            {
+                new() { { "Id", 1 }, { "Name", "John Doe" } }
+            }
+        });
+    
+    var service = new EmployeeService(mockDataEngine.Object, mockLogger.Object);
+    var parameters = new Dictionary<string, object?> { { "pageSize", 10 } };
+    
+    // Act
+    var result = await service.GetEmployeeList(parameters);
+    
+    // Assert
+    Assert.NotNull(result);
+    var json = JsonDocument.Parse(result);
+    Assert.True(json.RootElement.GetProperty("success").GetBoolean());
+    Assert.NotEmpty(json.RootElement.GetProperty("data").EnumerateArray());
+}
+```
+
+---
+
+### Example 3: SmartComponentController Routing Decision
+
+```csharp
+// Incoming request
+var request = new SmartRequest
+{
+    SpName = "dbo.sp_SmartFormDemo",
+    Operation = "select",
+    Params = new() { { "pageSize", 10 } }
+};
+
+// Step 1: Check route
+var route = ProcedureMapper.GetServiceRoute("dbo.sp_SmartFormDemo", "select");
+
+// route = ServiceRoute {
+//     ServiceName = "employee",
+//     ServiceType = typeof(EmployeeService),
+//     MethodName = "GetEmployeeList",
+//     SpName = "dbo.sp_SmartFormDemo"
+// }
+
+// Step 2: Resolve service
+var service = serviceProvider.GetRequiredService<EmployeeService>();
+
+// Step 3: Invoke method
+var method = typeof(EmployeeService).GetMethod("GetEmployeeList");
+var task = method.Invoke(service, new object[] { request.Params }) as Task<string>;
+var json = await task;
+
+// Step 4: Convert to SmartResponse
+var response = JsonToSmartResponse(json);
+return Ok(response);
+```
+
+---
+
+## Appendix B: Testing Checklist
+
+### Unit Testing Checklist
+
+**ProcedureMapper**:
+- [ ] Valid SP name returns correct route
+- [ ] Invalid SP name returns null
+- [ ] Null SP name returns null
+- [ ] Case-insensitive SP name lookup works
+- [ ] Valid operation maps to correct method name
+- [ ] Invalid operation handled gracefully
+
+**EmployeeService**:
+- [ ] GetEmployeeList with valid params returns success
+- [ ] CreateEmployee with valid params returns success
+- [ ] UpdateEmployee with valid params returns success
+- [ ] DeleteEmployee with valid params returns success
+- [ ] GetEmployeeById with valid params returns success
+- [ ] Each method calls ExecuteOperation with correct module/operation
+- [ ] DataEngine error returns error JSON
+- [ ] Invalid mapping returns error JSON
+
+**SmartComponentController**:
+- [ ] Request with valid route calls Application Layer
+- [ ] Request with invalid route falls back to DataEngine
+- [ ] Service resolution failure returns error
+- [ ] Method invocation failure returns error
+- [ ] Application Layer success returns SmartResponse
+- [ ] Fallback path returns SmartResponse
+- [ ] Logging occurs for both paths
+
+### Integration Testing Checklist
+
+**End-to-End Flow**:
+- [ ] sf-table.js can load employee list
+- [ ] sf-table.js can create new employee
+- [ ] sf-table.js can update existing employee
+- [ ] sf-table.js can delete employee
+- [ ] Unmigrated SP (e.g., menu) still works via fallback
+- [ ] Error scenarios display appropriate messages
+- [ ] Logging appears in application logs
+
+---
+
+## Appendix C: AI Implementation Instructions
+
+### For AI Coding Agents
+
+This PRD is designed to be implemented by AI coding agents. Follow these guidelines:
+
+**General Approach**:
+1. Work through phases sequentially (don't skip ahead)
+2. Complete each task fully before moving to next
+3. Run tests after each change
+4. Commit after each completed task
+5. Ask for clarification if requirements unclear
+
+**Code Style**:
+- Follow existing code patterns exactly
+- Use XML documentation on all public members
+- Use `var` for local variables
+- Use explicit types for method signatures
+- Follow naming conventions: PascalCase for public, camelCase for private
+- Use `async/await`, never `.Result` or `.Wait()`
+
+**Testing**:
+- Write tests BEFORE implementing (TDD preferred)
+- Use Arrange-Act-Assert pattern
+- One assertion per test (mostly)
+- Descriptive test names: `MethodName_Scenario_ExpectedResult`
+- Mock all dependencies with Moq
+
+**Error Handling**:
+- Try-catch around all external calls
+- Log errors with context
+- Return structured error responses
+- Never swallow exceptions
+
+**Logging**:
+- LogInformation for normal operations
+- LogError for exceptions
+- Include relevant context (parameters, IDs)
+- Don't log sensitive data
+
+**Documentation**:
+- XML comments on all public members
+- Include `<summary>`, `<param>`, `<returns>`, `<exception>`
+- Add `<example>` for complex methods
+- Document required vs optional parameters
+
+**Verification Steps**:
+1. Code compiles without warnings
+2. All unit tests pass
+3. Code coverage ≥ 80% for new code
+4. XML documentation complete
+5. Code review checklist satisfied
+6. Integration test passes
+
+**Tools**:
+- Use `dotnet build` to compile
+- Use `dotnet test` to run tests
+- Use `dotnet test --collect:"XPlat Code Coverage"` for coverage
+- Use Visual Studio or Rider for debugging
+
+---
+
+## Notes for Task Master AI
+
+**Task Generation Instructions**:
+
+When parsing this PRD with Task Master AI:
+
+1. **Generate 5 top-level tasks** corresponding to the 5 implementation phases
+2. **Break down each phase** into 3-5 subtasks based on the task lists in each phase
+3. **Set dependencies** between tasks (Phase 1 → Phase 2 → Phase 3 → Phase 4 → Phase 5)
+4. **Assign priorities**: High for Phases 1-3, Medium for Phase 4, Low for Phase 5
+5. **Estimate complexity**: High for Phase 3 (controller refactoring), Medium for others
+6. **Include acceptance criteria** from each feature section as subtask descriptions
+
+**Expected Task Structure**:
+
+```
+Task 1: Foundation - ProcedureMapper Enhancement
+  ├─ Subtask 1.1: Create ServiceRoute record type
+  ├─ Subtask 1.2: Add service registry dictionaries
+  ├─ Subtask 1.3: Implement GetServiceRoute() method
+  ├─ Subtask 1.4: Write XML documentation
+  └─ Subtask 1.5: Create unit tests
+
+Task 2: Application Layer - EmployeeService CRUD
+  ├─ Subtask 2.1: Add CreateEmployee() method
+  ├─ Subtask 2.2: Add UpdateEmployee() method
+  ├─ Subtask 2.3: Add DeleteEmployee() method
+  ├─ Subtask 2.4: Add GetEmployeeById() method
+  ├─ Subtask 2.5: Update ProcedureMapper mappings
+  └─ Subtask 2.6: Create unit tests
+
+Task 3: Controller Refactoring - Smart Routing
+  ├─ Subtask 3.1: Add IServiceProvider dependency
+  ├─ Subtask 3.2: Implement routing logic
+  ├─ Subtask 3.3: Add Application Layer path
+  ├─ Subtask 3.4: Add fallback path
+  ├─ Subtask 3.5: Implement reflection invocation
+  ├─ Subtask 3.6: Add comprehensive logging
+  └─ Subtask 3.7: Create unit tests
+
+Task 4: Testing & Validation
+  ├─ Subtask 4.1: Run all unit tests
+  ├─ Subtask 4.2: Integration testing
+  ├─ Subtask 4.3: Front-end testing
+  └─ Subtask 4.4: Performance testing
+
+Task 5: Documentation & Deployment
+  ├─ Subtask 5.1: Update documentation
+  ├─ Subtask 5.2: Final code review
+  └─ Subtask 5.3: Deployment
+```
+
+**Complexity Scoring**:
+- Task 1: Complexity 5/10 (new pattern, well-defined)
+- Task 2: Complexity 4/10 (repetitive, follows pattern)
+- Task 3: Complexity 8/10 (reflection, multiple paths, critical)
+- Task 4: Complexity 6/10 (testing, validation)
+- Task 5: Complexity 3/10 (documentation, deployment)
+
+**Recommended Task Expansion**:
+- Expand Task 3 (Smart Routing) with `force: true` - most complex
+- Expand Task 1 if team unfamiliar with routing patterns
+- Do not expand Tasks 2, 4, 5 unless requested
+
+---
+
+**End of PRD**
+
+For questions or clarifications, contact: SmartFoundation Development Team

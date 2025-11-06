@@ -1,0 +1,59 @@
+# Task ID: 1
+# Title: Configure Dependency Injection for Application Layer Services
+# Status: pending
+# Dependencies: None
+# Priority: high
+# Description: Set up the dependency injection container to register all Application Layer services, ensuring they are available for dynamic resolution by the SmartComponentController. This involves creating or updating an extension method for service registration.
+# Details:
+Create a new extension method `AddApplicationServices` in `SmartFoundation.Application/Extensions/ServiceCollectionExtensions.cs`. This method will encapsulate the registration of all application services. Initially, register `EmployeeService` with a scoped lifetime. This setup is critical for the controller to resolve services at runtime. In `SmartFoundation.Mvc/Program.cs`, call this new extension method: `builder.Services.AddApplicationServices();`. Ensure existing registrations for `ISmartComponentService` are preserved. 
+
+```csharp
+// In SmartFoundation.Application/Extensions/ServiceCollectionExtensions.cs
+public static class ServiceCollectionExtensions
+{
+    public static IServiceCollection AddApplicationServices(this IServiceCollection services)
+    {
+        services.AddScoped<EmployeeService>();
+        // Add other services here in the future
+        return services;
+    }
+}
+
+// In SmartFoundation.Mvc/Program.cs
+builder.Services.AddApplicationServices();
+```
+
+# Test Strategy:
+Verification will be done by running the application and ensuring it starts without DI-related errors. A simple unit test can be written to resolve `EmployeeService` from a test service provider to confirm its registration.
+
+# Subtasks:
+## 1. Create ServiceCollectionExtensions.cs File [pending]
+### Dependencies: None
+### Description: Create the new file `ServiceCollectionExtensions.cs` in the `SmartFoundation.Application/Extensions` directory to house the DI extension methods.
+### Details:
+In the `SmartFoundation.Application` project, create a new folder named `Extensions`. Inside this folder, create a new C# class file named `ServiceCollectionExtensions.cs`. This file will contain the static class for DI extensions.
+
+## 2. Implement AddApplicationServices Method Shell [pending]
+### Dependencies: 1.1
+### Description: Define the static `ServiceCollectionExtensions` class and the `AddApplicationServices` extension method signature within the new file.
+### Details:
+In `ServiceCollectionExtensions.cs`, create the public static class and the method `public static IServiceCollection AddApplicationServices(this IServiceCollection services)`. The method should initially just return the `services` collection.
+
+## 3. Register EmployeeService with Scoped Lifetime [pending]
+### Dependencies: 1.2
+### Description: Add the service registration for `EmployeeService` inside the `AddApplicationServices` method.
+### Details:
+Within the `AddApplicationServices` method, add the line `services.AddScoped<EmployeeService>();` to register the service with the dependency injection container for a scoped lifetime.
+
+## 4. Invoke AddApplicationServices in Mvc Project [pending]
+### Dependencies: 1.3
+### Description: Call the new extension method from the main application entry point to ensure the application services are registered on startup.
+### Details:
+In the `SmartFoundation.Mvc/Program.cs` file, add the line `builder.Services.AddApplicationServices();` to the service configuration section. Ensure the appropriate `using` statement for the `SmartFoundation.Application.Extensions` namespace is added.
+
+## 5. Verify Application Startup [pending]
+### Dependencies: 1.4
+### Description: Run the main application to confirm that the new dependency injection configuration does not cause any startup errors.
+### Details:
+Launch the `SmartFoundation.Mvc` application. The application should start without throwing any `InvalidOperationException` or other DI-related errors, confirming that the `EmployeeService` and its dependencies are correctly registered.
+

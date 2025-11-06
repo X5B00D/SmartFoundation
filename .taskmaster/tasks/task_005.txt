@@ -1,0 +1,43 @@
+# Task ID: 5
+# Title: Create Unit Test Suite for ProcedureMapper
+# Status: pending
+# Dependencies: 2
+# Priority: medium
+# Description: Develop a comprehensive set of unit tests for the enhanced ProcedureMapper to ensure the routing logic is correct, reliable, and handles all edge cases.
+# Details:
+In the `SmartFoundation.Application.Tests` project, create `ProcedureMapperTests.cs`. Using xUnit, write tests to validate the `GetServiceRoute` method. Test cases should include: `GetServiceRoute_ValidSpNameAndOperation_ReturnsCorrectRoute`, `GetServiceRoute_UnregisteredSpName_ReturnsNull`, `GetServiceRoute_CaseInsensitiveSpName_ReturnsCorrectRoute`, `GetServiceRoute_NullSpName_ReturnsNull`, and `GetServiceRoute_ValidSpNameButUnmappedOperation_ReturnsRouteWithNullMethodName` (or similar logic as implemented). Ensure tests validate all properties of the returned `ServiceRoute` object.
+
+# Test Strategy:
+Execute the tests using `dotnet test`. Aim for at least 90% code coverage for `ProcedureMapper.cs`. All tests must pass before the task is considered complete.
+
+# Subtasks:
+## 1. Setup ProcedureMapperTests and Implement Happy Path Test [pending]
+### Dependencies: None
+### Description: Create the `ProcedureMapperTests.cs` file and set up the basic test class structure. Implement the first unit test to verify that `GetServiceRoute` returns the correct `ServiceRoute` object for a valid, registered stored procedure name and operation.
+### Details:
+In the `SmartFoundation.Application.Tests` project, create the file `ProcedureMapperTests.cs`. Using xUnit, write the test `GetServiceRoute_ValidSpNameAndOperation_ReturnsCorrectRoute`. Assert that the returned `ServiceRoute` is not null and its properties match the expected values.
+
+## 2. Test Handling of Unregistered Stored Procedure Names [pending]
+### Dependencies: 5.1
+### Description: Implement a unit test to ensure that `GetServiceRoute` correctly handles requests for stored procedure names that are not registered in the mapper, expecting a null return.
+### Details:
+Add the test case `GetServiceRoute_UnregisteredSpName_ReturnsNull` to `ProcedureMapperTests.cs`. Call `GetServiceRoute` with a string that does not correspond to any registered stored procedure. Assert that the method returns `null`.
+
+## 3. Test Case-Insensitive Lookup for Stored Procedure Names [pending]
+### Dependencies: 5.1
+### Description: Implement a unit test to confirm that the stored procedure name lookup is case-insensitive, returning the correct route regardless of the input's casing.
+### Details:
+Add the test case `GetServiceRoute_CaseInsensitiveSpName_ReturnsCorrectRoute`. Call `GetServiceRoute` with a valid stored procedure name but with varied casing (e.g., 'uSP_GET_DATA', 'usp_get_data'). Assert that the correct `ServiceRoute` is returned.
+
+## 4. Test Handling of Null Stored Procedure Name Input [pending]
+### Dependencies: 5.1
+### Description: Implement a unit test to verify the behavior of `GetServiceRoute` when a null value is passed as the stored procedure name, ensuring it fails gracefully.
+### Details:
+Add the test case `GetServiceRoute_NullSpName_ReturnsNull`. Call `GetServiceRoute` with `null` as the `spName` argument. Assert that the result is `null` to prevent potential null reference exceptions in the calling code.
+
+## 5. Test Unmapped Operation for a Valid Stored Procedure [pending]
+### Dependencies: 5.1
+### Description: Implement a unit test for the scenario where a valid stored procedure name is provided, but the specific operation is not mapped to a method.
+### Details:
+Add the test case `GetServiceRoute_ValidSpNameButUnmappedOperation_ReturnsRouteWithNullMethodName`. Call `GetServiceRoute` with a valid `spName` but an `operation` that doesn't exist in its mapping. Assert that a `ServiceRoute` object is returned with the correct `ServiceType` but its `MethodName` property is `null`.
+

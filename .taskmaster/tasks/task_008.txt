@@ -1,0 +1,43 @@
+# Task ID: 8
+# Title: Perform Integration Testing and Finalize Documentation
+# Status: pending
+# Dependencies: 5, 6, 7
+# Priority: medium
+# Description: Conduct end-to-end integration testing to validate the entire request flow from the front-end to the database and back. Finalize all technical and architectural documentation.
+# Details:
+Manually test the application using the `sf-table.js` front-end component. Verify that all CRUD operations for the Employee module work as expected, confirming they are routed through the new Application Layer path by checking application logs. Test a component that has not been migrated (e.g., Menu) to ensure the fallback path to the DataEngine is functioning correctly. Concurrently, update the project's `README.md` and any architecture documents (`architecture.md`) to reflect the new Clean Architecture flow. Create a migration guide for developers on how to add new services following the `EmployeeService` pattern.
+
+# Test Strategy:
+The test strategy involves a combination of manual and automated checks. 1. Manual E2E testing: Use a browser's developer tools to monitor network requests to `/smart/execute` and inspect responses. 2. Log verification: Check application logs to confirm that requests for 'dbo.sp_SmartFormDemo' are logged as 'Routing to Application Layer' and other SPs are logged as 'falling back to direct DataEngine'. 3. Documentation review: A peer review of the updated documentation for clarity and accuracy.
+
+# Subtasks:
+## 1. Perform E2E Testing for Employee Module CRUD Operations [pending]
+### Dependencies: None
+### Description: Manually test the Create, Read, Update, and Delete functionalities for the Employee module using the `sf-table.js` front-end component to ensure the new application layer integration is working correctly.
+### Details:
+Open the application in a browser and navigate to the Employee management page. Use the UI to create a new employee, view its details, update its information, and finally delete it. Use browser developer tools to monitor network requests to `/smart/execute`.
+
+## 2. Verify Application Layer Routing for Employee Service via Logs [pending]
+### Dependencies: 8.1
+### Description: While performing the E2E tests for the Employee module, inspect the application logs to confirm that requests are being correctly routed through the new `EmployeeService` in the Application Layer.
+### Details:
+While performing the Employee CRUD operations, monitor the application logs. Look for log entries originating from `SmartComponentController` and `EmployeeService` specifically for the 'dbo.sp_SmartFormDemo' procedure calls to confirm the new path is being used.
+
+## 3. Test Fallback Routing for an Unmigrated Component [pending]
+### Dependencies: 8.1, 8.2
+### Description: Test a component that has not been migrated to the new architecture, such as the Menu component, to ensure the `SmartComponentController` correctly falls back to the legacy DataEngine path.
+### Details:
+Interact with a part of the application that is known to not use the new service layer, for example, loading the main menu. Check the application logs to confirm that the request was handled by the legacy DataEngine path within the `SmartComponentController`.
+
+## 4. Update README.md and Architecture Documentation [pending]
+### Dependencies: 8.3
+### Description: Update the project's `README.md` and any architectural documents (e.g., `architecture.md`) to accurately reflect the new Clean Architecture flow, including the role of the `SmartComponentController` and Application Layer services.
+### Details:
+Edit `README.md` to include a high-level overview of the new request flow. Update `architecture.md` with diagrams and descriptions showing how requests are routed to services or fall back to the legacy DataEngine. Ensure all changes are clear and concise.
+
+## 5. Create Developer Guide for Migrating to the New Service Pattern [pending]
+### Dependencies: 8.4
+### Description: Write a clear, step-by-step guide for developers on how to create new services in the Application Layer and register them, using `EmployeeService` as the primary example.
+### Details:
+Create a new markdown file, `MIGRATION_GUIDE.md`. Document the process: 1. Create a new service class. 2. Implement methods for each operation. 3. Register the service in `ProcedureMapper`. 4. Add the service to the DI container in `ServiceCollectionExtensions.cs`.
+

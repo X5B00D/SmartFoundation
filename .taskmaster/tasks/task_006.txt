@@ -1,0 +1,43 @@
+# Task ID: 6
+# Title: Create Unit Test Suite for EmployeeService
+# Status: pending
+# Dependencies: 3
+# Priority: medium
+# Description: Develop unit tests for all CRUD methods in `EmployeeService` to verify they correctly interact with the `BaseService` and the DataEngine layer.
+# Details:
+In the `SmartFoundation.Application.Tests` project, create `EmployeeServiceTests.cs`. Using xUnit and Moq, mock the `ISmartComponentService` dependency. For each method (`CreateEmployee`, `UpdateEmployee`, etc.), write a test that verifies the underlying `ExecuteAsync` method on the mock is called with a `SmartRequest` containing the correct `SpName` and `Operation`. The `SpName` should be resolved from the internal `ProcedureMapper._mappings`. Test that the JSON string returned by the service correctly reflects the mocked `SmartResponse` from the data engine.
+
+# Test Strategy:
+Execute the tests using `dotnet test`. Verify that tests for all four new CRUD methods pass. Check for both happy path and error handling scenarios by manipulating the mocked `SmartResponse`.
+
+# Subtasks:
+## 1. Initialize EmployeeServiceTests Class and Mocks [pending]
+### Dependencies: None
+### Description: Create the `EmployeeServiceTests.cs` file and set up the basic test class structure, including the mock for `ISmartComponentService` and the System Under Test (SUT), `EmployeeService`.
+### Details:
+In the `SmartFoundation.Application.Tests` project, create the `EmployeeServiceTests.cs` file. Use Moq to create a `Mock<ISmartComponentService>`. In the test class constructor, instantiate `EmployeeService`, passing the mocked service object (`mock.Object`).
+
+## 2. Create Unit Test for EmployeeService.CreateEmployee [pending]
+### Dependencies: 6.1
+### Description: Write a unit test to verify the `CreateEmployee` method correctly constructs and sends a `SmartRequest` to the data engine and processes the response.
+### Details:
+Create a test method for `CreateEmployee`. Mock the `ExecuteAsync` method on the `ISmartComponentService` mock to return a predefined `SmartResponse`. Call `employeeService.CreateEmployee()`. Use `Moq.Verify()` to confirm `ExecuteAsync` was called with a `SmartRequest` containing `SpName` 'usp_Employee' and `Operation` 'Create'. Assert the returned JSON string matches the mocked response.
+
+## 3. Create Unit Test for EmployeeService.GetEmployee [pending]
+### Dependencies: 6.1
+### Description: Write a unit test for a 'Get' method (e.g., `GetEmployee`) to ensure it correctly queries the data engine for an employee record.
+### Details:
+Create a test method for retrieving an employee. Mock `ExecuteAsync` to return a `SmartResponse` with sample employee data. Call the 'Get' method on the service with a test ID. Verify `ExecuteAsync` was called with `SpName` 'usp_Employee' and `Operation` 'Get'. Assert the returned JSON string is correctly formatted based on the mock response.
+
+## 4. Create Unit Test for EmployeeService.UpdateEmployee [pending]
+### Dependencies: 6.1
+### Description: Write a unit test for the `UpdateEmployee` method to validate its interaction with the data engine for updating an employee record.
+### Details:
+Create a test method for `UpdateEmployee`. Mock the `ExecuteAsync` method to return a successful `SmartResponse`. Call `employeeService.UpdateEmployee()` with test data. Verify `ExecuteAsync` was called with `SpName` 'usp_Employee' and `Operation` 'Update'. Assert the returned JSON string matches the expected output from the mocked response.
+
+## 5. Create Unit Test for EmployeeService.DeleteEmployee [pending]
+### Dependencies: 6.1
+### Description: Write a unit test for the `DeleteEmployee` method to ensure it correctly sends a deletion request to the data engine.
+### Details:
+Create a test method for `DeleteEmployee`. Mock the `ExecuteAsync` method to return a successful `SmartResponse` indicating deletion. Call `employeeService.DeleteEmployee()` with a test ID. Verify `ExecuteAsync` was called with `SpName` 'usp_Employee' and `Operation` 'Delete'. Assert the returned JSON string is as expected.
+

@@ -1,0 +1,58 @@
+# Task ID: 2
+# Title: Enhance ProcedureMapper with Service Routing Capabilities
+# Status: pending
+# Dependencies: None
+# Priority: high
+# Description: Upgrade the ProcedureMapper to support routing requests to Application Layer services. This involves creating a new data structure for routing information and implementing a method to resolve routes based on stored procedure and operation names.
+# Details:
+In `SmartFoundation.Application/Mapping/ProcedureMapper.cs`, define a new `ServiceRoute` record. Add two new static dictionaries: `_serviceRegistry` to map SP names to service types, and `_operationMethodMap` to map front-end operations to service method names. Implement the `GetServiceRoute(string spName, string operation)` method. This method will look up the SP name in `_serviceRegistry`, find the corresponding method name from `_operationMethodMap`, and return a `ServiceRoute` object. If no mapping is found for the SP, it must return null to enable the fallback mechanism. Use `StringComparer.OrdinalIgnoreCase` for all dictionaries. 
+
+```csharp
+// In ProcedureMapper.cs
+public record ServiceRoute(string ServiceName, Type ServiceType, string MethodName, string SpName);
+
+private static readonly Dictionary<string, ServiceRoute> _serviceRegistry = new(StringComparer.OrdinalIgnoreCase);
+private static readonly Dictionary<string, string> _operationMethodMap = new(StringComparer.OrdinalIgnoreCase);
+
+// Example mapping
+_serviceRegistry.Add("dbo.sp_SmartFormDemo", new ServiceRoute("employee", typeof(EmployeeService), null, "dbo.sp_SmartFormDemo"));
+_operationMethodMap.Add("select", "GetList");
+_operationMethodMap.Add("insert", "Create");
+
+public static ServiceRoute? GetServiceRoute(string spName, string operation) { /* Implementation logic */ }
+```
+
+# Test Strategy:
+Create a new unit test file `ProcedureMapperTests.cs`. Write tests to cover: returning a valid `ServiceRoute` for a mapped SP/operation, returning null for an unmapped SP, case-insensitive lookups, and graceful handling of null or empty input parameters.
+
+# Subtasks:
+## 1. Define ServiceRoute Record in ProcedureMapper [pending]
+### Dependencies: None
+### Description: Create the `ServiceRoute` record type within the `ProcedureMapper.cs` file. This record will serve as the data structure for holding resolved service routing information.
+### Details:
+In the file `SmartFoundation.Application/Mapping/ProcedureMapper.cs`, add the following public record definition: `public record ServiceRoute(string ServiceName, Type ServiceType, string MethodName, string SpName);`.
+
+## 2. Declare and Initialize Service Mapping Dictionaries [pending]
+### Dependencies: 2.1
+### Description: Add the two new static dictionaries, `_serviceRegistry` and `_operationMethodMap`, to the `ProcedureMapper` class. These will store the mappings from stored procedures to services and from operations to method names.
+### Details:
+In `ProcedureMapper.cs`, declare the static dictionaries `_serviceRegistry` and `_operationMethodMap`, ensuring they are initialized with `StringComparer.OrdinalIgnoreCase`. Add the provided example mappings for 'dbo.sp_SmartFormDemo' and the standard CRUD operations.
+
+## 3. Implement GetServiceRoute Method Logic [pending]
+### Dependencies: 2.2
+### Description: Implement the `GetServiceRoute(string spName, string operation)` method to perform the lookup and return the appropriate service routing information or null if no mapping exists.
+### Details:
+Implement the logic for `GetServiceRoute`. The method should first attempt to find a route in `_serviceRegistry` using the `spName`. If a route is found, it should then look up the corresponding method name in `_operationMethodMap` using the `operation`. Finally, it should return a new `ServiceRoute` instance with the resolved method name. If the `spName` is not found, the method must return null.
+
+## 4. Create Unit Test File and Basic Setup [pending]
+### Dependencies: 2.3
+### Description: Create a new unit test file, `ProcedureMapperTests.cs`, in the appropriate test project to house the tests for the new service routing functionality.
+### Details:
+In the test project for the Application layer, create a new C# class file named `ProcedureMapperTests.cs`. Add the necessary using statements for xUnit and the project being tested. Define the public test class `ProcedureMapperTests`.
+
+## 5. Implement Unit Tests for GetServiceRoute [pending]
+### Dependencies: 2.4
+### Description: Write a comprehensive suite of unit tests for the `GetServiceRoute` method to ensure its correctness and robustness under various conditions.
+### Details:
+In `ProcedureMapperTests.cs`, add specific xUnit tests to validate the following scenarios: 1) A valid `ServiceRoute` is returned for a mapped SP and operation. 2) Null is returned for an unmapped SP. 3) Lookups are case-insensitive for both `spName` and `operation`. 4) The method handles null or empty string inputs gracefully without throwing exceptions.
+

@@ -1,0 +1,45 @@
+# Task ID: 7
+# Title: Create Unit Test Suite for SmartComponentController
+# Status: pending
+# Dependencies: 4
+# Priority: medium
+# Description: Develop unit tests for the refactored `SmartComponentController` to validate its routing logic, including the new Application Layer path and the legacy fallback path.
+# Details:
+In the MVC test project, create `SmartComponentControllerTests.cs`. Using xUnit and Moq, create mocks for `IServiceProvider`, `ILogger`, `ISmartComponentService`, and a mock `EmployeeService`. 
+1. Test the Application Layer path: Setup `ProcedureMapper` to return a valid route for `EmployeeService`. Setup the `IServiceProvider` mock to return the mock `EmployeeService`. Verify that the correct method on the mock service is called and that the controller correctly converts its JSON response to an `OkObjectResult` with a `SmartResponse`. 
+2. Test the fallback path: Setup `ProcedureMapper` to return null. Verify that `_dataEngine.ExecuteAsync` is called and its result is returned.
+
+# Test Strategy:
+Execute the tests using `dotnet test`. Ensure all tests pass, covering the main logic branches, service resolution failures, and reflection errors. Use `Moq.Verify()` to confirm that the correct methods on the dependencies were called.
+
+# Subtasks:
+## 1. Initialize Test Class and Core Mocks for SmartComponentController [pending]
+### Dependencies: None
+### Description: Create the `SmartComponentControllerTests.cs` file and set up the necessary using statements, the test class structure, and initialize the core mocks required for all subsequent tests.
+### Details:
+In the MVC test project, create the `SmartComponentControllerTests.cs` file. Define the test class and create private fields for mocks of `IServiceProvider`, `ILogger<SmartComponentController>`, `ISmartComponentService`, and `IProcedureMapper`. Use a constructor to initialize these mocks using `new Mock<T>()`.
+
+## 2. Test Successful Routing to Application Layer Service [pending]
+### Dependencies: 7.1
+### Description: Create a unit test to verify that when `ProcedureMapper` returns a valid route, the controller correctly resolves the service, invokes the method, and returns the expected `OkObjectResult` with a `SmartResponse`.
+### Details:
+Create a test method `Execute_WithValidServiceRoute_InvokesApplicationService`. Mock `IProcedureMapper.GetServiceRoute` to return a valid `ServiceRoute`. Mock `IServiceProvider` to return a mock `EmployeeService`. Mock the target method on `EmployeeService` to return a JSON string. Call the controller's `Execute` method. Verify the `EmployeeService` method was called and the result is an `OkObjectResult` containing a deserialized `SmartResponse`.
+
+## 3. Test Successful Fallback to Legacy DataEngine Path [pending]
+### Dependencies: 7.1
+### Description: Create a unit test to ensure that when `ProcedureMapper` does not find a route, the controller correctly falls back to the legacy `ISmartComponentService` (DataEngine) path.
+### Details:
+Create a test method `Execute_WithNullServiceRoute_InvokesLegacyDataEngine`. Mock `IProcedureMapper.GetServiceRoute` to return null. Mock `ISmartComponentService.ExecuteAsync` to return a successful `SmartResponse`. Call the controller's `Execute` method. Verify that `ISmartComponentService.ExecuteAsync` was called and its response is returned directly as an `OkObjectResult`.
+
+## 4. Test Graceful Handling of Service Resolution Failure [pending]
+### Dependencies: 7.1
+### Description: Write a test to validate the controller's behavior when `ProcedureMapper` provides a valid route, but the `IServiceProvider` fails to resolve the corresponding service.
+### Details:
+Create a test method `Execute_WhenServiceNotResolved_ReturnsErrorResponse`. Mock `IProcedureMapper.GetServiceRoute` to return a valid `ServiceRoute`. Configure the mock `IServiceProvider.GetService` to return null for the requested service type. Call the controller's `Execute` method. Assert that the result is a `StatusCodeResult` with a 500 status code.
+
+## 5. Test Graceful Handling of Method Invocation Exception [pending]
+### Dependencies: 7.1, 7.2
+### Description: Test the controller's error handling when an exception is thrown during the dynamic invocation of the application service method.
+### Details:
+Create a test method `Execute_WhenServiceMethodThrowsException_ReturnsErrorResponse`. Mock `IProcedureMapper.GetServiceRoute` to return a valid route and `IServiceProvider` to return a mock `EmployeeService`. Configure the mock `EmployeeService` method to throw an exception when called. Call the controller's `Execute` method. Assert that the result is a `StatusCodeResult` with a 500 status code.
+

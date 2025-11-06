@@ -1,0 +1,546 @@
+{
+  "master": {
+    "tasks": [
+      {
+        "id": 1,
+        "title": "Configure Dependency Injection for Application Layer Services",
+        "description": "Set up the dependency injection container to register all Application Layer services, ensuring they are available for dynamic resolution by the SmartComponentController. This involves creating or updating an extension method for service registration.",
+        "details": "Create a new extension method `AddApplicationServices` in `SmartFoundation.Application/Extensions/ServiceCollectionExtensions.cs`. This method will encapsulate the registration of all application services. Initially, register `EmployeeService` with a scoped lifetime. This setup is critical for the controller to resolve services at runtime. In `SmartFoundation.Mvc/Program.cs`, call this new extension method: `builder.Services.AddApplicationServices();`. Ensure existing registrations for `ISmartComponentService` are preserved. \n\n```csharp\n// In SmartFoundation.Application/Extensions/ServiceCollectionExtensions.cs\npublic static class ServiceCollectionExtensions\n{\n    public static IServiceCollection AddApplicationServices(this IServiceCollection services)\n    {\n        services.AddScoped<EmployeeService>();\n        // Add other services here in the future\n        return services;\n    }\n}\n\n// In SmartFoundation.Mvc/Program.cs\nbuilder.Services.AddApplicationServices();\n```",
+        "testStrategy": "Verification will be done by running the application and ensuring it starts without DI-related errors. A simple unit test can be written to resolve `EmployeeService` from a test service provider to confirm its registration.",
+        "priority": "high",
+        "dependencies": [],
+        "status": "pending",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Create ServiceCollectionExtensions.cs File",
+            "description": "Create the new file `ServiceCollectionExtensions.cs` in the `SmartFoundation.Application/Extensions` directory to house the DI extension methods.",
+            "dependencies": [],
+            "details": "In the `SmartFoundation.Application` project, create a new folder named `Extensions`. Inside this folder, create a new C# class file named `ServiceCollectionExtensions.cs`. This file will contain the static class for DI extensions.",
+            "status": "pending",
+            "testStrategy": "Verify that the file `SmartFoundation.Application/Extensions/ServiceCollectionExtensions.cs` is created and the project compiles."
+          },
+          {
+            "id": 2,
+            "title": "Implement AddApplicationServices Method Shell",
+            "description": "Define the static `ServiceCollectionExtensions` class and the `AddApplicationServices` extension method signature within the new file.",
+            "dependencies": [
+              1
+            ],
+            "details": "In `ServiceCollectionExtensions.cs`, create the public static class and the method `public static IServiceCollection AddApplicationServices(this IServiceCollection services)`. The method should initially just return the `services` collection.",
+            "status": "pending",
+            "testStrategy": "Compile the `SmartFoundation.Application` project to ensure the new class and method are syntactically correct."
+          },
+          {
+            "id": 3,
+            "title": "Register EmployeeService with Scoped Lifetime",
+            "description": "Add the service registration for `EmployeeService` inside the `AddApplicationServices` method.",
+            "dependencies": [
+              2
+            ],
+            "details": "Within the `AddApplicationServices` method, add the line `services.AddScoped<EmployeeService>();` to register the service with the dependency injection container for a scoped lifetime.",
+            "status": "pending",
+            "testStrategy": "A unit test can be created to build a `ServiceCollection`, call this extension method, and then verify that `EmployeeService` can be resolved from the resulting `ServiceProvider`."
+          },
+          {
+            "id": 4,
+            "title": "Invoke AddApplicationServices in Mvc Project",
+            "description": "Call the new extension method from the main application entry point to ensure the application services are registered on startup.",
+            "dependencies": [
+              3
+            ],
+            "details": "In the `SmartFoundation.Mvc/Program.cs` file, add the line `builder.Services.AddApplicationServices();` to the service configuration section. Ensure the appropriate `using` statement for the `SmartFoundation.Application.Extensions` namespace is added.",
+            "status": "pending",
+            "testStrategy": "Compile the `SmartFoundation.Mvc` project. The build should succeed, indicating that the extension method is correctly referenced."
+          },
+          {
+            "id": 5,
+            "title": "Verify Application Startup",
+            "description": "Run the main application to confirm that the new dependency injection configuration does not cause any startup errors.",
+            "dependencies": [
+              4
+            ],
+            "details": "Launch the `SmartFoundation.Mvc` application. The application should start without throwing any `InvalidOperationException` or other DI-related errors, confirming that the `EmployeeService` and its dependencies are correctly registered.",
+            "status": "pending",
+            "testStrategy": "Run the application and observe the console output for any exceptions. A successful startup without errors confirms the DI setup is valid."
+          }
+        ]
+      },
+      {
+        "id": 2,
+        "title": "Enhance ProcedureMapper with Service Routing Capabilities",
+        "description": "Upgrade the ProcedureMapper to support routing requests to Application Layer services. This involves creating a new data structure for routing information and implementing a method to resolve routes based on stored procedure and operation names.",
+        "details": "In `SmartFoundation.Application/Mapping/ProcedureMapper.cs`, define a new `ServiceRoute` record. Add two new static dictionaries: `_serviceRegistry` to map SP names to service types, and `_operationMethodMap` to map front-end operations to service method names. Implement the `GetServiceRoute(string spName, string operation)` method. This method will look up the SP name in `_serviceRegistry`, find the corresponding method name from `_operationMethodMap`, and return a `ServiceRoute` object. If no mapping is found for the SP, it must return null to enable the fallback mechanism. Use `StringComparer.OrdinalIgnoreCase` for all dictionaries. \n\n```csharp\n// In ProcedureMapper.cs\npublic record ServiceRoute(string ServiceName, Type ServiceType, string MethodName, string SpName);\n\nprivate static readonly Dictionary<string, ServiceRoute> _serviceRegistry = new(StringComparer.OrdinalIgnoreCase);\nprivate static readonly Dictionary<string, string> _operationMethodMap = new(StringComparer.OrdinalIgnoreCase);\n\n// Example mapping\n_serviceRegistry.Add(\"dbo.sp_SmartFormDemo\", new ServiceRoute(\"employee\", typeof(EmployeeService), null, \"dbo.sp_SmartFormDemo\"));\n_operationMethodMap.Add(\"select\", \"GetList\");\n_operationMethodMap.Add(\"insert\", \"Create\");\n\npublic static ServiceRoute? GetServiceRoute(string spName, string operation) { /* Implementation logic */ }\n```",
+        "testStrategy": "Create a new unit test file `ProcedureMapperTests.cs`. Write tests to cover: returning a valid `ServiceRoute` for a mapped SP/operation, returning null for an unmapped SP, case-insensitive lookups, and graceful handling of null or empty input parameters.",
+        "priority": "high",
+        "dependencies": [],
+        "status": "pending",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Define ServiceRoute Record in ProcedureMapper",
+            "description": "Create the `ServiceRoute` record type within the `ProcedureMapper.cs` file. This record will serve as the data structure for holding resolved service routing information.",
+            "dependencies": [],
+            "details": "In the file `SmartFoundation.Application/Mapping/ProcedureMapper.cs`, add the following public record definition: `public record ServiceRoute(string ServiceName, Type ServiceType, string MethodName, string SpName);`.",
+            "status": "pending",
+            "testStrategy": "Code compilation will verify the record is defined correctly. No specific unit test is required for a data record."
+          },
+          {
+            "id": 2,
+            "title": "Declare and Initialize Service Mapping Dictionaries",
+            "description": "Add the two new static dictionaries, `_serviceRegistry` and `_operationMethodMap`, to the `ProcedureMapper` class. These will store the mappings from stored procedures to services and from operations to method names.",
+            "dependencies": [
+              1
+            ],
+            "details": "In `ProcedureMapper.cs`, declare the static dictionaries `_serviceRegistry` and `_operationMethodMap`, ensuring they are initialized with `StringComparer.OrdinalIgnoreCase`. Add the provided example mappings for 'dbo.sp_SmartFormDemo' and the standard CRUD operations.",
+            "status": "pending",
+            "testStrategy": "Verification will be done through the unit tests for the `GetServiceRoute` method which will rely on these dictionaries being populated correctly."
+          },
+          {
+            "id": 3,
+            "title": "Implement GetServiceRoute Method Logic",
+            "description": "Implement the `GetServiceRoute(string spName, string operation)` method to perform the lookup and return the appropriate service routing information or null if no mapping exists.",
+            "dependencies": [
+              2
+            ],
+            "details": "Implement the logic for `GetServiceRoute`. The method should first attempt to find a route in `_serviceRegistry` using the `spName`. If a route is found, it should then look up the corresponding method name in `_operationMethodMap` using the `operation`. Finally, it should return a new `ServiceRoute` instance with the resolved method name. If the `spName` is not found, the method must return null.",
+            "status": "pending",
+            "testStrategy": "This will be tested via dedicated unit tests covering successful lookups, fallback scenarios, and case-insensitivity."
+          },
+          {
+            "id": 4,
+            "title": "Create Unit Test File and Basic Setup",
+            "description": "Create a new unit test file, `ProcedureMapperTests.cs`, in the appropriate test project to house the tests for the new service routing functionality.",
+            "dependencies": [
+              3
+            ],
+            "details": "In the test project for the Application layer, create a new C# class file named `ProcedureMapperTests.cs`. Add the necessary using statements for xUnit and the project being tested. Define the public test class `ProcedureMapperTests`.",
+            "status": "pending",
+            "testStrategy": "The successful creation and compilation of this file will confirm this task is complete. The file should contain at least one empty, passing test to start."
+          },
+          {
+            "id": 5,
+            "title": "Implement Unit Tests for GetServiceRoute",
+            "description": "Write a comprehensive suite of unit tests for the `GetServiceRoute` method to ensure its correctness and robustness under various conditions.",
+            "dependencies": [
+              4
+            ],
+            "details": "In `ProcedureMapperTests.cs`, add specific xUnit tests to validate the following scenarios: 1) A valid `ServiceRoute` is returned for a mapped SP and operation. 2) Null is returned for an unmapped SP. 3) Lookups are case-insensitive for both `spName` and `operation`. 4) The method handles null or empty string inputs gracefully without throwing exceptions.",
+            "status": "pending",
+            "testStrategy": "Run `dotnet test` and confirm that all tests for `ProcedureMapperTests` pass successfully, covering all specified scenarios."
+          }
+        ]
+      },
+      {
+        "id": 3,
+        "title": "Implement Full CRUD Operations in EmployeeService",
+        "description": "Complete the `EmployeeService` to serve as the reference implementation for the new architecture. Implement Create, Read (by ID), Update, and Delete methods, following the existing `BaseService` pattern.",
+        "details": "In `SmartFoundation.Application/Services/EmployeeService.cs`, add the following methods: `CreateEmployee`, `UpdateEmployee`, `DeleteEmployee`, and `GetEmployeeById`. Each method should accept a `Dictionary<string, object?>` as a parameter and return a `Task<string>`. The implementation for each method should be a single line calling `ExecuteOperation()` from the `BaseService` with the appropriate module ('employee') and operation ('insert', 'update', 'delete', 'getById'). Add comprehensive XML documentation for each method, including parameter details and a return value description of the JSON structure: `{ success: bool, data: object, message: string }`.",
+        "testStrategy": "Create `EmployeeServiceTests.cs`. For each new method, write unit tests that mock `ISmartComponentService` to verify that `ExecuteOperation` is called with the correct parameters. Test both success and failure scenarios by mocking the response from the data engine.",
+        "priority": "high",
+        "dependencies": [
+          1
+        ],
+        "status": "pending",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Implement CreateEmployee Method in EmployeeService",
+            "description": "Add the `CreateEmployee` method to `EmployeeService.cs`. This method will handle the creation of new employee records by delegating to the `BaseService.ExecuteOperation`.",
+            "dependencies": [],
+            "details": "In `SmartFoundation.Application/Services/EmployeeService.cs`, define a public async method `CreateEmployee(Dictionary<string, object?> parameters)` that returns a `Task<string>`. The implementation should be a single line: `return await ExecuteOperation(\"employee\", \"insert\", parameters);`. Add complete XML documentation explaining the method, its parameters, and the JSON string it returns.",
+            "status": "pending",
+            "testStrategy": "Unit tests will be created in a subsequent task to verify this method calls `ExecuteOperation` with the correct module ('employee') and operation ('insert')."
+          },
+          {
+            "id": 2,
+            "title": "Implement GetEmployeeById Method in EmployeeService",
+            "description": "Add the `GetEmployeeById` method to `EmployeeService.cs` to retrieve a single employee record by their ID, following the `BaseService` pattern.",
+            "dependencies": [],
+            "details": "In `SmartFoundation.Application/Services/EmployeeService.cs`, define a public async method `GetEmployeeById(Dictionary<string, object?> parameters)` that returns a `Task<string>`. The implementation should be a single line: `return await ExecuteOperation(\"employee\", \"getById\", parameters);`. Add complete XML documentation explaining the method, its parameters, and the JSON string it returns.",
+            "status": "pending",
+            "testStrategy": "Unit tests will be created in a subsequent task to verify this method calls `ExecuteOperation` with the correct module ('employee') and operation ('getById')."
+          },
+          {
+            "id": 3,
+            "title": "Implement UpdateEmployee Method in EmployeeService",
+            "description": "Add the `UpdateEmployee` method to `EmployeeService.cs` to handle updates to existing employee records by delegating to the `BaseService`.",
+            "dependencies": [],
+            "details": "In `SmartFoundation.Application/Services/EmployeeService.cs`, define a public async method `UpdateEmployee(Dictionary<string, object?> parameters)` that returns a `Task<string>`. The implementation should be a single line: `return await ExecuteOperation(\"employee\", \"update\", parameters);`. Add complete XML documentation explaining the method, its parameters, and the JSON string it returns.",
+            "status": "pending",
+            "testStrategy": "Unit tests will be created in a subsequent task to verify this method calls `ExecuteOperation` with the correct module ('employee') and operation ('update')."
+          },
+          {
+            "id": 4,
+            "title": "Implement DeleteEmployee Method in EmployeeService",
+            "description": "Add the `DeleteEmployee` method to `EmployeeService.cs` to handle the deletion of employee records, completing the CRUD functionality.",
+            "dependencies": [],
+            "details": "In `SmartFoundation.Application/Services/EmployeeService.cs`, define a public async method `DeleteEmployee(Dictionary<string, object?> parameters)` that returns a `Task<string>`. The implementation should be a single line: `return await ExecuteOperation(\"employee\", \"delete\", parameters);`. Add complete XML documentation explaining the method, its parameters, and the JSON string it returns.",
+            "status": "pending",
+            "testStrategy": "Unit tests will be created in a subsequent task to verify this method calls `ExecuteOperation` with the correct module ('employee') and operation ('delete')."
+          },
+          {
+            "id": 5,
+            "title": "Create Unit Test Suite for EmployeeService",
+            "description": "Create the `EmployeeServiceTests.cs` file and implement unit tests for all four CRUD methods to ensure they correctly call the base `ExecuteOperation` method.",
+            "dependencies": [
+              1,
+              2,
+              3,
+              4
+            ],
+            "details": "In the test project, create `EmployeeServiceTests.cs`. Using a mocking framework, mock the `ISmartComponentService` dependency. For each of the four methods, write tests to verify that `ExecuteOperation` is called with the correct 'module' and 'operation' strings. Test both success and failure scenarios by mocking the return value from the data engine.",
+            "status": "pending",
+            "testStrategy": "Run the tests using `dotnet test`. All tests must pass, and code coverage for `EmployeeService.cs` should be verified to be above an acceptable threshold."
+          }
+        ]
+      },
+      {
+        "id": 4,
+        "title": "Refactor SmartComponentController for Intelligent Routing",
+        "description": "Transform `SmartComponentController` into an intelligent router that directs requests to the Application Layer or falls back to the DataEngine. This is the core of the refactoring, ensuring backward compatibility while enabling the new architecture.",
+        "details": "In `SmartFoundation.Mvc/Controllers/SmartComponentController.cs`, inject `IServiceProvider` and `ILogger<SmartComponentController>`. Modify the `Execute` method to first call `ProcedureMapper.GetServiceRoute()`. If a route is returned, use `IServiceProvider.GetRequiredService()` to resolve the service instance. Use reflection (`serviceType.GetMethod()`, `method.Invoke()`) to call the specified method, passing `request.Params`. The method returns a JSON string; deserialize this into a `SmartResponse` object. If `GetServiceRoute()` returns null, execute the legacy path by calling `_dataEngine.ExecuteAsync(request, ct)`. Implement robust logging for both paths and comprehensive try-catch blocks to handle reflection, service resolution, and JSON parsing errors.",
+        "testStrategy": "Create `SmartComponentControllerTests.cs`. Mock `ProcedureMapper`, `IServiceProvider`, and `ISmartComponentService`. Test the following scenarios: 1) A valid route is found, and the correct service method is invoked. 2) No route is found, and the controller falls back to the DataEngine. 3) Service resolution fails, and a structured error is returned. 4) Method invocation via reflection fails, and an error is returned.",
+        "priority": "high",
+        "dependencies": [
+          2,
+          3
+        ],
+        "status": "pending",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Inject IServiceProvider and ILogger into SmartComponentController",
+            "description": "Modify the constructor of `SmartComponentController` to accept `IServiceProvider` and `ILogger<SmartComponentController>` via dependency injection and store them in private fields for later use.",
+            "dependencies": [],
+            "details": "In `SmartFoundation.Mvc/Controllers/SmartComponentController.cs`, update the constructor to accept `IServiceProvider serviceProvider` and `ILogger<SmartComponentController> logger`. Initialize new private readonly fields for these services.",
+            "status": "pending",
+            "testStrategy": "Compile the project to ensure the dependency injection container can construct the controller without errors. Unit tests for subsequent tasks will verify the usage of these injected services."
+          },
+          {
+            "id": 2,
+            "title": "Implement Core Routing Logic in Execute Method",
+            "description": "Modify the `Execute` method to call `ProcedureMapper.GetServiceRoute()` and create the primary if/else structure to differentiate between the new Application Layer path and the legacy DataEngine path.",
+            "dependencies": [
+              1
+            ],
+            "details": "Within the `Execute` method, call `ProcedureMapper.GetServiceRoute(request.SpName, request.Operation)`. Store the result in a variable. Create an `if (route != null)` block for the new service logic and an `else` block for the legacy fallback.",
+            "status": "pending",
+            "testStrategy": "In a unit test, mock `ProcedureMapper.GetServiceRoute`. Verify that when a valid route is returned, the code enters the `if` block, and when null is returned, it enters the `else` block."
+          },
+          {
+            "id": 3,
+            "title": "Implement Application Service Invocation via Reflection",
+            "description": "Develop the logic within the new service route path to resolve the service instance, find the target method using reflection, invoke it with request parameters, and deserialize the resulting JSON string into a `SmartResponse` object.",
+            "dependencies": [
+              2
+            ],
+            "details": "Inside the `if (route != null)` block, use `_serviceProvider.GetRequiredService(route.ServiceType)` to get the service. Then, use `route.ServiceType.GetMethod(route.MethodName)` and `method.Invoke()` to execute the service method, passing `request.Params`. Use `JsonSerializer.Deserialize` on the string result.",
+            "status": "pending",
+            "testStrategy": "Unit test with a mocked `IServiceProvider` and a sample service. Verify that the correct service method is invoked with the expected parameters and that the JSON string returned by the mock is correctly deserialized."
+          },
+          {
+            "id": 4,
+            "title": "Ensure Legacy DataEngine Fallback Path is Maintained",
+            "description": "Implement the `else` block of the routing logic to ensure that when no service route is found, the request is correctly forwarded to the `_dataEngine.ExecuteAsync` method, maintaining full backward compatibility.",
+            "dependencies": [
+              2
+            ],
+            "details": "In the `else` block of the `if (route != null)` check, place the existing call: `return await _dataEngine.ExecuteAsync(request, ct);`. This ensures that any request not mapped to a new service behaves exactly as it did before the refactor.",
+            "status": "pending",
+            "testStrategy": "In a unit test, mock `ProcedureMapper.GetServiceRoute` to return null. Verify that the mock `_dataEngine.ExecuteAsync` method is called exactly once with the original request object."
+          },
+          {
+            "id": 5,
+            "title": "Add Robust Error Handling and Logging",
+            "description": "Wrap the new service invocation logic in a comprehensive try-catch block and add detailed logging for both the new service path and the legacy fallback path to aid in debugging and monitoring.",
+            "dependencies": [
+              3,
+              4
+            ],
+            "details": "Add a `try-catch` block around the service resolution, reflection, and deserialization logic. Catch specific exceptions like `InvalidOperationException` for service resolution failures and `JsonException` for parsing errors. Use the injected `ILogger` to log which path is taken and any errors that occur.",
+            "status": "pending",
+            "testStrategy": "Write unit tests that force exceptions during service resolution, method invocation, and JSON deserialization. Verify that the exceptions are caught, the logger is called with the correct error message, and a proper error `SmartResponse` is returned."
+          }
+        ]
+      },
+      {
+        "id": 5,
+        "title": "Create Unit Test Suite for ProcedureMapper",
+        "description": "Develop a comprehensive set of unit tests for the enhanced ProcedureMapper to ensure the routing logic is correct, reliable, and handles all edge cases.",
+        "details": "In the `SmartFoundation.Application.Tests` project, create `ProcedureMapperTests.cs`. Using xUnit, write tests to validate the `GetServiceRoute` method. Test cases should include: `GetServiceRoute_ValidSpNameAndOperation_ReturnsCorrectRoute`, `GetServiceRoute_UnregisteredSpName_ReturnsNull`, `GetServiceRoute_CaseInsensitiveSpName_ReturnsCorrectRoute`, `GetServiceRoute_NullSpName_ReturnsNull`, and `GetServiceRoute_ValidSpNameButUnmappedOperation_ReturnsRouteWithNullMethodName` (or similar logic as implemented). Ensure tests validate all properties of the returned `ServiceRoute` object.",
+        "testStrategy": "Execute the tests using `dotnet test`. Aim for at least 90% code coverage for `ProcedureMapper.cs`. All tests must pass before the task is considered complete.",
+        "priority": "medium",
+        "dependencies": [
+          2
+        ],
+        "status": "pending",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Setup ProcedureMapperTests and Implement Happy Path Test",
+            "description": "Create the `ProcedureMapperTests.cs` file and set up the basic test class structure. Implement the first unit test to verify that `GetServiceRoute` returns the correct `ServiceRoute` object for a valid, registered stored procedure name and operation.",
+            "dependencies": [],
+            "details": "In the `SmartFoundation.Application.Tests` project, create the file `ProcedureMapperTests.cs`. Using xUnit, write the test `GetServiceRoute_ValidSpNameAndOperation_ReturnsCorrectRoute`. Assert that the returned `ServiceRoute` is not null and its properties match the expected values.",
+            "status": "pending",
+            "testStrategy": "Run `dotnet test`. The test should pass, confirming the basic setup and the correct mapping for a valid input."
+          },
+          {
+            "id": 2,
+            "title": "Test Handling of Unregistered Stored Procedure Names",
+            "description": "Implement a unit test to ensure that `GetServiceRoute` correctly handles requests for stored procedure names that are not registered in the mapper, expecting a null return.",
+            "dependencies": [
+              1
+            ],
+            "details": "Add the test case `GetServiceRoute_UnregisteredSpName_ReturnsNull` to `ProcedureMapperTests.cs`. Call `GetServiceRoute` with a string that does not correspond to any registered stored procedure. Assert that the method returns `null`.",
+            "status": "pending",
+            "testStrategy": "Run `dotnet test`. The new test should pass, verifying that the mapper correctly ignores unregistered procedures."
+          },
+          {
+            "id": 3,
+            "title": "Test Case-Insensitive Lookup for Stored Procedure Names",
+            "description": "Implement a unit test to confirm that the stored procedure name lookup is case-insensitive, returning the correct route regardless of the input's casing.",
+            "dependencies": [
+              1
+            ],
+            "details": "Add the test case `GetServiceRoute_CaseInsensitiveSpName_ReturnsCorrectRoute`. Call `GetServiceRoute` with a valid stored procedure name but with varied casing (e.g., 'uSP_GET_DATA', 'usp_get_data'). Assert that the correct `ServiceRoute` is returned.",
+            "status": "pending",
+            "testStrategy": "Run `dotnet test`. The test should pass, ensuring the lookup logic correctly uses a case-insensitive comparison."
+          },
+          {
+            "id": 4,
+            "title": "Test Handling of Null Stored Procedure Name Input",
+            "description": "Implement a unit test to verify the behavior of `GetServiceRoute` when a null value is passed as the stored procedure name, ensuring it fails gracefully.",
+            "dependencies": [
+              1
+            ],
+            "details": "Add the test case `GetServiceRoute_NullSpName_ReturnsNull`. Call `GetServiceRoute` with `null` as the `spName` argument. Assert that the result is `null` to prevent potential null reference exceptions in the calling code.",
+            "status": "pending",
+            "testStrategy": "Run `dotnet test`. The test should pass, confirming robust handling of null inputs."
+          },
+          {
+            "id": 5,
+            "title": "Test Unmapped Operation for a Valid Stored Procedure",
+            "description": "Implement a unit test for the scenario where a valid stored procedure name is provided, but the specific operation is not mapped to a method.",
+            "dependencies": [
+              1
+            ],
+            "details": "Add the test case `GetServiceRoute_ValidSpNameButUnmappedOperation_ReturnsRouteWithNullMethodName`. Call `GetServiceRoute` with a valid `spName` but an `operation` that doesn't exist in its mapping. Assert that a `ServiceRoute` object is returned with the correct `ServiceType` but its `MethodName` property is `null`.",
+            "status": "pending",
+            "testStrategy": "Run `dotnet test`. The test should pass, verifying the logic for handling partially matched routes where only the service is identified."
+          }
+        ]
+      },
+      {
+        "id": 6,
+        "title": "Create Unit Test Suite for EmployeeService",
+        "description": "Develop unit tests for all CRUD methods in `EmployeeService` to verify they correctly interact with the `BaseService` and the DataEngine layer.",
+        "details": "In the `SmartFoundation.Application.Tests` project, create `EmployeeServiceTests.cs`. Using xUnit and Moq, mock the `ISmartComponentService` dependency. For each method (`CreateEmployee`, `UpdateEmployee`, etc.), write a test that verifies the underlying `ExecuteAsync` method on the mock is called with a `SmartRequest` containing the correct `SpName` and `Operation`. The `SpName` should be resolved from the internal `ProcedureMapper._mappings`. Test that the JSON string returned by the service correctly reflects the mocked `SmartResponse` from the data engine.",
+        "testStrategy": "Execute the tests using `dotnet test`. Verify that tests for all four new CRUD methods pass. Check for both happy path and error handling scenarios by manipulating the mocked `SmartResponse`.",
+        "priority": "medium",
+        "dependencies": [
+          3
+        ],
+        "status": "pending",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Initialize EmployeeServiceTests Class and Mocks",
+            "description": "Create the `EmployeeServiceTests.cs` file and set up the basic test class structure, including the mock for `ISmartComponentService` and the System Under Test (SUT), `EmployeeService`.",
+            "dependencies": [],
+            "details": "In the `SmartFoundation.Application.Tests` project, create the `EmployeeServiceTests.cs` file. Use Moq to create a `Mock<ISmartComponentService>`. In the test class constructor, instantiate `EmployeeService`, passing the mocked service object (`mock.Object`).",
+            "status": "pending",
+            "testStrategy": "This is a setup task. Its success is verified by the compilation of the test file and the successful execution of the tests that depend on it."
+          },
+          {
+            "id": 2,
+            "title": "Create Unit Test for EmployeeService.CreateEmployee",
+            "description": "Write a unit test to verify the `CreateEmployee` method correctly constructs and sends a `SmartRequest` to the data engine and processes the response.",
+            "dependencies": [
+              1
+            ],
+            "details": "Create a test method for `CreateEmployee`. Mock the `ExecuteAsync` method on the `ISmartComponentService` mock to return a predefined `SmartResponse`. Call `employeeService.CreateEmployee()`. Use `Moq.Verify()` to confirm `ExecuteAsync` was called with a `SmartRequest` containing `SpName` 'usp_Employee' and `Operation` 'Create'. Assert the returned JSON string matches the mocked response.",
+            "status": "pending",
+            "testStrategy": "Execute the test using `dotnet test`. The test should pass if the `Verify()` call succeeds and the returned JSON string matches the expected value from the mocked `SmartResponse`."
+          },
+          {
+            "id": 3,
+            "title": "Create Unit Test for EmployeeService.GetEmployee",
+            "description": "Write a unit test for a 'Get' method (e.g., `GetEmployee`) to ensure it correctly queries the data engine for an employee record.",
+            "dependencies": [
+              1
+            ],
+            "details": "Create a test method for retrieving an employee. Mock `ExecuteAsync` to return a `SmartResponse` with sample employee data. Call the 'Get' method on the service with a test ID. Verify `ExecuteAsync` was called with `SpName` 'usp_Employee' and `Operation` 'Get'. Assert the returned JSON string is correctly formatted based on the mock response.",
+            "status": "pending",
+            "testStrategy": "Execute the test using `dotnet test`. The test should pass, confirming the correct parameters are sent to the data engine mock and the response is handled properly."
+          },
+          {
+            "id": 4,
+            "title": "Create Unit Test for EmployeeService.UpdateEmployee",
+            "description": "Write a unit test for the `UpdateEmployee` method to validate its interaction with the data engine for updating an employee record.",
+            "dependencies": [
+              1
+            ],
+            "details": "Create a test method for `UpdateEmployee`. Mock the `ExecuteAsync` method to return a successful `SmartResponse`. Call `employeeService.UpdateEmployee()` with test data. Verify `ExecuteAsync` was called with `SpName` 'usp_Employee' and `Operation` 'Update'. Assert the returned JSON string matches the expected output from the mocked response.",
+            "status": "pending",
+            "testStrategy": "Execute the test using `dotnet test`. The test should pass, confirming the update logic correctly calls the underlying service with the correct parameters."
+          },
+          {
+            "id": 5,
+            "title": "Create Unit Test for EmployeeService.DeleteEmployee",
+            "description": "Write a unit test for the `DeleteEmployee` method to ensure it correctly sends a deletion request to the data engine.",
+            "dependencies": [
+              1
+            ],
+            "details": "Create a test method for `DeleteEmployee`. Mock the `ExecuteAsync` method to return a successful `SmartResponse` indicating deletion. Call `employeeService.DeleteEmployee()` with a test ID. Verify `ExecuteAsync` was called with `SpName` 'usp_Employee' and `Operation` 'Delete'. Assert the returned JSON string is as expected.",
+            "status": "pending",
+            "testStrategy": "Execute the test using `dotnet test`. The test should pass, confirming the delete logic correctly interacts with the data engine mock and verifies the call parameters."
+          }
+        ]
+      },
+      {
+        "id": 7,
+        "title": "Create Unit Test Suite for SmartComponentController",
+        "description": "Develop unit tests for the refactored `SmartComponentController` to validate its routing logic, including the new Application Layer path and the legacy fallback path.",
+        "details": "In the MVC test project, create `SmartComponentControllerTests.cs`. Using xUnit and Moq, create mocks for `IServiceProvider`, `ILogger`, `ISmartComponentService`, and a mock `EmployeeService`. \n1. Test the Application Layer path: Setup `ProcedureMapper` to return a valid route for `EmployeeService`. Setup the `IServiceProvider` mock to return the mock `EmployeeService`. Verify that the correct method on the mock service is called and that the controller correctly converts its JSON response to an `OkObjectResult` with a `SmartResponse`. \n2. Test the fallback path: Setup `ProcedureMapper` to return null. Verify that `_dataEngine.ExecuteAsync` is called and its result is returned.",
+        "testStrategy": "Execute the tests using `dotnet test`. Ensure all tests pass, covering the main logic branches, service resolution failures, and reflection errors. Use `Moq.Verify()` to confirm that the correct methods on the dependencies were called.",
+        "priority": "medium",
+        "dependencies": [
+          4
+        ],
+        "status": "pending",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Initialize Test Class and Core Mocks for SmartComponentController",
+            "description": "Create the `SmartComponentControllerTests.cs` file and set up the necessary using statements, the test class structure, and initialize the core mocks required for all subsequent tests.",
+            "dependencies": [],
+            "details": "In the MVC test project, create the `SmartComponentControllerTests.cs` file. Define the test class and create private fields for mocks of `IServiceProvider`, `ILogger<SmartComponentController>`, `ISmartComponentService`, and `IProcedureMapper`. Use a constructor to initialize these mocks using `new Mock<T>()`.",
+            "status": "pending",
+            "testStrategy": "This is a setup task. Verification is complete once the test project compiles successfully without any errors in the new test file."
+          },
+          {
+            "id": 2,
+            "title": "Test Successful Routing to Application Layer Service",
+            "description": "Create a unit test to verify that when `ProcedureMapper` returns a valid route, the controller correctly resolves the service, invokes the method, and returns the expected `OkObjectResult` with a `SmartResponse`.",
+            "dependencies": [
+              1
+            ],
+            "details": "Create a test method `Execute_WithValidServiceRoute_InvokesApplicationService`. Mock `IProcedureMapper.GetServiceRoute` to return a valid `ServiceRoute`. Mock `IServiceProvider` to return a mock `EmployeeService`. Mock the target method on `EmployeeService` to return a JSON string. Call the controller's `Execute` method. Verify the `EmployeeService` method was called and the result is an `OkObjectResult` containing a deserialized `SmartResponse`.",
+            "status": "pending",
+            "testStrategy": "Use xUnit's `Assert` to check the result type (`OkObjectResult`) and the content of the `SmartResponse`. Use `Moq.Verify()` to confirm the correct service method was called exactly once."
+          },
+          {
+            "id": 3,
+            "title": "Test Successful Fallback to Legacy DataEngine Path",
+            "description": "Create a unit test to ensure that when `ProcedureMapper` does not find a route, the controller correctly falls back to the legacy `ISmartComponentService` (DataEngine) path.",
+            "dependencies": [
+              1
+            ],
+            "details": "Create a test method `Execute_WithNullServiceRoute_InvokesLegacyDataEngine`. Mock `IProcedureMapper.GetServiceRoute` to return null. Mock `ISmartComponentService.ExecuteAsync` to return a successful `SmartResponse`. Call the controller's `Execute` method. Verify that `ISmartComponentService.ExecuteAsync` was called and its response is returned directly as an `OkObjectResult`.",
+            "status": "pending",
+            "testStrategy": "Use `Assert` to check that the returned `OkObjectResult` contains the exact `SmartResponse` object returned by the mocked `ISmartComponentService`. Use `Moq.Verify()` to confirm `ExecuteAsync` was called."
+          },
+          {
+            "id": 4,
+            "title": "Test Graceful Handling of Service Resolution Failure",
+            "description": "Write a test to validate the controller's behavior when `ProcedureMapper` provides a valid route, but the `IServiceProvider` fails to resolve the corresponding service.",
+            "dependencies": [
+              1
+            ],
+            "details": "Create a test method `Execute_WhenServiceNotResolved_ReturnsErrorResponse`. Mock `IProcedureMapper.GetServiceRoute` to return a valid `ServiceRoute`. Configure the mock `IServiceProvider.GetService` to return null for the requested service type. Call the controller's `Execute` method. Assert that the result is a `StatusCodeResult` with a 500 status code.",
+            "status": "pending",
+            "testStrategy": "Assert the HTTP status code of the result is 500. Verify that the `ILogger` was called with an error-level message indicating the service could not be resolved."
+          },
+          {
+            "id": 5,
+            "title": "Test Graceful Handling of Method Invocation Exception",
+            "description": "Test the controller's error handling when an exception is thrown during the dynamic invocation of the application service method.",
+            "dependencies": [
+              1,
+              2
+            ],
+            "details": "Create a test method `Execute_WhenServiceMethodThrowsException_ReturnsErrorResponse`. Mock `IProcedureMapper.GetServiceRoute` to return a valid route and `IServiceProvider` to return a mock `EmployeeService`. Configure the mock `EmployeeService` method to throw an exception when called. Call the controller's `Execute` method. Assert that the result is a `StatusCodeResult` with a 500 status code.",
+            "status": "pending",
+            "testStrategy": "Assert the HTTP status code of the result is 500. Use `Moq.Verify()` to confirm that the `ILogger` was called with an error-level message containing the exception details."
+          }
+        ]
+      },
+      {
+        "id": 8,
+        "title": "Perform Integration Testing and Finalize Documentation",
+        "description": "Conduct end-to-end integration testing to validate the entire request flow from the front-end to the database and back. Finalize all technical and architectural documentation.",
+        "details": "Manually test the application using the `sf-table.js` front-end component. Verify that all CRUD operations for the Employee module work as expected, confirming they are routed through the new Application Layer path by checking application logs. Test a component that has not been migrated (e.g., Menu) to ensure the fallback path to the DataEngine is functioning correctly. Concurrently, update the project's `README.md` and any architecture documents (`architecture.md`) to reflect the new Clean Architecture flow. Create a migration guide for developers on how to add new services following the `EmployeeService` pattern.",
+        "testStrategy": "The test strategy involves a combination of manual and automated checks. 1. Manual E2E testing: Use a browser's developer tools to monitor network requests to `/smart/execute` and inspect responses. 2. Log verification: Check application logs to confirm that requests for 'dbo.sp_SmartFormDemo' are logged as 'Routing to Application Layer' and other SPs are logged as 'falling back to direct DataEngine'. 3. Documentation review: A peer review of the updated documentation for clarity and accuracy.",
+        "priority": "medium",
+        "dependencies": [
+          5,
+          6,
+          7
+        ],
+        "status": "pending",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Perform E2E Testing for Employee Module CRUD Operations",
+            "description": "Manually test the Create, Read, Update, and Delete functionalities for the Employee module using the `sf-table.js` front-end component to ensure the new application layer integration is working correctly.",
+            "dependencies": [],
+            "details": "Open the application in a browser and navigate to the Employee management page. Use the UI to create a new employee, view its details, update its information, and finally delete it. Use browser developer tools to monitor network requests to `/smart/execute`.",
+            "status": "pending",
+            "testStrategy": "Verify that each CRUD operation results in a successful UI update and a 200 OK response from the server. Check the network response payload to ensure it contains the expected data."
+          },
+          {
+            "id": 2,
+            "title": "Verify Application Layer Routing for Employee Service via Logs",
+            "description": "While performing the E2E tests for the Employee module, inspect the application logs to confirm that requests are being correctly routed through the new `EmployeeService` in the Application Layer.",
+            "dependencies": [
+              1
+            ],
+            "details": "While performing the Employee CRUD operations, monitor the application logs. Look for log entries originating from `SmartComponentController` and `EmployeeService` specifically for the 'dbo.sp_SmartFormDemo' procedure calls to confirm the new path is being used.",
+            "status": "pending",
+            "testStrategy": "Confirm the presence of log messages indicating invocation of `EmployeeService` methods and the absence of direct calls to the old DataEngine for these specific operations."
+          },
+          {
+            "id": 3,
+            "title": "Test Fallback Routing for an Unmigrated Component",
+            "description": "Test a component that has not been migrated to the new architecture, such as the Menu component, to ensure the `SmartComponentController` correctly falls back to the legacy DataEngine path.",
+            "dependencies": [
+              1,
+              2
+            ],
+            "details": "Interact with a part of the application that is known to not use the new service layer, for example, loading the main menu. Check the application logs to confirm that the request was handled by the legacy DataEngine path within the `SmartComponentController`.",
+            "status": "pending",
+            "testStrategy": "Monitor application logs to verify that the controller's fallback logic is triggered and the request is processed by the `DataEngine` as expected. The UI for the unmigrated component should function without errors."
+          },
+          {
+            "id": 4,
+            "title": "Update README.md and Architecture Documentation",
+            "description": "Update the project's `README.md` and any architectural documents (e.g., `architecture.md`) to accurately reflect the new Clean Architecture flow, including the role of the `SmartComponentController` and Application Layer services.",
+            "dependencies": [
+              3
+            ],
+            "details": "Edit `README.md` to include a high-level overview of the new request flow. Update `architecture.md` with diagrams and descriptions showing how requests are routed to services or fall back to the legacy DataEngine. Ensure all changes are clear and concise.",
+            "status": "pending",
+            "testStrategy": "Peer review of the updated documentation by another team member to ensure clarity, accuracy, and completeness."
+          },
+          {
+            "id": 5,
+            "title": "Create Developer Guide for Migrating to the New Service Pattern",
+            "description": "Write a clear, step-by-step guide for developers on how to create new services in the Application Layer and register them, using `EmployeeService` as the primary example.",
+            "dependencies": [
+              4
+            ],
+            "details": "Create a new markdown file, `MIGRATION_GUIDE.md`. Document the process: 1. Create a new service class. 2. Implement methods for each operation. 3. Register the service in `ProcedureMapper`. 4. Add the service to the DI container in `ServiceCollectionExtensions.cs`.",
+            "status": "pending",
+            "testStrategy": "Have a developer who was not involved in the initial implementation follow the guide to create a new, simple service. If they can do so successfully without assistance, the guide is considered complete."
+          }
+        ]
+      }
+    ],
+    "metadata": {
+      "created": "2025-11-06T08:20:43.086Z",
+      "updated": "2025-11-06T08:20:43.087Z",
+      "description": "Tasks for master context"
+    }
+  }
+}

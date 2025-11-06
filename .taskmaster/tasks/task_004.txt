@@ -1,0 +1,43 @@
+# Task ID: 4
+# Title: Refactor SmartComponentController for Intelligent Routing
+# Status: pending
+# Dependencies: 2, 3
+# Priority: high
+# Description: Transform `SmartComponentController` into an intelligent router that directs requests to the Application Layer or falls back to the DataEngine. This is the core of the refactoring, ensuring backward compatibility while enabling the new architecture.
+# Details:
+In `SmartFoundation.Mvc/Controllers/SmartComponentController.cs`, inject `IServiceProvider` and `ILogger<SmartComponentController>`. Modify the `Execute` method to first call `ProcedureMapper.GetServiceRoute()`. If a route is returned, use `IServiceProvider.GetRequiredService()` to resolve the service instance. Use reflection (`serviceType.GetMethod()`, `method.Invoke()`) to call the specified method, passing `request.Params`. The method returns a JSON string; deserialize this into a `SmartResponse` object. If `GetServiceRoute()` returns null, execute the legacy path by calling `_dataEngine.ExecuteAsync(request, ct)`. Implement robust logging for both paths and comprehensive try-catch blocks to handle reflection, service resolution, and JSON parsing errors.
+
+# Test Strategy:
+Create `SmartComponentControllerTests.cs`. Mock `ProcedureMapper`, `IServiceProvider`, and `ISmartComponentService`. Test the following scenarios: 1) A valid route is found, and the correct service method is invoked. 2) No route is found, and the controller falls back to the DataEngine. 3) Service resolution fails, and a structured error is returned. 4) Method invocation via reflection fails, and an error is returned.
+
+# Subtasks:
+## 1. Inject IServiceProvider and ILogger into SmartComponentController [pending]
+### Dependencies: None
+### Description: Modify the constructor of `SmartComponentController` to accept `IServiceProvider` and `ILogger<SmartComponentController>` via dependency injection and store them in private fields for later use.
+### Details:
+In `SmartFoundation.Mvc/Controllers/SmartComponentController.cs`, update the constructor to accept `IServiceProvider serviceProvider` and `ILogger<SmartComponentController> logger`. Initialize new private readonly fields for these services.
+
+## 2. Implement Core Routing Logic in Execute Method [pending]
+### Dependencies: 4.1
+### Description: Modify the `Execute` method to call `ProcedureMapper.GetServiceRoute()` and create the primary if/else structure to differentiate between the new Application Layer path and the legacy DataEngine path.
+### Details:
+Within the `Execute` method, call `ProcedureMapper.GetServiceRoute(request.SpName, request.Operation)`. Store the result in a variable. Create an `if (route != null)` block for the new service logic and an `else` block for the legacy fallback.
+
+## 3. Implement Application Service Invocation via Reflection [pending]
+### Dependencies: 4.2
+### Description: Develop the logic within the new service route path to resolve the service instance, find the target method using reflection, invoke it with request parameters, and deserialize the resulting JSON string into a `SmartResponse` object.
+### Details:
+Inside the `if (route != null)` block, use `_serviceProvider.GetRequiredService(route.ServiceType)` to get the service. Then, use `route.ServiceType.GetMethod(route.MethodName)` and `method.Invoke()` to execute the service method, passing `request.Params`. Use `JsonSerializer.Deserialize` on the string result.
+
+## 4. Ensure Legacy DataEngine Fallback Path is Maintained [pending]
+### Dependencies: 4.2
+### Description: Implement the `else` block of the routing logic to ensure that when no service route is found, the request is correctly forwarded to the `_dataEngine.ExecuteAsync` method, maintaining full backward compatibility.
+### Details:
+In the `else` block of the `if (route != null)` check, place the existing call: `return await _dataEngine.ExecuteAsync(request, ct);`. This ensures that any request not mapped to a new service behaves exactly as it did before the refactor.
+
+## 5. Add Robust Error Handling and Logging [pending]
+### Dependencies: 4.3, 4.4
+### Description: Wrap the new service invocation logic in a comprehensive try-catch block and add detailed logging for both the new service path and the legacy fallback path to aid in debugging and monitoring.
+### Details:
+Add a `try-catch` block around the service resolution, reflection, and deserialization logic. Catch specific exceptions like `InvalidOperationException` for service resolution failures and `JsonException` for parsing errors. Use the injected `ILogger` to log which path is taken and any errors that occur.
+

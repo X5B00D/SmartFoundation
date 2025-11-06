@@ -1,0 +1,43 @@
+# Task ID: 3
+# Title: Implement Full CRUD Operations in EmployeeService
+# Status: pending
+# Dependencies: 1
+# Priority: high
+# Description: Complete the `EmployeeService` to serve as the reference implementation for the new architecture. Implement Create, Read (by ID), Update, and Delete methods, following the existing `BaseService` pattern.
+# Details:
+In `SmartFoundation.Application/Services/EmployeeService.cs`, add the following methods: `CreateEmployee`, `UpdateEmployee`, `DeleteEmployee`, and `GetEmployeeById`. Each method should accept a `Dictionary<string, object?>` as a parameter and return a `Task<string>`. The implementation for each method should be a single line calling `ExecuteOperation()` from the `BaseService` with the appropriate module ('employee') and operation ('insert', 'update', 'delete', 'getById'). Add comprehensive XML documentation for each method, including parameter details and a return value description of the JSON structure: `{ success: bool, data: object, message: string }`.
+
+# Test Strategy:
+Create `EmployeeServiceTests.cs`. For each new method, write unit tests that mock `ISmartComponentService` to verify that `ExecuteOperation` is called with the correct parameters. Test both success and failure scenarios by mocking the response from the data engine.
+
+# Subtasks:
+## 1. Implement CreateEmployee Method in EmployeeService [pending]
+### Dependencies: None
+### Description: Add the `CreateEmployee` method to `EmployeeService.cs`. This method will handle the creation of new employee records by delegating to the `BaseService.ExecuteOperation`.
+### Details:
+In `SmartFoundation.Application/Services/EmployeeService.cs`, define a public async method `CreateEmployee(Dictionary<string, object?> parameters)` that returns a `Task<string>`. The implementation should be a single line: `return await ExecuteOperation("employee", "insert", parameters);`. Add complete XML documentation explaining the method, its parameters, and the JSON string it returns.
+
+## 2. Implement GetEmployeeById Method in EmployeeService [pending]
+### Dependencies: None
+### Description: Add the `GetEmployeeById` method to `EmployeeService.cs` to retrieve a single employee record by their ID, following the `BaseService` pattern.
+### Details:
+In `SmartFoundation.Application/Services/EmployeeService.cs`, define a public async method `GetEmployeeById(Dictionary<string, object?> parameters)` that returns a `Task<string>`. The implementation should be a single line: `return await ExecuteOperation("employee", "getById", parameters);`. Add complete XML documentation explaining the method, its parameters, and the JSON string it returns.
+
+## 3. Implement UpdateEmployee Method in EmployeeService [pending]
+### Dependencies: None
+### Description: Add the `UpdateEmployee` method to `EmployeeService.cs` to handle updates to existing employee records by delegating to the `BaseService`.
+### Details:
+In `SmartFoundation.Application/Services/EmployeeService.cs`, define a public async method `UpdateEmployee(Dictionary<string, object?> parameters)` that returns a `Task<string>`. The implementation should be a single line: `return await ExecuteOperation("employee", "update", parameters);`. Add complete XML documentation explaining the method, its parameters, and the JSON string it returns.
+
+## 4. Implement DeleteEmployee Method in EmployeeService [pending]
+### Dependencies: None
+### Description: Add the `DeleteEmployee` method to `EmployeeService.cs` to handle the deletion of employee records, completing the CRUD functionality.
+### Details:
+In `SmartFoundation.Application/Services/EmployeeService.cs`, define a public async method `DeleteEmployee(Dictionary<string, object?> parameters)` that returns a `Task<string>`. The implementation should be a single line: `return await ExecuteOperation("employee", "delete", parameters);`. Add complete XML documentation explaining the method, its parameters, and the JSON string it returns.
+
+## 5. Create Unit Test Suite for EmployeeService [pending]
+### Dependencies: 3.1, 3.2, 3.3, 3.4
+### Description: Create the `EmployeeServiceTests.cs` file and implement unit tests for all four CRUD methods to ensure they correctly call the base `ExecuteOperation` method.
+### Details:
+In the test project, create `EmployeeServiceTests.cs`. Using a mocking framework, mock the `ISmartComponentService` dependency. For each of the four methods, write tests to verify that `ExecuteOperation` is called with the correct 'module' and 'operation' strings. Test both success and failure scenarios by mocking the return value from the data engine.
+
