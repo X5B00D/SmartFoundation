@@ -1,5 +1,6 @@
 namespace SmartFoundation.Application.Mapping;
 
+using SmartFoundation.Application.Services;
 /// <summary>
 /// Data structure for holding service routing information.
 /// Used by SmartComponentController to dynamically resolve and invoke service methods.
@@ -33,6 +34,9 @@ public static class ProcedureMapper
         // Dashboard operations
         { "dashboard:summary", "dbo.sp_GetDashboardSummary" },
         
+        // Session operations
+        { "session:getInfo", "dbo.GetSessionInfoForMVC" },
+        
         // Demo operations
         { "demo:getData", "dbo.sp_GetDemoData" },
         { "demo:saveForm", "dbo.sp_SaveDemoForm" },
@@ -50,7 +54,10 @@ public static class ProcedureMapper
   private static readonly Dictionary<string, ServiceRoute> _serviceRegistry = new(StringComparer.OrdinalIgnoreCase)
     {
         // Employee service mapping
-        { "dbo.sp_SmartFormDemo", new ServiceRoute("employee", typeof(Services.EmployeeService), null!, "dbo.sp_SmartFormDemo") }
+        { "dbo.sp_SmartFormDemo", new ServiceRoute("employee", typeof(Services.EmployeeService), null!, "dbo.sp_SmartFormDemo") },
+        
+        // Session service mapping
+        { "dbo.GetSessionInfoForMVC", new ServiceRoute("session", typeof(Services.SessionService), null!, "dbo.GetSessionInfoForMVC") }
         
         // Add more service mappings here as services are created
         // Example: { "dbo.sp_DepartmentOperations", new ServiceRoute("department", typeof(DepartmentService), null!, "dbo.sp_DepartmentOperations") }
@@ -73,7 +80,11 @@ public static class ProcedureMapper
         // Alternative operation names (if needed)
         { "list", "GetEmployeeList" },
         { "create", "CreateEmployee" },
-        { "getById", "GetEmployeeById" }
+        { "getById", "GetEmployeeById" },
+        
+        // Session operations
+        { "getInfo", "GetSessionInfo" },
+        { "sp", "GetSessionInfo" }  // For generic "sp" operation
         
         // Add more operation mappings as needed
     };

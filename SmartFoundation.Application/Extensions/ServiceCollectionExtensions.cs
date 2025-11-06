@@ -23,6 +23,7 @@ public static class ServiceCollectionExtensions
     services.AddScoped<EmployeeService>();
     services.AddScoped<MenuService>();
     services.AddScoped<DashboardService>();
+    services.AddScoped<SessionService>();
 
     // Add more services as they are created:
     // services.AddScoped<YourNewService>();

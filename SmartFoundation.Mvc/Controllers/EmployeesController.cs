@@ -1,4 +1,6 @@
+using System.Text.Json;
 using Microsoft.AspNetCore.Mvc;
+using SmartFoundation.Application.Services;
 using SmartFoundation.UI.ViewModels.SmartForm;
 using SmartFoundation.UI.ViewModels.SmartPage;
 using SmartFoundation.UI.ViewModels.SmartTable;
@@ -7,8 +9,161 @@ namespace SmartFoundation.Mvc.Controllers
 {
     public class EmployeesController : Controller
     {
-        public IActionResult Index()
+        private readonly SessionService _sessionService;
+        private readonly ILogger<EmployeesController> _logger;
+
+        public EmployeesController(
+            SessionService sessionService,
+            ILogger<EmployeesController> logger)
         {
+            _sessionService = sessionService;
+            _logger = logger;
+        }
+
+        public async Task<IActionResult> Index()
+        {
+            // ══════════════════════════════════════════════════════════════
+            // اختبار الإجراء المخزن: GetSessionInfoForMVC
+            // الغرض: عرض معلومات جلسة المستخدم من قاعدة البيانات
+            // هذا الكود يتبع مبادئ Clean Architecture: Controller → Service → DataEngine
+            // TODO: إزالة هذا الكود الاختباري بعد التحقق من النتائج
+            // ══════════════════════════════════════════════════════════════
+
+            try
+            {
+                // TODO: استبدال UserID الثابت بقيمة من الجلسة (Session)
+                // مثال: var userId = HttpContext.Session.GetInt32("UserId") ?? 60014019;
+                int testUserId = 60014019;
+
+                // استدعاء الخدمة (Application Layer) لجلب معلومات الجلسة
+                var parameters = new Dictionary<string, object?>
+                {
+                    { "UserID", testUserId }
+                };
+
+                var jsonResult = await _sessionService.GetSessionInfo(parameters);
+
+                // تحليل النتيجة للتحقق من النجاح
+                var result = JsonSerializer.Deserialize<JsonElement>(jsonResult);
+                var success = result.GetProperty("success").GetBoolean();
+
+                if (!success)
+                {
+                    var errorMessage = result.GetProperty("message").GetString();
+                    _logger.LogWarning("فشل في جلب معلومات الجلسة: {Message}", errorMessage);
+                    ViewBag.ErrorMessage = $"خطأ في جلب البيانات: {errorMessage}";
+                }
+
+                // إعداد الجدول لعرض معلومات الجلسة
+                var sessionTableConfig = new TableConfig
+                {
+                    Endpoint = "/smart/execute",
+                    StoredProcedureName = "dbo.GetSessionInfoForMVC",
+                    Operation = "sp",
+                    PageSize = 10,
+                    PageSizes = new List<int> { 10, 25, 50 },
+                    MaxPageSize = 100,
+                    Searchable = false,
+                    ShowHeader = true,
+                    ShowFooter = true,
+                    Selectable = false,
+                    RowIdField = "userID",
+                    StorageKey = "SessionInfoTablePrefs",
+
+                    // الأعمدة المطلوبة حسب نتائج الإجراء المخزن
+                    Columns = new List<TableColumn>
+                    {
+                        new TableColumn
+                        {
+                            Field = "fullName",
+                            Label = "الاسم الكامل",
+                            Type = "text",
+                            Sortable = true
+                        },
+                        new TableColumn
+                        {
+                            Field = "userID",
+                            Label = "معرف المستخدم",
+                            Type = "number",
+                            Width = "120px",
+                            Align = "center",
+                            Sortable = true
+                        },
+                        new TableColumn
+                        {
+                            Field = "DepartmentName",
+                            Label = "القسم",
+                            Type = "text",
+                            Sortable = true
+                        },
+                        new TableColumn
+                        {
+                            Field = "Photo",
+                            Label = "الصورة",
+                            Type = "text",
+                            Width = "150px"
+                        },
+                        new TableColumn
+                        {
+                            Field = "ThemeName",
+                            Label = "المظهر",
+                            Type = "text",
+                            Sortable = true
+                        },
+                        new TableColumn
+                        {
+                            Field = "DeptCode",
+                            Label = "رمز القسم",
+                            Type = "text",
+                            Width = "100px",
+                            Align = "center",
+                            Sortable = true
+                        }
+                    },
+
+                    Toolbar = new TableToolbarConfig
+                    {
+                        ShowRefresh = true,
+                        ShowColumns = true,
+                        ShowExportCsv = false,
+                        ShowExportExcel = false,
+                        ShowAdd = false,
+                        ShowEdit = false,
+                        ShowBulkDelete = false
+                    }
+                };
+
+                // تمرير البيانات مباشرة إلى الـ View بدلاً من الاعتماد على AJAX
+                ViewBag.SessionData = jsonResult;
+
+                // إنشاء نموذج الصفحة لعرض معلومات الجلسة
+                var vm = new SmartPageViewModel
+                {
+                    PageTitle = "معلومات جلسة المستخدم",
+                    PanelTitle = $"بيانات الجلسة للمستخدم {testUserId}",
+                    SpName = "dbo.GetSessionInfoForMVC",
+                    Operation = "sp",
+                    Table = sessionTableConfig
+                };
+
+                return View(vm);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "خطأ في تحميل معلومات الجلسة");
+                ViewBag.ErrorMessage = "حدث خطأ أثناء تحميل البيانات";
+
+                // إرجاع view فارغ مع رسالة خطأ
+                var errorVm = new SmartPageViewModel
+                {
+                    PageTitle = "خطأ",
+                    PanelTitle = "فشل في تحميل البيانات"
+                };
+                return View(errorVm);
+            }            // ══════════════════════════════════════════════════════════════
+            // الكود السابق (معلق مؤقتاً للاختبار)
+            // ══════════════════════════════════════════════════════════════
+            /*
             //  الجدول الرئيسي
             var tableConfig = new TableConfig
             {
@@ -249,9 +404,10 @@ namespace SmartFoundation.Mvc.Controllers
             };
 
             return View(vm);
+            */
         }
 
-        
+
         public IActionResult EmployeeFields(int? id)
         {
             return Content("<div class='p-4 text-gray-700'>هنا يمكن وضع فورم التعديل لاحقاً</div>", "text/html");
