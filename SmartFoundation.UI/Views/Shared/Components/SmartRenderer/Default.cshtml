@@ -41,6 +41,11 @@
             @await Component.InvokeAsync("SmartForm", new { model = Model.Form })
         </div>
     </div>
+
+     <div class="sf-panel-body" x-show="open">
+            @await Component.InvokeAsync("SmartDatePicker", new { model = Model.DatePicker })
+        </div>
+        
 }
 
 <!-- ===== Table Panel ===== -->

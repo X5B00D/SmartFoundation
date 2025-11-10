@@ -1,5 +1,6 @@
 ﻿using SmartFoundation.UI.ViewModels.SmartForm;
 using SmartFoundation.UI.ViewModels.SmartTable;
+using SmartFoundation.UI.ViewModels.SmartDatePicker;
 
 namespace SmartFoundation.UI.ViewModels.SmartPage
 {
@@ -12,8 +13,8 @@ namespace SmartFoundation.UI.ViewModels.SmartPage
         public string Operation { get; set; } = "select";
 
         public FormConfig? Form { get; set; }
-        public TableConfig? Table { get; set; }  
-                                                  
+        public TableConfig? Table { get; set; }
+        public DatepickerViewModel? DatePicker { get; set; }
 
     }
 }

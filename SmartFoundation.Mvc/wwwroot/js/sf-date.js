@@ -145,10 +145,10 @@
     }
 
     // ===== NO datepicker at all =====
-    
-    const hidePicker = () => {};
 
-    
+    const hidePicker = () => { };
+
+
     function neuterPickerAttributes(input) {
         delete input.dataset.toggle;
         delete input.dataset.datepicker;
@@ -197,23 +197,25 @@
 
     // ===== Per-input setup =====
     function setup(input) {
+        // Guard: prevent double initialization
+        if (input.dataset.sfDateInitialized === "true") return;
+        input.dataset.sfDateInitialized = "true";
+
         const cfg = cfgOf(input);
 
-        
+
         neuterPickerAttributes(input);
 
-        
+        // Note: Removed stopPropagation to allow Flowbite datepicker to work
+        // The datepicker needs to receive focus/click events to show the calendar
         input.addEventListener("mousedown", (e) => {
-            if (e.target === input) {
-               
-                e.stopPropagation();
-            }
-        }, true);
+            // Allow event to propagate for datepicker
+        }, false);
         input.addEventListener("focus", (e) => {
-            e.stopPropagation();
-        }, true);
+            // Allow event to propagate for datepicker  
+        }, false);
 
-        
+
         if (cfg.defaultToday && !input.value) {
             const today = clampDate(new Date(), cfg.minDate, cfg.maxDate);
             input.value = toISO(today);
@@ -253,7 +255,7 @@
             else applyMaskKeepCaret(input);
         });
 
-       
+
         input.addEventListener("blur", () => {
             commitIfComplete(input, cfg, { blur: false, focusPartner: false });
         });
@@ -265,13 +267,52 @@
             }
         });
 
+        // ===== Flowbite Datepicker Integration =====
+        if (typeof Datepicker !== 'undefined') {
+            const dpOptions = {
+                format: 'yyyy-mm-dd',
+                autohide: true,
+                orientation: 'bottom',
+                buttons: false,
+                autoSelectToday: 0,
+                todayHighlight: false
+            };
+
+            // Add min/max dates if specified
+            if (cfg.minDate) dpOptions.minDate = cfg.minDate;
+            if (cfg.maxDate) dpOptions.maxDate = cfg.maxDate;
+
+            // Initialize Flowbite datepicker
+            try {
+                const datepickerInstance = new Datepicker(input, dpOptions);
+                // Store instance on the element for later access
+                input._flowbiteDatepicker = datepickerInstance;
+
+                // Listen to 'changeDate' event from vanillajs-datepicker (not native 'change')
+                // This fires immediately when a date is selected from the calendar
+                input.addEventListener('changeDate', (e) => {
+                    // When datepicker changes the value, update info boxes immediately
+                    if (input.value && isISO(input.value)) {
+                        commitIfComplete(input, cfg, { blur: false, focusPartner: false });
+                    }
+                });
+            } catch (error) {
+                console.warn('Failed to initialize Flowbite datepicker:', error);
+            }
+        }
+
         // Initial days calc for ranges
         updateDays(cfg);
     }
 
     // ===== Boot =====
     function boot() { qsa('input[data-role="sf-date"]').forEach(setup); }
+
+    // Initialize on DOMContentLoaded (for non-Alpine pages)
     if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", boot);
     else boot();
+
+    // Initialize after Alpine.js completes (for Alpine-based pages like AllComponentsDemo)
+    document.addEventListener("alpine:initialized", boot);
 
 })();
