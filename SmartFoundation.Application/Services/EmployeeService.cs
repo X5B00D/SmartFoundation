@@ -1,5 +1,9 @@
-using SmartFoundation.DataEngine.Core.Interfaces;
 using Microsoft.Extensions.Logging;
+using SmartFoundation.Application.Mapping;
+using SmartFoundation.DataEngine.Core.Interfaces;
+using SmartFoundation.DataEngine.Core.Models;
+using System.Data;
+using System.Text.Json;
 
 namespace SmartFoundation.Application.Services;
 
@@ -145,4 +149,12 @@ public class EmployeeService : BaseService
   {
     return await ExecuteOperation("employee", "delete", parameters);
   }
+
+    /// <summary>
+    /// added by sami for test
+    /// </summary>
+    /// <param name="parameters"></param>
+    /// <returns></returns>
+
+   
 }

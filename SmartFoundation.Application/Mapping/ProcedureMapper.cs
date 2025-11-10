@@ -14,6 +14,9 @@ public static class ProcedureMapper
         { "employee:update", "dbo.sp_SmartFormDemo" },
         { "employee:delete", "dbo.sp_SmartFormDemo" },
         { "employee:getById", "dbo.sp_SmartFormDemo" },
+
+
+        { "MastersDataLoad:getData", "dbo.Masters_DataLoad" },
         
         // Menu operations
         { "menu:list", "dbo.ListOfMenuByUser_MVC" },

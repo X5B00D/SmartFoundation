@@ -1,0 +1,34 @@
+﻿@model SmartFoundation.UI.ViewModels.SmartPage.SmartPageViewModel
+@using System.Text.Json
+@await Component.InvokeAsync("SmartRenderer", new { model = Model })
+
+@{
+    ViewData["Title"] = Model.PageTitle;
+
+    // ensure correct types coming from the controller
+    int tableCount = (ViewBag.EmployeeTableCount as int?) ?? 0;
+    string? errorMessage = ViewBag.EmployeeDataSetError as string;
+
+    // serialize to safe JS literals
+    var tableCountJson = JsonSerializer.Serialize(tableCount);
+    var errorMessageJson = JsonSerializer.Serialize(errorMessage ?? "");
+}
+
+@if (tableCount > 0)
+{
+    <script>
+        (function() {
+            var count = @Html.Raw(tableCountJson);
+            alert('Number of tables in DataSet: ' + count);
+        })();
+    </script>
+}
+else if (!string.IsNullOrEmpty((string?)ViewBag.EmployeeDataSetError))
+{
+    <script>
+        (function() {
+            var msg = @Html.Raw(errorMessageJson);
+            alert('DataSet error: ' + msg);
+        })();
+    </script>
+}
