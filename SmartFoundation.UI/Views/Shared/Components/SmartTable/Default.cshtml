@@ -176,10 +176,10 @@
                             :style="col.width ? `width:${col.width}` : ''"
                             :class="col.sortable ? 'cursor-pointer' : ''"
                             x-on:click="toggleSort(col)">
-                            <div class="th-inner flex items-center gap-1" :class="col.align">
+                            <div class="flex items-center gap-1 th-inner" :class="col.align">
                                 <span x-text="col.label"></span>
                                 <template x-if="col.sortable && sort.field===col.field">
-                                    <i class="fas text-xs text-gray-400 ml-1" :class="sort.dir === 'asc' ? 'fa-sort-up' : 'fa-sort-down'"></i>
+                                    <i class="ml-1 text-xs text-gray-400 fas" :class="sort.dir === 'asc' ? 'fa-sort-up' : 'fa-sort-down'"></i>
 
                                       
                                 </template>

@@ -114,6 +114,10 @@ For complete documentation, see [`.taskmaster/SETUP_GUIDE.md`](.taskmaster/SETUP
 - [Task Master Setup](.taskmaster/SETUP_GUIDE.md) - AI task management setup
 - [GitHub Copilot Instructions](.github/copilot-instructions.md) - Coding standards
 
+### UI Components
+- [Dual Date Picker](docs/dual-date-picker.md) - Gregorian ↔ Hijri synced date picker
+- [Quick Reference](docs/dual-date-picker-quick-ref.md) - Dual date picker quick guide
+
 ## 🔧 Development Tools
 
 The `tools/` directory contains PowerShell scripts for:

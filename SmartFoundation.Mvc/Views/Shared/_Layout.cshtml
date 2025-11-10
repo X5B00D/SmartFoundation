@@ -54,16 +54,17 @@
         <!-- ✅ Footer -->
         <footer class="mt-auto bg-white border-t " style="border-color:rgb(229 231 235)">
             <div class="px-4 py-4 text-sm text-center text-gray-600 dark:text-gray-400">
-                &copy; @DateTime.UtcNow.Year - SmartFoundation.Mvc -
-                <a asp-area="" asp-controller="Home" asp-action="Privacy"
-                   class="text-emerald-600 hover:underline dark:text-emerald-400">
-                   الخصوصية
-                </a>
+              <span class="text-black-600 ">
+                   إدارة مدينة الملك فيصل العسكرية &copy;
+                </span>
+                   @* - All rights reserved @DateTime.UtcNow.Year - &copy; *@
+              
             </div>
         </footer>
     </div>
 
     <!-- ✅ Scripts -->
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     <script src="~/js/flowbite.min.js" defer></script>
     <script src="~/js/datepicker.min.js"></script>
     <script src="~/js/sf-select.js"></script>
@@ -71,6 +72,11 @@
     <script src="~/js/alpinejs.min.js" defer></script>
     <script src="~/js/sf-form.js"></script>
     <script src="~/js/sf-table.js"></script>
+
+    <!-- moment.js + moment-hijri for Hijri date support (local files) -->
+    <script src="~/js/moment.min.js"></script>
+    <script src="~/js/moment-hijri.min.js"></script>
+    <script src="~/js/sf-dual-date.js"></script>
 
     @await RenderSectionAsync("Scripts", required: false)
 <script>

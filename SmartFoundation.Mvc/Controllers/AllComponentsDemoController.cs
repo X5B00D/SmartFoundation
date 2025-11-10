@@ -3,6 +3,7 @@ using SmartFoundation.UI.ViewModels.SmartForm;
 using SmartFoundation.UI.ViewModels.SmartPage;
 using SmartFoundation.DataEngine.Core.Models;
 using SmartFoundation.UI.ViewModels.SmartTable;
+using SmartFoundation.UI.ViewModels.SmartDatePicker;
 
 
 namespace SmartFoundation.Mvc.Controllers
@@ -49,7 +50,7 @@ namespace SmartFoundation.Mvc.Controllers
                     },
                     new FieldConfig
                     {
-                        
+
                         Name="Email",
                         Label = "البريد الإلكتروني",
                         Type = "text",
@@ -66,7 +67,7 @@ namespace SmartFoundation.Mvc.Controllers
                         HelpText="أدخل بريد إلكتروني صحيح"
                     },
 
-                    
+
                     new FieldConfig
                     {
                         Name="Email",
@@ -119,7 +120,7 @@ namespace SmartFoundation.Mvc.Controllers
                         Placeholder="05xxxxxxxx",
                         Icon="fa-solid fa-phone",
                         IsNumericOnly=true,
-                        MaxLength=10,
+                        MaxLength=20,
                         ColCss="col-span-12 md:col-span-3",
                         Autocomplete="off",
                         HelpText="أدخل رقم جوال يبدأ بـ 05"
@@ -389,6 +390,10 @@ new FieldConfig
                         Icon="fa-solid fa-check",
                         ColCss="col-span-12 md:col-span-3"
                     },
+                    
+
+
+                    
 
                     // ========= حقل مخفي =========
                     new FieldConfig
@@ -432,6 +437,9 @@ new FieldConfig
                 Operation = "insert",
                 Form = form
             };
+
+
+
 
             return View(vm);
         }

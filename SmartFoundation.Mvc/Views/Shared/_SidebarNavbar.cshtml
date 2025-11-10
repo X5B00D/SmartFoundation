@@ -14,7 +14,7 @@
                 <!-- زر إظهار السايدبار -->
                 <button data-drawer-target="logo-sidebar" data-drawer-toggle="logo-sidebar" aria-controls="logo-sidebar"
                         type="button"
-                        class="inline-flex items-center p-2 text-slate-300 rounded-lg lg:hidden hover:text-slate-50 hover:bg-slate-700 focus:bg-slate-700 focus:ring-2 focus:ring-slate-600">
+                        class="inline-flex items-center p-2 rounded-lg text-slate-300 lg:hidden hover:text-slate-50 hover:bg-slate-700 focus:bg-slate-700 focus:ring-2 focus:ring-slate-600">
                     <span class="sr-only">Open sidebar</span>
                     <svg id="toggleSidebarMobileHamburger" class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
                         <path fill-rule="evenodd"
@@ -26,14 +26,14 @@
                 <!-- الشعار -->
                 <a href="/" class="flex ms-2 md:me-24">
                     <img src="../img/ppng.png" class="h-8 me-3" alt="KFMC Logo" />
-                    <span class="self-center text-md font-semibold sm:text-1xl whitespace-nowrap text-slate-200">البوابة الموحدة</span>
+                    <span class="self-center font-semibold text-md sm:text-1xl whitespace-nowrap text-slate-200">البوابة الموحدة</span>
                 </a>
 
                 <!-- البحث -->
                 <form action="#" method="GET" class="block lg:ps-3.5">
                     <label for="topbar-search" class="sr-only">بحث</label>
                     <div class="relative mt-1 lg:w-96" dir="rtl">
-                        <div class="absolute inset-y-0 left-0 flex items-center ps-3 pointer-events-none">
+                        <div class="absolute inset-y-0 left-0 flex items-center pointer-events-none ps-3">
                             <svg class="w-10 h-5 text-slate-300" fill="currentColor" viewBox="0 0 20 20">
                                 <path fill-rule="evenodd"
                                       d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z"
@@ -66,10 +66,10 @@
                         class="p-3 rounded-lg text-slate-300 hover:text-slate-50 hover:bg-slate-700"
                         aria-haspopup="true" aria-expanded="false">
                     <span class="sr-only">عرض الإشعارات</span>
-                    <svg class="h-6 w-6" fill="currentColor" viewBox="0 0 20 20"><path d="M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6zM10 18a3 3 0 01-3-3h6a3 3 0 01-3 3z"></path></svg>
+                    <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20"><path d="M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6zM10 18a3 3 0 01-3-3h6a3 3 0 01-3 3z"></path></svg>
                 </button>
-                <div id="notification-dropdown" class="z-50 hidden my-2 w-80 overflow-hidden rounded-lg bg-slate-800 ring-1 ring-slate-700 shadow-lg">
-                    <div class="px-4 py-2 text-base font-medium text-slate-200 text-center">الإشعارات</div>
+                <div id="notification-dropdown" class="z-50 hidden my-2 overflow-hidden rounded-lg shadow-lg w-80 bg-slate-800 ring-1 ring-slate-700">
+                    <div class="px-4 py-2 text-base font-medium text-center text-slate-200">الإشعارات</div>
                     <div>
                         <a href="#" class="flex px-4 py-3 border-t border-slate-700 hover:bg-slate-700/60">
                             <div class="w-full">
@@ -78,12 +78,12 @@
                             </div>
                         </a>
                     </div>
-                    <a href="#" class="block bg-slate-700 py-2 text-center text-base text-slate-100 hover:bg-slate-600">عرض الكل</a>
+                    <a href="#" class="block py-2 text-base text-center bg-slate-700 text-slate-100 hover:bg-slate-600">عرض الكل</a>
                 </div>
 
                 <!-- تطبيقات -->
                 <button type="button" data-dropdown-toggle="apps-dropdown"
-                        class="hidden p-2 text-slate-300 rounded-lg sm:flex hover:text-slate-50 hover:bg-slate-700">
+                        class="hidden p-2 rounded-lg text-slate-300 sm:flex hover:text-slate-50 hover:bg-slate-700">
                     <span class="sr-only">التطبيقات</span>
                     <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
                         <path d="M5 3a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2V5a2 2 0 00-2-2H5zM5 11a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2v-2a2 2 0 00-2-2H5zM11 5a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V5zM11 13a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z">
@@ -92,7 +92,7 @@
                 </button>
 
                 <div id="apps-dropdown"
-                     class="z-50 hidden max-w-sm my-4 overflow-hidden text-base list-none bg-slate-800 divide-y divide-slate-700 rounded shadow-lg">
+                     class="z-50 hidden max-w-sm my-4 overflow-hidden text-base list-none divide-y rounded shadow-lg bg-slate-800 divide-slate-700">
                     <div class="block px-4 py-2 text-base font-medium text-center text-slate-300 bg-slate-800">التطبيقات</div>
                     <div class="grid grid-cols-3 gap-4 p-4">
                         <a href="#" class="block p-4 text-center rounded-lg hover:bg-slate-700">
@@ -132,18 +132,18 @@
 
                     <!-- User dropdown -->
                     <div id="user-dropdown"
-                         class="z-50 hidden my-2 w-56 overflow-hidden rounded-lg bg-slate-800 ring-1 ring-slate-700 shadow-lg">
+                         class="z-50 hidden w-56 my-2 overflow-hidden rounded-lg shadow-lg bg-slate-800 ring-1 ring-slate-700">
                         <div class="px-4 py-3">
                             <p class="text-sm font-medium text-slate-200">المستخدم</p>
                             <p class="mt-0.5 text-xs text-slate-400 truncate">user@smartfoundation.com</p>
                         </div>
                         <ul class="py-1">
-                            <li>
+                            <li><hr class="my-1 border-slate-700">
                                 <a href="/Dashboard" class="flex items-center gap-2 px-4 py-2 text-sm text-slate-200 hover:bg-slate-700">
                                     <i class="fa-solid fa-gauge text-[13px] text-slate-300"></i> لوحة التحكم
                                 </a>
                             </li>
-                            <li>
+                            <li><hr class="my-1 border-slate-700">
                                 <a href="/Settings" class="flex items-center gap-2 px-4 py-2 text-sm text-slate-200 hover:bg-slate-700">
                                     <i class="fa-solid fa-gear text-[13px] text-slate-300"></i> الإعدادات
                                 </a>
@@ -165,7 +165,7 @@
 
 
 @* <aside id="logo-sidebar"
-  class="fixed top-0 right-0 z-40 w-64 h-screen pt-25 text-gray-900 transition-transform translate-x-full bg-white border-l sm:translate-x-0"
+  class="fixed top-0 right-0 z-40 w-64 h-screen text-gray-900 transition-transform translate-x-full bg-white border-l pt-25 sm:translate-x-0"
   style="border-color: rgb(229 231 235)" aria-label="Sidebar">
   <div
     class="relative flex flex-col flex-1 h-full min-h-0 pt-0 text-gray-900 bg-white dark:bg-gray-800 dark:text-gray-100">
@@ -187,8 +187,7 @@
 </aside> *@
 
 <aside id="logo-sidebar"
-       class="fixed top-0 right-0 z-40 w-64 h-screen pt-25 translate-x-full sm:translate-x-0
-         bg-slate-800 text-slate-200 border-l border-slate-700"
+       class="fixed top-0 right-0 z-40 w-64 h-screen translate-x-full border-l pt-25 sm:translate-x-0 bg-slate-800 text-slate-200 border-slate-700"
        aria-label="Sidebar">
 
     <div class="relative flex flex-col flex-1 h-full min-h-0 pt-0 bg-transparent">
@@ -236,6 +235,76 @@
                 #logo-sidebar {
                     border-top: 0 !important;
                 }
+
+                /* Hierarchical Navigation - تنسيق القوائم المتداخلة */
+                
+                /* إزالة margin من أول عنصر dl-ref */
+                #logo-sidebar ul li a > .dl-ref:first-child {
+                    margin-left: 0 !important;
+                }
+
+                /* تنسيق القوائم الفرعية */
+                #logo-sidebar ul > li > ul {
+                    position: relative;
+                    padding-right: 1.75rem; /* مساحة للخط والنقاط */
+                }
+
+                    /* خط عمودي يربط العناصر المتداخلة */
+                    #logo-sidebar ul > li > ul:before {
+                        content: "";
+                        display: block;
+                        position: absolute;
+                        z-index: 0;
+                        right: 1rem;
+                        top: 0;
+                        bottom: 0;
+                        border-right: 1px solid #475569;
+                    }
+
+                    /* وضع نسبي للعناصر الفرعية */
+                    #logo-sidebar ul > li > ul > li {
+                        position: relative;
+                    }
+
+                        #logo-sidebar ul > li > ul > li a,
+                        #logo-sidebar ul > li > ul > li button {
+                            position: relative;
+                            padding-right: 0.5rem !important; /* تقليل padding الأيمن */
+                        }
+
+                    /* نقاط الاتصال للعناصر الفرعية */
+                    #logo-sidebar ul > li > ul > li a:after,
+                    #logo-sidebar ul > li > ul > li button:after {
+                        content: "";
+                        display: block;
+                        position: absolute;
+                        width: 0.4rem;
+                        height: 0.4rem;
+                        background-color: #94a3b8;
+                        right: -0.9rem; /* وضع النقطة خارج الـ padding */
+                        top: calc(50% - 0.2rem);
+                        border: 1px solid #333;
+                        border-radius: 50%;
+                        z-index: 1;
+                    }
+
+                    /* إزالة border عند hover */
+                    #logo-sidebar ul > li > ul > li a:hover:after,
+                    #logo-sidebar ul > li > ul > li button:hover:after {
+                        border-color: transparent;
+                        background-color: #cbd5e1;
+                    }
+
+                    /* إخفاء النقاط من المستويات الأعمق */
+                    #logo-sidebar ul > li > ul > li ul > li a:after,
+                    #logo-sidebar ul > li > ul > li ul > li button:after {
+                        display: none;
+                    }
+
+                    /* إزالة margin-left من الأيقونات في القوائم الفرعية */
+                    #logo-sidebar ul > li > ul li a i {
+                        margin-left: 0 !important;
+                    }
             </style>
 
             <div class="flex-1 px-3 space-y-1 divide-y">
@@ -381,7 +450,7 @@
       <ul id="${collapseId}" class="hidden py-2 space-y-2">
     `;
       childItems.forEach(child => {
-        html += `<li>${buildMenuItem(child, allItems, level + 1)}</li>`;
+        html += `<li >${buildMenuItem(child, allItems, level + 1)}</li>`;
       });
       html += `</ul>`;
     } else {
@@ -415,7 +484,7 @@
     const rootItems = level === 1 ? getChildMenuItems(items, null) : items;
     let html = '';
     rootItems.forEach(item => {
-      html += `<li>${buildMenuItem(item, items, level)}</li>`;
+      html += `<li><hr class="my-1 border-slate-700">${buildMenuItem(item, items, level)}</li>`;
     });
     return html;
   }
