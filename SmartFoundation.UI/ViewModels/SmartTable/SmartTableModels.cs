@@ -112,7 +112,9 @@ namespace SmartFoundation.UI.ViewModels.SmartTable
 
         public TableAction? Add { get; set; }
         public bool ShowEdit { get; set; } = false;
+        public bool ShowEdit1 { get; set; } = false;
         public TableAction? Edit { get; set; }
+        public TableAction? Edit1 { get; set; }
         public List<TableAction> CustomActions { get; set; } = new();
         public TableExportConfig ExportConfig { get; set; } = new();
         public bool ShowSearch { get; set; } = true;
