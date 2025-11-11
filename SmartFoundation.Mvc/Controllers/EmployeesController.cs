@@ -379,12 +379,30 @@ namespace SmartFoundation.Mvc.Controllers
             
             var spParameters = new object?[]{"BuildingType",1,60014016,"hostname"};
 
+            List<OptionItem> cityOptions = new();
+
             try
             {
 
 
 
                 DataSet ds = await _mastersDataLoadService.GetDataLoadDataSetAsync(spParameters);
+
+                if (ds != null && ds.Tables.Count > 1 && ds.Tables[1].Rows.Count > 0)
+                {
+                    var cityTable = ds.Tables[2];
+
+                    foreach (DataRow row in cityTable.Rows)
+                    {
+                        string value = row["cityID"]?.ToString()?.Trim() ?? "";
+                        string text = row["cityName_A"]?.ToString()?.Trim() ?? "";
+
+                        if (!string.IsNullOrEmpty(value))
+                            cityOptions.Add(new OptionItem { Value = value, Text = text });
+                    }
+                }
+               
+
                 ViewBag.EmployeeDataSet = ds;
 
                 // <-- new: pass table count to the view so client-side JS can show an alert
@@ -552,11 +570,12 @@ namespace SmartFoundation.Mvc.Controllers
                                     Name = "City",
                                     Label = "المدينة",
                                     Type = "select",
-                                    Options = new List<OptionItem>{
-                                        new OptionItem{Value="RYD",Text="الرياض"},
-                                        new OptionItem{Value="JED",Text="جدة"},
-                                        new OptionItem{Value="DMM",Text="الدمام"}
-                                    },
+                                    Options = cityOptions,
+                                    //Options = new List<OptionItem>{
+                                    //    new OptionItem{Value="RYD",Text="الرياض"},
+                                    //    new OptionItem{Value="JED",Text="جدة"},
+                                    //    new OptionItem{Value="DMM",Text="الدمام"}
+                                    //},
                                     ColCss = "6",
                                     Placeholder = "اختر المدينة",
                                     Icon = "fa fa-city"
