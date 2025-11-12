@@ -1,10 +1,9 @@
-﻿@model SmartFoundation.UI.ViewModels.SmartPage.SmartPageViewModel
+﻿
+@model SmartFoundation.UI.ViewModels.SmartTable.SmartTableDsModel
 @using System.Text.Json
-@await Component.InvokeAsync("SmartRenderer", new { model = Model })
-
+@await Component.InvokeAsync("SmartTableDS", new { model = Model })
 @{
-    ViewData["Title"] = Model.PageTitle;
-
+    ViewData["Title"] = "الموظفين (Dataset)";
     // ensure correct types coming from the controller
     int tableCount = (ViewBag.EmployeeTableCount as int?) ?? 0;
     string? errorMessage = ViewBag.EmployeeDataSetError as string;
@@ -13,7 +12,6 @@
     var tableCountJson = JsonSerializer.Serialize(tableCount);
     var errorMessageJson = JsonSerializer.Serialize(errorMessage ?? "");
 }
-
 @if (tableCount > 0)
 {
     <script>
