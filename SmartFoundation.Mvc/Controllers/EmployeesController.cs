@@ -426,7 +426,7 @@ namespace SmartFoundation.Mvc.Controllers
 
                         // pick a sensible row id field if present
                         var possibleIdNames = new[] { "EmployeeId", "Id", "ID", "employeeId", "id" };
-                        rowIdField = possibleIdNames.FirstOrDefault(n => dt.Columns.Contains(n)) ?? dt.Columns[0].ColumnName;
+                        rowIdField = possibleIdNames.FirstOrDefault(n => dt.Columns.Contains(n)) ?? dt.Columns[1].ColumnName;
 
 
                         var headerMap = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
@@ -436,7 +436,7 @@ namespace SmartFoundation.Mvc.Controllers
                             ["Department"] = "القسم",
                             ["JobTitle"] = "الوظيفة",
                             ["City"] = "المدينة",
-                            ["IBAN"] = "IBAN رقم",
+                            ["IBAN"] = "رقم IBAN",
                             ["BirthDate"] = "تاريخ الميلاد",
                             ["Email"] = "الايميل",
                             ["PhoneNumber"] = "الجوال"
@@ -454,12 +454,16 @@ namespace SmartFoundation.Mvc.Controllers
                                      || t == typeof(float) || t == typeof(double) || t == typeof(decimal))
                                 colType = "number";
 
+                                bool isFullNameColumn = c.ColumnName.Equals("FullName", StringComparison.OrdinalIgnoreCase);
+
                             dynamicColumns.Add(new TableColumn
                             {
                                 Field = c.ColumnName,
                                 Label = headerMap.TryGetValue(c.ColumnName, out var label) ? label : c.ColumnName,
                                 Type = colType,
                                 Sortable = true
+                                //,
+                               // Visible = !(isFullNameColumn)
                             });
                         }
 
@@ -564,7 +568,7 @@ namespace SmartFoundation.Mvc.Controllers
                 // try to find a "general number" column
                 var gnCol = cols.FirstOrDefault(c => 
                    
-                    c.Field.Equals("GeneralNo", StringComparison.OrdinalIgnoreCase)  ||
+                    c.Field.Equals("GeneralNo", StringComparison.OrdinalIgnoreCase)  || c.Field.Equals("EmployeeId", StringComparison.OrdinalIgnoreCase) ||
                     c.Field.IndexOf("general", StringComparison.OrdinalIgnoreCase) >= 0 && c.Field.IndexOf("num", StringComparison.OrdinalIgnoreCase) >= 0
                 );
 
