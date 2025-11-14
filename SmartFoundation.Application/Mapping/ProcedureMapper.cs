@@ -17,6 +17,7 @@ public static class ProcedureMapper
 
 
         { "MastersDataLoad:getData", "dbo.Masters_DataLoad" },
+        { "MastersCrud:crud", "dbo.Masters_CRUD" },
         
         // Menu operations
         { "menu:list", "dbo.ListOfMenuByUser_MVC" },
