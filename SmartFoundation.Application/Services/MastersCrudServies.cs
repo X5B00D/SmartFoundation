@@ -36,34 +36,77 @@ namespace SmartFoundation.Application.Services
         {
             string pageName = args.Length > 0 ? args[0]?.ToString() ?? "" : "";
             string? actionType = args.Length > 1 ? args[1]?.ToString() : null;
-            int? idaraID = args.Length > 2 ? (args[2] == null ? (int?)null : Convert.ToInt32(args[2])) : null;
-            int? entryData = args.Length > 3 ? (args[3] == null ? (int?)null : Convert.ToInt32(args[3])) : null;
+            int? idaraID = args.Length > 2 ? SafeInt(args[2]) : null;
+            int? entryData = args.Length > 3 ? SafeInt(args[3]) : null;
             string? hostName = args.Length > 4 ? args[4]?.ToString() : null;
 
             var extraParams = args.Skip(5).ToArray();
 
-            void AddIfHasValue(IDictionary<string, object?> d, string key, object? val)
-            {
-                if (val == null || val == DBNull.Value) return;
-                d[key] = val;
-            }
-
             var dict = new Dictionary<string, object?>(StringComparer.OrdinalIgnoreCase)
             {
-                ["pageName_"] = pageName
+                ["pageName_"] = pageName,
+                ["ActionType"] = actionType,
+                ["idaraID"] = idaraID,
+                ["entrydata"] = entryData,
+                ["hostname"] = hostName
             };
 
-            AddIfHasValue(dict, "ActionType", actionType);
-            AddIfHasValue(dict, "idaraID", idaraID);
-            AddIfHasValue(dict, "entrydata", entryData);
-            AddIfHasValue(dict, "hostname", hostName);
-
-            int take = Math.Min(extraParams.Length, 50);
-            for (int i = 1; i <= take; i++)
+            for (int i = 0; i < Math.Min(extraParams.Length, 50); i++)
             {
-                var val = extraParams[i - 1];
-                if (val == DBNull.Value) val = null;
-                AddIfHasValue(dict, $"parameter_{i:00}", val);
+                var v = extraParams[i];
+                if (v == null || v == DBNull.Value) continue;
+                dict[$"parameter_{(i + 1):00}"] = v;
+            }
+
+            _logger.LogInformation("CRUD PARAMS (pre-SP): {Params}", JsonSerializer.Serialize(dict));
+
+            var ds = await ExecuteMappedAsync(dict);
+
+            _logger.LogInformation("CRUD RESULT: Tables={TableCount} FirstTableCols={Cols} FirstTableRows={Rows}",
+                ds.Tables.Count,
+                ds.Tables.Count > 0 ? string.Join(",", ds.Tables[0].Columns.Cast<DataColumn>().Select(c => c.ColumnName)) : "<none>",
+                ds.Tables.Count > 0 ? ds.Tables[0].Rows.Count : 0);
+
+            return ds;
+
+            static int? SafeInt(object? o)
+            {
+                if (o == null) return null;
+                if (o is int i) return i;
+                if (int.TryParse(o.ToString(), out var p)) return p;
+                return null;
+            }
+        }
+
+        // ADD dictionary overload (keeps existing positional version untouched)
+        public async Task<DataSet> GetCrudDataSetAsync(Dictionary<string, object?> parameters)
+        {
+            if (!parameters.ContainsKey("pageName_"))
+                throw new ArgumentException("Parameter 'pageName_' is required.");
+
+            // Normalize names exactly as SP expects
+            var dict = new Dictionary<string, object?>(StringComparer.OrdinalIgnoreCase)
+            {
+                ["pageName_"] = parameters["pageName_"],
+                ["ActionType"] = parameters.TryGetValue("ActionType", out var act) ? act : null,
+                ["idaraID"] = parameters.TryGetValue("idaraID", out var idara) ? idara : null,
+                ["entrydata"] = parameters.TryGetValue("entrydata", out var entry) ? entry : null,
+                ["hostname"] = parameters.TryGetValue("hostname", out var host) ? host : null
+            };
+
+            // Map any remaining (non-core) keys to parameter_01..parameter_50
+            var extras = parameters
+                .Where(kv => !new[] { "pageName_", "ActionType", "idaraID", "entrydata", "hostname" }
+                    .Contains(kv.Key, StringComparer.OrdinalIgnoreCase))
+                .Select(kv => kv.Value)
+                .Take(50)
+                .ToList();
+
+            for (int i = 0; i < extras.Count; i++)
+            {
+                var v = extras[i];
+                if (v == null || v == DBNull.Value) continue;
+                dict[$"parameter_{(i + 1):00}"] = v;
             }
 
             return await ExecuteMappedAsync(dict);

@@ -12,354 +12,18 @@ namespace SmartFoundation.Mvc.Controllers
 {
     public class EmployeesController : Controller
     {
-
         private readonly MastersDataLoadService _mastersDataLoadService;
+        private readonly MastersCrudServies _mastersCrudServies;
 
         bool canInsert = false;
         bool canUpdate = false;
         bool canUpdateGN = false;
 
-        public EmployeesController(MastersDataLoadService mastersDataLoadService)
+        public EmployeesController(MastersDataLoadService mastersDataLoadService, MastersCrudServies mastersCrudServies)
         {
             _mastersDataLoadService = mastersDataLoadService;
-        }
-
-
-
-        public IActionResult Index()
-        {
-
-            bool canInsert = false;
-            bool canUpdate = false;
-            bool canUpdateGN = false;
+            _mastersCrudServies = mastersCrudServies;
            
-
-
-
-            //  الجدول الرئيسي
-            var tableConfig = new TableConfig
-            {
-                Endpoint = "/smart/execute",
-                StoredProcedureName = "dbo.sp_SmartFormDemo",
-                Operation = "select_employees",
-                PageSize = 10,
-                PageSizes = new List<int> { 5, 10, 25, 50, 100 },
-                MaxPageSize = 1000,
-                Searchable = true,
-                SearchPlaceholder = "ابحث بالاسم/الجوال/البريد/المدينة...",
-                QuickSearchFields = new List<string> { "FullName", "Email", "City", "PhoneNumber" },
-                AllowExport = true,
-                ShowHeader = true,
-                ShowFooter = true,
-                AutoRefreshOnSubmit = true,
-                Selectable = true,
-                RowIdField = "EmployeeId",
-                StorageKey = "EmployeesTablePrefs",
-
-                Columns = new List<TableColumn>
-                {
-                    new TableColumn { Field="EmployeeId", Label="ID", Type="number", Width="80px", Align="center", Sortable=true },
-                    new TableColumn { Field="FullName", Label="الاسم الكامل", Type="text", Sortable=true },
-                    new TableColumn { Field="Email", Label="البريد الإلكتروني", Type="link", LinkTemplate="mailto:{Email}", Sortable=true },
-                    new TableColumn { Field="PhoneNumber", Label="الجوال", Type="text", Sortable=true },
-                    new TableColumn { Field="City", Label="المدينة", Sortable=true },
-                    new TableColumn { Field="IBAN", Label="IBAN", Type="text", Sortable=true },
-                    new TableColumn { Field="BirthDate", Label="تاريخ الميلاد", Type="date", FormatString="{0:yyyy-MM-dd}", Sortable=true },
-                    new TableColumn { Field="AgreeTerms", Label="موافق؟", Type="bool", Align="center" }
-                },
-
-                Toolbar = new TableToolbarConfig
-                {
-                    ShowRefresh = false,
-                    ShowColumns = true,
-                    ShowExportCsv = true,
-                    ShowExportExcel = true,
-                    ShowAdd = false,
-                    ShowEdit = false,
-                    ShowEdit1 = false,
-                    ShowBulkDelete = false,
-
-
-                    Add = new TableAction
-                    {
-                        Label = "إضافة موظف",
-                        Icon = "fa fa-plus",
-                        Color = "success",
-                        OpenModal = true,
-                        ModalTitle = "إضافة موظف",
-                        OpenForm = new FormConfig
-                        {
-                            FormId = "employeeInsertForm",
-                            Title = "بيانات الموظف الجديد",
-                            ActionUrl = "/smart/execute",
-                            StoredProcedureName = "dbo.sp_SmartFormDemo",
-                            Operation = "insert_employee",
-                            SubmitText = "حفظ",
-                            CancelText = "إلغاء",
-
-                            Fields = new List<FieldConfig>
-                            {
-                                new FieldConfig {
-                                    Name = "FullName",
-                                    Label = "الاسم الكامل",
-                                    Type = "text",
-                                    Required = true,
-                                    ColCss = "6",
-                                    Placeholder = "الاسم الرباعي",
-                                    MaxLength = 100,
-                                    Icon = "fa fa-user",
-                                    Readonly = !canUpdate
-
-                                },
-                                new FieldConfig {
-                                    Name = "Email",
-                                    Label = "البريد الإلكتروني",
-                                    Type = "text",
-                                    TextMode = "email",
-                                    Required = true,
-                                    ColCss = "6",
-                                    Placeholder = "example@email.com",
-                                    MaxLength = 150,
-                                    Icon = "fa fa-envelope"
-                                },
-                                new FieldConfig {
-                                    Name = "NationalId",
-                                    Label = "رقم الهوية",
-                                    Type = "text",
-                                    Required = true,
-                                    ColCss = "3",
-                                    Placeholder = "1234567890",
-                                    MaxLength = 10,
-                                    InputLang = "number",
-                                    HelpText = "10 أرقام فقط",
-                                    Icon = "fa fa-id-card"
-                                },
-                                new FieldConfig {
-                                    Name = "PhoneNumber",
-                                    Label = "الجوال",
-                                    Type = "phone",
-                                    Required = true,
-                                    ColCss = "5",
-                                    Placeholder = "05xxxxxxxx",
-                                    MaxLength = 10,
-                                    InputLang = "numeric",
-                                    Icon = "fa fa-phone"
-                                },
-                                new FieldConfig {
-                                    Name = "City",
-                                    Label = "المدينة",
-                                    Type = "select",
-                                    Options = new List<OptionItem>{
-                                        new OptionItem{Value="RYD",Text="الرياض"},
-                                        new OptionItem{Value="JED",Text="جدة"},
-                                        new OptionItem{Value="DMM",Text="الدمام"}
-                                    },
-                                    ColCss = "6",
-                                    Placeholder = "اختر المدينة",
-                                    Icon = "fa fa-city"
-                                },
-                                new FieldConfig {
-                                    Name = "IBAN",
-                                    Label = "الحساب البنكي (IBAN)",
-                                    Type = "iban",
-                                    ColCss = "6",
-                                    Placeholder = "SAxxxxxxxxxxxxxxxxxxxx",
-                                    MaxLength = 24,
-                                    Icon = "fa fa-money-bill-transfer",
-                                    HelpText = "يجب أن يبدأ بـ SA"
-                                },
-                                new FieldConfig {
-                                    Name = "BirthDate",
-                                    Label = "تاريخ الميلاد",
-                                    Type = "date",
-                                    ColCss = "6",
-                                    HelpText = "اختر تاريخ ميلاد صحيح",
-                                    Icon = "fa fa-calendar"
-                                },
-                                new FieldConfig {
-                                    Name = "Notes",
-                                    Label = "ملاحظات",
-                                    Type = "textarea",
-                                    ColCss = "4",
-                                    MaxLength = 500,
-                                    Placeholder = "اكتب ملاحظات إضافية هنا...",
-                                    Icon = "fa fa-note-sticky"
-                                },
-
-                                new FieldConfig {
-                                    Name = "AgreeTerms",
-                                    Label = "أوافق على الشروط",
-                                    Type = "checkbox",
-                                    Required = true,
-                                    ColCss = "6",
-                                    Icon = "fa fa-check-square"
-                                }
-                            },
-
-                            // الأزرار
-                            Buttons = new List<FormButtonConfig>
-                            {
-                                new FormButtonConfig {
-                                    Text = "حفظ",
-                                    Type = "submit",
-                                    Color = "success",
-                                    Icon = "fa fa-save"
-                                },
-                                new FormButtonConfig {
-                                    Text = "إلغاء",
-                                    Type = "button",
-                                    Color = "secondary",
-                                    Icon = "fa fa-times",
-                                    OnClickJs = "this.closest('.sf-modal').__x.$data.closeModal();"
-                                }
-                            }
-                        },
-                        SaveSp = "dbo.sp_SmartFormDemo",
-                        SaveOp = "insert_employee"
-                    },
-
-                    // زر التعديل (مثال)
-
-                    Edit = new TableAction
-                    {
-                        Label = "تعديل موظف",
-                        Icon = "fa fa-pen-to-square",
-                        Color = "info",
-                        IsEdit = true,
-                        OpenModal = true,
-                        ModalTitle = "تعديل موظف",
-                        OpenForm = new FormConfig
-                        {
-                            FormId = "employeeEditForm",
-                            Title = "تعديل بيانات الموظف",
-                            ActionUrl = "/smart/execute",
-                            StoredProcedureName = "dbo.sp_SmartFormDemo",
-                            Operation = "update_employee",   //  عملية التعديل
-                            SubmitText = "حفظ التعديلات",
-                            CancelText = "إلغاء",
-
-                            Fields = new List<FieldConfig>
-        {
-            new FieldConfig { Name = "EmployeeId", Type = "hidden" },
-            new FieldConfig { Name = "FullName", Label = "الاسم الكامل", Type = "text", Required = true, ColCss="3" },
-            new FieldConfig { Name = "Email", Label = "البريد الإلكتروني", Type = "text", TextMode="email", Required = true, ColCss="3" },
-            new FieldConfig { Name = "NationalId", Label = "رقم الهوية", Type = "text", Required = true, ColCss="3" },
-            new FieldConfig { Name = "PhoneNumber", Label = "الجوال", Type = "phone", Required = true, ColCss="3" },
-            new FieldConfig { Name = "PhoneNumber", Label = "الجوال", Type = "phone", Required = true, ColCss="3" },
-            new FieldConfig {
-                Name = "City",
-                Label = "المدينة",
-                Type = "select",
-                Options = new List<OptionItem>{
-                    new OptionItem{Value="RYD",Text="الرياض"},
-                    new OptionItem{Value="JED",Text="جدة"},
-                    new OptionItem{Value="DMM",Text="الدمام"}
-                },
-                ColCss="3"
-            },
-            new FieldConfig { Name = "IBAN", Label = "IBAN", Type = "iban", ColCss="6" },
-            new FieldConfig { Name = "BirthDate", Label = "تاريخ الميلاد", Type = "date", ColCss="6" },
-            new FieldConfig { Name = "Notes", Label = "ملاحظات", Type = "textarea", ColCss="6" },
-            new FieldConfig { Name = "AgreeTerms", Label = "أوافق على الشروط", Type = "checkbox", Required = true, ColCss="6" }
-        }
-                        },
-                        SaveSp = "dbo.sp_SmartFormDemo",
-                        SaveOp = "update_employee"
-                    },
-
-
-                    Edit1 = new TableAction
-                    {
-                        Label = "تعديل الرقم العام",
-                        Icon = "fa fa-pen-to-square",
-                        Color = "danger",
-                        IsEdit = true,
-                        OpenModal = true,
-                        ModalTitle = "تعديل الرقم العام",
-                        OpenForm = new FormConfig
-                        {
-                            FormId = "employeeEditForm",
-                            Title = "تعديل الرقم العام",
-                            ActionUrl = "/smart/execute",
-                            StoredProcedureName = "dbo.sp_SmartFormDemo",
-                            Operation = "update_employee",   //  عملية التعديل
-                            SubmitText = "حفظ التعديلات",
-                            CancelText = "إلغاء",
-
-                            Fields = new List<FieldConfig>
-        {
-            new FieldConfig { Name = "EmployeeId", Type = "hidden" },
-            new FieldConfig { Name = "FullName", Label = "الاسم الكامل", Type = "text", Required = true, ColCss="3" },
-            new FieldConfig { Name = "Email", Label = "البريد الإلكتروني", Type = "text", TextMode="email", Required = true, ColCss="3" },
-            new FieldConfig { Name = "NationalId", Label = "رقم الهوية", Type = "text", Required = true, ColCss="3" },
-            new FieldConfig { Name = "PhoneNumber", Label = "الجوال", Type = "phone", Required = true, ColCss="3" },
-            new FieldConfig { Name = "PhoneNumber", Label = "الجوال", Type = "phone", Required = true, ColCss="3" },
-            new FieldConfig {
-                Name = "City",
-                Label = "المدينة",
-                Type = "select",
-                Options = new List<OptionItem>{
-                    new OptionItem{Value="RYD",Text="الرياض"},
-                    new OptionItem{Value="JED",Text="جدة"},
-                    new OptionItem{Value="DMM",Text="الدمام"}
-                },
-                ColCss="3"
-            },
-            new FieldConfig { Name = "IBAN", Label = "IBAN", Type = "iban", ColCss="6" },
-            new FieldConfig { Name = "BirthDate", Label = "تاريخ الميلاد", Type = "date", ColCss="6" },
-            new FieldConfig { Name = "Notes", Label = "ملاحظات", Type = "textarea", ColCss="6" },
-            new FieldConfig { Name = "AgreeTerms", Label = "أوافق على الشروط", Type = "checkbox", Required = true, ColCss="6" }
-        }
-                        },
-                        SaveSp = "dbo.sp_SmartFormDemo",
-                        SaveOp = "update_employee"
-                    }
-
-
-
-
-                }
-
-            };
-
-
-
-            if (canInsert && tableConfig.Toolbar != null)
-            {
-                tableConfig.Toolbar.ShowAdd = true;
-
-            }
-
-            if (canUpdate && tableConfig.Toolbar != null)
-            {
-                tableConfig.Toolbar.ShowEdit = true;
-            }
-
-            if (canUpdateGN && tableConfig.Toolbar != null)
-            {
-                tableConfig.Toolbar.ShowEdit1 = true;
-            }
-
-
-
-
-
-            var vm = new SmartPageViewModel
-            {
-                PageTitle = "الموظفين",
-                PanelTitle = "معلومات الموظفين",
-                SpName = "dbo.sp_SmartFormDemo",
-                Operation = "select_employees",
-                Table = tableConfig
-            };
-
-            return View(vm);
-        }
-
-
-        public IActionResult EmployeeFields(int? id)
-        {
-            return Content("<div class='p-4 text-gray-700'>هنا يمكن وضع فورم التعديل لاحقاً</div>", "text/html");
         }
 
 
@@ -367,6 +31,8 @@ namespace SmartFoundation.Mvc.Controllers
         {
             
             var spParameters = new object?[]{"BuildingType",1,60014016,"hostname"};
+
+
             DataSet ds = await _mastersDataLoadService.GetDataLoadDataSetAsync(spParameters);
             List<OptionItem> cityOptions = new();
 
@@ -426,20 +92,17 @@ namespace SmartFoundation.Mvc.Controllers
 
                         // pick a sensible row id field if present
                         var possibleIdNames = new[] { "EmployeeId", "Id", "ID", "employeeId", "id" };
-                        rowIdField = possibleIdNames.FirstOrDefault(n => dt.Columns.Contains(n)) ?? dt.Columns[1].ColumnName;
+                        rowIdField = possibleIdNames.FirstOrDefault(n => dt.Columns.Contains(n))
+                                     ?? (dt.Columns.Count > 0 ? dt.Columns[0].ColumnName : "Id");
 
 
                         var headerMap = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
                         {
-                            ["EmployeeId"] = "المعرف",
-                            ["FullName"] = "الاسم الكامل",
-                            ["Department"] = "القسم",
-                            ["JobTitle"] = "الوظيفة",
-                            ["City"] = "المدينة",
-                            ["IBAN"] = "رقم IBAN",
-                            ["BirthDate"] = "تاريخ الميلاد",
-                            ["Email"] = "الايميل",
-                            ["PhoneNumber"] = "الجوال"
+                            ["buildingTypeID"] = "المعرف",
+                            ["buildingTypeCode"] = "رمز المبنى",
+                            ["buildingTypeName_A"] = "اسم المبنى بالعربي",
+                            ["buildingTypeName_E"] = "اسم المبنى بالانجليزي",
+                            ["buildingTypeDescription"] = "ملاحظات"
                         };
 
 
@@ -567,7 +230,6 @@ namespace SmartFoundation.Mvc.Controllers
 
                 // try to find a "general number" column
                 var gnCol = cols.FirstOrDefault(c => 
-                   
                     c.Field.Equals("GeneralNo", StringComparison.OrdinalIgnoreCase)  || c.Field.Equals("EmployeeId", StringComparison.OrdinalIgnoreCase) ||
                     c.Field.IndexOf("general", StringComparison.OrdinalIgnoreCase) >= 0 && c.Field.IndexOf("num", StringComparison.OrdinalIgnoreCase) >= 0
                 );
@@ -583,23 +245,52 @@ namespace SmartFoundation.Mvc.Controllers
                 }
 
                 // include Notes if present in dataset
-                if (cols.Any(c => c.Field.Equals("Notes", StringComparison.OrdinalIgnoreCase)))
-                {
-                    fields.Add(new FieldConfig { Name = "Notes", Label = "ملاحظة", Type = "textarea", ColCss = "6" });
-                }
-                else
-                {
-                    fields.Add(new FieldConfig { Name = "Notes", Label = "ملاحظة", Type = "textarea", ColCss = "6" });
-                }
+                //if (cols.Any(c => c.Field.Equals("Notes", StringComparison.OrdinalIgnoreCase)))
+                //{
+                //    fields.Add(new FieldConfig { Name = "Notes", Label = "ملاحظة", Type = "textarea", ColCss = "6" });
+                //}
+                //else
+                //{
+                //    fields.Add(new FieldConfig { Name = "Notes", Label = "ملاحظة", Type = "textarea", ColCss = "6" });
+                //}
 
                 return fields;
             }
 
             // build dynamic field lists
-            var addFields = BuildFieldsFromColumns(dynamicColumns.Count > 0 ? dynamicColumns : new List<TableColumn>(), rowIdField);
+            // REPLACE Add form fields: hide dataset textboxes and use your own custom inputs
+            var addFields = new List<FieldConfig>
+            {
+                // keep id hidden first so row id can flow when needed
+                new FieldConfig { Name = rowIdField, Type = "hidden" },
+
+                // your custom textboxes
+                new FieldConfig { Name = "p01", Label = "رمز المبنى", Type = "number", ColCss = "3", Required = true },
+                new FieldConfig { Name = "p02", Label = "اسم المبنى بالعربي", Type = "text", ColCss = "3" , Required = false},
+                new FieldConfig { Name = "p03", Label = "اسم المبنى بالانجليزي", Type = "text", ColCss = "3" , Required = true},
+                new FieldConfig { Name = "p04", Label = "ملاحظات", Type = "text", ColCss = "3", Required = false }
+            };
+
             var editFields = BuildFieldsFromColumns(dynamicColumns.Count > 0 ? dynamicColumns : new List<TableColumn>(), rowIdField);
             var edit1Fields = BuildEdit1Fields(dynamicColumns.Count > 0 ? dynamicColumns : new List<TableColumn>(), rowIdField);
 
+            // Inject required hidden headers for the add (insert) form BEFORE building dsModel:
+            addFields.Insert(0, new FieldConfig { Name = "__RequestVerificationToken", Type = "hidden", Value = (Request.Headers["RequestVerificationToken"].FirstOrDefault() ?? "") });
+            addFields.Insert(0, new FieldConfig { Name = "hostname", Type = "hidden", Value = Request.Host.Value });
+            addFields.Insert(0, new FieldConfig { Name = "entrydata", Type = "hidden", Value = "60014016" });
+            addFields.Insert(0, new FieldConfig { Name = "idaraID", Type = "hidden", Value = "1" });
+            addFields.Insert(0, new FieldConfig { Name = "ActionType", Type = "hidden", Value = "INSERT" }); // upper-case
+            addFields.Insert(0, new FieldConfig { Name = "pageName_", Type = "hidden", Value = "BuildingType" });
+
+            // HIDE existing buildingTypeCode field in Add form (still present, not shown)
+            var btcField = addFields.FirstOrDefault(f => f.Name.Equals("buildingTypeCode", StringComparison.OrdinalIgnoreCase));
+            if (btcField != null)
+            {
+                btcField.Type = "hidden";
+            }
+
+            // Append new text field AFTER all other fields
+           
             // then create dsModel (snippet shows toolbar parts that use the dynamic lists)
             var dsModel = new SmartFoundation.UI.ViewModels.SmartTable.SmartTableDsModel
             {
@@ -640,7 +331,8 @@ namespace SmartFoundation.Mvc.Controllers
                         {
                             FormId = "employeeInsertForm",
                             Title = "بيانات الموظف الجديد",
-                            
+                            Method = "post",
+                            ActionUrl = "/employees/insert", // <-- added
                             SubmitText = "حفظ",
                             CancelText = "إلغاء",
                             Fields = addFields,
@@ -705,6 +397,118 @@ namespace SmartFoundation.Mvc.Controllers
             };
 
             return View("Sami", dsModel);
+        }
+
+
+
+
+        public IActionResult Index()
+        {
+            return View();
+        }
+
+
+        public IActionResult EmployeeFields(int? id)
+        {
+            return Content("<div class='p-4 text-gray-700'>هنا يمكن وضع فورم التعديل لاحقاً</div>", "text/html");
+        }
+
+        // 1) Add a POST action that reads all fields from employeeInsertForm and builds the object?[] array:
+        [HttpPost]
+        [Route("employees/insert")]
+        public async Task<IActionResult> InsertEmployee()
+        {
+            try
+            {
+                var f = Request.Form;
+
+                // Always provide required SP headers (do not rely on posted values)
+                string pageName   = "BuildingType";
+                string actionType = "INSERT";
+                int? idaraID      = f.TryGetValue("idaraID", out var idv) && int.TryParse(idv, out var idParsed) ? idParsed : 1;
+                int? entryData    = f.TryGetValue("entrydata", out var edv) && int.TryParse(edv, out var entryParsed) ? entryParsed : 60014016;
+                string hostName   = Request.Host.Value;
+
+                var parameters = new Dictionary<string, object?>(StringComparer.OrdinalIgnoreCase)
+                {
+                    ["pageName_"] = pageName,                 // guaranteed non-empty
+                    ["ActionType"] = actionType,              // guaranteed non-empty
+                    ["idaraID"] = idaraID,
+                    ["entrydata"] = entryData,
+                    ["hostname"] = hostName                   // guaranteed non-empty
+                };
+
+                // Map p01..p50 => parameter_01..parameter_50
+                // Empty or missing inputs are sent as DBNull.Value (not removed by the engine)
+                for (int idx = 1; idx <= 50; idx++)
+                {
+                    var key = $"p{idx:00}";
+                    if (f.TryGetValue(key, out var val))
+                    {
+                        var s = val.ToString();
+                        parameters[$"parameter_{idx:00}"] = string.IsNullOrWhiteSpace(s) ? DBNull.Value : s;
+                    }
+                    else
+                    {
+                        parameters[$"parameter_{idx:00}"] = DBNull.Value;
+                    }
+                }
+
+                var dsInsert = await _mastersCrudServies.GetCrudDataSetAsync(parameters);
+
+                string? message = null;
+                bool? isSuccess = null;
+
+                foreach (DataTable t in dsInsert.Tables)
+                {
+                    if (t.Rows.Count == 0) continue;
+                    var row = t.Rows[0];
+
+                    var msgCol = t.Columns.Cast<DataColumn>()
+                        .FirstOrDefault(c =>
+                            string.Equals(c.ColumnName, "Message_", StringComparison.OrdinalIgnoreCase) ||
+                            string.Equals(c.ColumnName, "Message", StringComparison.OrdinalIgnoreCase) ||
+                            string.Equals(c.ColumnName, "SuccessMessage", StringComparison.OrdinalIgnoreCase));
+
+                    if (msgCol != null && row[msgCol] != DBNull.Value)
+                        message = row[msgCol]?.ToString();
+
+                    var succCol = t.Columns.Cast<DataColumn>()
+                        .FirstOrDefault(c =>
+                            string.Equals(c.ColumnName, "IsSuccessful", StringComparison.OrdinalIgnoreCase) ||
+                            string.Equals(c.ColumnName, "Success", StringComparison.OrdinalIgnoreCase));
+
+                    if (succCol != null && row[succCol] != DBNull.Value)
+                    {
+                        var v = row[succCol];
+                        if (v is bool b) isSuccess = b;
+                        else if (v is int intVal) isSuccess = intVal != 0;
+                        else if (v is string s) isSuccess = s == "1" || s.Equals("true", StringComparison.OrdinalIgnoreCase) || s.Equals("Y", StringComparison.OrdinalIgnoreCase);
+                    }
+
+                    if (!string.IsNullOrWhiteSpace(message) || isSuccess.HasValue)
+                        break;
+                }
+
+                if (isSuccess == true)
+                {
+                    TempData["InsertMessage"] = message ?? "Success";
+                }
+                else if (isSuccess == false)
+                {
+                    TempData["CrudError"] = message ?? "Insert failed.";
+                }
+                else
+                {
+                    TempData["InsertMessage"] = message ?? "تمت عملية الإدخال (لا توجد رسالة من المخزن).";
+                }
+            }
+            catch (Exception ex)
+            {
+                TempData["CrudError"] = "Insert failed: " + ex.Message;
+            }
+
+            return RedirectToAction(nameof(Sami));
         }
     }
 }
