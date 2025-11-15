@@ -80,6 +80,12 @@
                     <span x-text="toolbar.edit1?.label ?? 'تعديل'"></span>
                 </button>
             </template>
+            <template x-if="toolbar.showDelete && toolbar.delete">
+                <button type="button" class="btn" :class="'btn-' + (toolbar.delete?.color ?? 'danger')" x-on:click="doAction(toolbar.delete, getSingleSelection())" :disabled="selectedKeys.size !== 1">
+                    <i :class="toolbar.delete?.icon ?? ''"></i>
+                    <span x-text="toolbar.delete?.label ?? 'حذف'"></span>
+                </button>
+            </template>
         </div>
     </div>
 
@@ -180,10 +186,10 @@
                     <template x-if="modal.loading"><div class="td-loading"><i class="fa fa-spinner animate-spin"></i> جاري التحميل...</div></template>
                     <template x-if="!modal.loading && modal.error"><div class="td-error"><i class="fa fa-triangle-exclamation"></i> <span x-text="modal.error"></span></div></template>
                 </div>
-                <div class="sf-modal-footer">
+               @*  <div class="sf-modal-footer">
                     <button class="btn btn-secondary" type="button" x-on:click="closeModal()">إلغاء</button>
                     <button class="btn btn-success" type="button" x-show="modal.action && (modal.action.openModal || modal.action.isEdit)" x-on:click="saveModalChanges()">حفظ</button>
-                </div>
+                </div> *@
             </div>
         </div>
     </template>

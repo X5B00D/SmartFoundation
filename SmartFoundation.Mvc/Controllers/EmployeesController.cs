@@ -6,7 +6,9 @@ using SmartFoundation.UI.ViewModels.SmartPage;
 using SmartFoundation.UI.ViewModels.SmartTable;
 using System.Data;
 using System.Text.Json;
-using System.Linq; 
+using System.Linq;
+using System.Text.RegularExpressions; 
+
 
 namespace SmartFoundation.Mvc.Controllers
 {
@@ -15,9 +17,7 @@ namespace SmartFoundation.Mvc.Controllers
         private readonly MastersDataLoadService _mastersDataLoadService;
         private readonly MastersCrudServies _mastersCrudServies;
 
-        bool canInsert = false;
-        bool canUpdate = false;
-        bool canUpdateGN = false;
+       
 
         public EmployeesController(MastersDataLoadService mastersDataLoadService, MastersCrudServies mastersCrudServies)
         {
@@ -32,43 +32,58 @@ namespace SmartFoundation.Mvc.Controllers
             
             var spParameters = new object?[]{"BuildingType",1,60014016,"hostname"};
 
-
-            DataSet ds = await _mastersDataLoadService.GetDataLoadDataSetAsync(spParameters);
+            DataSet ds;
+          
             List<OptionItem> cityOptions = new();
-
-
             var rowsList = new List<Dictionary<string, object?>>();
             var dynamicColumns = new List<TableColumn>();
-            string rowIdField = "Id";
+
+
+            ds = await _mastersDataLoadService.GetDataLoadDataSetAsync(spParameters);
+
+            DataTable? permissionTable = (ds?.Tables?.Count ?? 0) > 0 ? ds.Tables[0] : null;
+            DataTable? dt1 = (ds?.Tables?.Count ?? 0) > 1 ? ds.Tables[1] : null;
+            DataTable? dt2 = (ds?.Tables?.Count ?? 0) > 2 ? ds.Tables[2] : null;
+            DataTable? dt3 = (ds?.Tables?.Count ?? 0) > 3 ? ds.Tables[3] : null;
+            DataTable? dt4 = (ds?.Tables?.Count ?? 0) > 4 ? ds.Tables[4] : null;
+            DataTable? dt5 = (ds?.Tables?.Count ?? 0) > 5 ? ds.Tables[5] : null;
+            DataTable? dt6 = (ds?.Tables?.Count ?? 0) > 5 ? ds.Tables[6] : null;
+            DataTable? dt7 = (ds?.Tables?.Count ?? 0) > 5 ? ds.Tables[7] : null;
+            DataTable? dt8 = (ds?.Tables?.Count ?? 0) > 5 ? ds.Tables[8] : null;
+            DataTable? dt9 = (ds?.Tables?.Count ?? 0) > 5 ? ds.Tables[9] : null;
+
+
+            string rowIdField ="";
+            bool canInsert = false;
+            bool canUpdate = false;
+            bool canUpdateGN = false;
+            
 
 
             try
             {
 
-                if (ds != null && ds.Tables.Count > 1 && ds.Tables[1].Rows.Count > 0)
-                {
-                    var cityTable = ds.Tables[2];
 
-                    foreach (DataRow row in cityTable.Rows)
-                    {
-                        string value = row["cityID"]?.ToString()?.Trim() ?? "";
-                        string text = row["cityName_A"]?.ToString()?.Trim() ?? "";
+                //To make city options list for dropdownlist later
 
-                        if (!string.IsNullOrEmpty(value))
-                            cityOptions.Add(new OptionItem { Value = value, Text = text });
-                    }
-                }
-               
+                //if (ds != null && ds.Tables.Count > 1 && ds.Tables[1].Rows.Count > 0)
+                //{
+                //    var cityTable = ds.Tables[2];
 
-                ViewBag.EmployeeDataSet = ds;
+                //    foreach (DataRow row in cityTable.Rows)
+                //    {
+                //        string value = row["cityID"]?.ToString()?.Trim() ?? "";
+                //        string text = row["cityName_A"]?.ToString()?.Trim() ?? "";
 
-                // <-- new: pass table count to the view so client-side JS can show an alert
-                ViewBag.EmployeeTableCount = ds?.Tables?.Count ?? 0;
+                //        if (!string.IsNullOrEmpty(value))
+                //            cityOptions.Add(new OptionItem { Value = value, Text = text });
+                //    }
+                //}
 
                 if (ds != null && ds.Tables.Count > 0 && ds.Tables[0].Rows.Count > 0)
                 {
                     // اقرأ الجدول الأول
-                    var permissionTable = ds.Tables[0];
+                    
 
                     // نبحث عن صلاحيات محددة داخل الجدول
                     foreach (DataRow row in permissionTable.Rows)
@@ -89,13 +104,13 @@ namespace SmartFoundation.Mvc.Controllers
                     if (ds != null && ds.Tables.Count > 0)
                     {
                         var dt = ds.Tables[1];
+                        // Resolve a correct row id field (case sensitive match to actual DataTable column)
+                        rowIdField = "BuildingTypeID";
+                        var possibleIdNames = new[] { "buildingTypeID", "BuildingTypeID", "Id", "ID" };
+                        rowIdField = possibleIdNames.FirstOrDefault(n => dt.Columns.Contains(n)) 
+                                     ?? dt.Columns[0].ColumnName;
 
-                        // pick a sensible row id field if present
-                        var possibleIdNames = new[] { "EmployeeId", "Id", "ID", "employeeId", "id" };
-                        rowIdField = possibleIdNames.FirstOrDefault(n => dt.Columns.Contains(n))
-                                     ?? (dt.Columns.Count > 0 ? dt.Columns[0].ColumnName : "Id");
-
-
+                        //For change table name to arabic 
                         var headerMap = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
                         {
                             ["buildingTypeID"] = "المعرف",
@@ -117,7 +132,7 @@ namespace SmartFoundation.Mvc.Controllers
                                      || t == typeof(float) || t == typeof(double) || t == typeof(decimal))
                                 colType = "number";
 
-                                bool isFullNameColumn = c.ColumnName.Equals("FullName", StringComparison.OrdinalIgnoreCase);
+                                bool isbuildingTypeCode = c.ColumnName.Equals("buildingTypeCode", StringComparison.OrdinalIgnoreCase);
 
                             dynamicColumns.Add(new TableColumn
                             {
@@ -125,13 +140,15 @@ namespace SmartFoundation.Mvc.Controllers
                                 Label = headerMap.TryGetValue(c.ColumnName, out var label) ? label : c.ColumnName,
                                 Type = colType,
                                 Sortable = true
-                                //,
-                               // Visible = !(isFullNameColumn)
+                                //if u want to hide any column 
+                                //,Visible = !(isbuildingTypeCode)
                             });
                         }
 
+
+                       
                         // build rows (plain dictionaries) so JSON serialization is clean
-                        foreach (DataRow r in dt.Rows)
+                        foreach (DataRow r in dt1.Rows)
                         {
                             var dict = new Dictionary<string, object?>(StringComparer.OrdinalIgnoreCase);
                             foreach (DataColumn c in dt.Columns)
@@ -139,6 +156,27 @@ namespace SmartFoundation.Mvc.Controllers
                                 var val = r[c];
                                 dict[c.ColumnName] = val == DBNull.Value ? null : val;
                             }
+
+                           // Ensure the row id key actually exists with correct casing
+                           if (!dict.ContainsKey(rowIdField))
+                           {
+                               // Try to copy from a differently cased variant
+                               if (rowIdField.Equals("buildingTypeID", StringComparison.OrdinalIgnoreCase) &&
+                                   dict.TryGetValue("BuildingTypeID", out var alt))
+                                   dict["buildingTypeID"] = alt;
+                               else if (rowIdField.Equals("BuildingTypeID", StringComparison.OrdinalIgnoreCase) &&
+                                        dict.TryGetValue("buildingTypeID", out var alt2))
+                                   dict["BuildingTypeID"] = alt2;
+                           }
+
+                            // Prefill pXX fields on the row so Edit form (which uses pXX names) loads the selected row values
+                            object? Get(string key) => dict.TryGetValue(key, out var v) ? v : null;
+                            dict["p01"] = Get("buildingTypeID") ?? Get("BuildingTypeID") ?? Get("Id") ?? Get("ID");
+                            dict["p02"] = Get("buildingTypeCode");
+                            dict["p03"] = Get("buildingTypeName_A");
+                            dict["p04"] = Get("buildingTypeName_E");
+                            dict["p05"] = Get("buildingTypeDescription");
+
                             rowsList.Add(dict);
                         }
                     }
@@ -155,110 +193,14 @@ namespace SmartFoundation.Mvc.Controllers
 
 
             // Local helper: map TableColumn -> FieldConfig
-            List<FieldConfig> BuildFieldsFromColumns(List<TableColumn> cols, string idField)
-            {
-                var list = new List<FieldConfig>();
-
-                // ensure id hidden field is first
-                list.Add(new FieldConfig { Name = idField, Type = "hidden" });
-
-                foreach (var col in cols)
-                {
-                    if (string.Equals(col.Field, idField, StringComparison.OrdinalIgnoreCase))
-                        continue;
-
-                    var fc = new FieldConfig
-                    {
-                        Name = col.Field,
-                        Label = string.IsNullOrWhiteSpace(col.Label) ? col.Field : col.Label,
-                        ColCss = "3"
-                    };
-
-                    // map column type to field type with simple heuristics
-                    switch ((col.Type ?? "text").ToLowerInvariant())
-                    {
-                        case "number":
-                        case "int":
-                        case "decimal":
-                            fc.Type = "number";
-                            fc.TextMode = "number";
-                            break;
-                        case "date":
-                        case "datetime":
-                            fc.Type = "date";
-                            break;
-                        case "bool":
-                        case "boolean":
-                            fc.Type = "checkbox";
-                            break;
-                        default:
-                            fc.Type = "text";
-                            break;
-                    }
-
-                    // name-based heuristics
-                    var name = col.Field.ToLowerInvariant();
-                    if (name.Contains("email"))
-                    {
-                        fc.TextMode = "email";
-                    }
-                    if (name.Contains("phone") || name.Contains("mobile"))
-                    {
-                        fc.Type = "phone";
-                    }
-                    if (name.Contains("iban"))
-                    {
-                        fc.Type = "iban";
-                        fc.IsIban = true;
-                    }
-                    if (name == "city" || name.EndsWith("cityid"))
-                    {
-                        fc.Type = "select";
-                        fc.Options = cityOptions; // reuse city options loaded from dataset
-                    }
-
-                    list.Add(fc);
-                }
-
-                return list;
-            }
+          
 
             // Local helper: build Edit1 fields (prefer dataset column for general number or fallback)
-            List<FieldConfig> BuildEdit1Fields(List<TableColumn> cols, string idField)
-            {
-                var fields = new List<FieldConfig> { new FieldConfig { Name = idField, Type = "hidden" } };
-
-                // try to find a "general number" column
-                var gnCol = cols.FirstOrDefault(c => 
-                    c.Field.Equals("GeneralNo", StringComparison.OrdinalIgnoreCase)  || c.Field.Equals("EmployeeId", StringComparison.OrdinalIgnoreCase) ||
-                    c.Field.IndexOf("general", StringComparison.OrdinalIgnoreCase) >= 0 && c.Field.IndexOf("num", StringComparison.OrdinalIgnoreCase) >= 0
-                );
-
-                if (gnCol != null)
-                {
-                    fields.AddRange(BuildFieldsFromColumns(new List<TableColumn> { gnCol }, idField).Skip(1)); // skip duplicate id
-                }
-                else
-                {
-                    // fallback field
-                    fields.Add(new FieldConfig { Name = "GeneralNumber", Label = "الرقمb العام", Type = "text", ColCss = "3", Required = true });
-                }
-
-                // include Notes if present in dataset
-                //if (cols.Any(c => c.Field.Equals("Notes", StringComparison.OrdinalIgnoreCase)))
-                //{
-                //    fields.Add(new FieldConfig { Name = "Notes", Label = "ملاحظة", Type = "textarea", ColCss = "6" });
-                //}
-                //else
-                //{
-                //    fields.Add(new FieldConfig { Name = "Notes", Label = "ملاحظة", Type = "textarea", ColCss = "6" });
-                //}
-
-                return fields;
-            }
-
+           
             // build dynamic field lists
             // REPLACE Add form fields: hide dataset textboxes and use your own custom inputs
+
+            //ADD
             var addFields = new List<FieldConfig>
             {
                 // keep id hidden first so row id can flow when needed
@@ -266,13 +208,12 @@ namespace SmartFoundation.Mvc.Controllers
 
                 // your custom textboxes
                 new FieldConfig { Name = "p01", Label = "رمز المبنى", Type = "number", ColCss = "3", Required = true },
-                new FieldConfig { Name = "p02", Label = "اسم المبنى بالعربي", Type = "text", ColCss = "3" , Required = false},
+                new FieldConfig { Name = "p02", Label = "اسم المبنى بالعربي", Type = "text", ColCss = "3" , Required = false,TextMode = "arabic"},
                 new FieldConfig { Name = "p03", Label = "اسم المبنى بالانجليزي", Type = "text", ColCss = "3" , Required = true},
                 new FieldConfig { Name = "p04", Label = "ملاحظات", Type = "text", ColCss = "3", Required = false }
             };
 
-            var editFields = BuildFieldsFromColumns(dynamicColumns.Count > 0 ? dynamicColumns : new List<TableColumn>(), rowIdField);
-            var edit1Fields = BuildEdit1Fields(dynamicColumns.Count > 0 ? dynamicColumns : new List<TableColumn>(), rowIdField);
+           
 
             // Inject required hidden headers for the add (insert) form BEFORE building dsModel:
             addFields.Insert(0, new FieldConfig { Name = "__RequestVerificationToken", Type = "hidden", Value = (Request.Headers["RequestVerificationToken"].FirstOrDefault() ?? "") });
@@ -282,26 +223,62 @@ namespace SmartFoundation.Mvc.Controllers
             addFields.Insert(0, new FieldConfig { Name = "ActionType", Type = "hidden", Value = "INSERT" }); // upper-case
             addFields.Insert(0, new FieldConfig { Name = "pageName_", Type = "hidden", Value = "BuildingType" });
 
-            // HIDE existing buildingTypeCode field in Add form (still present, not shown)
-            var btcField = addFields.FirstOrDefault(f => f.Name.Equals("buildingTypeCode", StringComparison.OrdinalIgnoreCase));
-            if (btcField != null)
-            {
-                btcField.Type = "hidden";
-            }
+            // Optional: help the generic endpoint know where to go back
+            addFields.Insert(0, new FieldConfig { Name = "redirectAction", Type = "hidden", Value = nameof(Sami) });
+            addFields.Insert(0, new FieldConfig { Name = "redirectController", Type = "hidden", Value = "Employees" });
 
-            // Append new text field AFTER all other fields
-           
+
+
+            //UPDATE
+            // Keep pXX as the visible inputs. They will now prefill automatically from the selected row
+            // because we injected p01..p05 into each row above.
+            // UPDATE fields: make pXX visible (so the binding engine can copy selected row[pXX] values).
+            // Do NOT hide p01 if you need to see the selected id; keep it readonly instead of hidden.
+            var updateFields = new List<FieldConfig>
+            {
+                new FieldConfig { Name = "redirectAction",      Type = "hidden", Value = nameof(Sami) },
+                new FieldConfig { Name = "redirectController",  Type = "hidden", Value = "Employees" },
+                new FieldConfig { Name = "pageName_",           Type = "hidden", Value = "BuildingType" },
+                new FieldConfig { Name = "ActionType",          Type = "hidden", Value = "UPDATE" },
+                new FieldConfig { Name = "idaraID",             Type = "hidden", Value = "1" },
+                new FieldConfig { Name = "entrydata",           Type = "hidden", Value = "60014016" },
+                new FieldConfig { Name = "hostname",            Type = "hidden", Value = Request.Host.Value },
+                new FieldConfig { Name = "__RequestVerificationToken", Type = "hidden", Value = (Request.Headers["RequestVerificationToken"].FirstOrDefault() ?? "") },
+                new FieldConfig { Name = rowIdField,            Type = "hidden" },
+
+                new FieldConfig { Name = "p01", Label = "المعرف",             Type = "hidden", Readonly = true, ColCss = "3" },
+                new FieldConfig { Name = "p02", Label = "رمز المبنى",         Type = "number", Required = true,  ColCss = "3" },
+                new FieldConfig { Name = "p03", Label = "اسم المبنى بالعربي", Type = "text",   ColCss = "3", TextMode = "arabic" },
+                new FieldConfig { Name = "p04", Label = "اسم المبنى بالانجليزي", Type = "text", Required = true, ColCss = "3" },
+                new FieldConfig { Name = "p05", Label = "ملاحظات",            Type = "text",   ColCss = "6" }
+            };
+
+
+            // Delete fields: show confirmation as a label (not textbox) and show ID as label while still posting p01
+            var deleteFields = new List<FieldConfig>
+            {
+                new FieldConfig { Name = "redirectAction",     Type = "hidden", Value = nameof(Sami) },
+                new FieldConfig { Name = "redirectController", Type = "hidden", Value = "Employees" },
+                new FieldConfig { Name = "pageName_",          Type = "hidden", Value = "BuildingType" },
+                new FieldConfig { Name = "ActionType",         Type = "hidden", Value = "DELETE" },
+                new FieldConfig { Name = "idaraID",            Type = "hidden", Value = "1" },
+                new FieldConfig { Name = "entrydata",          Type = "hidden", Value = "60014016" },
+                new FieldConfig { Name = "hostname",           Type = "hidden", Value = Request.Host.Value },
+                new FieldConfig { Name = "__RequestVerificationToken", Type = "hidden", Value = (Request.Headers["RequestVerificationToken"].FirstOrDefault() ?? "") },
+
+                // selection context
+                new FieldConfig { Name = rowIdField, Type = "hidden" },
+
+                // hidden p01 actually posted to SP
+                new FieldConfig { Name = "p01", Type = "hidden", MirrorName = "BuildingTypeID" }
+            };
+
+
+
             // then create dsModel (snippet shows toolbar parts that use the dynamic lists)
             var dsModel = new SmartFoundation.UI.ViewModels.SmartTable.SmartTableDsModel
             {
-                Columns = dynamicColumns.Count > 0 ? dynamicColumns : new List<TableColumn>
-                {
-                    new TableColumn { Field="EmployeeId", Label="ID", Type="number", Width="80px", Align="center", Sortable=true },
-                    new TableColumn { Field="FullName", Label="الاسم الكامل", Type="text", Sortable=true },
-                    new TableColumn { Field="Email", Label="البريد الإلكتروني", Type="link", LinkTemplate="mailto:{Email}", Sortable=true },
-                    new TableColumn { Field="PhoneNumber", Label="الجوال", Type="text", Sortable=true },
-                    new TableColumn { Field="City", Label="المدينة", Sortable=true }
-                },
+                Columns = dynamicColumns,
                 Rows = rowsList,
                 RowIdField = rowIdField,
                 PageSize = 10,
@@ -318,6 +295,7 @@ namespace SmartFoundation.Mvc.Controllers
                     ShowAdd = canInsert,
                     ShowEdit = canUpdate,
                     ShowEdit1 = canUpdateGN,
+                    ShowDelete = true,
                     ShowBulkDelete = false,
 
                     Add = new TableAction
@@ -332,7 +310,7 @@ namespace SmartFoundation.Mvc.Controllers
                             FormId = "employeeInsertForm",
                             Title = "بيانات الموظف الجديد",
                             Method = "post",
-                            ActionUrl = "/employees/insert", // <-- added
+                            ActionUrl = "/crud/insert", // <-- added
                             SubmitText = "حفظ",
                             CancelText = "إلغاء",
                             Fields = addFields,
@@ -342,7 +320,6 @@ namespace SmartFoundation.Mvc.Controllers
                                 new FormButtonConfig { Text = "إلغاء", Type = "button", Color = "secondary", Icon = "fa fa-times", OnClickJs = "this.closest('.sf-modal').__x.$data.closeModal();" }
                             }
                         }
-                        
                     },
 
                     // Edit: opens populated form for single selection and saves via SP
@@ -358,41 +335,41 @@ namespace SmartFoundation.Mvc.Controllers
                         {
                             FormId = "employeeEditForm",
                             Title = "تعديل بيانات الموظف",
-                            ActionUrl = "/smart/execute",
-                            StoredProcedureName = "dbo.sp_SmartFormDemo",
-                            Operation = "update_employee",
+                            Method = "post",
+                            ActionUrl = "/crud/update",
                             SubmitText = "حفظ التعديلات",
                             CancelText = "إلغاء",
-                            Fields = editFields
+                            Fields = updateFields
                         },
-                        SaveSp = "dbo.sp_SmartFormDemo",
-                        SaveOp = "update_employee",
+                        RequireSelection = true,
+                        MinSelection = 1,
+                        MaxSelection = 1
+
+
+                    },
+
+                    Delete = new TableAction
+                    {
+                        Label = "حذف موظف",
+                        Icon = "fa fa-trash",
+                        Color = "danger",
+                        IsEdit = true,
+                        OpenModal = true,
+                        ModalTitle = "هل أنت متأكد من حذف هذا السجل؟",
+                        OpenForm = new FormConfig
+                        {
+                            FormId = "employeeDeleteForm",
+                            Title = "تأكيد حذف السجل",
+                            Method = "post",
+                            ActionUrl = "/crud/delete", // call the Delete endpoint
+                            SubmitText = "حذف",
+                            CancelText = "إلغاء",
+                            Fields = deleteFields
+                        },
                         RequireSelection = true,
                         MinSelection = 1,
                         MaxSelection = 1
                     },
-
-                    // Edit1: alternate edit (e.g., update general number) — similar wiring
-                    Edit1 = new TableAction
-                    {
-                        Label = "تعديل الرقم العام",
-                        Icon = "fa fa-pen-to-square",
-                        Color = "danger",
-                        IsEdit = true,
-                        OpenModal = true,
-                        ModalTitle = "تعديل الرقم العام",
-                        OpenForm = new FormConfig
-                        {
-                            FormId = "employeeEditGNForm",
-                            Title = "تعديل الرقم العام",
-                            SubmitText = "حفظ التعديلات",
-                            CancelText = "إلغاء",
-                            Fields = edit1Fields
-                        },
-                        RequireSelection = true,
-                        MinSelection = 1,
-                        MaxSelection = 1
-                    }
                 }
             };
 
@@ -408,107 +385,5 @@ namespace SmartFoundation.Mvc.Controllers
         }
 
 
-        public IActionResult EmployeeFields(int? id)
-        {
-            return Content("<div class='p-4 text-gray-700'>هنا يمكن وضع فورم التعديل لاحقاً</div>", "text/html");
-        }
-
-        // 1) Add a POST action that reads all fields from employeeInsertForm and builds the object?[] array:
-        [HttpPost]
-        [Route("employees/insert")]
-        public async Task<IActionResult> InsertEmployee()
-        {
-            try
-            {
-                var f = Request.Form;
-
-                // Always provide required SP headers (do not rely on posted values)
-                string pageName   = "BuildingType";
-                string actionType = "INSERT";
-                int? idaraID      = f.TryGetValue("idaraID", out var idv) && int.TryParse(idv, out var idParsed) ? idParsed : 1;
-                int? entryData    = f.TryGetValue("entrydata", out var edv) && int.TryParse(edv, out var entryParsed) ? entryParsed : 60014016;
-                string hostName   = Request.Host.Value;
-
-                var parameters = new Dictionary<string, object?>(StringComparer.OrdinalIgnoreCase)
-                {
-                    ["pageName_"] = pageName,                 // guaranteed non-empty
-                    ["ActionType"] = actionType,              // guaranteed non-empty
-                    ["idaraID"] = idaraID,
-                    ["entrydata"] = entryData,
-                    ["hostname"] = hostName                   // guaranteed non-empty
-                };
-
-                // Map p01..p50 => parameter_01..parameter_50
-                // Empty or missing inputs are sent as DBNull.Value (not removed by the engine)
-                for (int idx = 1; idx <= 50; idx++)
-                {
-                    var key = $"p{idx:00}";
-                    if (f.TryGetValue(key, out var val))
-                    {
-                        var s = val.ToString();
-                        parameters[$"parameter_{idx:00}"] = string.IsNullOrWhiteSpace(s) ? DBNull.Value : s;
-                    }
-                    else
-                    {
-                        parameters[$"parameter_{idx:00}"] = DBNull.Value;
-                    }
-                }
-
-                var dsInsert = await _mastersCrudServies.GetCrudDataSetAsync(parameters);
-
-                string? message = null;
-                bool? isSuccess = null;
-
-                foreach (DataTable t in dsInsert.Tables)
-                {
-                    if (t.Rows.Count == 0) continue;
-                    var row = t.Rows[0];
-
-                    var msgCol = t.Columns.Cast<DataColumn>()
-                        .FirstOrDefault(c =>
-                            string.Equals(c.ColumnName, "Message_", StringComparison.OrdinalIgnoreCase) ||
-                            string.Equals(c.ColumnName, "Message", StringComparison.OrdinalIgnoreCase) ||
-                            string.Equals(c.ColumnName, "SuccessMessage", StringComparison.OrdinalIgnoreCase));
-
-                    if (msgCol != null && row[msgCol] != DBNull.Value)
-                        message = row[msgCol]?.ToString();
-
-                    var succCol = t.Columns.Cast<DataColumn>()
-                        .FirstOrDefault(c =>
-                            string.Equals(c.ColumnName, "IsSuccessful", StringComparison.OrdinalIgnoreCase) ||
-                            string.Equals(c.ColumnName, "Success", StringComparison.OrdinalIgnoreCase));
-
-                    if (succCol != null && row[succCol] != DBNull.Value)
-                    {
-                        var v = row[succCol];
-                        if (v is bool b) isSuccess = b;
-                        else if (v is int intVal) isSuccess = intVal != 0;
-                        else if (v is string s) isSuccess = s == "1" || s.Equals("true", StringComparison.OrdinalIgnoreCase) || s.Equals("Y", StringComparison.OrdinalIgnoreCase);
-                    }
-
-                    if (!string.IsNullOrWhiteSpace(message) || isSuccess.HasValue)
-                        break;
-                }
-
-                if (isSuccess == true)
-                {
-                    TempData["InsertMessage"] = message ?? "Success";
-                }
-                else if (isSuccess == false)
-                {
-                    TempData["CrudError"] = message ?? "Insert failed.";
-                }
-                else
-                {
-                    TempData["InsertMessage"] = message ?? "تمت عملية الإدخال (لا توجد رسالة من المخزن).";
-                }
-            }
-            catch (Exception ex)
-            {
-                TempData["CrudError"] = "Insert failed: " + ex.Message;
-            }
-
-            return RedirectToAction(nameof(Sami));
-        }
     }
 }
