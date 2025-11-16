@@ -1,30 +1,9 @@
 ﻿@model SmartFoundation.UI.ViewModels.SmartTable.SmartTableDsModel
-@using System.Text.Json
+
 @{
     ViewData["Title"] = "الموظفين (Dataset)";
-    int tableCount = (ViewBag.EmployeeTableCount as int?) ?? 0;
-    string? errorMessage = ViewBag.EmployeeDataSetError as string;
-
-    var tableCountJson = JsonSerializer.Serialize(tableCount);
-    var errorMessageJson = JsonSerializer.Serialize(errorMessage ?? "");
-
-    // Read TempData messages (success / error from insert or CRUD)
-    var insertMessage = TempData["InsertMessage"] as string;
-    var crudError = TempData["CrudError"] as string;
-    var crudDebug = TempData["CrudDebug"] as string; // optional diagnostic
-}
-
-@{
-    var ok = TempData["InsertMessage"] as string;
-    var err = TempData["CrudError"] as string;
-}
-@if (!string.IsNullOrWhiteSpace(ok))
-{
-    <div class="alert alert-success" role="alert">@ok</div>
-}
-@if (!string.IsNullOrWhiteSpace(err))
-{
-    <div class="alert alert-danger" role="alert">@err</div>
 }
 
 @await Component.InvokeAsync("SmartTableDS", new { model = Model })
+
+@* Remove the per-page Toastr <script> block; the layout partial handles it globally *@

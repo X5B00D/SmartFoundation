@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using SmartFoundation.Application.Services;
 using System.Data;
+using System.Linq;
 
 namespace SmartFoundation.Mvc.Controllers
 {
@@ -14,12 +15,85 @@ namespace SmartFoundation.Mvc.Controllers
             _mastersCrudServies = mastersCrudServies;
         }
 
-        public IActionResult Index()
+        // REMOVE any TempData like: CrudMessageType, CrudMessage, InsertMessage, UpdateMessage, DeleteMessage, CrudError.
+        // KEEP ONLY Toastr buckets: Success, Warning, Error (optional: Info).
+
+        // 0=error, 1=success, 2=warning — read from any table/row
+        private static (int? code, string? message) ExtractResult(DataSet ds)
         {
-            return View();
+            int? code = null;
+            string? message = null;
+            if (ds == null) return (code, message);
+
+            foreach (DataTable t in ds.Tables)
+            {
+                if (t.Rows.Count == 0) continue;
+
+                var msgCol = t.Columns.Cast<DataColumn>().FirstOrDefault(c =>
+                    c.ColumnName.Equals("Message_", StringComparison.OrdinalIgnoreCase) ||
+                    c.ColumnName.Equals("Message", StringComparison.OrdinalIgnoreCase) ||
+                    c.ColumnName.Equals("SuccessMessage", StringComparison.OrdinalIgnoreCase));
+
+                var codeCol = t.Columns.Cast<DataColumn>().FirstOrDefault(c =>
+                    c.ColumnName.Equals("IsSuccessful", StringComparison.OrdinalIgnoreCase) ||
+                    c.ColumnName.Equals("Success", StringComparison.OrdinalIgnoreCase));
+
+                foreach (DataRow r in t.Rows)
+                {
+                    if (msgCol != null && r[msgCol] != DBNull.Value && string.IsNullOrWhiteSpace(message))
+                        message = r[msgCol]?.ToString();
+
+                    if (!code.HasValue && codeCol != null && r[codeCol] != DBNull.Value)
+                    {
+                        var v = r[codeCol];
+                        if (v is int i) code = i;
+                        else if (v is bool b) code = b ? 1 : 0;
+                        else if (int.TryParse(v.ToString(), out var parsed)) code = parsed;
+                    }
+
+                    if (code.HasValue && !string.IsNullOrWhiteSpace(message)) break;
+                }
+
+                if (code.HasValue || !string.IsNullOrWhiteSpace(message)) break;
+            }
+
+            return (code, message);
         }
 
-        // POST /crud/insert
+        // NEW: only set Toastr buckets
+        // Map 0=Error, 1=Success, 2=Warning, 3=Info
+        private void SetToastTempData(int? code, string? message)
+        {
+            string bucket = code switch
+            {
+                0 => "Error",
+                1 => "Success",
+                2 => "Warning",
+                3 => "Info",
+                _ => "Info"
+            };
+
+            if (string.IsNullOrWhiteSpace(message))
+            {
+                message = code switch
+                {
+                    0 => "حدث خطأ أثناء التنفيذ.",
+                    1 => "تم تنفيذ العملية بنجاح.",
+                    2 => "تم التنفيذ مع تحذير.",
+                    3 => "معلومة.",
+                    _ => "تمت المعالجة."
+                };
+            }
+
+            // keep only Toastr buckets
+            TempData.Remove("Success");
+            TempData.Remove("Warning");
+            TempData.Remove("Error");
+            TempData.Remove("Info");
+
+            TempData[bucket] = message;
+        }
+
         [HttpPost("insert")]
         public async Task<IActionResult> Insert()
         {
@@ -27,12 +101,11 @@ namespace SmartFoundation.Mvc.Controllers
             {
                 var f = Request.Form;
 
-                // Required headers (with safe defaults)
-                string pageName   = f.TryGetValue("pageName_", out var pv) && !string.IsNullOrWhiteSpace(pv.ToString()) ? pv.ToString() : "BuildingType";
-                string actionType = f.TryGetValue("ActionType", out var av) && !string.IsNullOrWhiteSpace(av.ToString()) ? av.ToString() : "INSERT";
+                string pageName   = f.TryGetValue("pageName_", out var pv) && !string.IsNullOrWhiteSpace(pv) ? pv.ToString() : "BuildingType";
+                string actionType = f.TryGetValue("ActionType", out var av) && !string.IsNullOrWhiteSpace(av) ? av.ToString() : "INSERT";
                 int? idaraID      = f.TryGetValue("idaraID", out var idv) && int.TryParse(idv, out var idParsed) ? idParsed : 1;
                 int? entryData    = f.TryGetValue("entrydata", out var edv) && int.TryParse(edv, out var entryParsed) ? entryParsed : 60014016;
-                string hostName   = f.TryGetValue("hostname", out var hv) && !string.IsNullOrWhiteSpace(hv.ToString()) ? hv.ToString() : Request.Host.Value;
+                string hostName   = f.TryGetValue("hostname", out var hv) && !string.IsNullOrWhiteSpace(hv) ? hv.ToString() : Request.Host.Value;
 
                 var parameters = new Dictionary<string, object?>(StringComparer.OrdinalIgnoreCase)
                 {
@@ -43,82 +116,35 @@ namespace SmartFoundation.Mvc.Controllers
                     ["hostname"] = hostName
                 };
 
-                // Map p01..p50 => parameter_01..parameter_50 (send DBNull for empty/missing)
                 for (int idx = 1; idx <= 50; idx++)
                 {
                     var key = $"p{idx:00}";
-                    if (f.TryGetValue(key, out var val))
-                    {
-                        var s = val.ToString();
-                        parameters[$"parameter_{idx:00}"] = string.IsNullOrWhiteSpace(s) ? DBNull.Value : s;
-                    }
-                    else
-                    {
-                        parameters[$"parameter_{idx:00}"] = DBNull.Value;
-                    }
+                    parameters[$"parameter_{idx:00}"] = f.TryGetValue(key, out var val) && !string.IsNullOrWhiteSpace(val)
+                        ? val.ToString() : DBNull.Value;
                 }
 
                 var ds = await _mastersCrudServies.GetCrudDataSetAsync(parameters);
+                var (code, message) = ExtractResult(ds);
+                SetToastTempData(code, message);
 
-                string? message = null;
-                bool? isSuccess = null;
-
-                foreach (DataTable t in ds.Tables)
-                {
-                    if (t.Rows.Count == 0) continue;
-                    var row = t.Rows[0];
-
-                    var msgCol = t.Columns.Cast<DataColumn>().FirstOrDefault(c =>
-                        string.Equals(c.ColumnName, "Message_", StringComparison.OrdinalIgnoreCase) ||
-                        string.Equals(c.ColumnName, "Message", StringComparison.OrdinalIgnoreCase) ||
-                        string.Equals(c.ColumnName, "SuccessMessage", StringComparison.OrdinalIgnoreCase));
-
-                    if (msgCol != null && row[msgCol] != DBNull.Value)
-                        message = row[msgCol]?.ToString();
-
-                    var succCol = t.Columns.Cast<DataColumn>().FirstOrDefault(c =>
-                        string.Equals(c.ColumnName, "IsSuccessful", StringComparison.OrdinalIgnoreCase) ||
-                        string.Equals(c.ColumnName, "Success", StringComparison.OrdinalIgnoreCase));
-
-                    if (succCol != null && row[succCol] != DBNull.Value)
-                    {
-                        var v = row[succCol];
-                        if (v is bool b) isSuccess = b;
-                        else if (v is int i) isSuccess = i != 0;
-                        else if (v is string s) isSuccess = s == "1" || s.Equals("true", StringComparison.OrdinalIgnoreCase) || s.Equals("Y", StringComparison.OrdinalIgnoreCase);
-                    }
-
-                    if (!string.IsNullOrWhiteSpace(message) || isSuccess.HasValue)
-                        break;
-                }
-
-                if (isSuccess == true) TempData["InsertMessage"] = message ?? "Success";
-                else if (isSuccess == false) TempData["CrudError"] = message ?? "Insert failed.";
-                else TempData["InsertMessage"] = message ?? "تمت العملية.";
-
-                // Optional redirect targets (post hidden fields)
                 var redirectAction = f.TryGetValue("redirectAction", out var ra) ? ra.ToString() : null;
                 var redirectController = f.TryGetValue("redirectController", out var rc) ? rc.ToString() : null;
-
                 if (!string.IsNullOrWhiteSpace(redirectAction))
                     return RedirectToAction(redirectAction, redirectController);
 
-                // Fallback: back to referrer or home
                 var referer = Request.Headers["Referer"].ToString();
                 if (!string.IsNullOrWhiteSpace(referer)) return Redirect(referer);
-
                 return RedirectToAction("Index", "Home");
             }
             catch (Exception ex)
             {
-                TempData["CrudError"] = "Insert failed: " + ex.Message;
+                SetToastTempData(0, "Insert failed: " + ex.Message);
                 var referer = Request.Headers["Referer"].ToString();
                 if (!string.IsNullOrWhiteSpace(referer)) return Redirect(referer);
                 return RedirectToAction("Index", "Home");
             }
         }
 
-        // POST /crud/update
         [HttpPost("update")]
         public async Task<IActionResult> Update()
         {
@@ -126,12 +152,11 @@ namespace SmartFoundation.Mvc.Controllers
             {
                 var f = Request.Form;
 
-                // Required headers (with safe defaults)
-                string pageName   = f.TryGetValue("pageName_", out var pv) && !string.IsNullOrWhiteSpace(pv.ToString()) ? pv.ToString() : "error";
-                string actionType = f.TryGetValue("ActionType", out var av) && !string.IsNullOrWhiteSpace(av.ToString()) ? av.ToString() : "error";
-                int? idaraID      = f.TryGetValue("idaraID", out var idv) && int.TryParse(idv, out var idParsed) ? idParsed : 0;
-                int? entryData    = f.TryGetValue("entrydata", out var edv) && int.TryParse(edv, out var entryParsed) ? entryParsed : 0;
-                string hostName   = f.TryGetValue("hostname", out var hv) && !string.IsNullOrWhiteSpace(hv.ToString()) ? hv.ToString() : Request.Host.Value;
+                string pageName   = f.TryGetValue("pageName_", out var pv) && !string.IsNullOrWhiteSpace(pv) ? pv.ToString() : "BuildingType";
+                string actionType = f.TryGetValue("ActionType", out var av) && !string.IsNullOrWhiteSpace(av) ? av.ToString() : "UPDATE";
+                int? idaraID      = f.TryGetValue("idaraID", out var idv) && int.TryParse(idv, out var idParsed) ? idParsed : 1;
+                int? entryData    = f.TryGetValue("entrydata", out var edv) && int.TryParse(edv, out var entryParsed) ? entryParsed : 60014016;
+                string hostName   = f.TryGetValue("hostname", out var hv) && !string.IsNullOrWhiteSpace(hv) ? hv.ToString() : Request.Host.Value;
 
                 var parameters = new Dictionary<string, object?>(StringComparer.OrdinalIgnoreCase)
                 {
@@ -142,96 +167,47 @@ namespace SmartFoundation.Mvc.Controllers
                     ["hostname"] = hostName
                 };
 
-                // Map p01..p50 => parameter_01..parameter_50 (send DBNull for empty/missing)
                 for (int idx = 1; idx <= 50; idx++)
                 {
                     var key = $"p{idx:00}";
-                    if (f.TryGetValue(key, out var val))
-                    {
-                        var s = val.ToString();
-                        parameters[$"parameter_{idx:00}"] = string.IsNullOrWhiteSpace(s) ? DBNull.Value : s;
-                    }
-                    else
-                    {
-                        parameters[$"parameter_{idx:00}"] = DBNull.Value;
-                    }
+                    parameters[$"parameter_{idx:00}"] = f.TryGetValue(key, out var val) && !string.IsNullOrWhiteSpace(val)
+                        ? val.ToString() : DBNull.Value;
                 }
 
                 var ds = await _mastersCrudServies.GetCrudDataSetAsync(parameters);
+                var (code, message) = ExtractResult(ds);
+                SetToastTempData(code, message);
 
-                string? message = null;
-                bool? isSuccess = null;
-
-                foreach (DataTable t in ds.Tables)
-                {
-                    if (t.Rows.Count == 0) continue;
-                    var row = t.Rows[0];
-
-                    var msgCol = t.Columns.Cast<DataColumn>().FirstOrDefault(c =>
-                        string.Equals(c.ColumnName, "Message_", StringComparison.OrdinalIgnoreCase) ||
-                        string.Equals(c.ColumnName, "Message", StringComparison.OrdinalIgnoreCase) ||
-                        string.Equals(c.ColumnName, "SuccessMessage", StringComparison.OrdinalIgnoreCase));
-
-                    if (msgCol != null && row[msgCol] != DBNull.Value)
-                        message = row[msgCol]?.ToString();
-
-                    var succCol = t.Columns.Cast<DataColumn>().FirstOrDefault(c =>
-                        string.Equals(c.ColumnName, "IsSuccessful", StringComparison.OrdinalIgnoreCase) ||
-                        string.Equals(c.ColumnName, "Success", StringComparison.OrdinalIgnoreCase));
-
-                    if (succCol != null && row[succCol] != DBNull.Value)
-                    {
-                        var v = row[succCol];
-                        if (v is bool b) isSuccess = b;
-                        else if (v is int i) isSuccess = i != 0;
-                        else if (v is string s) isSuccess = s == "1" || s.Equals("true", StringComparison.OrdinalIgnoreCase) || s.Equals("Y", StringComparison.OrdinalIgnoreCase);
-                    }
-
-                    if (!string.IsNullOrWhiteSpace(message) || isSuccess.HasValue)
-                        break;
-                }
-
-                if (isSuccess == true) TempData["UpdateMessage"] = message ?? "Success";
-                else if (isSuccess == false) TempData["CrudError"] = message ?? "Update failed.";
-                else TempData["UpdateMessage"] = message ?? "تمت العملية.";
-
-                // Optional redirect targets (post hidden fields)
                 var redirectAction = f.TryGetValue("redirectAction", out var ra) ? ra.ToString() : null;
                 var redirectController = f.TryGetValue("redirectController", out var rc) ? rc.ToString() : null;
-
                 if (!string.IsNullOrWhiteSpace(redirectAction))
                     return RedirectToAction(redirectAction, redirectController);
 
-                // Fallback: back to referrer or home
                 var referer = Request.Headers["Referer"].ToString();
                 if (!string.IsNullOrWhiteSpace(referer)) return Redirect(referer);
-
                 return RedirectToAction("Index", "Home");
             }
             catch (Exception ex)
             {
-                TempData["CrudError"] = "Update failed: " + ex.Message;
+                SetToastTempData(0, "Update failed: " + ex.Message);
                 var referer = Request.Headers["Referer"].ToString();
                 if (!string.IsNullOrWhiteSpace(referer)) return Redirect(referer);
                 return RedirectToAction("Index", "Home");
             }
         }
 
-
-
-        [HttpPost("Delete")]
+        [HttpPost("delete")]
         public async Task<IActionResult> Delete()
         {
             try
             {
                 var f = Request.Form;
 
-                // Required headers (with safe defaults)
-                string pageName = f.TryGetValue("pageName_", out var pv) && !string.IsNullOrWhiteSpace(pv.ToString()) ? pv.ToString() : "error";
-                string actionType = f.TryGetValue("ActionType", out var av) && !string.IsNullOrWhiteSpace(av.ToString()) ? av.ToString() : "error";
-                int? idaraID = f.TryGetValue("idaraID", out var idv) && int.TryParse(idv, out var idParsed) ? idParsed : 0;
-                int? entryData = f.TryGetValue("entrydata", out var edv) && int.TryParse(edv, out var entryParsed) ? entryParsed : 0;
-                string hostName = f.TryGetValue("hostname", out var hv) && !string.IsNullOrWhiteSpace(hv.ToString()) ? hv.ToString() : Request.Host.Value;
+                string pageName   = f.TryGetValue("pageName_", out var pv) && !string.IsNullOrWhiteSpace(pv) ? pv.ToString() : "BuildingType";
+                string actionType = f.TryGetValue("ActionType", out var av) && !string.IsNullOrWhiteSpace(av) ? av.ToString() : "DELETE";
+                int? idaraID      = f.TryGetValue("idaraID", out var idv) && int.TryParse(idv, out var idParsed) ? idParsed : 1;
+                int? entryData    = f.TryGetValue("entrydata", out var edv) && int.TryParse(edv, out var entryParsed) ? entryParsed : 60014016;
+                string hostName   = f.TryGetValue("hostname", out var hv) && !string.IsNullOrWhiteSpace(hv) ? hv.ToString() : Request.Host.Value;
 
                 var parameters = new Dictionary<string, object?>(StringComparer.OrdinalIgnoreCase)
                 {
@@ -242,75 +218,29 @@ namespace SmartFoundation.Mvc.Controllers
                     ["hostname"] = hostName
                 };
 
-                // Map p01..p50 => parameter_01..parameter_50 (send DBNull for empty/missing)
                 for (int idx = 1; idx <= 50; idx++)
                 {
                     var key = $"p{idx:00}";
-                    if (f.TryGetValue(key, out var val))
-                    {
-                        var s = val.ToString();
-                        parameters[$"parameter_{idx:00}"] = string.IsNullOrWhiteSpace(s) ? DBNull.Value : s;
-                    }
-                    else
-                    {
-                        parameters[$"parameter_{idx:00}"] = DBNull.Value;
-                    }
+                    parameters[$"parameter_{idx:00}"] = f.TryGetValue(key, out var val) && !string.IsNullOrWhiteSpace(val)
+                        ? val.ToString() : DBNull.Value;
                 }
 
                 var ds = await _mastersCrudServies.GetCrudDataSetAsync(parameters);
+                var (code, message) = ExtractResult(ds);
+                SetToastTempData(code, message);
 
-                string? message = null;
-                bool? isSuccess = null;
-
-                foreach (DataTable t in ds.Tables)
-                {
-                    if (t.Rows.Count == 0) continue;
-                    var row = t.Rows[0];
-
-                    var msgCol = t.Columns.Cast<DataColumn>().FirstOrDefault(c =>
-                        string.Equals(c.ColumnName, "Message_", StringComparison.OrdinalIgnoreCase) ||
-                        string.Equals(c.ColumnName, "Message", StringComparison.OrdinalIgnoreCase) ||
-                        string.Equals(c.ColumnName, "SuccessMessage", StringComparison.OrdinalIgnoreCase));
-
-                    if (msgCol != null && row[msgCol] != DBNull.Value)
-                        message = row[msgCol]?.ToString();
-
-                    var succCol = t.Columns.Cast<DataColumn>().FirstOrDefault(c =>
-                        string.Equals(c.ColumnName, "IsSuccessful", StringComparison.OrdinalIgnoreCase) ||
-                        string.Equals(c.ColumnName, "Success", StringComparison.OrdinalIgnoreCase));
-
-                    if (succCol != null && row[succCol] != DBNull.Value)
-                    {
-                        var v = row[succCol];
-                        if (v is bool b) isSuccess = b;
-                        else if (v is int i) isSuccess = i != 0;
-                        else if (v is string s) isSuccess = s == "1" || s.Equals("true", StringComparison.OrdinalIgnoreCase) || s.Equals("Y", StringComparison.OrdinalIgnoreCase);
-                    }
-
-                    if (!string.IsNullOrWhiteSpace(message) || isSuccess.HasValue)
-                        break;
-                }
-
-                if (isSuccess == true) TempData["UpdateMessage"] = message ?? "Success";
-                else if (isSuccess == false) TempData["CrudError"] = message ?? "Update failed.";
-                else TempData["UpdateMessage"] = message ?? "تمت العملية.";
-
-                // Optional redirect targets (post hidden fields)
                 var redirectAction = f.TryGetValue("redirectAction", out var ra) ? ra.ToString() : null;
                 var redirectController = f.TryGetValue("redirectController", out var rc) ? rc.ToString() : null;
-
                 if (!string.IsNullOrWhiteSpace(redirectAction))
                     return RedirectToAction(redirectAction, redirectController);
 
-                // Fallback: back to referrer or home
                 var referer = Request.Headers["Referer"].ToString();
                 if (!string.IsNullOrWhiteSpace(referer)) return Redirect(referer);
-
                 return RedirectToAction("Index", "Home");
             }
             catch (Exception ex)
             {
-                TempData["CrudError"] = "Update failed: " + ex.Message;
+                SetToastTempData(0, "Delete failed: " + ex.Message);
                 var referer = Request.Headers["Referer"].ToString();
                 if (!string.IsNullOrWhiteSpace(referer)) return Redirect(referer);
                 return RedirectToAction("Index", "Home");

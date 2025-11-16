@@ -8,7 +8,16 @@
     <!-- CSS -->
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/datepicker.min.css" />
+    <link rel="stylesheet" href="~/lib/toastr/css/toastr.min.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/lib/toastr/css/toastr.override.css" asp-append-version="true" />
 
+    <!-- FontAwesome -->
+    <link rel="stylesheet" type="text/css" href="/css/Fontawesome6-5-0.min.css" />
+    <link rel="stylesheet" href="~/lib/fontawesome/css/all.min.css" />
+
+
+
+    <script src="~/js/toastr.min.js"></script>
     <style>
         [x-cloak] { display: none !important; }
 
@@ -72,6 +81,8 @@
     <script src="~/js/alpinejs.min.js" defer></script>
     <script src="~/js/sf-form.js"></script>
     <script src="~/js/sf-table.js"></script>
+    <script src="~/lib/toastr/js/toastr.min.js" asp-append-version="true"></script>
+    <partial name="_Toastr" />
 
     <!-- moment.js + moment-hijri for Hijri date support (local files) -->
     <script src="~/js/moment.min.js"></script>

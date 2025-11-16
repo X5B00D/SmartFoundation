@@ -1,0 +1,43 @@
+@using System.Text.Json
+
+@{
+    // Read-and-consume TempData once (works for all pages using the layout)
+    var sucMsg  = TempData["Success"] as string ?? "";
+    var errMsg  = TempData["Error"] as string ?? "";
+    var warnMsg = TempData["Warning"] as string ?? "";
+    var infoMsg = TempData["Info"] as string ?? "";
+
+    // Safely serialize to JS
+    var sucJson  = JsonSerializer.Serialize(sucMsg);
+    var errJson  = JsonSerializer.Serialize(errMsg);
+    var warnJson = JsonSerializer.Serialize(warnMsg);
+    var infoJson = JsonSerializer.Serialize(infoMsg);
+}
+
+@if (!string.IsNullOrEmpty(sucMsg) || !string.IsNullOrEmpty(errMsg) || !string.IsNullOrEmpty(warnMsg) || !string.IsNullOrEmpty(infoMsg))
+{
+    <script>
+        (function () {
+            if (!window.toastr) return;
+
+            var suc  = @Html.Raw(sucJson);
+            var err  = @Html.Raw(errJson);
+            var warn = @Html.Raw(warnJson);
+            var info = @Html.Raw(infoJson);
+
+            toastr.options = {
+                closeButton: true,
+                progressBar: true,
+                timeOut: 5000,
+                rtl: true,
+                positionClass: 'toast-top-left',
+                escapeHtml: true
+            };
+
+            if (suc)  toastr.success(suc);
+            if (warn) toastr.warning(warn);
+            if (info) toastr.info(info);
+            if (err)  toastr.error(err);
+        })();
+    </script>
+}

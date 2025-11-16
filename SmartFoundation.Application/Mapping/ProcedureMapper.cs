@@ -31,7 +31,10 @@ public static class ProcedureMapper
         { "demo:saveForm", "dbo.sp_SaveDemoForm" },
         
         // Pakistani operations (from existing controller)
-        { "pakistani:getData", "dbo.sp_SmartFormDemo" }
+        { "pakistani:getData", "dbo.sp_SmartFormDemo" },
+
+        // Authentication operations
+        { "auth:sessions_", "dbo.GetSessionInfoForMVC" }  // Replace with your actual SP name
     };
 
   /// <summary>

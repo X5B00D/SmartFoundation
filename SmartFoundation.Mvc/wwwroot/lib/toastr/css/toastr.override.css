@@ -1,0 +1,89 @@
+﻿/* Make toasts larger and darker */
+
+/* Ensure container is on top */
+#toast-container {
+  z-index: 200000 !important;
+}
+
+/* Bigger toast box */
+#toast-container > div {
+  width: 420px;                 /* default ~300px */
+  max-width: 92vw;
+  padding: 16px 16px 16px 56px; /* keep space for icon area */
+  border-radius: 10px;
+  font-size: 16px;
+  opacity: 1 !important;        /* darker (no transparency) */
+  box-shadow: 0 6px 24px rgba(0,0,0,0.35);
+}
+
+/* Slightly taller toasts */
+#toast-container > div {
+  min-height: 64px;           /* add a bit of base height */
+  padding-top: 20px;          /* increase vertical padding */
+  padding-bottom: 20px;
+}
+
+/* Larger text */
+#toast-container .toast-title {
+  font-size: 1.05rem;
+  margin-bottom: 4px;
+}
+#toast-container .toast-message {
+  font-size: 1rem;
+  line-height: 1.5;
+}
+
+/* Subtle spacing tweaks */
+#toast-container .toast-title { margin-bottom: 6px; }
+#toast-container .toast-message { line-height: 1.6; }
+/* Darker backgrounds per type */
+#toast-container .toast-success { background-color: #059c1b !important; } /* dark green */
+#toast-container .toast-error   { background-color: #cf0c1d !important; } /* dark red */
+#toast-container .toast-warning { background-color: #92400e !important; color: #fff !important; } /* dark amber */
+#toast-container .toast-info    { background-color: #0f172a !important; } /* dark slate */
+
+/* Progress bar brighter and thicker */
+#toast-container .toast-progress {
+  background-color: rgba(255,255,255,0.9) !important;
+  height: 3px;
+}
+
+/* RTL container alignment stays top-left per your page script options */
+html[dir="rtl"] #toast-container > div {
+  padding: 16px 56px 16px 16px;
+  background-position: right 15px center;
+}
+
+/* Optional: darker scheme when site is in dark mode */
+html.dark #toast-container > div { color: #e5e7eb; }
+html.dark #toast-container .toast-success { background-color: #059c1b !important; }
+html.dark #toast-container .toast-error   { background-color: #cf0c1d !important; }
+html.dark #toast-container .toast-warning { background-color: #92400e !important; }
+html.dark #toast-container .toast-info    { background-color: #0b1220 !important; }
+
+/* Optional size variant if you set toastClass: 'toast toast-xl' in JS */
+#toast-container .toast-xl {
+  width: 520px;
+  max-width: 95vw;
+  padding: 18px 18px 18px 60px;
+  font-size: 17px;
+  border-radius: 12px;
+}
+
+/* --- Toastr color overrides --- */
+/* Info = #236ddb */
+#toast-container .toast-info {
+  background-color: #236ddb !important;
+  color: #ffffff !important;
+}
+
+/* Warning = #f2c249 */
+#toast-container .toast-warning {
+  background-color: #f2c249 !important;
+  color: #1f2937 !important; /* dark text for contrast */
+}
+
+/* Optional: dark theme tweaks */
+html.dark #toast-container .toast-warning {
+  color: #0b1220 !important;
+}

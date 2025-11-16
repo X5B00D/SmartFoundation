@@ -26,6 +26,7 @@ builder.Services.AddSingleton<ConnectionFactory>();
 builder.Services.AddScoped<ISmartComponentService, SmartComponentService>();
 builder.Services.AddScoped<MastersDataLoadService>();
 builder.Services.AddScoped<MastersCrudServies>();
+builder.Services.AddScoped<SmartFoundation.Application.Services.AuthDataLoadService>();
 
 // Register Application Layer services
 builder.Services.AddApplicationServices();
@@ -42,6 +43,6 @@ app.UseAuthorization();
 
 app.MapControllerRoute(
     name: "default",
-    pattern: "{controller=Home}/{action=Index}/{id?}");
+    pattern: "{controller=Login}/{action=Index}/{id?}");
 
 app.Run();

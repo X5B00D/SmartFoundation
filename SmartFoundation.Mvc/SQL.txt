@@ -1,0 +1,109 @@
+﻿USE [DATACORE]
+GO
+/****** Object:  StoredProcedure [dbo].[GetSessionInfoForMVC]    Script Date: 16/11/2025 06:14:43 م ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+ALTER   PROCEDURE [dbo].[GetSessionInfoForMVC]
+    @UserID INT,
+    @Password Nvarchar(200),
+    @hostName Nvarchar(200)
+
+AS
+BEGIN
+    SET NOCOUNT ON;
+    DECLARE @GeneralNo int
+    if(select count(us.userID) from DATACORE.dbo.[User] us where us.IDNumber = @UserID and us.userActive = 1) > 0
+    begin
+    set @GeneralNo = (select TOP(1) us.userID from DATACORE.dbo.[User] us where us.IDNumber = @UserID and us.userActive = 1 order by us.entryDate desc)
+    END
+    ELSE
+    BEGIN
+    set @GeneralNo = -99
+    END
+    -- Create a temporary table to store the department info
+    DECLARE @DepartmentInfo TABLE (
+        UserID INT,
+        DepartmentName NVARCHAR(255),
+		DeptCode nvarchar(20),
+		IdaraID INT
+    );
+
+
+	  DECLARE @ThameInfo TABLE (
+        UserID INT,
+        ThameName NVARCHAR(255)
+    );
+    
+    -- Get the department info first
+    INSERT INTO @DepartmentInfo (UserID, DepartmentName, DeptCode,IdaraID)
+    SELECT TOP 1 
+        udsd.userID, 
+        dsd.DepartmentName,
+		d.deptCode,
+		d.idaraID_FK
+    FROM dbo.V_GetFullStructureForDSD dsd
+    INNER JOIN dbo.V_GetListUsersInDSD udsd ON dsd.DSDID = udsd.DSDID
+	INNER JOIN dbo.Department d ON dsd.DepartmentID = d.deptID
+    WHERE udsd.userID = @GeneralNo;
+
+
+	 INSERT INTO @ThameInfo (UserID, ThameName)
+     select top(1) @GeneralNo,m.MvcThameName from DATACORE.dbo.MvcThameUser u
+				inner join DATACORE.dbo.MvcThame m on u.MvcThameID_FK = m.MvcThameID
+				where u.MvcThameUserActive = 1 and m.MvcThameActive = 1 and u.UserID_FK = @GeneralNo
+
+    
+    -- Combine the user and department information along with photo from Payroll database
+    if(@GeneralNo = -99)
+    begin
+
+
+    if(select Count(*) From DATACORE.dbo.[User] uu where uu.userID = @GeneralNo and uu.userActive = 1) > 0
+                begin
+                    SELECT 
+                        CONCAT_WS(' ', u.fristName_A, u.secondName_A, u.lastName_A) AS fullName, 
+                        u.userID,
+                		d.IdaraID,
+                        d.DepartmentName,
+                        (SELECT Photo FROM DATACORE.dbo.UserPhoto up WHERE up.userID_FK = @GeneralNo) AS Photo,
+                		case when t.ThameName is null Then 'default'
+                		else t.ThameName
+                		END ThameName,
+                		d.DeptCode,
+                        u.userActive
+                    FROM dbo.[User] u
+                    LEFT JOIN @DepartmentInfo d ON u.userID = d.UserID
+                	LEFT JOIN @ThameInfo t ON u.userID = t.UserID
+                    WHERE u.userID = @GeneralNo and u.userActive = 1
+                END
+           ELSE
+                BEGIN
+                      select
+                        null as fullName, 
+                        null as userID,
+                		null as IdaraID,
+                        null as DepartmentName,
+                        null as ThameName,
+                		null as DeptCode,
+                        0 as userActive
+                
+                END
+
+    end
+
+     ELSE
+                BEGIN
+                      select
+                        null as fullName, 
+                        null as userID,
+                		null as IdaraID,
+                        null as DepartmentName,
+                        null as ThameName,
+                		null as DeptCode,
+                        0 as userActive
+                
+                END
+    
+END;
