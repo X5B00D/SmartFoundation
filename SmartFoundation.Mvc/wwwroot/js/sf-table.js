@@ -22,11 +22,18 @@
             showHeader: cfg.showHeader !== false,
             showFooter: cfg.showFooter !== false,
             allowExport: !!cfg.allowExport,
-            autoRefresh: !!cfg.autoRefreshOnSubmit,
-            
+            //autoRefresh: !!cfg.autoRefreshOnSubmit,
+            autoRefresh: !!(cfg.autoRefresh || cfg.autoRefreshOnSubmit),
+
+
             // Structure
             columns: Array.isArray(cfg.columns) ? cfg.columns : [],
             actions: Array.isArray(cfg.actions) ? cfg.actions : [],
+
+
+            // Client-side mode support (new)
+            clientSideMode: !!cfg.clientSideMode,
+            initialRows: Array.isArray(cfg.rows) ? cfg.rows : [],
             
             // Selection
             selectable: !!cfg.selectable,
@@ -120,27 +127,62 @@
             },
 
             // ===== Data Loading & Filtering =====
+            //async load() {
+            //    this.loading = true;
+            //    this.error = null;
+
+            //    try {
+            //        // Load all data once from server
+            //        if (this.allRows.length === 0) {
+            //            const body = {
+            //                Component: "Table",
+            //                SpName: this.spName,
+            //                Operation: this.operation,
+            //                Paging: { Page: 1, Size: 1000000 }
+            //            };
+
+            //            const json = await this.postJson(this.endpoint, body);
+            //            this.allRows = Array.isArray(json?.data) ? json.data : [];
+            //        }
+
+            //        // Apply local filtering and sorting
+            //        this.applyFiltersAndSort();
+
+            //    } catch (e) {
+            //        console.error("Load error:", e);
+            //        this.error = e.message || "خطأ في تحميل البيانات";
+            //    } finally {
+            //        this.loading = false;
+            //    }
+            //},
+
+
             async load() {
                 this.loading = true;
                 this.error = null;
-                
+
                 try {
-                    // Load all data once from server
+                    // If client-side mode and initial rows provided, use them
                     if (this.allRows.length === 0) {
-                        const body = {
-                            Component: "Table",
-                            SpName: this.spName,
-                            Operation: this.operation,
-                            Paging: { Page: 1, Size: 1000000 }
-                        };
-                        
-                        const json = await this.postJson(this.endpoint, body);
-                        this.allRows = Array.isArray(json?.data) ? json.data : [];
+                        if (this.clientSideMode && Array.isArray(this.initialRows) && this.initialRows.length > 0) {
+                            this.allRows = this.initialRows;
+                        } else {
+                            // Load all data once from server
+                            const body = {
+                                Component: "Table",
+                                SpName: this.spName,
+                                Operation: this.operation,
+                                Paging: { Page: 1, Size: 1000000 }
+                            };
+
+                            const json = await this.postJson(this.endpoint, body);
+                            this.allRows = Array.isArray(json?.data) ? json.data : [];
+                        }
                     }
-                    
+
                     // Apply local filtering and sorting
                     this.applyFiltersAndSort();
-                    
+
                 } catch (e) {
                     console.error("Load error:", e);
                     this.error = e.message || "خطأ في تحميل البيانات";

@@ -1,86 +1,42 @@
 ﻿@using System.Text.Json
-@using SmartFoundation.UI.ViewModels.SmartForm
 @using SmartFoundation.UI.ViewModels.SmartTable
-
-@model TableConfig
+@model SmartTableDsModel
 
 @{
     var webJson = new JsonSerializerOptions(JsonSerializerDefaults.Web);
 
     var tableConfig = new
     {
-        endpoint = Model.Endpoint ?? "/smart/execute",
-        spName = Model.StoredProcedureName ?? "",
-        operation = Model.Operation ?? "select",
-
-        pageSize = Model.PageSize > 0 ? Model.PageSize : 10,
-        pageSizes = Model.PageSizes ?? new List<int> { 10, 25, 50, 100 },
-
+        clientSideMode = true,
+        endpoint = "/smart/execute",          // kept for compatibility with actions that call endpoint
+        pageSize = Model.PageSize,
+        pageSizes = Model.PageSizes,
         searchable = Model.Searchable,
         searchPlaceholder = Model.SearchPlaceholder ?? "بحث…",
         quickSearchFields = Model.QuickSearchFields ?? new List<string>(),
-
         allowExport = Model.AllowExport,
-
         showHeader = Model.ShowHeader,
         showFooter = Model.ShowFooter,
-
-        autoRefresh = Model.AutoRefreshOnSubmit,
-
+        autoRefresh = true,
         columns = Model.Columns ?? new List<TableColumn>(),
-        actions = Model.RowActions ?? new List<TableAction>(),
-
-        selectable = Model.Selectable,
+        actions = new List<object>(), // row actions not used here; toolbar contains add/edit actions
+        selectable = true,
         rowIdField = Model.RowIdField ?? "Id",
-
-        groupBy = Model.GroupBy ?? "",
-        storageKey = Model.StorageKey ?? "",
-
-        toolbar = new
-        {
-            showAdd = Model.Toolbar?.ShowAdd ?? false,
-            showEdit = Model.Toolbar?.ShowEdit ?? false,
-            showEdit1 = Model.Toolbar?.ShowEdit1 ?? false,
-            shoedelete = Model.Toolbar?.ShowDelete ?? false,
-            showRefresh = Model.Toolbar?.ShowRefresh ?? true,
-            showColumns = Model.Toolbar?.ShowColumns ?? true,
-            showExportCsv = Model.Toolbar?.ShowExportCsv ?? true,
-            showExportExcel = Model.Toolbar?.ShowExportExcel ?? true,
-            showExportPdf = Model.Toolbar?.ShowExportPdf ?? false,
-            showPrint = Model.Toolbar?.ShowPrint ?? true,
-            showAdvancedFilter = Model.Toolbar?.ShowAdvancedFilter ?? false,
-            showBulkDelete = Model.Toolbar?.ShowBulkDelete ?? false,
-            showFullscreen = Model.Toolbar?.ShowFullscreen ?? true,
-            showDensityToggle = Model.Toolbar?.ShowDensityToggle ?? true,
-            showSearch = Model.Toolbar?.ShowSearch ?? true,
-            searchPosition = Model.Toolbar?.SearchPosition ?? "left",
-            add = Model.Toolbar?.Add,
-            edit = Model.Toolbar?.Edit,
-            edit1 = Model.Toolbar?.Edit1,
-            delete = Model.Toolbar?.Delete,
-            customActions = Model.Toolbar?.CustomActions ?? new List<TableAction>()
-        }
+        rows = Model.Rows ?? new List<Dictionary<string, object?>>(),
+        toolbar = Model.Toolbar ?? new TableToolbarConfig()
     };
 }
 
-
 <div x-data='sfTable(@Html.Raw(JsonSerializer.Serialize(tableConfig, webJson)))'
-     x-init="init()" x-cloak
-     x-on:refresh-table.window="refresh()"
+     x-init="init()" x-cloak x-on:refresh-table.window="refresh()">
 
-
-
-    <!-- ===== Toolbar ===== -->
+    <!-- reuse same markup as SmartTable Default: toolbar, table, pagination, modal -->
+    <!-- Toolbar / table markup intentionally identical to existing SmartTable Default to reuse sf-table JS -->
+    @* Toolbar portion *@
     <div class="toolbar">
         <div class="toolbar-search" x-show="searchable">
-            <input type="text"
-                   class="sf-input search-input"
-                   x-model="q"
-                   x-on:input.debounce.500="debouncedSearch()"
-                   :placeholder="searchPlaceholder" />
-            <button type="button" class="btn btn-secondary"
-                    x-on:click="refresh()"
-                    x-show="toolbar.showRefresh">
+            <input type="text" class="sf-input search-input" x-model="q" x-on:input.debounce.500="debouncedSearch()" :placeholder="searchPlaceholder" />
+            <button type="button" class="btn btn-secondary" x-on:click="refresh()" x-show="toolbar.showRefresh">
                 <i class="fa fa-rotate"></i><span class="hidden-md">تحديث</span>
             </button>
         </div>
@@ -93,7 +49,6 @@
                 </template>
             </select>
 
-            <!-- Export -->
             <template x-if="allowExport && toolbar.showExportExcel">
                 <button type="button" class="btn btn-info" x-on:click="exportData('excel')">
                     <i class="fa fa-file-excel"></i> Excel
@@ -105,97 +60,50 @@
                 </button>
             </template>
 
-            <!-- Add -->
             <template x-if="toolbar.showAdd && toolbar.add">
-                <button type="button"
-                        class="btn"
-                        :class="'btn-' + (toolbar.add?.color ?? 'success')"
-                        x-on:click="doAction(toolbar.add, null)">
+                <button type="button" class="btn" :class="'btn-' + (toolbar.add?.color ?? 'success')" x-on:click="doAction(toolbar.add, null)">
                     <i :class="toolbar.add?.icon ?? ''"></i>
                     <span x-text="toolbar.add?.label ?? 'إضافة'"></span>
                 </button>
             </template>
 
-            <!-- Edit -->
             <template x-if="toolbar.showEdit && toolbar.edit">
-                <button type="button"
-                        class="btn"
-                        :class="'btn-' + (toolbar.edit?.color ?? 'info')"
-                        x-on:click="doAction(toolbar.edit, getSingleSelection())"
-                        :disabled="selectedKeys.size !== 1">
+                <button type="button" class="btn" :class="'btn-' + (toolbar.edit?.color ?? 'info')" x-on:click="doAction(toolbar.edit, getSingleSelection())" :disabled="selectedKeys.size !== 1">
                     <i :class="toolbar.edit?.icon ?? ''"></i>
                     <span x-text="toolbar.edit?.label ?? 'تعديل'"></span>
                 </button>
             </template>
 
-
-            <!-- Edit1 -->
-             
             <template x-if="toolbar.showEdit1 && toolbar.edit1">
-                <button type="button"
-                        class="btn"
-                        :class="'btn-' + (toolbar.edit1?.color ?? 'info')"
-                        x-on:click="doAction(toolbar.edit1, getSingleSelection())"
-                        :disabled="selectedKeys.size !== 1">
+                <button type="button" class="btn" :class="'btn-' + (toolbar.edit1?.color ?? 'info')" x-on:click="doAction(toolbar.edit1, getSingleSelection())" :disabled="selectedKeys.size !== 1">
                     <i :class="toolbar.edit1?.icon ?? ''"></i>
                     <span x-text="toolbar.edit1?.label ?? 'تعديل'"></span>
                 </button>
             </template>
-            <!-- delete -->
-             
             <template x-if="toolbar.showDelete && toolbar.delete">
-                <button type="button"
-                        class="btn"
-                        :class="'btn-' + (toolbar.delete?.color ?? 'info')"
-                        x-on:click="doAction(toolbar.delete, getSingleSelection())"
-                        :disabled="selectedKeys.size !== 1">
+                <button type="button" class="btn" :class="'btn-' + (toolbar.delete?.color ?? 'danger')" x-on:click="doAction(toolbar.delete, getSingleSelection())" :disabled="selectedKeys.size !== 1">
                     <i :class="toolbar.delete?.icon ?? ''"></i>
                     <span x-text="toolbar.delete?.label ?? 'حذف'"></span>
-                </button>
-            </template>
-
-            <!-- Bulk Delete -->
-            <template x-if="toolbar.showBulkDelete && selectable">
-                <button type="button" class="btn btn-danger" x-on:click="doBulkDelete()">
-                    <i class="fa fa-trash"></i> حذف
-                </button>
-            </template>
-
-            <!-- Custom Actions -->
-            <template x-for="act in (toolbar.customActions || [])" :key="act.label">
-                <button type="button" class="btn"
-                        :class="'btn-' + (act.color||'secondary')"
-                        x-on:click="doAction(act, getSingleSelection())">
-                    <i :class="act.icon"></i> <span x-text="act.label"></span>
                 </button>
             </template>
         </div>
     </div>
 
-
-
-
-    <!-- ===== Table ===== -->
+    @* Table markup identical to SmartTable Default *@
     <div class="table-box">
         <table class="sf-table">
             <thead x-show="showHeader" class="table-head">
                 <tr>
                     <th x-show="selectable" class="th-cell">
-                        <input type="checkbox" class="sf-checkbox"
-                               x-model="selectAll" x-on:click="toggleSelectAll()" />
+                        <input type="checkbox" class="sf-checkbox" x-model="selectAll" x-on:click="toggleSelectAll()" />
                     </th>
 
                     <template x-for="col in visibleColumns()" :key="col.field">
-                        <th class="th-cell"
-                            :style="col.width ? `width:${col.width}` : ''"
-                            :class="col.sortable ? 'cursor-pointer' : ''"
-                            x-on:click="toggleSort(col)">
+                        <th class="th-cell" :style="col.width ? `width:${col.width}` : ''" :class="col.sortable ? 'cursor-pointer' : ''" x-on:click="toggleSort(col)">
                             <div class="flex items-center gap-1 th-inner" :class="col.align">
                                 <span x-text="col.label"></span>
                                 <template x-if="col.sortable && sort.field===col.field">
                                     <i class="ml-1 text-xs text-gray-400 fas" :class="sort.dir === 'asc' ? 'fa-sort-up' : 'fa-sort-down'"></i>
-
-                                      
                                 </template>
                             </div>
                         </th>
@@ -232,8 +140,7 @@
                 <template x-for="(row, idx) in rows" :key="row[rowIdField] ?? idx">
                     <tr class="tr-row">
                         <td x-show="selectable" class="td-cell">
-                            <input type="checkbox" class="sf-checkbox" :value="row[rowIdField]"
-                                   x-on:click="toggleRow(row)" :checked="isSelected(row)" />
+                            <input type="checkbox" class="sf-checkbox" :value="row[rowIdField]" x-on:click="toggleRow(row)" :checked="isSelected(row)" />
                         </td>
 
                         <template x-for="col in visibleColumns()" :key="col.field">
@@ -243,10 +150,7 @@
                         <td x-show="actions.length > 0" class="td-cell">
                             <div class="actions-list">
                                 <template x-for="act in actions" :key="act.label">
-                                    <button type="button" class="btn"
-                                            :class="'btn-' + (act.color||'secondary')"
-                                            x-on:click="doAction(act, row)"
-                                            x-show="act.show !== false">
+                                    <button type="button" class="btn" :class="'btn-' + (act.color||'secondary')" x-on:click="doAction(act, row)" x-show="act.show !== false">
                                         <i :class="act.icon"></i> <span x-text="act.label"></span>
                                     </button>
                                 </template>
@@ -258,11 +162,8 @@
         </table>
     </div>
 
-    <!-- ===== Pagination ===== -->
     <div class="pagination" x-show="showFooter">
-        <div class="pagination-info">
-            <span x-text="rangeText()"></span>
-        </div>
+        <div class="pagination-info"><span x-text="rangeText()"></span></div>
         <div class="pagination-nav">
             <button class="btn btn-secondary" x-on:click="firstPage()" :disabled="page<=1">الأولى</button>
             <button class="btn btn-secondary" x-on:click="prevPage()" :disabled="page<=1">السابق</button>
@@ -272,8 +173,7 @@
         </div>
     </div>
 
-
-    <!-- ===== Modal ===== -->
+    @* Modal markup is reused from SmartTable Default *@
     <template x-if="modal.open">
         <div class="sf-modal-backdrop" x-transition.opacity>
             <div class="sf-modal" role="dialog" aria-modal="true" x-transition>
@@ -282,26 +182,15 @@
                     <button type="button" class="sf-modal-close" x-on:click="closeModal()">✕</button>
                 </div>
                 <div class="sf-modal-body">
-                    <template x-if="!modal.loading && !modal.error && modal.html">
-                        <div x-html="modal.html"></div>
-                    </template>
-                    <template x-if="modal.loading">
-                        <div class="td-loading"><i class="fa fa-spinner animate-spin"></i> جاري التحميل...</div>
-                    </template>
-                    <template x-if="!modal.loading && modal.error">
-                        <div class="td-error"><i class="fa fa-triangle-exclamation"></i> <span x-text="modal.error"></span></div>
-                    </template>
+                    <template x-if="!modal.loading && !modal.error && modal.html"><div x-html="modal.html"></div></template>
+                    <template x-if="modal.loading"><div class="td-loading"><i class="fa fa-spinner animate-spin"></i> جاري التحميل...</div></template>
+                    <template x-if="!modal.loading && modal.error"><div class="td-error"><i class="fa fa-triangle-exclamation"></i> <span x-text="modal.error"></span></div></template>
                 </div>
-                <div class="sf-modal-footer">
+               @*  <div class="sf-modal-footer">
                     <button class="btn btn-secondary" type="button" x-on:click="closeModal()">إلغاء</button>
-                    <button class="btn btn-success" type="button"
-                            x-show="modal.action && (modal.action.openModal || modal.action.isEdit)"
-                            x-on:click="saveModalChanges()">
-                        حفظ
-                    </button>
-                </div>
+                    <button class="btn btn-success" type="button" x-show="modal.action && (modal.action.openModal || modal.action.isEdit)" x-on:click="saveModalChanges()">حفظ</button>
+                </div> *@
             </div>
         </div>
-
     </template>
 </div>

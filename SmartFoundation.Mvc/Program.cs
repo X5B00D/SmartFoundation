@@ -25,6 +25,7 @@ builder.Services.AddResponseCompression();
 builder.Services.AddSingleton<ConnectionFactory>();
 builder.Services.AddScoped<ISmartComponentService, SmartComponentService>();
 builder.Services.AddScoped<MastersDataLoadService>();
+builder.Services.AddScoped<MastersCrudServies>();
 
 // Register Application Layer services
 builder.Services.AddApplicationServices();

@@ -1,34 +1,30 @@
-﻿@model SmartFoundation.UI.ViewModels.SmartPage.SmartPageViewModel
+﻿@model SmartFoundation.UI.ViewModels.SmartTable.SmartTableDsModel
 @using System.Text.Json
-@await Component.InvokeAsync("SmartRenderer", new { model = Model })
-
 @{
-    ViewData["Title"] = Model.PageTitle;
-
-    // ensure correct types coming from the controller
+    ViewData["Title"] = "الموظفين (Dataset)";
     int tableCount = (ViewBag.EmployeeTableCount as int?) ?? 0;
     string? errorMessage = ViewBag.EmployeeDataSetError as string;
 
-    // serialize to safe JS literals
     var tableCountJson = JsonSerializer.Serialize(tableCount);
     var errorMessageJson = JsonSerializer.Serialize(errorMessage ?? "");
+
+    // Read TempData messages (success / error from insert or CRUD)
+    var insertMessage = TempData["InsertMessage"] as string;
+    var crudError = TempData["CrudError"] as string;
+    var crudDebug = TempData["CrudDebug"] as string; // optional diagnostic
 }
 
-@if (tableCount > 0)
-{
-    <script>
-        (function() {
-            var count = @Html.Raw(tableCountJson);
-            alert('Number of tables in DataSet: ' + count);
-        })();
-    </script>
+@{
+    var ok = TempData["InsertMessage"] as string;
+    var err = TempData["CrudError"] as string;
 }
-else if (!string.IsNullOrEmpty((string?)ViewBag.EmployeeDataSetError))
+@if (!string.IsNullOrWhiteSpace(ok))
 {
-    <script>
-        (function() {
-            var msg = @Html.Raw(errorMessageJson);
-            alert('DataSet error: ' + msg);
-        })();
-    </script>
+    <div class="alert alert-success" role="alert">@ok</div>
 }
+@if (!string.IsNullOrWhiteSpace(err))
+{
+    <div class="alert alert-danger" role="alert">@err</div>
+}
+
+@await Component.InvokeAsync("SmartTableDS", new { model = Model })

@@ -13,6 +13,6 @@
 	  <ProjectReference Include="..\SmartFoundation.DataEngine\SmartFoundation.DataEngine.csproj" />
 	</ItemGroup>
 	<ItemGroup>
-	  <Folder Include="Views\Shared\Components\SmartDatePicker\" />
+	  <Folder Include="Views\Shared\Components\SmartTableDS\" />
 	</ItemGroup>
 </Project>
