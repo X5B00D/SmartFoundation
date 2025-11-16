@@ -34,7 +34,7 @@ namespace SmartFoundation.Mvc.Controllers
 
             DataSet ds;
           
-            List<OptionItem> cityOptions = new();
+            
             var rowsList = new List<Dictionary<string, object?>>();
             var dynamicColumns = new List<TableColumn>();
 
@@ -57,8 +57,9 @@ namespace SmartFoundation.Mvc.Controllers
             bool canInsert = false;
             bool canUpdate = false;
             bool canUpdateGN = false;
-            
+            bool canDelete = false;
 
+          //  List<OptionItem> cityOptions = new();
 
             try
             {
@@ -98,17 +99,20 @@ namespace SmartFoundation.Mvc.Controllers
 
                         if (permissionName == "UPDATEGN" || permissionName == "UPDATEGN")
                             canUpdateGN = true;
+
+                        if (permissionName == "DELETE")
+                            canDelete = true;
                     }
 
 
                     if (ds != null && ds.Tables.Count > 0)
                     {
-                        var dt = ds.Tables[1];
+                       
                         // Resolve a correct row id field (case sensitive match to actual DataTable column)
                         rowIdField = "BuildingTypeID";
                         var possibleIdNames = new[] { "buildingTypeID", "BuildingTypeID", "Id", "ID" };
-                        rowIdField = possibleIdNames.FirstOrDefault(n => dt.Columns.Contains(n)) 
-                                     ?? dt.Columns[0].ColumnName;
+                        rowIdField = possibleIdNames.FirstOrDefault(n => dt1.Columns.Contains(n)) 
+                                     ?? dt1.Columns[0].ColumnName;
 
                         //For change table name to arabic 
                         var headerMap = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
@@ -122,7 +126,7 @@ namespace SmartFoundation.Mvc.Controllers
 
 
                         // build columns from DataTable schema
-                        foreach (DataColumn c in dt.Columns)
+                        foreach (DataColumn c in dt1.Columns)
                         {
                             string colType = "text";
                             var t = c.DataType;
@@ -151,7 +155,7 @@ namespace SmartFoundation.Mvc.Controllers
                         foreach (DataRow r in dt1.Rows)
                         {
                             var dict = new Dictionary<string, object?>(StringComparer.OrdinalIgnoreCase);
-                            foreach (DataColumn c in dt.Columns)
+                            foreach (DataColumn c in dt1.Columns)
                             {
                                 var val = r[c];
                                 dict[c.ColumnName] = val == DBNull.Value ? null : val;
@@ -295,7 +299,7 @@ namespace SmartFoundation.Mvc.Controllers
                     ShowAdd = canInsert,
                     ShowEdit = canUpdate,
                     ShowEdit1 = canUpdateGN,
-                    ShowDelete = true,
+                    ShowDelete = canDelete,
                     ShowBulkDelete = false,
 
                     Add = new TableAction
