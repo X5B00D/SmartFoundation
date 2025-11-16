@@ -70,7 +70,7 @@ namespace SmartFoundation.Mvc.Controllers
 
                     new FieldConfig
                     {
-                        Name="Email",
+                        Name="password",
                         Label="كلمة المرور",
                         Type="password",
                         Required=true,
