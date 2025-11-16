@@ -1,7 +1,8 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using SmartFoundation.Application.Services;
-using System.Threading;
 using System.Data;
+using System.Threading;
 
 namespace SmartFoundation.Mvc.Controllers
 {
@@ -45,24 +46,36 @@ namespace SmartFoundation.Mvc.Controllers
 
             if (auth.useractive == 0)
             {
-                TempData["Error"] = string.IsNullOrWhiteSpace(auth.Message)
+                TempData["Error"] = string.IsNullOrWhiteSpace(auth.Message_)
                     ? "لايوجد حساب نشط لهذا المستخدم"
-                    : auth.Message;
+                    : auth.Message_;
                 TempData["LastUser"] = username;
                 return RedirectToAction(nameof(Index));
             }
 
             // Success / warning / info
             HttpContext.Session.SetString("userID", (auth.userId?.ToString() ?? username));
-            if (!string.IsNullOrWhiteSpace(auth.fullName))
-                HttpContext.Session.SetString("fullName", auth.fullName!);
+            HttpContext.Session.SetString("fullName", auth.fullName!);
+            HttpContext.Session.SetString("IdaraID", auth.IdaraID!);
+            HttpContext.Session.SetString("DepartmentName", auth.DepartmentName!);
+            HttpContext.Session.SetString("ThameName", auth.ThameName!);
+            HttpContext.Session.SetString("DeptCode", auth.DeptCode?.ToString() ?? "");
+            HttpContext.Session.SetString("IDNumber", auth.IDNumber!);
+
+            string alls = HttpContext.Session.GetString("userID") + " - " +
+                           HttpContext.Session.GetString("fullName") + " - " +
+                           HttpContext.Session.GetString("IdaraID") + " - " +
+                           HttpContext.Session.GetString("DepartmentName") + " - " +
+                           HttpContext.Session.GetString("ThameName") + " - " +
+                           HttpContext.Session.GetString("DeptCode") + " - " +
+                           HttpContext.Session.GetString("IDNumber");
 
             switch (auth.useractive)
             {
-                case 1: TempData["Success"] = auth.Message ?? "تم تسجيل الدخول بنجاح."; break;
-                case 2: TempData["Warning"] = auth.Message ?? "تم تسجيل الدخول مع تحذير."; break;
-                case 3: TempData["Info"]    = auth.Message ?? "معلومة: تم الدخول."; break;
-                default: TempData["Success"] = auth.Message ?? "تم تسجيل الدخول."; break;
+                case 1: TempData["Success"] = auth.Message_ ?? "تم تسجيل الدخول بنجاح."; break;
+                case 2: TempData["Warning"] = auth.Message_ ?? "تم تسجيل الدخول مع تحذير."; break;
+                case 3: TempData["Info"]    = auth.Message_ ?? "معلومة: تم الدخول."; break;
+                default: TempData["Success"] = auth.Message_ ?? "تم تسجيل الدخول."; break;
             }
 
             // Redirect to home (Toastr will show there if you include _Toastr partial in layout)

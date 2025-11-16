@@ -75,10 +75,12 @@ public sealed class AuthDataLoadService : BaseService
         int useractive = ReadInt(r, new[] { "useractive", "IsSuccessful", "Success", "Result", "Code" }, 0);
         string? message = ReadString(r, new[] { "Message_", "Message", "SuccessMessage" });
 
-        int? userId = ReadNullableInt(r, new[] { "userID", "UserID", "Id", "ID" });
+        string? userId = ReadString(r, new[] { "userID", "UserID" });
+        string? IdaraID = ReadString(r, new[] { "IdaraID", "daraID" });
         string? fullName = ReadString(r, new[] { "fullName", "FullName", "name", "Name" });
         string? departmentName = ReadString(r, new[] { "DepartmentName" });
-        int? deptCode = ReadNullableInt(r, new[] { "DeptCode", "DepartmentID" }); // map to your new DeptCode
+        int? deptCode = ReadNullableInt(r, new[] { "DeptCode", "DepartmentID" });
+        string? IDNumber = ReadString(r, new[] { "IDNumber", "IdNumber" });
         string? themeName = ReadString(r, new[] { "ThameNAme", "ThemeName", "Theme" });
 
         string? photoBase64 = null;
@@ -88,7 +90,7 @@ public sealed class AuthDataLoadService : BaseService
         else if (photoObj is string s && !string.IsNullOrWhiteSpace(s))
             photoBase64 = s;
 
-        return new AuthInfo(useractive, message, userId, fullName, departmentName, deptCode, photoBase64, themeName);
+        return new AuthInfo(useractive, message, userId,IdaraID, fullName, departmentName, deptCode,IDNumber, photoBase64, themeName);
     }
 
     private static DataTable CreateDataTableFromRowList(List<Dictionary<string, object?>> rows, string tableName)
