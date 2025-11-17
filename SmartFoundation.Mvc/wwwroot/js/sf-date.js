@@ -33,6 +33,40 @@
     // ===== Formatting (info) =====
     function fullText(date, { calendar = "gregory", lang = "ar", numerals = "latn", showDay = true } = {}) {
         if (!(date instanceof Date) || Number.isNaN(+date)) return "—";
+
+        // Use moment-hijri for accurate Hijri calendar formatting
+        if (calendar === "islamic" && typeof moment !== 'undefined') {
+            try {
+                const m = moment(date);
+                // Check if moment-hijri is loaded by testing for iYear method
+                if (typeof m.iYear === 'function') {
+                    // Set locale to Arabic Saudi for proper day/month names
+                    m.locale('ar-sa');
+
+                    const dayName = showDay ? m.format('dddd') : '';
+                    const day = m.format('iD');
+                    const monthName = m.format('iMMMM');
+                    const year = m.format('iYYYY');
+
+                    if (lang === "ar") {
+                        return showDay ? `${dayName}, ${day} ${monthName}, ${year}` : `${day} ${monthName}, ${year}`;
+                    } else {
+                        // For English, use Intl as fallback since moment-hijri is primarily Arabic
+                        const opts = {
+                            calendar: "islamic",
+                            weekday: showDay ? "long" : undefined,
+                            year: "numeric", month: "long", day: "numeric",
+                            numberingSystem: numerals === "arab" ? "arab" : "latn",
+                        };
+                        return new Intl.DateTimeFormat(`${lang}-u-ca-islamic`, opts).format(date);
+                    }
+                }
+            } catch (e) {
+                console.warn('moment-hijri formatting failed, using fallback:', e);
+            }
+        }
+
+        // Use Intl.DateTimeFormat for Gregorian or if moment-hijri unavailable
         const opts = {
             calendar,
             weekday: showDay ? "long" : undefined,
@@ -44,12 +78,28 @@
     }
     function hijriISO(date) {
         try {
+            // Use moment-hijri for accurate Umm al-Qura calendar conversion
+            if (typeof moment !== 'undefined') {
+                const m = moment(date);
+                // Check if moment-hijri is loaded by testing for iYear method
+                if (typeof m.iYear === 'function') {
+                    const hijriDate = m.format('iYYYY-iMM-iDD');
+                    console.log('Using moment-hijri:', date, '→', hijriDate);
+                    return hijriDate;
+                }
+            }
+
+            // Fallback to Intl.DateTimeFormat if moment-hijri not available
+            console.warn('moment-hijri not available, using Intl.DateTimeFormat fallback');
             const p = new Intl.DateTimeFormat("ar-SA-u-ca-islamic", { year: "numeric", month: "2-digit", day: "2-digit", numberingSystem: "latn" }).formatToParts(date);
             const y = p.find(x => x.type === "year")?.value;
             const m = p.find(x => x.type === "month")?.value;
             const d = p.find(x => x.type === "day")?.value;
             return (y && m && d) ? `${y}-${m}-${d}` : "";
-        } catch { return ""; }
+        } catch (e) {
+            console.error('hijriISO error:', e);
+            return "";
+        }
     }
 
     // ===== Config =====
