@@ -222,11 +222,11 @@ body, h1, h2, h3, h4, h5, h6, input, textarea, select, button {
 
 
 /* =========================
-   Buttons
+   Buttons Table
    ========================= */
 
 .btn {
-    @apply inline-flex items-center justify-center h-8 gap-2 px-4 text-sm font-medium transition rounded-sm focus:outline-none focus:ring-2 focus:ring-offset-0 disabled:opacity-60 disabled:pointer-events-none;
+    @apply inline-flex items-center justify-center h-8 gap-2 px-3 text-sm font-medium transition rounded-sm focus:outline-none focus:ring-2 focus:ring-offset-0 disabled:opacity-60 disabled:pointer-events-none;
 }
     .btn i {
         @apply text-sm;
@@ -265,25 +265,27 @@ textarea[readonly] {
 }
 
 .table-box {
-    @apply relative w-full overflow-x-auto bg-white border border-gray-200 rounded-lg;
+    @apply relative w-full overflow-x-auto border border-gray-300 rounded-none;
 }
+
 
 .sf-table {
     @apply w-full text-sm text-center text-gray-800 border-collapse; 
 }
 
 .table-head {
-    @apply sticky top-0 z-10 bg-gray-200;
-    @apply text-sm font-semibold tracking-wide text-gray-800 uppercase;
+    @apply sticky top-0 z-10 bg-gray-300 text-base font-bold tracking-wide text-gray-900 uppercase text-center;
 }
 
 .th-cell {
-    @apply px-6 py-3 text-sm font-semibold tracking-wide text-center text-gray-900 uppercase; 
-    @apply align-middle border-b border-gray-300;
+    @apply px-6 py-3 text-base font-bold tracking-wider text-center text-gray-700 uppercase;
+    @apply text-gray-700 bg-gray-300 align-middle border-b border-gray-300;
+    @apply transition-colors duration-100 hover:bg-gray-200;
 }
 
+
 .tr-row {
-    @apply transition-colors duration-150 border-b border-gray-200;
+    @apply transition-colors duration-10 border-b border-gray-200;
 }
 
     .tr-row:last-child {
@@ -295,18 +297,18 @@ textarea[readonly] {
     }
 
     .tr-row:hover {
-        @apply bg-gray-200; 
+        @apply bg-gray-300; 
     }
 
 .td-cell {
-    @apply px-6 py-3 text-sm text-center text-gray-800 align-middle; 
+    @apply px-0 py-3 text-base text-center text-gray-800 align-middle;
     @apply whitespace-nowrap;
 }
 
 
 
 .sf-table[data-density="compact"] .td-cell {
-    @apply py-1 text-xs;
+    @apply py-1 text-base;
 }
 
 .sf-table[data-density="comfortable"] .td-cell {
@@ -341,22 +343,22 @@ textarea[readonly] {
    ========================= */
 .toolbar {
     @apply flex flex-col items-stretch justify-between gap-4 mb-5 md:flex-row md:items-center;
-    @apply px-4 py-3 border border-gray-200 rounded-lg bg-gray-50;
+    @apply px-4 py-3 border border-gray-200 rounded-none bg-gray-200;
 }
 
 .toolbar-search {
-    @apply flex items-center w-full h-10 gap-2 md:w-auto;
+    @apply flex items-center w-full h-10 gap-2 md:w-auto rounded-none;
 }
 
 .search-input {
-    @apply w-full text-sm bg-white border border-gray-300 rounded-md md:w-72;
-    @apply px-3 py-2 transition-colors duration-150;
-    @apply focus:outline-none focus:border-emerald-100 focus:ring-1 focus:ring-emerald-700;
+    @apply w-full text-sm bg-white border border-gray-300 rounded-sm md:w-72;
+    @apply px-3 py-2 transition-colors duration-50;
+    @apply focus:outline-none focus:border-emerald-50 focus:ring-1 focus:ring-emerald-700;
     /* لاحظ: ما فيه shadow */
 }
 
 .select-sm {
-    @apply w-32 px-2 text-sm bg-white border border-gray-300 rounded-md h-9;
+    @apply w-33 px-13 text-sm bg-white border border-gray-300 rounded-sm h-9;
     @apply transition focus:outline-none focus:border-emerald-100 focus:ring-1 focus:ring-emerald-700;
 }
 
@@ -372,7 +374,7 @@ textarea[readonly] {
         @apply flex items-center gap-1;
     }
 
-     ألوان حسب نوع الزر 
+     
     .actions-list .btn-edit {
         @apply border-sky-300 text-sky-700 bg-sky-50 hover:bg-sky-100;
     }
@@ -393,31 +395,30 @@ textarea[readonly] {
     @apply flex flex-col items-center justify-between gap-2 mt-3 text-sm text-gray-600 md:flex-row;
 }
 
-/* النص المعلوماتي */
-.pagination-info {
-    @apply text-xs text-gray-500 select-none;
-    @apply font-medium; 
+/* ترقيم الصفحة تحت من الى  */
+/*.pagination-info {
+    @apply text-base text-gray-600 select-none;
+    @apply font-xl; 
     @apply leading-relaxed; 
     @apply whitespace-nowrap; 
-}
+}*/
 /* أزرار التنقل */
 .pagination-nav {
-    @apply flex items-center gap-1;
+    @apply flex items-center gap-3;
 }
 
     .pagination-nav button {
-        @apply inline-flex items-center justify-center min-w-[44px] h-8 rounded-md border border-gray-300 bg-white text-xs font-medium text-gray-900 transition-colors duration-150;
+        @apply inline-flex items-center justify-center min-w-[88px] h-8 rounded-none border border-gray-300 bg-gray-200 text-sm font-medium text-gray-800 transition-colors duration-50;
         
         @apply focus:outline-none focus:ring-0;
         
-        @apply active:bg-gray-100 active:border-gray-400;
+        @apply active:bg-gray-300 ;
         
-        box-shadow: 0 1px 2px rgba(0,0,0,0.05);
     }
 
         
         .pagination-nav button:hover {
-            @apply bg-gray-50;
+            @apply bg-gray-300;
         }
 
     /* زر الصفحة الحالية */
@@ -427,7 +428,7 @@ textarea[readonly] {
 
     /* نص الصفحة */
     .pagination-nav .page-text {
-        @apply mx-2 text-xs text-gray-500;
+        @apply mx-2 text-xs text-gray-700;
     }
 
 /* =========================
@@ -435,17 +436,21 @@ textarea[readonly] {
    ========================= */
 .sf-modal-backdrop {
     @apply fixed inset-0 z-40 flex items-center justify-center;
-    @apply bg-black/40;
+    @apply bg-black/60;
 }
 
 /* =========================
    Modal
    ========================= */
 .sf-modal {
-    @apply z-50 w-full max-w-3xl mx-2 overflow-hidden bg-white rounded-lg md:mx-0;
+    @apply z-50 w-full max-w-3xl mx-2 overflow-hidden bg-gray-50 rounded-sm md:mx-0;
     @apply max-h-[80vh] flex flex-col;
-    @apply transition-transform duration-200 ease-out; /* حركة أنعم */
+    @apply transition-transform duration-50 ease-out;  
 }
+
+
+
+    
 
 /* =========================
    Modal Header
@@ -453,11 +458,11 @@ textarea[readonly] {
 .sf-modal-header {
     @apply relative flex items-center justify-center px-5 py-4 border-b border-gray-200;
     @apply bg-gray-200;
-    @apply min-h-[4rem]; /* فصل أنيق */
+    @apply min-h-[3rem]; /* فصل  */
 }
 
 .sf-modal-title {
-    @apply text-2xl font-semibold tracking-normal text-gray-900;
+    @apply text-2xl font-semibold tracking-normal text-gray-700;
 }
 
 
@@ -476,7 +481,7 @@ textarea[readonly] {
    Dark Mode
    ========================= */
 .dark .sf-modal-header {
-    @apply bg-gray-900 border-gray-700;
+    @apply bg-gray-300 border-gray-100;
 }
 
 .dark .sf-modal-title {

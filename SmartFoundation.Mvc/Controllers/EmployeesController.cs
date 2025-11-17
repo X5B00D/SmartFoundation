@@ -211,7 +211,7 @@ namespace SmartFoundation.Mvc.Controllers
                 new FieldConfig { Name = rowIdField, Type = "hidden" },
 
                 // your custom textboxes
-                new FieldConfig { Name = "p01", Label = "رمز المبنى", Type = "number", ColCss = "3", Required = true },
+                new FieldConfig { Name = "p01", Label = "رمز المبنى", Type = "text", ColCss = "3", Required = true },
                 new FieldConfig { Name = "p02", Label = "اسم المبنى بالعربي", Type = "text", ColCss = "3" , Required = false,TextMode = "arabic"},
                 new FieldConfig { Name = "p03", Label = "اسم المبنى بالانجليزي", Type = "text", ColCss = "3" , Required = true},
                 new FieldConfig { Name = "p04", Label = "ملاحظات", Type = "text", ColCss = "3", Required = false }
@@ -286,7 +286,7 @@ namespace SmartFoundation.Mvc.Controllers
                 Rows = rowsList,
                 RowIdField = rowIdField,
                 PageSize = 10,
-                PageSizes = new List<int> { 5, 10, 25, 50, 100 },
+                PageSizes = new List<int> { 10, 25, 50, 100 },
                 QuickSearchFields = dynamicColumns.Select(c => c.Field).Take(4).ToList(),
                 Searchable = true,
                 AllowExport = true,
@@ -294,8 +294,8 @@ namespace SmartFoundation.Mvc.Controllers
                 {
                     ShowRefresh = false,
                     ShowColumns = true,
-                    ShowExportCsv = true,
-                    ShowExportExcel = true,
+                    ShowExportCsv = false,
+                    ShowExportExcel = false,
                     ShowAdd = canInsert,
                     ShowEdit = canUpdate,
                     ShowEdit1 = canUpdateGN,
@@ -308,7 +308,7 @@ namespace SmartFoundation.Mvc.Controllers
                         Icon = "fa fa-plus",
                         Color = "success",
                         OpenModal = true,
-                        ModalTitle = "إضافة موظف",
+                        ModalTitle = "إدخال بيانات الموظف الجديد",
                         OpenForm = new FormConfig
                         {
                             FormId = "employeeInsertForm",

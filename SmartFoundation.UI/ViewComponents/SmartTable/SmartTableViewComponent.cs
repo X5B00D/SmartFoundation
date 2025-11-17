@@ -14,7 +14,7 @@ namespace SmartFoundation.UI.ViewComponents.SmartTable
             model ??= new TableConfig();
             model.Columns ??= new List<TableColumn>();
             model.RowActions ??= new List<TableAction>();
-            model.PageSizes ??= new List<int> { 10, 25, 50, 100 };
+            model.PageSizes ??= new List<int> { 5,10, 25, 50, 100 };
             model.Toolbar ??= new TableToolbarConfig();
 
             return View("Default", model);
