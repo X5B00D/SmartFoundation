@@ -124,37 +124,17 @@
                         this.closeModal();
                     }
                 });
+
+                // إغلاق المودال بزر "إلغاء"
+                document.addEventListener('click', (e) => {
+                    const cancelBtn = e.target.closest('.sf-modal-cancel');
+                    if (cancelBtn && this.modal.open) {
+                        e.preventDefault();
+                        this.closeModal();
+                    }
+                });
+            
             },
-
-            // ===== Data Loading & Filtering =====
-            //async load() {
-            //    this.loading = true;
-            //    this.error = null;
-
-            //    try {
-            //        // Load all data once from server
-            //        if (this.allRows.length === 0) {
-            //            const body = {
-            //                Component: "Table",
-            //                SpName: this.spName,
-            //                Operation: this.operation,
-            //                Paging: { Page: 1, Size: 1000000 }
-            //            };
-
-            //            const json = await this.postJson(this.endpoint, body);
-            //            this.allRows = Array.isArray(json?.data) ? json.data : [];
-            //        }
-
-            //        // Apply local filtering and sorting
-            //        this.applyFiltersAndSort();
-
-            //    } catch (e) {
-            //        console.error("Load error:", e);
-            //        this.error = e.message || "خطأ في تحميل البيانات";
-            //    } finally {
-            //        this.loading = false;
-            //    }
-            //},
 
 
             async load() {
@@ -555,14 +535,57 @@
                 });
                 
                 // Generate buttons
+                //if (formConfig.buttons && formConfig.buttons.length > 0) {
+                //    html += `<div class="col-span-12 flex justify-end gap-2 mt-4">`;
+                //    formConfig.buttons.forEach(btn => {
+                //        if (btn.show !== false) {
+                //            const btnType = btn.type || "button";
+                //            const btnClass = `btn btn-${btn.color || 'secondary'}`;
+                //            const icon = btn.icon ? `<i class="${btn.icon}"></i> ` : "";
+                //            const onClick = btn.type === 'submit' ? "" : (btn.onClickJs || "");
+                //            html += `<button type="${btnType}" class="${btnClass}" ${onClick ? `onclick="${onClick}"` : ""}>${icon}${btn.text}</button>`;
+                //        }
+                //    });
+                //    html += `</div>`;
+                //} else {
+                //    // Default buttons
+                //    html += `<div class="col-span-12 flex justify-end gap-2 mt-4">`;
+                //    /*html += `<button type="button" class="btn btn-secondary" onclick="this.closest('.sf-modal').__x.$data.closeModal()">إلغاء</button>`;*/
+                //    html += `<button type="button" class="btn btn-secondary sf-modal-cancel">إلغاء</button>`;
+                //    html += `<button type="submit" class="btn btn-success">حفظ</button>`;
+                //    html += `</div>`;
+
+
+
+                //}
+
+
+
+                // Generate buttons
                 if (formConfig.buttons && formConfig.buttons.length > 0) {
                     html += `<div class="col-span-12 flex justify-end gap-2 mt-4">`;
                     formConfig.buttons.forEach(btn => {
                         if (btn.show !== false) {
                             const btnType = btn.type || "button";
-                            const btnClass = `btn btn-${btn.color || 'secondary'}`;
+
+                            // تحديد هل هو زر إلغاء
+                            const isCancel =
+                                btn.isCancel === true ||
+                                btn.role === 'cancel' ||
+                                (btn.text && (
+                                    btn.text === 'إلغاء' ||
+                                    btn.text === 'الغاء' ||
+                                    btn.text.toLowerCase() === 'cancel'
+                                ));
+
+                            // نضيف كلاس sf-modal-cancel لزر الإلغاء
+                            const extraClasses = isCancel ? ' sf-modal-cancel' : '';
+                            const btnClass = `btn btn-${btn.color || 'secondary'}${extraClasses}`;
                             const icon = btn.icon ? `<i class="${btn.icon}"></i> ` : "";
-                            const onClick = btn.type === 'submit' ? "" : (btn.onClickJs || "");
+
+                            // لا نضع onclick لزر الإلغاء (الـ listener العام يتولى الإغلاق)
+                            const onClick = (!isCancel && btn.type !== 'submit') ? (btn.onClickJs || "") : "";
+
                             html += `<button type="${btnType}" class="${btnClass}" ${onClick ? `onclick="${onClick}"` : ""}>${icon}${btn.text}</button>`;
                         }
                     });
@@ -570,10 +593,12 @@
                 } else {
                     // Default buttons
                     html += `<div class="col-span-12 flex justify-end gap-2 mt-4">`;
-                    html += `<button type="button" class="btn btn-secondary" onclick="this.closest('.sf-modal').__x.$data.closeModal()">إلغاء</button>`;
+                    html += `<button type="button" class="btn btn-secondary sf-modal-cancel">إلغاء</button>`;
                     html += `<button type="submit" class="btn btn-success">حفظ</button>`;
                     html += `</div>`;
                 }
+
+
                 
                 html += `</div></form>`;
                 return html;
@@ -764,6 +789,15 @@
                         this.saveModalChanges();
                     });
                 }
+
+                // زر الإلغاء
+                //const cancelBtn = this.$el.querySelector('.sf-modal .sf-modal-cancel');
+                //if (cancelBtn) {
+                //    cancelBtn.addEventListener('click', () => {
+                //        this.closeModal();
+                //    });
+                //}
+            
             },
 
             async saveModalChanges() {

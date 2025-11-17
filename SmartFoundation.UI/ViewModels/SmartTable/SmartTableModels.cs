@@ -2,10 +2,11 @@
 
 namespace SmartFoundation.UI.ViewModels.SmartTable
 {
-    
+
     public class TableBadgeConfig
     {
         public Dictionary<string, string> Map { get; set; } = new();
+
         public string DefaultClass { get; set; } = "bg-gray-100 text-gray-700";
     }
 
@@ -30,7 +31,7 @@ namespace SmartFoundation.UI.ViewModels.SmartTable
 
     public class TableExportConfig
     {
-        public bool EnableExcel { get; set; } = true;
+        //public bool EnableExcel { get; set; } = true;
         public bool EnableCsv { get; set; } = true;
         public bool EnablePdf { get; set; } = false;
         public bool EnablePrint { get; set; } = true;
