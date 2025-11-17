@@ -19,16 +19,19 @@
       autocomplete="off"
       class="w-full">
 
+    @* Show LabelText if provided *@
+    @if (!string.IsNullOrWhiteSpace(Model.LabelText))
+    {
+        <div class="mb-4 text-sm text-gray-700 form-label-text">@Model.LabelText</div>
+    }
 
-
-
-
-            @foreach (var hidden in Model.Fields.Where(f => f.IsHidden || f.Type.Equals("hidden", StringComparison.OrdinalIgnoreCase)))
-            {
-                <input type="hidden" name="@hidden.Name" value="@hidden.Value" />
-            }
-
-            @{ var defaultRowOpen = false; }
+    @foreach (var hidden in Model.Fields.Where(f => f.IsHidden || f.Type.Equals("hidden", StringComparison.OrdinalIgnoreCase)))
+    {
+        <input type="hidden" name="@hidden.Name" value="@hidden.Value" />
+    }
+    @{
+        var defaultRowOpen = false;
+    }
 
 @foreach (var field in Model.Fields.Where(f => !f.IsHidden && !f.Type.Equals("hidden", StringComparison.OrdinalIgnoreCase)))
 {

@@ -1,8 +1,13 @@
 ﻿@model SmartFoundation.UI.ViewModels.SmartPage.SmartPageViewModel
-@await Component.InvokeAsync("SmartRenderer", new { model = Model })
 
 @{
     ViewData["Title"] = Model.PageTitle;
 
 }
+<div class="container mx-auto py-4">
+    <h1 class="text-xl font-bold mb-4">الصفحة الرئيسية</h1>
+</div>
+
+@await Component.InvokeAsync("SmartRenderer", new { model = Model })
+
 

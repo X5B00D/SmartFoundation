@@ -4,6 +4,9 @@ using SmartFoundation.Application.Services;
 using System.Data;
 using System.Net;
 using System.Threading;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authorization;
 
 namespace SmartFoundation.Mvc.Controllers
 {
@@ -16,17 +19,10 @@ namespace SmartFoundation.Mvc.Controllers
             _auth = auth;
         }
 
-
         private static readonly Dictionary<string, string> _dnsCache = new(StringComparer.OrdinalIgnoreCase);
 
         private static string ResolveClientHostName(HttpContext ctx)
         {
-            // Ensure forwarded headers middleware configured in Program.cs:
-            // builder.Services.Configure<ForwardedHeadersOptions>(o => {
-            //     o.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedHost;
-            // });
-            // app.UseForwardedHeaders();  // BEFORE auth/other middlewares.
-
             string? forwardedFor = ctx.Request.Headers["X-Forwarded-For"].FirstOrDefault();
             IPAddress? remoteIp = null;
             if (!string.IsNullOrWhiteSpace(forwardedFor))
@@ -42,9 +38,8 @@ namespace SmartFoundation.Mvc.Controllers
 
             if (remoteIp.IsIPv4MappedToIPv6) remoteIp = remoteIp.MapToIPv4();
 
-            // Local dev (loopback) cannot give client PC name; if you run browser on same machine you will always get loopback.
             if (IPAddress.IsLoopback(remoteIp))
-                return remoteIp.ToString(); // keep IP to make it obvious it is loopback
+                return remoteIp.ToString();
 
             var ipString = remoteIp.ToString();
             if (_dnsCache.TryGetValue(ipString, out var cached))
@@ -59,25 +54,43 @@ namespace SmartFoundation.Mvc.Controllers
             }
             catch
             {
-                // ignore; keep IP
             }
 
             _dnsCache[ipString] = hostValue;
             return hostValue;
         }
 
-        public IActionResult Index() => View();
+        [HttpGet]
+        [AllowAnonymous]
+        [ResponseCache(NoStore = true, Location = ResponseCacheLocation.None)]
+        public async Task<IActionResult> Index()
+        {
+            // Sign out (if using cookie auth) and clear all session
+            HttpContext.Session.Clear();
+
+            // If forced here by SessionGuard, show a message
+            if (Request.Query.ContainsKey("logout"))
+            {
+                TempData["Error"] = "تم تسجيل خروجك من النظام لعدم وجود نشاط على النظام لوقت طويل";
+            }
+
+            // Extra anti-cache headers (defense-in-depth)
+            Response.Headers["Cache-Control"] = "no-store, no-cache, must-revalidate, max-age=0";
+            Response.Headers["Pragma"] = "no-cache";
+            Response.Headers["Expires"] = "0";
+
+            return View();
+        }
 
         [HttpPost]
+        [AllowAnonymous]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> CheckLogin(string username, string password, CancellationToken ct)
         {
-            // Basic required field
             if (string.IsNullOrWhiteSpace(username) || string.IsNullOrWhiteSpace(password))
             {
                 TempData["Error"] = "الرجاء اكمال الحقول المطلوبة";
                 TempData["LastUser"] = username;
-                // Redirect so URL returns to /Login/Index (not stuck on /CheckLogin)
                 return RedirectToAction(nameof(Index));
             }
 
@@ -104,9 +117,7 @@ namespace SmartFoundation.Mvc.Controllers
                 return RedirectToAction(nameof(Index));
             }
 
-
             string clientHostName = ResolveClientHostName(HttpContext);
-            // Success / warning / info
             HttpContext.Session.SetString("userID", (auth.userId?.ToString() ?? username));
             HttpContext.Session.SetString("fullName", auth.fullName!);
             HttpContext.Session.SetString("IdaraID", auth.IdaraID!);
@@ -117,8 +128,6 @@ namespace SmartFoundation.Mvc.Controllers
             HttpContext.Session.SetString("HostName", clientHostName ?? "");
             HttpContext.Session.SetString("LastActivityUtc", DateTime.UtcNow.ToString("O"));
 
-
-
             switch (auth.useractive)
             {
                 case 1: TempData["Success"] = auth.Message_ ?? "تم تسجيل الدخول بنجاح."; break;
@@ -127,7 +136,6 @@ namespace SmartFoundation.Mvc.Controllers
                 default: TempData["Success"] = auth.Message_ ?? "تم تسجيل الدخول."; break;
             }
 
-            // Redirect to home (Toastr will show there if you include _Toastr partial in layout)
             return RedirectToAction("Index", "Home");
         }
     }

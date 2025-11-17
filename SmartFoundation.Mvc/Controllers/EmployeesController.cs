@@ -31,6 +31,10 @@ namespace SmartFoundation.Mvc.Controllers
        
         public async Task<IActionResult> Sami()
         {
+            if (string.IsNullOrWhiteSpace(HttpContext.Session.GetString("userID")))
+                return RedirectToAction("Index", "Login", new { logout = 1 });
+
+
 
             int userID = Convert.ToInt32(HttpContext.Session.GetString("userID"));
             string fullName = HttpContext.Session.GetString("fullName");
@@ -64,6 +68,12 @@ namespace SmartFoundation.Mvc.Controllers
             DataTable? dt8 = (ds?.Tables?.Count ?? 0) > 5 ? ds.Tables[8] : null;
             DataTable? dt9 = (ds?.Tables?.Count ?? 0) > 5 ? ds.Tables[9] : null;
 
+            if(permissionTable is null || permissionTable.Rows.Count == 0)
+            {
+
+                TempData["Error"] = "تم رصد دخول غير مصرح به انت لاتملك صلاحية للوصول الى هذه الصفحة";
+                return RedirectToAction("Index", "Home");
+            }
 
             string rowIdField ="";
             bool canInsert = false;
@@ -239,9 +249,12 @@ namespace SmartFoundation.Mvc.Controllers
             addFields.Insert(0, new FieldConfig { Name = "ActionType", Type = "hidden", Value = "INSERT" }); // upper-case
             addFields.Insert(0, new FieldConfig { Name = "pageName_", Type = "hidden", Value = "BuildingType" });
 
+           
+
             // Optional: help the generic endpoint know where to go back
             addFields.Insert(0, new FieldConfig { Name = "redirectAction", Type = "hidden", Value = nameof(Sami) });
             addFields.Insert(0, new FieldConfig { Name = "redirectController", Type = "hidden", Value = "Employees" });
+
 
 
 
@@ -302,11 +315,13 @@ namespace SmartFoundation.Mvc.Controllers
                 QuickSearchFields = dynamicColumns.Select(c => c.Field).Take(4).ToList(),
                 Searchable = true,
                 AllowExport = true,
+                PageTitle = "جميع المكونات",
+                PanelTitle = "عرض ",
                 Toolbar = new TableToolbarConfig
                 {
                     ShowRefresh = false,
                     ShowColumns = true,
-                    ShowExportCsv = false,
+                    ShowExportCsv = true,
                     ShowExportExcel = false,
                     ShowAdd = canInsert,
                     ShowEdit = canUpdate,
@@ -326,9 +341,8 @@ namespace SmartFoundation.Mvc.Controllers
                             FormId = "employeeInsertForm",
                             Title = "بيانات الموظف الجديد",
                             Method = "post",
-                            ActionUrl = "/crud/insert", // <-- added
-                            SubmitText = "حفظ",
-                            CancelText = "إلغاء",
+                            ActionUrl = "/crud/insert",
+                            LabelText = "sami", // <-- show 'sami' at top of Add form
                             Fields = addFields,
                             Buttons = new List<FormButtonConfig>
                             {
@@ -355,6 +369,7 @@ namespace SmartFoundation.Mvc.Controllers
                             ActionUrl = "/crud/update",
                             SubmitText = "حفظ التعديلات",
                             CancelText = "إلغاء",
+                            LabelText = "sami", // <-- show 'sami' at top of Edit form
                             Fields = updateFields
                         },
                         RequireSelection = true,
@@ -377,9 +392,13 @@ namespace SmartFoundation.Mvc.Controllers
                             FormId = "employeeDeleteForm",
                             Title = "تأكيد حذف السجل",
                             Method = "post",
-                            ActionUrl = "/crud/delete", // call the Delete endpoint
-                            SubmitText = "حذف",
-                            CancelText = "إلغاء",
+                            ActionUrl = "/crud/delete",
+                            LabelText = "sami", // <-- show 'sami' at top of Delete form
+                            Buttons = new List<FormButtonConfig>
+                            {
+                                new FormButtonConfig { Text = "حذف", Type = "submit", Color = "danger", Icon = "fa fa-save" },
+                                new FormButtonConfig { Text = "إلغاء", Type = "button", Color = "secondary", Icon = "fa fa-times", OnClickJs = "this.closest('.sf-modal').__x.$data.closeModal();" }
+                            },
                             Fields = deleteFields
                         },
                         RequireSelection = true,
@@ -389,9 +408,10 @@ namespace SmartFoundation.Mvc.Controllers
                 }
             };
 
+           
+
             return View("Sami", dsModel);
         }
-
 
 
 

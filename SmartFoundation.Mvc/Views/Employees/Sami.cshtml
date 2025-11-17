@@ -1,9 +1,10 @@
 ﻿@model SmartFoundation.UI.ViewModels.SmartTable.SmartTableDsModel
 
 @{
-    ViewData["Title"] = "الموظفين (Dataset)";
+    ViewData["Title"] = @Model.PageTitle;
 }
+<div class="container mx-auto py-4">
+    <h1 class="text-xl font-bold mb-4">انواع المباني</h1>
+</div>
 
 @await Component.InvokeAsync("SmartTableDS", new { model = Model })
-
-@* Remove the per-page Toastr <script> block; the layout partial handles it globally *@
