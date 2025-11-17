@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using SmartFoundation.Application.Services;
 using System.Data;
+using System.Net;
 using System.Threading;
 
 namespace SmartFoundation.Mvc.Controllers
@@ -13,6 +14,56 @@ namespace SmartFoundation.Mvc.Controllers
         public LoginController(AuthDataLoadService auth)
         {
             _auth = auth;
+        }
+
+
+        private static readonly Dictionary<string, string> _dnsCache = new(StringComparer.OrdinalIgnoreCase);
+
+        private static string ResolveClientHostName(HttpContext ctx)
+        {
+            // Ensure forwarded headers middleware configured in Program.cs:
+            // builder.Services.Configure<ForwardedHeadersOptions>(o => {
+            //     o.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedHost;
+            // });
+            // app.UseForwardedHeaders();  // BEFORE auth/other middlewares.
+
+            string? forwardedFor = ctx.Request.Headers["X-Forwarded-For"].FirstOrDefault();
+            IPAddress? remoteIp = null;
+            if (!string.IsNullOrWhiteSpace(forwardedFor))
+            {
+                var firstIp = forwardedFor.Split(',').First().Trim();
+                if (IPAddress.TryParse(firstIp, out var parsed))
+                    remoteIp = parsed;
+            }
+
+            remoteIp ??= ctx.Connection.RemoteIpAddress;
+            if (remoteIp == null)
+                return "unknown";
+
+            if (remoteIp.IsIPv4MappedToIPv6) remoteIp = remoteIp.MapToIPv4();
+
+            // Local dev (loopback) cannot give client PC name; if you run browser on same machine you will always get loopback.
+            if (IPAddress.IsLoopback(remoteIp))
+                return remoteIp.ToString(); // keep IP to make it obvious it is loopback
+
+            var ipString = remoteIp.ToString();
+            if (_dnsCache.TryGetValue(ipString, out var cached))
+                return cached;
+
+            var hostValue = ipString;
+            try
+            {
+                var entry = Dns.GetHostEntry(remoteIp);
+                if (!string.IsNullOrWhiteSpace(entry.HostName))
+                    hostValue = entry.HostName.TrimEnd('.');
+            }
+            catch
+            {
+                // ignore; keep IP
+            }
+
+            _dnsCache[ipString] = hostValue;
+            return hostValue;
         }
 
         public IActionResult Index() => View();
@@ -53,6 +104,8 @@ namespace SmartFoundation.Mvc.Controllers
                 return RedirectToAction(nameof(Index));
             }
 
+
+            string clientHostName = ResolveClientHostName(HttpContext);
             // Success / warning / info
             HttpContext.Session.SetString("userID", (auth.userId?.ToString() ?? username));
             HttpContext.Session.SetString("fullName", auth.fullName!);
@@ -61,14 +114,10 @@ namespace SmartFoundation.Mvc.Controllers
             HttpContext.Session.SetString("ThameName", auth.ThameName!);
             HttpContext.Session.SetString("DeptCode", auth.DeptCode?.ToString() ?? "");
             HttpContext.Session.SetString("IDNumber", auth.IDNumber!);
+            HttpContext.Session.SetString("HostName", clientHostName ?? "");
+            HttpContext.Session.SetString("LastActivityUtc", DateTime.UtcNow.ToString("O"));
 
-            string alls = HttpContext.Session.GetString("userID") + " - " +
-                           HttpContext.Session.GetString("fullName") + " - " +
-                           HttpContext.Session.GetString("IdaraID") + " - " +
-                           HttpContext.Session.GetString("DepartmentName") + " - " +
-                           HttpContext.Session.GetString("ThameName") + " - " +
-                           HttpContext.Session.GetString("DeptCode") + " - " +
-                           HttpContext.Session.GetString("IDNumber");
+
 
             switch (auth.useractive)
             {

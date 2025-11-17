@@ -5,9 +5,11 @@ using SmartFoundation.UI.ViewModels.SmartForm;
 using SmartFoundation.UI.ViewModels.SmartPage;
 using SmartFoundation.UI.ViewModels.SmartTable;
 using System.Data;
-using System.Text.Json;
 using System.Linq;
-using System.Text.RegularExpressions; 
+using System.Text.Json;
+using System.Text.RegularExpressions;
+using System.Net;
+using System.Net.Sockets;
 
 
 namespace SmartFoundation.Mvc.Controllers
@@ -26,11 +28,21 @@ namespace SmartFoundation.Mvc.Controllers
            
         }
 
-
+       
         public async Task<IActionResult> Sami()
         {
+
+            int userID = Convert.ToInt32(HttpContext.Session.GetString("userID"));
+            string fullName = HttpContext.Session.GetString("fullName");
+            int IdaraID = Convert.ToInt32(HttpContext.Session.GetString("IdaraID"));
+            string DepartmentName = HttpContext.Session.GetString("DepartmentName");
+            string ThameName = HttpContext.Session.GetString("ThameName");
+            string DeptCode = HttpContext.Session.GetString("DeptCode");
+            string IDNumber = HttpContext.Session.GetString("IDNumber");
+            string HostName = HttpContext.Session.GetString("HostName");
+
             
-            var spParameters = new object?[]{"BuildingType",1,60014016,"hostname"};
+            var spParameters = new object?[]{"BuildingType", IdaraID, userID, HostName };
 
             DataSet ds;
           
