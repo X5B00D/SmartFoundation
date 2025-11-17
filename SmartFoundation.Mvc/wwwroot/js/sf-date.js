@@ -62,7 +62,7 @@
                     }
                 }
             } catch (e) {
-                console.warn('moment-hijri formatting failed, using fallback:', e);
+                // console.warn('moment-hijri formatting failed, using fallback:', e);
             }
         }
 
@@ -84,13 +84,13 @@
                 // Check if moment-hijri is loaded by testing for iYear method
                 if (typeof m.iYear === 'function') {
                     const hijriDate = m.format('iYYYY-iMM-iDD');
-                    console.log('Using moment-hijri:', date, '→', hijriDate);
+                    // console.log('Using moment-hijri:', date, '→', hijriDate);
                     return hijriDate;
                 }
             }
 
             // Fallback to Intl.DateTimeFormat if moment-hijri not available
-            console.warn('moment-hijri not available, using Intl.DateTimeFormat fallback');
+            // console.warn('moment-hijri not available, using Intl.DateTimeFormat fallback');
             const p = new Intl.DateTimeFormat("ar-SA-u-ca-islamic", { year: "numeric", month: "2-digit", day: "2-digit", numberingSystem: "latn" }).formatToParts(date);
             const y = p.find(x => x.type === "year")?.value;
             const m = p.find(x => x.type === "month")?.value;
@@ -325,7 +325,9 @@
                 orientation: 'bottom',
                 buttons: false,
                 autoSelectToday: 0,
-                todayHighlight: false
+                todayHighlight: true,
+                todayBtn: false,
+                todayBtnMode: 0
             };
 
             // Add min/max dates if specified
@@ -338,16 +340,155 @@
                 // Store instance on the element for later access
                 input._flowbiteDatepicker = datepickerInstance;
 
-                // Listen to 'changeDate' event from vanillajs-datepicker (not native 'change')
-                // This fires immediately when a date is selected from the calendar
+                // console.log('Datepicker initialized with todayHighlight:', dpOptions.todayHighlight);
+                // console.log('Datepicker instance structure:', datepickerInstance);
+                // console.log('Picker object:', datepickerInstance.picker);
+
+                // Override today's date styling - remove gray, add blue
+                const applyTodayHighlight = () => {
+                    // console.log('applyTodayHighlight called');
+
+                    // Try to find the datepicker element - check multiple possible locations
+                    let pickerElement = null;
+
+                    // Method 1: Check picker.element
+                    if (datepickerInstance.picker && datepickerInstance.picker.element) {
+                        pickerElement = datepickerInstance.picker.element;
+                        // console.log('Found picker via picker.element');
+                    }
+                    // Method 2: Check pickerElement property directly
+                    else if (datepickerInstance.pickerElement) {
+                        pickerElement = datepickerInstance.pickerElement;
+                        // console.log('Found picker via pickerElement');
+                    }
+                    // Method 3: Search in document for datepicker that's currently visible
+                    else {
+                        pickerElement = document.querySelector('.datepicker.active');
+                        // console.log('Found picker via document.querySelector:', pickerElement);
+                    }
+
+                    if (!pickerElement) {
+                        // console.log('❌ Picker element not found, trying global search');
+                        // Last resort: search entire document
+                        const todayCell = document.querySelector('.datepicker-cell.today');
+                        if (todayCell) {
+                            // console.log('✅ Found today cell via global search:', todayCell);
+                            todayCell.classList.remove('bg-gray-100', 'dark:bg-gray-600', 'text-gray-900', 'dark:text-white');
+                            todayCell.classList.add('bg-blue-700', '!bg-primary-700', 'text-white', 'dark:bg-blue-600', 'dark:!bg-primary-600', 'font-bold');
+                            // console.log('✅ Today highlight applied successfully!');
+                        } else {
+                            // console.log('❌ Today cell not found anywhere in document');
+                        }
+                        return;
+                    }
+
+                    const todayCell = pickerElement.querySelector('.datepicker-cell.today');
+                    // console.log('Today cell found:', todayCell);
+
+                    if (todayCell) {
+                        // Remove gray background classes added by library
+                        todayCell.classList.remove('bg-gray-100', 'dark:bg-gray-600', 'text-gray-900', 'dark:text-white');
+                        // Add blue background classes
+                        todayCell.classList.add('bg-blue-700', '!bg-primary-700', 'text-white', 'dark:bg-blue-600', 'dark:!bg-primary-600', 'font-bold');
+                        // console.log('✅ Today highlight applied successfully!');
+                    } else {
+                        // console.log('❌ Today cell (.today class) not found in picker element');
+
+                        // Debug: Check what cells exist
+                        const allCells = pickerElement.querySelectorAll('.datepicker-cell');
+                        // console.log('Total cells found:', allCells.length);
+
+                        // Find today's date manually (Nov 17, 2025)
+                        const today = new Date();
+                        const todayDate = today.getDate(); // 17
+                        // console.log('Looking for date:', todayDate);
+
+                        let foundCell = null;
+                        allCells.forEach(cell => {
+                            const cellText = cell.textContent.trim();
+                            const cellDate = cell.dataset.date;
+
+                            // Check if this cell represents today
+                            if (cellDate) {
+                                const cellDateObj = new Date(parseInt(cellDate));
+                                if (cellDateObj.getDate() === todayDate &&
+                                    cellDateObj.getMonth() === today.getMonth() &&
+                                    cellDateObj.getFullYear() === today.getFullYear()) {
+                                    foundCell = cell;
+                                    // console.log('✅ Found today via data-date:', cellDate, 'Cell:', cell);
+                                    // console.log('Cell classes:', cell.className);
+                                }
+                            }
+                        });
+
+                        if (foundCell) {
+                            // Check if this cell is also selected
+                            const isSelected = foundCell.classList.contains('selected');
+
+                            if (!isSelected) {
+                                // Only apply today highlight if NOT selected
+                                // Remove gray background classes added by library
+                                foundCell.classList.remove('bg-gray-100', 'dark:bg-gray-600', 'text-gray-900', 'dark:text-white');
+                                // Add lighter blue for today (not selected)
+                                foundCell.classList.remove('bg-blue-700', '!bg-primary-700', 'dark:bg-blue-600', 'dark:!bg-primary-600');
+                                foundCell.classList.add('bg-blue-100', 'dark:bg-blue-900', 'text-blue-900', 'dark:text-blue-100', 'font-semibold', 'border-2', 'border-blue-500');
+                                // console.log('✅ Today highlight applied (not selected)');
+                            } else {
+                                // console.log('ℹ️ Today is selected, keeping selected style');
+                            }
+                        } else {
+                            // console.log('❌ Could not find today via data-date either');
+                        }
+                    }
+                };
+
+                // Try multiple times with delays (datepicker renders asynchronously)
+                setTimeout(applyTodayHighlight, 50);
+                setTimeout(applyTodayHighlight, 200);
+                setTimeout(applyTodayHighlight, 500);
+
+                // Apply highlight when datepicker shows
+                input.addEventListener('show', () => {
+                    // console.log('Show event fired');
+                    setTimeout(applyTodayHighlight, 10);
+                });
+
+                // Also try on focus (before show event)
+                input.addEventListener('focus', () => {
+                    // console.log('Focus event fired');
+                    setTimeout(applyTodayHighlight, 100);
+                });
+
+                // Listen for month/year changes
+                ['changeView', 'changeMonth', 'changeYear'].forEach(eventName => {
+                    input.addEventListener(eventName, () => {
+                        // console.log(`${eventName} event fired`);
+                        setTimeout(applyTodayHighlight, 10);
+                    });
+                });
+
+                // Listen to 'changeDate' event - reapply today highlight when date is selected
                 input.addEventListener('changeDate', (e) => {
+                    // console.log('changeDate event fired - reapplying today highlight');
+                    setTimeout(applyTodayHighlight, 10);
+
                     // When datepicker changes the value, update info boxes immediately
                     if (input.value && isISO(input.value)) {
                         commitIfComplete(input, cfg, { blur: false, focusPartner: false });
                     }
                 });
+
+                // Also apply on view change (month/year navigation) using MutationObserver
+                const pickerElement = datepickerInstance.picker?.element;
+                if (pickerElement) {
+                    const observer = new MutationObserver(() => {
+                        // console.log('MutationObserver triggered');
+                        applyTodayHighlight();
+                    });
+                    observer.observe(pickerElement, { childList: true, subtree: true });
+                }
             } catch (error) {
-                console.warn('Failed to initialize Flowbite datepicker:', error);
+                // console.warn('Failed to initialize Flowbite datepicker:', error);
             }
         }
 
