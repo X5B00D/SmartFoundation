@@ -1,1 +1,109 @@
-﻿
+﻿USE [DATACORE]
+GO
+
+/****** Object:  Table [Housing].[BuildingAction]    Script Date: 20/11/2025 01:41:07 ص ******/
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+CREATE TABLE [Housing].[BuildingAction](
+	[buildingActionID] [bigint] IDENTITY(1,1) NOT NULL,
+	[buildingActionUDID] [uniqueidentifier] NULL,
+	[buildingActionTypeID_FK] [int] NULL,
+	[buildingStatusID_FK] [int] NULL,
+	[generalNo_FK] [int] NULL,
+	[buildingPaymentTypeID_FK] [int] NULL,
+	[buildingDetailsNo] [nvarchar](20) NULL,
+	[buildingActionFromDate] [datetime] NULL,
+	[buildingActionToDate] [datetime] NULL,
+	[buildingActionDate] [datetime] NULL,
+	[buildingActionDate2] [datetime] NULL,
+	[buildingActionDecisionNo] [nvarchar](20) NULL,
+	[buildingActionDecisionDate] [datetime] NULL,
+	[fromDSD_FK] [int] NULL,
+	[toDSD_FK] [int] NULL,
+	[buildingActionFromSourceID_FK] [int] NULL,
+	[buildingActionToSourceID_FK] [int] NULL,
+	[buildingActionNote] [nvarchar](1000) NULL,
+	[buildingActionExtraText1] [nvarchar](200) NULL,
+	[buildingActionExtraText2] [nvarchar](200) NULL,
+	[buildingActionExtraText3] [nvarchar](200) NULL,
+	[buildingActionExtraText4] [nvarchar](200) NULL,
+	[buildingActionExtraDate1] [datetime] NULL,
+	[buildingActionExtraDate2] [datetime] NULL,
+	[buildingActionExtraDate3] [datetime] NULL,
+	[buildingActionExtraFloat1] [float] NULL,
+	[buildingActionExtraFloat2] [float] NULL,
+	[buildingActionExtraInt1] [int] NULL,
+	[buildingActionExtraInt2] [int] NULL,
+	[buildingActionExtraInt3] [int] NULL,
+	[buildingActionExtraInt4] [int] NULL,
+	[buildingActionExtraType1] [int] NULL,
+	[buildingActionExtraType2] [int] NULL,
+	[buildingActionExtraType3] [int] NULL,
+	[buildingActionActive] [bit] NULL,
+	[buildingActionParentID] [bigint] NULL,
+	[entryDate] [datetime] NULL,
+	[entryData] [nvarchar](20) NULL,
+	[hostName] [nvarchar](200) NULL,
+ CONSTRAINT [PK_BuildingAction] PRIMARY KEY CLUSTERED 
+(
+	[buildingActionID] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+
+ALTER TABLE [Housing].[BuildingAction] ADD  CONSTRAINT [DF_BuildingAction_buildingActionUDID]  DEFAULT (newid()) FOR [buildingActionUDID]
+GO
+
+ALTER TABLE [Housing].[BuildingAction] ADD  CONSTRAINT [DF_BuildingAction_buildingActionActive]  DEFAULT ((1)) FOR [buildingActionActive]
+GO
+
+ALTER TABLE [Housing].[BuildingAction] ADD  CONSTRAINT [DF_BuildingAction_entryDate]  DEFAULT (getdate()) FOR [entryDate]
+GO
+
+ALTER TABLE [Housing].[BuildingAction]  WITH CHECK ADD  CONSTRAINT [FK_BuildingAction_BuildingActionSource] FOREIGN KEY([buildingActionFromSourceID_FK])
+REFERENCES [Housing].[BuildingActionSource] ([buildingActionSourceID])
+GO
+
+ALTER TABLE [Housing].[BuildingAction] CHECK CONSTRAINT [FK_BuildingAction_BuildingActionSource]
+GO
+
+ALTER TABLE [Housing].[BuildingAction]  WITH CHECK ADD  CONSTRAINT [FK_BuildingAction_BuildingActionSource1] FOREIGN KEY([buildingActionToSourceID_FK])
+REFERENCES [Housing].[BuildingActionSource] ([buildingActionSourceID])
+GO
+
+ALTER TABLE [Housing].[BuildingAction] CHECK CONSTRAINT [FK_BuildingAction_BuildingActionSource1]
+GO
+
+ALTER TABLE [Housing].[BuildingAction]  WITH CHECK ADD  CONSTRAINT [FK_BuildingAction_BuildingActionType] FOREIGN KEY([buildingActionTypeID_FK])
+REFERENCES [Housing].[BuildingActionType] ([buildingActionTypeID])
+GO
+
+ALTER TABLE [Housing].[BuildingAction] CHECK CONSTRAINT [FK_BuildingAction_BuildingActionType]
+GO
+
+ALTER TABLE [Housing].[BuildingAction]  WITH CHECK ADD  CONSTRAINT [FK_BuildingAction_BuildingPaymentType] FOREIGN KEY([buildingPaymentTypeID_FK])
+REFERENCES [Housing].[BuildingPaymentType] ([buildingPaymentTypeID])
+GO
+
+ALTER TABLE [Housing].[BuildingAction] CHECK CONSTRAINT [FK_BuildingAction_BuildingPaymentType]
+GO
+
+ALTER TABLE [Housing].[BuildingAction]  WITH CHECK ADD  CONSTRAINT [FK_BuildingAction_BuildingStatus] FOREIGN KEY([buildingStatusID_FK])
+REFERENCES [Housing].[BuildingStatus] ([buildingStatusID])
+GO
+
+ALTER TABLE [Housing].[BuildingAction] CHECK CONSTRAINT [FK_BuildingAction_BuildingStatus]
+GO
+
+ALTER TABLE [Housing].[BuildingAction]  WITH CHECK ADD  CONSTRAINT [FK_BuildingAction_ResidentInfo] FOREIGN KEY([generalNo_FK])
+REFERENCES [Housing].[ResidentInfo] ([generalNo])
+GO
+
+ALTER TABLE [Housing].[BuildingAction] CHECK CONSTRAINT [FK_BuildingAction_ResidentInfo]
+GO
+
+
