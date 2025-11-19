@@ -80,6 +80,8 @@ namespace SmartFoundation.UI.ViewModels.SmartTable
         public string? ModalSp { get; set; }
         public string? ModalOp { get; set; } = "detail";
         public string? ModalTitle { get; set; }
+
+        public string? ModalMessage { get; set; }
         public List<TableColumn>? ModalColumns { get; set; }
         public string? ConfirmText { get; set; }
         public bool IsEdit { get; set; } = false;

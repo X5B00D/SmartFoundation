@@ -320,8 +320,8 @@ namespace SmartFoundation.Mvc.Controllers
                             Fields = addFields,
                             Buttons = new List<FormButtonConfig>
                             {
-                                new FormButtonConfig { Text = "حفظ", Type = "submit", Color = "success", Icon = "fa fa-save" },
-                                new FormButtonConfig { Text = "إلغاء", Type = "button", Color = "secondary", Icon = "fa fa-times", OnClickJs = "this.closest('.sf-modal').__x.$data.closeModal();" }
+                                new FormButtonConfig { Text = "حفظ", Type = "submit", Color = "success", /*Icon = "fa fa-save"*/ },
+                                new FormButtonConfig { Text = "إلغاء", Type = "button", Color = "secondary", /*Icon = "fa fa-times",*/ OnClickJs = "this.closest('.sf-modal').__x.$data.closeModal();" }
                             }
                         }
                     },
@@ -335,6 +335,7 @@ namespace SmartFoundation.Mvc.Controllers
                         IsEdit = true,
                         OpenModal = true,
                         ModalTitle = "تعديل بيانات الموظف",
+                        //ModalMessage = "بسم الله الرحمن الرحيم",
                         OpenForm = new FormConfig
                         {
                             FormId = "employeeEditForm",
@@ -359,7 +360,9 @@ namespace SmartFoundation.Mvc.Controllers
                         Color = "danger",
                         IsEdit = true,
                         OpenModal = true,
-                        ModalTitle = "هل أنت متأكد من حذف هذا السجل؟",
+                        //ModalTitle = "رسالة تحذيرية",
+                        ModalTitle = "<i class='fa fa-exclamation-triangle text-red-600 text-xl mr-2'></i> تحذير",
+                        ModalMessage = "هل أنت متأكد من حذف هذا السجل؟",
                         OpenForm = new FormConfig
                         {
                             FormId = "employeeDeleteForm",

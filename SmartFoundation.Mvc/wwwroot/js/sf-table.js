@@ -63,14 +63,25 @@
             selectAll: false,
             
             // Modal State
+            //modal: {
+            //    open: false,
+            //    title: "",
+            //    html: "",
+            //    action: null,
+            //    loading: false,
+            //    error: null
+            //},
+            // Modal State
             modal: {
                 open: false,
                 title: "",
+                message: "",   // 👈 جديد
                 html: "",
                 action: null,
                 loading: false,
                 error: null
             },
+
 
             // ===== Initialization =====
             init() {
@@ -468,6 +479,7 @@
             async openModal(action, row) {
                 this.modal.open = true;
                 this.modal.title = action.modalTitle || action.label || "";
+                this.modal.message = action.modalMessage || ""; //  جديد
                 this.modal.action = action;
                 this.modal.loading = true;
                 this.modal.error = null;
@@ -511,6 +523,7 @@
                 this.modal.html = "";
                 this.modal.action = null;
                 this.modal.error = null;
+                this.modal.message = ""; //  جديد
             },
 
             // ===== Form Generation =====

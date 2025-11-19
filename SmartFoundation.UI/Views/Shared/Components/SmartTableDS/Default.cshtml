@@ -178,18 +178,60 @@
     </div>
 
     @* Modal markup is reused from SmartTable Default *@
-    <template x-if="modal.open">
+    @* <template x-if="modal.open">
         <div class="sf-modal-backdrop" x-transition.opacity>
             <div class="sf-modal" role="dialog" aria-modal="true" x-transition>
                 <div class="sf-modal-header">
                     <h3 x-text="modal.title"></h3>
                     <button type="button" class="sf-modal-close" x-on:click="closeModal()">✕</button>
-                </div>
-                <div class="sf-modal-body">
+                </div> *@
+                @* <div class="sf-modal-body">
                     <template x-if="!modal.loading && !modal.error && modal.html"><div x-html="modal.html"></div></template>
                     <template x-if="modal.loading"><div class="td-loading"><i class="fa fa-spinner animate-spin"></i> جاري التحميل...</div></template>
                     <template x-if="!modal.loading && modal.error"><div class="td-error"><i class="fa fa-triangle-exclamation"></i> <span x-text="modal.error"></span></div></template>
+                </div> *@
+
+
+    @* Modal markup is reused from SmartTable Default *@
+    <template x-if="modal.open">
+        <div class="sf-modal-backdrop" x-transition.opacity>
+            <div class="sf-modal" role="dialog" aria-modal="true" x-transition>
+                <div class="sf-modal-header">
+                    @* <h3 x-text="modal.title"></h3> *@
+                    <h3 x-html="modal.title"></h3>
+                    <button type="button" class="sf-modal-close" x-on:click="closeModal()">✕</button>
                 </div>
+
+                <div class="sf-modal-body">
+                    @* الرسالة النصية داخل المودال  *@
+                    <template x-if="modal.message">
+                        <div class="mb-4 text-center text-sm text-gray-700" x-text="modal.message"></div>
+                    </template>
+
+                    @* حالة التحميل *@
+                    <template x-if="modal.loading">
+                        <div class="td-loading">
+                            <i class="fa fa-spinner animate-spin"></i> جاري التحميل...
+                        </div>
+                    </template>
+
+                    @* حالة الخطأ *@
+                    <template x-if="!modal.loading && modal.error">
+                        <div class="td-error">
+                            <i class="fa fa-triangle-exclamation"></i>
+                            <span x-text="modal.error"></span>
+                        </div>
+                    </template>
+
+                    @* المحتوى العادي للفورم *@
+                    <template x-if="!modal.loading && !modal.error && modal.html">
+                        <div x-html="modal.html"></div>
+                    </template>
+                </div>
+                
+
+
+
                 @* <div class="sf-modal-footer">
                     <button class="btn btn-secondary" type="button" x-on:click="closeModal()">إلغاء</button>
                     <button class="btn btn-success" type="button" x-show="modal.action && (modal.action.openModal || modal.action.isEdit)" x-on:click="saveModalChanges()">حفظ</button>

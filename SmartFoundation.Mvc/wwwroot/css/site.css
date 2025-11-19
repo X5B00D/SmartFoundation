@@ -566,6 +566,9 @@ body, h1, h2, h3, h4, h5, h6, input, textarea, select, button {
   .mr-2 {
     margin-right: calc(var(--spacing) * 2);
   }
+  .mr-3 {
+    margin-right: calc(var(--spacing) * 3);
+  }
   .mr-auto {
     margin-right: auto;
   }
@@ -1174,6 +1177,10 @@ body, h1, h2, h3, h4, h5, h6, input, textarea, select, button {
     font-size: var(--text-2xl);
     line-height: var(--tw-leading, var(--text-2xl--line-height));
   }
+  .text-3xl {
+    font-size: var(--text-3xl);
+    line-height: var(--tw-leading, var(--text-3xl--line-height));
+  }
   .text-base {
     font-size: var(--text-base);
     line-height: var(--tw-leading, var(--text-base--line-height));
@@ -1185,6 +1192,10 @@ body, h1, h2, h3, h4, h5, h6, input, textarea, select, button {
   .text-sm {
     font-size: var(--text-sm);
     line-height: var(--tw-leading, var(--text-sm--line-height));
+  }
+  .text-xl {
+    font-size: var(--text-xl);
+    line-height: var(--tw-leading, var(--text-xl--line-height));
   }
   .text-xs {
     font-size: var(--text-xs);
@@ -1303,6 +1314,9 @@ body, h1, h2, h3, h4, h5, h6, input, textarea, select, button {
   }
   .text-white {
     color: var(--color-white);
+  }
+  .text-yellow-500 {
+    color: var(--color-yellow-500);
   }
   .ordinal {
     --tw-ordinal: ordinal;
