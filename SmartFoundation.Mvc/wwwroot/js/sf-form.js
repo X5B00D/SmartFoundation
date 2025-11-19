@@ -34,14 +34,21 @@
                         Meta: {}
                     };
 
+                    // add the header and handle 401 before parsing JSON
                     const response = await fetch(actionUrl, {
                         method,
                         headers: {
                             'Content-Type': 'application/json',
-                            'Accept': 'application/json'
+                            'Accept': 'application/json',
+                            'X-Requested-With': 'XMLHttpRequest'
                         },
                         body: JSON.stringify(smartRequest)
                     });
+
+                    if (response.status === 401) {
+                        window.location.href = "/Login/Index?logout=1";
+                        return;
+                    }
 
                     const result = await response.json();
 

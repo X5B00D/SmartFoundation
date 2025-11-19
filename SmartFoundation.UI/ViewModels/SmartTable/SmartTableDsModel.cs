@@ -5,6 +5,8 @@ namespace SmartFoundation.UI.ViewModels.SmartTable
 {
     public class SmartTableDsModel
     {
+        public string? PageTitle { get; set; } = "النظام الموحد";
+        public string? PanelTitle { get; set; } = "";
         // ===== بيانات الجدول من الـ DataSet =====
         public List<TableColumn> Columns { get; set; } = new();
         public List<Dictionary<string, object?>> Rows { get; set; } = new();

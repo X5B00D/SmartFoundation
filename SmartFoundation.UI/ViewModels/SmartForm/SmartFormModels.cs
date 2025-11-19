@@ -177,6 +177,7 @@ namespace SmartFoundation.UI.ViewModels.SmartForm
     {
         public string FormId { get; set; } = "smartForm";
         public string Title { get; set; } = "نموذج الإدخال";
+        public string LabelText { get; set; } = string.Empty; // Initialized to avoid CS8618
         public string Method { get; set; } = "POST";
         public string ActionUrl { get; set; } = "/SmartComponent/Execute";
         public string SubmitText { get; set; } = "حفظ";

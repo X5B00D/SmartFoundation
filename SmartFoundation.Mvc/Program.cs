@@ -14,11 +14,11 @@ builder.Services.AddControllersWithViews()
     });
 
 builder.Services.AddDistributedMemoryCache();
-builder.Services.AddSession(options =>
+builder.Services.AddSession(o =>
 {
-    options.IdleTimeout = TimeSpan.FromMinutes(30);
-    options.Cookie.HttpOnly = true;
-    options.Cookie.IsEssential = true;
+    o.IdleTimeout = TimeSpan.FromMinutes(3); // 10-minute inactivity on server side
+    o.Cookie.HttpOnly = true;
+    o.Cookie.IsEssential = true;
 });
 
 builder.Services.AddResponseCompression();
@@ -39,10 +39,12 @@ app.UseStaticFiles();
 
 app.UseRouting();
 app.UseSession();
+// (Optional: your existing guard middleware here)
 app.UseAuthorization();
 
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Login}/{action=Index}/{id?}");
+//app.MapRazorPages();
 
 app.Run();
