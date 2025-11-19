@@ -13,6 +13,7 @@ namespace SmartFoundation.Mvc.Controllers
     public class LoginController : Controller
     {
         private readonly AuthDataLoadService _auth;
+        
 
         public LoginController(AuthDataLoadService auth)
         {
@@ -95,9 +96,12 @@ namespace SmartFoundation.Mvc.Controllers
             }
 
             DataSet ds;
+
+            var spParameters = new object?[] { username.Trim(), password, Request.Host.Value };
             try
             {
-                ds = await _auth.GetLoginDataSetAsync(username.Trim(), password, Request.Host.Value, ct);
+                //ds = await _auth.GetLoginDataSetAsync(username.Trim(), password, Request.Host.Value);
+                ds = await _auth.GetLoginDataSetAsync(spParameters);
             }
             catch
             {
