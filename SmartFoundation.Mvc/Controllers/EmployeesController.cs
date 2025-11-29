@@ -31,6 +31,66 @@ namespace SmartFoundation.Mvc.Controllers
        
         public async Task<IActionResult> Sami()
         {
+
+            var form = new FormConfig
+            {
+                FormId = "dynamicForm",
+                Title = "نموذج الإدخال",
+                Method = "POST",
+                ActionUrl = "/AllComponentsDemo/ExecuteDemo",
+                SubmitText = "حفظ",
+                ResetText = "تفريغ",
+                ShowPanel = true,
+                ShowReset = true,
+                StoredProcedureName = "sp_SaveDemoForm",
+                Operation = "insert",
+                StoredSuccessMessageField = "Message",
+                StoredErrorMessageField = "Error",
+
+                Fields = new List<FieldConfig>
+                {
+                    // ========= البيانات الشخصية =========
+                    new FieldConfig
+                    {
+
+                        SectionTitle="البيانات",
+                        Name="FullName",
+                        Label="إدخال نص",
+                        Type="text",
+                        Required=true,
+                        Placeholder="حقل عربي فقط",
+                        Icon="fa-solid fa-user",
+                        ColCss="col-span-12 md:col-span-3",
+                        MaxLength=50,
+                        TextMode="arsentence",
+                    }
+                },
+                    
+                     Buttons = new List<FormButtonConfig>
+                {
+                    new FormButtonConfig
+                    {
+                        Text="طباعة",
+                        Icon="fa-solid fa-print",
+                        Type="button",
+                        Color="danger",
+                        OnClickJs="window.print();"
+                    },
+
+
+                    new FormButtonConfig
+                    {
+                        Text="رجوع",
+                        Icon="fa-solid fa-arrow-left",
+                        Type="button",
+                        Color="info",
+                        OnClickJs="history.back();"
+                    },
+
+                }
+            };
+
+
             if (string.IsNullOrWhiteSpace(HttpContext.Session.GetString("userID")))
                 return RedirectToAction("Index", "Login", new { logout = 1 });
 
@@ -234,7 +294,7 @@ namespace SmartFoundation.Mvc.Controllers
 
                 // your custom textboxes
                 new FieldConfig { Name = "p01", Label = "رمز المبنى", Type = "text", ColCss = "3", Required = true },
-                new FieldConfig { Name = "p02", Label = "اسم المبنى بالعربي", Type = "text", ColCss = "3" , Required = false,TextMode = "arabic"},
+                new FieldConfig { Name = "p02", Label = "اسم المبنى بالعربي",Type = "text", Placeholder="حقل عربي فقط",TextMode="arsentence",ColCss="3"},
                 new FieldConfig { Name = "p03", Label = "اسم المبنى بالانجليزي", Type = "text", ColCss = "3" , Required = true},
                 new FieldConfig { Name = "p04", Label = "ملاحظات", Type = "text", ColCss = "3", Required = false }
             };
@@ -411,9 +471,14 @@ namespace SmartFoundation.Mvc.Controllers
                 }
             };
 
-           
-
-            return View("Sami", dsModel);
+            var vm = new SmartFoundation.UI.ViewModels.SmartPage.FormTableViewModel
+            {
+                Form = form,
+                Table = dsModel,
+                PageTitle = dsModel.PageTitle,
+                PanelTitle = dsModel.PanelTitle
+            };
+            return View("Sami", vm);
         }
 
 
