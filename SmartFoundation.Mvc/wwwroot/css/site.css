@@ -2739,7 +2739,7 @@ body, h1, h2, h3, h4, h5, h6, input, textarea, select, button {
     text-align: right;
     color: var(--color-gray-700);
   }
-  .sf-select-panel {
+.sf-select-panel {
     margin-top: calc(var(--spacing) * 1);
     width: 100%;
     border-radius: var(--radius-md);
@@ -2749,7 +2749,24 @@ body, h1, h2, h3, h4, h5, h6, input, textarea, select, button {
     background-color: var(--color-white);
     --tw-shadow: 0 10px 15px -3px var(--tw-shadow-color, rgb(0 0 0 / 0.1)), 0 4px 6px -4px var(--tw-shadow-color, rgb(0 0 0 / 0.1));
     box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
-  }
+
+    max-height: 50vh; /* limit panel height */
+    overflow-y: auto; /* enable vertical scroll */
+    overscroll-behavior: contain;
+}
+
+    /* Ensure the list inside can scroll */
+    .sf-select-panel ul {
+        max-height: 60vh;
+        overflow-y: auto;
+    }
+
+/* If a modal/container blocks scrolling */
+.sf-modal .sf-modal-body,
+.sf-form-container {
+    overflow-y: visible;
+}
+
   .sf-select-radio {
     display: inline-block;
     height: calc(var(--spacing) * 4);

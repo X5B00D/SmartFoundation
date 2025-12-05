@@ -1,0 +1,96 @@
+﻿****** V_GetListUserPermission**************
+
+
+SELECT        p.UserID_FK AS userID, m.menuName_A, m.menuName_E, pt.permissionTypeName_A, pt.permissionTypeName_E, m.menuID, md.menuDistributorID, d.distributorID, dpt.distributorPermissionTypeID, p.permissionID, 
+                         p.DistributorPermissionTypeID_FK, pt.permissionTypeID, p.permissionStartDate, p.permissionEndDate, p.permissionActive, p.entryDate, p.entryData, p.hostName, dpt.distributorPermissionTypeStartDate, 
+                         dpt.distributorPermissionTypeEndDate, dpt.distributorPermissionTypeActive
+FROM            dbo.Menu AS m INNER JOIN
+                         dbo.MenuDistributor AS md ON md.menuID_FK = m.menuID INNER JOIN
+                         dbo.Distributor AS d ON md.distributorID_FK = d.distributorID INNER JOIN
+                         dbo.distributorPermissionType AS dpt ON d.distributorID = dpt.distributorID_FK INNER JOIN
+                         dbo.Permission AS p ON dpt.distributorPermissionTypeID = p.DistributorPermissionTypeID_FK INNER JOIN
+                         dbo.PermissionType AS pt ON pt.permissionTypeID = dpt.permissionTypeID_FK
+WHERE        (m.menuActive = 1) AND (md.menuDistributorActive = 1) AND (d.distributorActive = 1) AND (dpt.distributorPermissionTypeActive = 1) AND (p.permissionActive = 1) AND (pt.permissionTypeActive = 1) AND 
+                         (dpt.distributorPermissionTypeStartDate IS NOT NULL) AND (CAST(dpt.distributorPermissionTypeStartDate AS date) < CAST(GETDATE() AS date)) AND (CAST(dpt.distributorPermissionTypeEndDate AS date) >= CAST(GETDATE() 
+                         AS date)) AND (p.permissionStartDate IS NOT NULL) AND (CAST(p.permissionStartDate AS date) < CAST(GETDATE() AS date)) AND (CAST(p.permissionEndDate AS date) >= CAST(GETDATE() AS date)) OR
+                         (m.menuActive = 1) AND (md.menuDistributorActive = 1) AND (d.distributorActive = 1) AND (dpt.distributorPermissionTypeActive = 1) AND (p.permissionActive = 1) AND (pt.permissionTypeActive = 1) AND 
+                         (dpt.distributorPermissionTypeStartDate IS NOT NULL) AND (CAST(dpt.distributorPermissionTypeStartDate AS date) < CAST(GETDATE() AS date)) AND (p.permissionStartDate IS NOT NULL) AND 
+                         (CAST(p.permissionStartDate AS date) < CAST(GETDATE() AS date)) AND (CAST(p.permissionEndDate AS date) >= CAST(GETDATE() AS date)) AND (dpt.distributorPermissionTypeEndDate IS NULL) OR
+                         (m.menuActive = 1) AND (md.menuDistributorActive = 1) AND (d.distributorActive = 1) AND (dpt.distributorPermissionTypeActive = 1) AND (p.permissionActive = 1) AND (pt.permissionTypeActive = 1) AND 
+                         (dpt.distributorPermissionTypeStartDate IS NOT NULL) AND (CAST(dpt.distributorPermissionTypeStartDate AS date) < CAST(GETDATE() AS date)) AND (CAST(dpt.distributorPermissionTypeEndDate AS date) >= CAST(GETDATE() 
+                         AS date)) AND (p.permissionStartDate IS NOT NULL) AND (CAST(p.permissionStartDate AS date) < CAST(GETDATE() AS date)) AND (p.permissionEndDate IS NULL) OR
+                         (m.menuActive = 1) AND (md.menuDistributorActive = 1) AND (d.distributorActive = 1) AND (dpt.distributorPermissionTypeActive = 1) AND (p.permissionActive = 1) AND (pt.permissionTypeActive = 1) AND 
+                         (dpt.distributorPermissionTypeStartDate IS NOT NULL) AND (CAST(dpt.distributorPermissionTypeStartDate AS date) < CAST(GETDATE() AS date)) AND (p.permissionStartDate IS NOT NULL) AND 
+                         (CAST(p.permissionStartDate AS date) < CAST(GETDATE() AS date)) AND (dpt.distributorPermissionTypeEndDate IS NULL) AND (p.permissionEndDate IS NULL)
+
+
+
+
+                         ----------------------------------------------------
+
+****DistributorPermissionType**** table
+
+USE [DATACORE]
+GO
+
+/****** Object:  Table [dbo].[DistributorPermissionType]    Script Date: 04/12/2025 05:38:22 م ******/
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+CREATE TABLE [dbo].[DistributorPermissionType](
+	[distributorPermissionTypeID] [int] IDENTITY(1,1) NOT NULL,
+	[permissionTypeID_FK] [int] NULL,
+	[distributorID_FK] [int] NULL,
+	[distributorPermissionTypeStartDate] [datetime] NULL,
+	[distributorPermissionTypeEndDate] [datetime] NULL,
+	[distributorPermissionTypeActive] [bit] NULL,
+	[entryDate] [datetime] NULL,
+	[entryData] [nvarchar](20) NULL,
+	[hostName] [nvarchar](200) NULL,
+ CONSTRAINT [PK_distributorPermissionType] PRIMARY KEY CLUSTERED 
+(
+	[distributorPermissionTypeID] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+
+
+----------------------------------------------------
+
+*****Permission** table
+
+USE [DATACORE]
+GO
+
+/****** Object:  Table [dbo].[Permission]    Script Date: 04/12/2025 05:39:17 م ******/
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+CREATE TABLE [dbo].[Permission](
+	[permissionID] [int] IDENTITY(1,1) NOT NULL,
+	[DistributorPermissionTypeID_FK] [int] NULL,
+	[UserID_FK] [int] NULL,
+	[permissionStartDate] [datetime] NULL,
+	[permissionEndDate] [datetime] NULL,
+	[permissionActive] [bit] NULL,
+	[entryDate] [datetime] NULL,
+	[entryData] [nvarchar](20) NULL,
+	[hostName] [nvarchar](200) NULL,
+ CONSTRAINT [PK_permission] PRIMARY KEY CLUSTERED 
+(
+	[permissionID] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+
+ALTER TABLE [dbo].[Permission] ADD  CONSTRAINT [DF_permission_entryDate]  DEFAULT (getdate()) FOR [entryDate]
+GO
+
+
+----------------------------------------------------

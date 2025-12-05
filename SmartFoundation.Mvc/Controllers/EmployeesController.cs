@@ -28,68 +28,29 @@ namespace SmartFoundation.Mvc.Controllers
            
         }
 
-       
+
+
+        [HttpGet]
+        public IActionResult ShowCityToast(string? cityId, string? cityName)
+        {
+            // Normalize
+            cityId = (cityId ?? "").Trim();
+            cityName = (string.IsNullOrWhiteSpace(cityName) ? null : cityName.Trim());
+
+            // Build message (fallbacks if missing)
+            var msg = (string.IsNullOrWhiteSpace(cityId) && string.IsNullOrWhiteSpace(cityName))
+                ? "No city selected"
+                : $"City: {cityName ?? "(unknown)"} ({cityId})";
+
+            TempData["Info"] = msg;
+
+            // Redirect back to the page (Sami) so Toastr in the layout/view can display the message
+            return RedirectToAction(nameof(Sami));
+        }
+
+
         public async Task<IActionResult> Sami()
         {
-
-            var form = new FormConfig
-            {
-                FormId = "dynamicForm",
-                Title = "نموذج الإدخال",
-                Method = "POST",
-                ActionUrl = "/AllComponentsDemo/ExecuteDemo",
-                SubmitText = "حفظ",
-                ResetText = "تفريغ",
-                ShowPanel = true,
-                ShowReset = true,
-                StoredProcedureName = "sp_SaveDemoForm",
-                Operation = "insert",
-                StoredSuccessMessageField = "Message",
-                StoredErrorMessageField = "Error",
-
-                Fields = new List<FieldConfig>
-                {
-                    // ========= البيانات الشخصية =========
-                    new FieldConfig
-                    {
-
-                        SectionTitle="البيانات",
-                        Name="FullName",
-                        Label="إدخال نص",
-                        Type="text",
-                        Required=true,
-                        Placeholder="حقل عربي فقط",
-                        Icon="fa-solid fa-user",
-                        ColCss="col-span-12 md:col-span-3",
-                        MaxLength=50,
-                        TextMode="arsentence",
-                    }
-                },
-                    
-                     Buttons = new List<FormButtonConfig>
-                {
-                    new FormButtonConfig
-                    {
-                        Text="طباعة",
-                        Icon="fa-solid fa-print",
-                        Type="button",
-                        Color="danger",
-                        OnClickJs="window.print();"
-                    },
-
-
-                    new FormButtonConfig
-                    {
-                        Text="رجوع",
-                        Icon="fa-solid fa-arrow-left",
-                        Type="button",
-                        Color="info",
-                        OnClickJs="history.back();"
-                    },
-
-                }
-            };
-
 
             if (string.IsNullOrWhiteSpace(HttpContext.Session.GetString("userID")))
                 return RedirectToAction("Index", "Login", new { logout = 1 });
@@ -141,27 +102,109 @@ namespace SmartFoundation.Mvc.Controllers
             bool canUpdateGN = false;
             bool canDelete = false;
 
-          //  List<OptionItem> cityOptions = new();
-
+            List<OptionItem> cityOptions = new();
+            FormConfig form = new();
             try
             {
 
 
                 //To make city options list for dropdownlist later
 
-                //if (ds != null && ds.Tables.Count > 1 && ds.Tables[1].Rows.Count > 0)
-                //{
-                //    var cityTable = ds.Tables[2];
+                if (ds != null && ds.Tables.Count > 1 && ds.Tables[1].Rows.Count > 0)
+                    {
+                        var cityTable = ds.Tables[2];
 
-                //    foreach (DataRow row in cityTable.Rows)
-                //    {
-                //        string value = row["cityID"]?.ToString()?.Trim() ?? "";
-                //        string text = row["cityName_A"]?.ToString()?.Trim() ?? "";
+                        foreach (DataRow row in cityTable.Rows)
+                        {
+                            string value = row["cityID"]?.ToString()?.Trim() ?? "";
+                            string text = row["cityName_A"]?.ToString()?.Trim() ?? "";
 
-                //        if (!string.IsNullOrEmpty(value))
-                //            cityOptions.Add(new OptionItem { Value = value, Text = text });
-                //    }
-                //}
+                            if (!string.IsNullOrEmpty(value))
+                                cityOptions.Add(new OptionItem { Value = value, Text = text });
+                        }
+                    }
+
+
+
+
+
+
+                 form = new FormConfig
+                {
+                    FormId = "dynamicForm",
+                    Title = "نموذج الإدخال",
+                    Method = "POST",
+                    ActionUrl = "/AllComponentsDemo/ExecuteDemo",
+                    SubmitText = "حفظ",
+                    ResetText = "تفريغ",
+                    ShowPanel = true,
+                    ShowReset = true,
+                    StoredProcedureName = "sp_SaveDemoForm",
+                    Operation = "insert",
+                    StoredSuccessMessageField = "Message",
+                    StoredErrorMessageField = "Error",
+
+                    Fields = new List<FieldConfig>
+                {
+                    // ========= البيانات الشخصية =========
+                    new FieldConfig
+                    {
+
+                        SectionTitle="البيانات",
+                        Name="FullName",
+                        Label="إدخال نص",
+                        Type="text",
+                        Required=true,
+                        Placeholder="حقل عربي فقط",
+                        Icon="fa-solid fa-user",
+                        ColCss="col-span-12 md:col-span-3",
+                        MaxLength=50,
+                        TextMode="arsentence",
+                    },
+                     new FieldConfig { Name = "City", Label = "المدينة", Type = "select",
+                            Options = cityOptions, ColCss = "6", Placeholder = "اختر المدينة", Icon = "fa fa-city" },
+                },
+
+                    Buttons = new List<FormButtonConfig>
+                {
+                    new FormButtonConfig
+                    {
+                        Text="طباعة",
+                        Icon="fa-solid fa-print",
+                        Type="button",
+                        Color="danger",
+                        OnClickJs="window.print();"
+                    },
+
+
+                    new FormButtonConfig
+                    {
+                        Text="رجوع",
+                        Icon="fa-solid fa-arrow-left",
+                        Type="button",
+                        Color="info",
+                        OnClickJs="history.back();"
+                    },
+                    new FormButtonConfig
+                {
+                    Text="تجربة",
+                    Icon="fa-solid fa-bullhorn",
+                    Type="button",
+                    Color="info",
+                    // Replace the OnClickJs of the "تجربة" button with this:
+                    OnClickJs = "(function(){"
+          + "var hidden=document.querySelector('input[name=City]');"
+          + "if(!hidden){toastr.error('لا يوجد حقل مدينة');return;}"
+          + "var v=hidden.value||'';"
+          + "var anchor=hidden.parentElement.querySelector('.sf-select');"
+          + "var t=anchor && anchor.querySelector('.truncate') ? anchor.querySelector('.truncate').textContent.trim() : '';"
+          + "var u='/Employees/ShowCityToast?cityId='+encodeURIComponent(v)+'&cityName='+encodeURIComponent(t);"
+          + "window.location.href=u;"
+          + "})();"
+                },
+
+                }
+                };
 
                 if (ds != null && ds.Tables.Count > 0 && ds.Tables[0].Rows.Count > 0)
                 {

@@ -185,6 +185,7 @@ namespace SmartFoundation.UI.ViewModels.SmartForm
         public string? ResetText { get; set; } = "تفريغ";
         public bool ShowPanel { get; set; } = true;
         public bool ShowReset { get; set; } = false;
+        public bool ShowSubmit { get; set; } = false;
         public string? StoredProcedureName { get; set; }
         public string? Operation { get; set; } = "insert";
         public string? StoredSuccessMessageField { get; set; } = "Message";
