@@ -129,6 +129,24 @@
                 }
             },
 
+            //setupEventListeners() {
+            //    document.addEventListener('keydown', (e) => {
+            //        if (e.key === 'Escape' && this.modal.open) {
+            //            this.closeModal();
+            //        }
+            //    });
+
+            //    // إغلاق المودال بزر "إلغاء"
+            //    document.addEventListener('click', (e) => {
+            //        const cancelBtn = e.target.closest('.sf-modal-cancel');
+            //        if (cancelBtn && this.modal.open) {
+            //            e.preventDefault();
+            //            this.closeModal();
+            //        }
+            //    });
+
+            //},
+
             setupEventListeners() {
                 document.addEventListener('keydown', (e) => {
                     if (e.key === 'Escape' && this.modal.open) {
@@ -144,8 +162,72 @@
                         this.closeModal();
                     }
                 });
-            
+
+                // === ربط القوائم المعتمدة على قائمة أخرى (DependsOn / DependsUrl)  ===
+                document.addEventListener('change', async (e) => {
+                    const parentSelect = e.target.closest('select');
+                    if (!parentSelect) return;
+
+                    const parentName = parentSelect.name;
+                    if (!parentName) return;
+
+                    const form = parentSelect.closest('form');
+                    if (!form) return;
+
+                    // كل القوائم التي تعتمد على هذا الحقل داخل نفس الفورم
+                    const dependentSelects = form.querySelectorAll(`select[data-depends-on="${parentName}"]`);
+
+                    for (const dependentSelect of dependentSelects) {
+                        const dependsUrl = dependentSelect.getAttribute('data-depends-url');
+                        if (!dependsUrl) continue;
+
+                        const parentValue = parentSelect.value;
+
+                        // حالة اختيار غير صالح
+                        if (!parentValue || parentValue === '-1') {
+                            dependentSelect.innerHTML = '<option value="-1">اختر الموزع أولاً</option>';
+                            return;
+                        }
+
+                        const originalHtml = dependentSelect.innerHTML;
+                        dependentSelect.innerHTML = '<option value="-1">جاري التحميل...</option>';
+                        dependentSelect.disabled = true;
+
+                        try {
+                            const url = `${dependsUrl}?${encodeURIComponent(parentName)}=${encodeURIComponent(parentValue)}`;
+
+                            const response = await fetch(url);
+                            if (!response.ok) {
+                                throw new Error(`HTTP ${response.status}`);
+                            }
+
+                            const data = await response.json();
+
+                            dependentSelect.innerHTML = '';
+
+                            if (Array.isArray(data) && data.length > 0) {
+                                data.forEach(item => {
+                                    const option = document.createElement('option');
+                                    // اسماء الخصائص كما ترجع من الأكشن: value / text
+                                    option.value = item.value;
+                                    option.textContent = item.text;
+                                    dependentSelect.appendChild(option);
+                                });
+                            } else {
+                                dependentSelect.innerHTML = '<option value="-1">لا توجد خيارات متاحة</option>';
+                            }
+
+                        } catch (error) {
+                            console.error('Error loading dependent options:', error);
+                            dependentSelect.innerHTML = originalHtml;
+                            this.showToast('فشل تحميل الخيارات: ' + error.message, 'error');
+                        } finally {
+                            dependentSelect.disabled = false;
+                        }
+                    }
+                });
             },
+
 
 
             async load() {
@@ -639,6 +721,7 @@
                         <div class="form-group ${colCss}">
                             <label class="block text-sm font-medium text-gray-700 mb-1">
                                 ${this.escapeHtml(field.label)} ${field.required ? '<span class="text-red-500">*</span>' : ''}
+
                             </label>
                             <input type="${field.type || 'text'}" name="${this.escapeHtml(field.name)}" 
                                    value="${this.escapeHtml(value)}" 
@@ -654,6 +737,7 @@
                         <div class="form-group ${colCss}">
                             <label class="block text-sm font-medium text-gray-700 mb-1">
                                 ${this.escapeHtml(field.label)} ${field.required ? '<span class="text-red-500">*</span>' : ''}
+
                             </label>
                             <textarea name="${this.escapeHtml(field.name)}" rows="${rows}"
                                      class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -668,24 +752,40 @@
                             options += `<option value="">${field.placeholder || 'اختر...'}</option>`;
                         }
                         (field.options || []).forEach(opt => {
-                            const selected = String(value) === String(opt.value) ? "selected" : "";
-                            const optDisabled = opt.disabled ? "disabled" : "";
-                            options += `<option value="${this.escapeHtml(opt.value)}" ${selected} ${optDisabled}>${this.escapeHtml(opt.text)}</option>`;
+                            const optValue = opt.value ?? opt.Value ?? "";
+                            const optText = opt.text ?? opt.Text ?? "";
+                            const optDisabled = (opt.disabled ?? opt.Disabled) ? "disabled" : "";
+                            const selected = String(value) === String(optValue) ? "selected" : "";
+
+                            options += `<option value="${this.escapeHtml(optValue)}" ${selected} ${optDisabled}>${this.escapeHtml(optText)}</option>`;
                         });
-                        
+
+                        let onChangeHandler = field.onChangeJs || "";
+
+                        if (field.dependsUrl && field.dependsOn) {
+                            // لا نضيف onchange هنا لأن المعالجة عامة في setupEventListeners
+                        } else if (onChangeHandler && !field.dependsUrl) {
+                            onChangeHandler = `${onChangeHandler}`;
+                        }
+
+                        const onChangeAttr = onChangeHandler ? `onchange="${this.escapeHtml(onChangeHandler)}"` : "";
+                        const dependsOnAttr = field.dependsOn ? `data-depends-on="${this.escapeHtml(field.dependsOn)}"` : "";
+                        const dependsUrlAttr = field.dependsUrl ? `data-depends-url="${this.escapeHtml(field.dependsUrl)}"` : "";
+
                         fieldHtml = `
-                        <div class="form-group ${colCss}">
-                            <label class="block text-sm font-medium text-gray-700 mb-1">
-                                ${this.escapeHtml(field.label)} ${field.required ? '<span class="text-red-500">*</span>' : ''}
-                            </label>
-                            <select name="${this.escapeHtml(field.name)}" 
-                                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                   ${required} ${disabled}>
-                                ${options}
-                            </select>
-                            ${field.helpText ? `<p class="mt-1 text-xs text-gray-500">${this.escapeHtml(field.helpText)}</p>` : ''}
-                        </div>`;
+    <div class="form-group ${colCss}">
+        <label class="block text-sm font-medium text-gray-700 mb-1">
+            ${this.escapeHtml(field.label)} ${field.required ? '<span class="text-red-500">*</span>' : ''}
+        </label>
+        <select name="${this.escapeHtml(field.name)}" 
+                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                ${required} ${disabled} ${onChangeAttr} ${dependsOnAttr} ${dependsUrlAttr}>
+            ${options}
+        </select>
+        ${field.helpText ? `<p class="mt-1 text-xs text-gray-500">${this.escapeHtml(field.helpText)}</p>` : ''}
+    </div>`;
                         break;
+
                         
                     case "checkbox":
                         const checked = value === true || value === "true" || value === "1" || value === 1 ? "checked" : "";
@@ -702,12 +802,85 @@
                             ${field.helpText ? `<p class="mt-1 text-xs text-gray-500">${this.escapeHtml(field.helpText)}</p>` : ''}
                         </div>`;
                         break;
+
+                          //case "date":
+                          //  {
+                          //      var inputId = field.Name;
+                          //      var mirrorId = $"{field.Name}__mirror";
+                          //      var hasIcon = !string.IsNullOrWhiteSpace(field.Icon);
+                          //      var inputCss = $"sf-date text-right {(hasIcon ? "pl-10" : "")} {field.ExtraCss}";
+                          //      var placeholder = field.Placeholder
+                          //          ?? ((field.DisplayFormat ?? "yyyy-mm-dd").ToLower() == "yyyy-mm-dd"
+                          //              ? "YYYY-MM-DD"
+                          //              : field.DisplayFormat);
+
+                          //      fieldHtml = `
+                          //      <div class="form-group ${colCss} relative">
+                          //          <label class="block text-sm font-medium text-gray-700 mb-1">
+                          //              ${this.escapeHtml(field.label)} ${field.required ? '<span class="text-red-500">*</span>' : ''}
+                          //          </label>
+                          //          ${hasIcon ? `
+                          //          <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none" style="top: 28px;">
+                          //              <i class="${this.escapeHtml(field.icon)} text-gray-400 text-md"></i>
+                          //          </div>
+                          //          ` : ''}
+                          //          <input type="text"
+                          //                 id="${this.escapeHtml(inputId)}"
+                          //                 name="${this.escapeHtml(field.name)}"
+                          //                 value="${this.escapeHtml(value)}"
+                          //                 placeholder="${this.escapeHtml(placeholder)}"
+                          //                 inputmode="numeric"
+                          //                 style="direction:ltr; text-align:right"
+                          //                 autocomplete="off" 
+                          //                 spellcheck="false" 
+                          //                 autocapitalize="none" 
+                          //                 autocorrect="off"
+                          //                 class="${inputCss}"
+                          //                 pattern="^\\d{4}-\\d{2}-\\d{2}$"
+                          //                 data-role="sf-date"
+                          //                 data-date-format="${this.escapeHtml(field.DisplayFormat ?? 'yyyy-mm-dd')}"
+                          //                 data-manual-order="dmy"
+                          //                 data-calendar="${this.escapeHtml(field.Calendar ?? 'gregorian')}"
+                          //                 data-input-calendar="${this.escapeHtml(field.DateInputCalendar ?? 'gregorian')}"
+                          //                 data-display-lang="${this.escapeHtml(field.DateDisplayLang ?? 'ar')}"
+                          //                 data-numerals="${this.escapeHtml(field.DateNumerals ?? 'arabic')}"
+                          //                 data-show-day-name="@(field.ShowDayName.ToString().ToLower())"
+                          //                 data-default-today="@(field.DefaultToday.ToString().ToLower())"
+                          //                 data-min-date="${this.escapeHtml(field.MinDateStr ?? '')}"
+                          //                 data-max-date="${this.escapeHtml(field.MaxDateStr ?? '')}"
+                          //                 data-mirror-name="${this.escapeHtml(field.MirrorName ?? '')}"
+                          //                 data-mirror-calendar="${this.escapeHtml(field.MirrorCalendar ?? 'hijri')}"
+                          //                 ${required} ${disabled} ${readonly}>
+
+                          //          @if (!string.IsNullOrWhiteSpace(field.MirrorName))
+                          //          {
+                          //              <input type="hidden" id="${this.escapeHtml(mirrorId)}" name="${this.escapeHtml(field.MirrorName)}" value="" />
+                          //          }
+                          //          <div id="${this.escapeHtml(inputId)}__info" class="mt-2">
+                          //              <div class="date-info-box">
+                          //                  <div class="flex items-center gap-1 text-xs text-gray-500">
+                          //                      <i class="fa-regular fa-calendar"></i>
+                          //                      <span>الميلادي:</span>
+                          //                      <span data-greg-full>—</span>
+                          //                  </div>
+                          //                  <div class="flex items-center gap-1 mt-1 text-xs text-gray-500">
+                          //                      <i class="fa-regular fa-moon"></i>
+                          //                      <span>الهجري:</span>
+                          //                      <span data-hijri-full>—</span>
+                          //                  </div>
+                          //              </div>
+                          //          </div>
+                          //          ${field.helpText ? `<p class="mt-1 text-xs text-gray-500">${this.escapeHtml(field.helpText)}</p>` : ''}
+                          //      </div>`;
+                          //  }
+                          //  break;
                         
                     case "date":
                         fieldHtml = `
                         <div class="form-group ${colCss}">
                             <label class="block text-sm font-medium text-gray-700 mb-1">
                                 ${this.escapeHtml(field.label)} ${field.required ? '<span class="text-red-500">*</span>' : ''}
+
                             </label>
                             <input type="date" name="${this.escapeHtml(field.name)}" 
                                    value="${this.escapeHtml(value)}" 
@@ -725,6 +898,7 @@
                         <div class="form-group ${colCss}">
                             <label class="block text-sm font-medium text-gray-700 mb-1">
                                 ${this.escapeHtml(field.label)} ${field.required ? '<span class="text-red-500">*</span>' : ''}
+
                             </label>
                             <input type="number" name="${this.escapeHtml(field.name)}" 
                                    value="${this.escapeHtml(value)}" 
@@ -740,6 +914,7 @@
                         <div class="form-group ${colCss}">
                             <label class="block text-sm font-medium text-gray-700 mb-1">
                                 ${this.escapeHtml(field.label)} ${field.required ? '<span class="text-red-500">*</span>' : ''}
+
                             </label>
                             <input type="tel" name="${this.escapeHtml(field.name)}" 
                                    value="${this.escapeHtml(value)}" 
@@ -754,6 +929,7 @@
                         <div class="form-group ${colCss}">
                             <label class="block text-sm font-medium text-gray-700 mb-1">
                                 ${this.escapeHtml(field.label)} ${field.required ? '<span class="text-red-500">*</span>' : ''}
+
                             </label>
                             <input type="text" name="${this.escapeHtml(field.name)}" 
                                    value="${this.escapeHtml(value)}" 
@@ -769,6 +945,7 @@
                         <div class="form-group ${colCss}">
                             <label class="block text-sm font-medium text-gray-700 mb-1">
                                 ${this.escapeHtml(field.label)} ${field.required ? '<span class="text-red-500">*</span>' : ''}
+
                             </label>
                             <input type="text" name="${this.escapeHtml(field.name)}" 
                                    value="${this.escapeHtml(value)}" 
@@ -801,16 +978,78 @@
                         e.preventDefault();
                         this.saveModalChanges();
                     });
+                    
+                    // Set up dependent dropdowns
+                    this.setupDependentDropdowns(form);
                 }
+            },
 
-                // زر الإلغاء
-                //const cancelBtn = this.$el.querySelector('.sf-modal .sf-modal-cancel');
-                //if (cancelBtn) {
-                //    cancelBtn.addEventListener('click', () => {
-                //        this.closeModal();
-                //    });
-                //}
-            
+            setupDependentDropdowns(form) {
+                // Find all selects with data-depends-on attribute
+                const dependentSelects = form.querySelectorAll('select[data-depends-on]');
+                
+                dependentSelects.forEach(dependentSelect => {
+                    const parentFieldName = dependentSelect.getAttribute('data-depends-on');
+                    const dependsUrl = dependentSelect.getAttribute('data-depends-url');
+                    
+                    if (!parentFieldName || !dependsUrl) return;
+                    
+                    // Find the parent select
+                    const parentSelect = form.querySelector(`select[name="${parentFieldName}"]`);
+                    if (!parentSelect) {
+                        console.warn(`Parent select not found: ${parentFieldName}`);
+                        return;
+                    }
+                    
+                    // Attach change handler to parent
+                    parentSelect.addEventListener('change', async (e) => {
+                        const parentValue = e.target.value;
+                        
+                        // Show loading state
+                        const originalHtml = dependentSelect.innerHTML;
+                        dependentSelect.innerHTML = '<option value="-1">جاري التحميل...</option>';
+                        dependentSelect.disabled = true;
+                        
+                        try {
+                            // Build URL with parent value
+                            const url = `${dependsUrl}?${parentFieldName}=${encodeURIComponent(parentValue)}`;
+                            
+                            // Fetch new options
+                            const response = await fetch(url);
+                            if (!response.ok) {
+                                throw new Error(`HTTP ${response.status}`);
+                            }
+                            
+                            const data = await response.json();
+                            
+                            // Rebuild options
+                            dependentSelect.innerHTML = '';
+                            
+                            if (Array.isArray(data) && data.length > 0) {
+                                data.forEach(item => {
+                                    const option = document.createElement('option');
+                                    option.value = item.value;
+                                    option.textContent = item.text;
+                                    dependentSelect.appendChild(option);
+                                });
+                            } else {
+                                dependentSelect.innerHTML = '<option value="-1">لا توجد خيارات متاحة</option>';
+                            }
+                            
+                        } catch (error) {
+                            console.error('Error loading dependent options:', error);
+                            dependentSelect.innerHTML = originalHtml;
+                            this.showToast('فشل تحميل الخيارات: ' + error.message, 'error');
+                        } finally {
+                            dependentSelect.disabled = false;
+                        }
+                    });
+                    
+                    // Trigger initial load if parent has value
+                    if (parentSelect.value && parentSelect.value !== '' && parentSelect.value !== '-1') {
+                        parentSelect.dispatchEvent(new Event('change'));
+                    }
+                });
             },
 
             async saveModalChanges() {
@@ -1186,6 +1425,16 @@
         document.addEventListener("alpine:init", register);
     }
 })();
+
+
+
+
+
+
+
+
+
+
 
 
 

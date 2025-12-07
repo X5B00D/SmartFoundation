@@ -21,12 +21,12 @@ public static class ServiceCollectionExtensions
 
     // TODO: Uncomment these lines when the concrete service classes are created:
     services.AddScoped<EmployeeService>();
-    services.AddScoped<MenuService>();
     services.AddScoped<DashboardService>();
+    services.AddScoped<MastersServies>();
 
-    // Add more services as they are created:
-    // services.AddScoped<YourNewService>();
+        // Add more services as they are created:
+        // services.AddScoped<YourNewService>();
 
-    return services;
+        return services;
   }
 }

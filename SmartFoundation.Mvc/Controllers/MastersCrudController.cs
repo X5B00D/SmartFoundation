@@ -8,11 +8,11 @@ namespace SmartFoundation.Mvc.Controllers
     [Route("crud")]
     public class MastersCrudController : Controller
     {
-        private readonly MastersCrudServies _mastersCrudServies;
+        private readonly MastersServies _mastersServies;
 
-        public MastersCrudController(MastersCrudServies mastersCrudServies)
+        public MastersCrudController(MastersServies mastersCrudServies)
         {
-            _mastersCrudServies = mastersCrudServies;
+            _mastersServies = mastersCrudServies;
         }
 
         // REMOVE any TempData like: CrudMessageType, CrudMessage, InsertMessage, UpdateMessage, DeleteMessage, CrudError.
@@ -123,7 +123,7 @@ namespace SmartFoundation.Mvc.Controllers
                         ? val.ToString() : DBNull.Value;
                 }
 
-                var ds = await _mastersCrudServies.GetCrudDataSetAsync(parameters);
+                var ds = await _mastersServies.GetCrudDataSetAsync(parameters);
                 var (code, message) = ExtractResult(ds);
                 SetToastTempData(code, message);
 
@@ -174,7 +174,7 @@ namespace SmartFoundation.Mvc.Controllers
                         ? val.ToString() : DBNull.Value;
                 }
 
-                var ds = await _mastersCrudServies.GetCrudDataSetAsync(parameters);
+                var ds = await _mastersServies.GetCrudDataSetAsync(parameters);
                 var (code, message) = ExtractResult(ds);
                 SetToastTempData(code, message);
 
@@ -225,7 +225,7 @@ namespace SmartFoundation.Mvc.Controllers
                         ? val.ToString() : DBNull.Value;
                 }
 
-                var ds = await _mastersCrudServies.GetCrudDataSetAsync(parameters);
+                var ds = await _mastersServies.GetCrudDataSetAsync(parameters);
                 var (code, message) = ExtractResult(ds);
                 SetToastTempData(code, message);
 

@@ -11,11 +11,12 @@ namespace SmartFoundation.Mvc.ViewComponents
 {
     public class MenuItemsViewComponent : ViewComponent
     {
-        private readonly MenuService _menuService;
+        private readonly MastersServies _mastersServies;
 
-        public MenuItemsViewComponent(MenuService menuService)
+
+        public MenuItemsViewComponent(MastersServies mastersServies)
         {
-            _menuService = menuService;
+            _mastersServies = mastersServies;
         }
 
         public async Task<IViewComponentResult> InvokeAsync()
@@ -27,7 +28,7 @@ namespace SmartFoundation.Mvc.ViewComponents
                 { "generalNo", generalNo }
             };
 
-            var jsonResult = await _menuService.GetUserMenu(parameters);
+            var jsonResult = await _mastersServies.GetUserMenu(parameters);
             var response = JsonSerializer.Deserialize<JsonElement>(jsonResult);
 
             var menuItems = response.GetProperty("success").GetBoolean()

@@ -12,12 +12,12 @@ namespace SmartFoundation.Mvc.Controllers
 {
     public class LoginController : Controller
     {
-        private readonly AuthDataLoadService _auth;
-        
+        private readonly MastersServies _mastersServies;
 
-        public LoginController(AuthDataLoadService auth)
+
+        public LoginController(MastersServies mastersServies)
         {
-            _auth = auth;
+            _mastersServies = mastersServies;
         }
 
         private static readonly Dictionary<string, string> _dnsCache = new(StringComparer.OrdinalIgnoreCase);
@@ -101,7 +101,7 @@ namespace SmartFoundation.Mvc.Controllers
             try
             {
                 //ds = await _auth.GetLoginDataSetAsync(username.Trim(), password, Request.Host.Value);
-                ds = await _auth.GetLoginDataSetAsync(spParameters);
+                ds = await _mastersServies.GetLoginDataSetAsync(spParameters);
             }
             catch
             {
@@ -110,7 +110,7 @@ namespace SmartFoundation.Mvc.Controllers
                 return RedirectToAction(nameof(Index));
             }
 
-            var auth = _auth.ExtractAuth(ds);
+            var auth = _mastersServies.ExtractAuth(ds);
 
             if (auth.useractive == 0)
             {

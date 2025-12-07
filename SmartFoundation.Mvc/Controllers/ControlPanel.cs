@@ -21,15 +21,15 @@ namespace SmartFoundation.Mvc.Controllers
     public class ControlPanel : Controller
     {
 
-        private readonly MastersDataLoadService _mastersDataLoadService;
-        private readonly MastersCrudServies _mastersCrudServies;
+       // private readonly MastersDataLoadService _mastersDataLoadService;
+        private readonly MastersServies _mastersServies;
 
 
 
-        public ControlPanel(MastersDataLoadService mastersDataLoadService, MastersCrudServies mastersCrudServies)
+        public ControlPanel(MastersServies mastersServies)
         {
-            _mastersDataLoadService = mastersDataLoadService;
-            _mastersCrudServies = mastersCrudServies;
+           // _mastersDataLoadService = mastersDataLoadService;
+            _mastersServies = mastersServies;
 
         }
 
@@ -99,7 +99,7 @@ namespace SmartFoundation.Mvc.Controllers
             var dynamicColumns = new List<TableColumn>();
 
 
-            ds = await _mastersDataLoadService.GetDataLoadDataSetAsync(spParameters);
+            ds = await _mastersServies.GetDataLoadDataSetAsync(spParameters);
 
 
             string? Q1 = Request.Query["Q1"].FirstOrDefault();
@@ -501,26 +501,22 @@ new FieldConfig
     Type = "select",
     Options = distributorOptions,
     ColCss = "3",
-    Required = true,
-    OnChangeJs = "alert('تم تغيير الموزع');"
+    Required = true
 },
-
 
 new FieldConfig
 {
     Name = "p02",
     Label = "الصلاحية",
     Type = "select",
-    Options =permissionsOptions,
-    //new List<OptionItem> { new OptionItem { Value = "-1", Text = "اختر الموزع أولاً" } }, // Initial empty state
+    Options = new List<OptionItem> { new OptionItem { Value = "-1", Text = "اختر الموزع أولاً" } }, // Initial empty state
     ColCss = "3",
     Required = true,
-    DependsOn = "",              // When p01 changes, fetch new options
-    DependsUrl = null // Endpoint expects ?distributorId={p01value}
+    DependsOn = "p01",              // When p01 changes, fetch new options
+    DependsUrl = "/ControlPanel/PermissionsByDistributor" // Endpoint that returns filtered options
 },
 
-                new FieldConfig { Name = "p03", Label = "اسم المبنى بالانجليزي", Type = "text", ColCss = "3" , Required = true},
-                new FieldConfig { Name = "p04", Label = "ملاحظات", Type = "text", ColCss = "3", Required = false }
+                new FieldConfig { Name = "p03", Label = "ملاحظات", Type = "date", ColCss = "3", Required = false }
             };
 
 
@@ -537,7 +533,7 @@ new FieldConfig
 
             // Optional: help the generic endpoint know where to go back
             addFields.Insert(0, new FieldConfig { Name = "redirectAction", Type = "hidden", Value = nameof(Permission) });
-            addFields.Insert(0, new FieldConfig { Name = "redirectController", Type = "hidden", Value = "Employees" });
+            addFields.Insert(0, new FieldConfig { Name = "redirectController", Type = "hidden", Value = "ControlPanel" });
 
 
 
@@ -724,13 +720,13 @@ new FieldConfig
                 return Unauthorized();
 
             if (!int.TryParse(p01, out int distributorId) || distributorId == -1)
-                return Json(new List<object> { new { value = "-1", text = "اختر الموزع أولاً" } });
+                return Json(new List<object> { new { value = "-1", text = "الرجاء الاختيار" } });
 
             int userID = Convert.ToInt32(HttpContext.Session.GetString("userID"));
             int IdaraID = Convert.ToInt32(HttpContext.Session.GetString("IdaraID"));
             string HostName = HttpContext.Session.GetString("HostName");
 
-            var ds = await _mastersDataLoadService.GetDataLoadDataSetAsync("Permission", IdaraID, userID, HostName);
+            var ds = await _mastersServies.GetDataLoadDataSetAsync("Permission", IdaraID, userID, HostName);
             var table = (ds?.Tables?.Count ?? 0) > 4 ? ds.Tables[4] : null;
 
             var items = new List<object>();
@@ -755,35 +751,6 @@ new FieldConfig
             return Json(items);
         }
 
-        [HttpPost]
-        [IgnoreAntiforgeryToken] // Add this to bypass anti-forgery validation for this endpoint
-        public IActionResult NotifyDistributorChange([FromBody] DistributorChangeRequest request)
-        {
-            if (string.IsNullOrWhiteSpace(request.DistributorId) || request.DistributorId == "-1")
-            {
-                return Json(new
-                {
-                    success = false,
-                    message = "الرجاء اختيار الموزع",
-                    type = "warning"
-                });
-            }
-
-            // You can add more server-side logic here
-            // For example: log the selection, update database, etc.
-
-            return Json(new
-            {
-                success = true,
-                message = $"تم اختيار الموزع: {request.DistributorName}",
-                type = "success"
-            });
-        }
-
-        public class DistributorChangeRequest
-        {
-            public string DistributorId { get; set; } = "";
-            public string DistributorName { get; set; } = "";
-        }
+        
     }
 }

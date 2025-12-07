@@ -12,8 +12,8 @@ namespace SmartFoundation.Mvc.Controllers
     public class AllComponentsDemoController : Controller
     {
         [HttpGet("")]
-        [HttpGet("Index")]
-        public IActionResult Index()
+        [HttpGet("Form")]
+        public IActionResult Form()
 
         {
             var form = new FormConfig
@@ -386,6 +386,17 @@ new FieldConfig
                         Name="AgreeTerms",
                         Label="أوافق على الشروط والأحكام",
                         Type="checkbox",
+                        Required=true,
+                        Icon="fa-solid fa-check",
+                        ColCss="col-span-12 md:col-span-3"
+                    },
+
+                    new FieldConfig
+                    {
+                        SectionTitle="رفع صورة",
+                        Name="Emg",
+                        Label="أوافق على الشروط والأحكام",
+                        Type="file",
                         Required=true,
                         Icon="fa-solid fa-check",
                         ColCss="col-span-12 md:col-span-3"

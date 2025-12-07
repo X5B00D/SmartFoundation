@@ -16,13 +16,13 @@ namespace SmartFoundation.Mvc.Controllers
     public class HousingController : Controller
     {
 
-        private readonly MastersDataLoadService _mastersDataLoadService;
-        private readonly MastersCrudServies _mastersCrudServies;
+        
+        private readonly MastersServies _mastersServies;
 
-        public HousingController(MastersDataLoadService mastersDataLoadService, MastersCrudServies mastersCrudServies)
+        public HousingController( MastersServies mastersServies)
         {
-            _mastersDataLoadService = mastersDataLoadService;
-            _mastersCrudServies = mastersCrudServies;
+            
+            _mastersServies = mastersServies;
 
         }
 
@@ -58,7 +58,7 @@ namespace SmartFoundation.Mvc.Controllers
             var dynamicColumns = new List<TableColumn>();
 
 
-            ds = await _mastersDataLoadService.GetDataLoadDataSetAsync(spParameters);
+            ds = await _mastersServies.GetDataLoadDataSetAsync(spParameters);
 
             DataTable? permissionTable = (ds?.Tables?.Count ?? 0) > 0 ? ds.Tables[0] : null;
             DataTable? dt1 = (ds?.Tables?.Count ?? 0) > 1 ? ds.Tables[1] : null;
@@ -447,7 +447,7 @@ namespace SmartFoundation.Mvc.Controllers
             var dynamicColumns = new List<TableColumn>();
 
 
-            ds = await _mastersDataLoadService.GetDataLoadDataSetAsync(spParameters);
+            ds = await _mastersServies.GetDataLoadDataSetAsync(spParameters);
 
             DataTable? permissionTable = (ds?.Tables?.Count ?? 0) > 0 ? ds.Tables[0] : null;
             DataTable? dt1 = (ds?.Tables?.Count ?? 0) > 1 ? ds.Tables[1] : null;

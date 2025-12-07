@@ -11,11 +11,13 @@ namespace SmartFoundation.Mvc.Controllers
     
     public class EmployeesSamiController : Controller
     {
-        private readonly MastersDataLoadService _mastersDataLoadService;
+       
+        private readonly MastersServies _mastersServies;
 
-        public EmployeesSamiController(MastersDataLoadService mastersDataLoadService)
+        public EmployeesSamiController(MastersServies mastersServies)
         {
-            _mastersDataLoadService = mastersDataLoadService;
+           
+            _mastersServies = mastersServies;
         }
 
         [HttpGet]
@@ -30,7 +32,7 @@ namespace SmartFoundation.Mvc.Controllers
 
             try
             {
-                ds = await _mastersDataLoadService.GetDataLoadDataSetAsync(spParameters);
+                ds = await _mastersServies.GetDataLoadDataSetAsync(spParameters);
 
                 // صلاحيات من الجدول 0
                 if (ds != null && ds.Tables.Count > 0 && ds.Tables[0].Rows.Count > 0)
