@@ -11,14 +11,14 @@ namespace SmartFoundation.Application.Tests.Services;
 public class MenuServiceTests
 {
   private readonly Mock<ISmartComponentService> _mockDataEngine;
-  private readonly Mock<ILogger<MenuService>> _mockLogger;
-  private readonly MenuService _service;
+  private readonly Mock<ILogger<MastersServies>> _mockLogger;
+  private readonly MastersServies _service;
 
   public MenuServiceTests()
   {
     _mockDataEngine = new Mock<ISmartComponentService>();
-    _mockLogger = new Mock<ILogger<MenuService>>();
-    _service = new MenuService(_mockDataEngine.Object, _mockLogger.Object);
+    _mockLogger = new Mock<ILogger<MastersServies>>();
+    _service = new MastersServies(_mockDataEngine.Object, _mockLogger.Object);
   }
 
   [Fact]

@@ -513,7 +513,8 @@ new FieldConfig
     ColCss = "3",
     Required = true,
     DependsOn = "p01",              // When p01 changes, fetch new options
-    DependsUrl = "/ControlPanel/PermissionsByDistributor" // Endpoint that returns filtered options
+    DependsUrl = "/crud/PermissionsByDistributor" // Endpoint that returns filtered options
+    //DependsUrl = "/crud/permissions-by-distributor?FK=distributorID_FK&textcol=permissionTypeName_A&ValueCol=distributorPermissionTypeID"
 },
 
                 new FieldConfig { Name = "p03", Label = "ملاحظات", Type = "date", ColCss = "3", Required = false }
@@ -713,43 +714,45 @@ new FieldConfig
 
 
         // Add an endpoint that returns permissions options filtered by distributorID_FK
-        [HttpGet]
-        public async Task<IActionResult> PermissionsByDistributor(string p01) // Changed from int distributorId
-        {
-            if (string.IsNullOrWhiteSpace(HttpContext.Session.GetString("userID")))
-                return Unauthorized();
+        //[HttpGet]
+        //public async Task<IActionResult> PermissionsByDistributor1(string p01) // Changed from int distributorId
+        //{
 
-            if (!int.TryParse(p01, out int distributorId) || distributorId == -1)
-                return Json(new List<object> { new { value = "-1", text = "الرجاء الاختيار" } });
+            
+        //    if (string.IsNullOrWhiteSpace(HttpContext.Session.GetString("userID")))
+        //        return Unauthorized();
 
-            int userID = Convert.ToInt32(HttpContext.Session.GetString("userID"));
-            int IdaraID = Convert.ToInt32(HttpContext.Session.GetString("IdaraID"));
-            string HostName = HttpContext.Session.GetString("HostName");
+        //    if (!int.TryParse(p01, out int distributorId) || distributorId == -1)
+        //        return Json(new List<object> { new { value = "-1", text = "الرجاء الاختيار" } });
 
-            var ds = await _mastersServies.GetDataLoadDataSetAsync("Permission", IdaraID, userID, HostName);
-            var table = (ds?.Tables?.Count ?? 0) > 4 ? ds.Tables[4] : null;
+        //    int userID = Convert.ToInt32(HttpContext.Session.GetString("userID"));
+        //    int IdaraID = Convert.ToInt32(HttpContext.Session.GetString("IdaraID"));
+        //    string HostName = HttpContext.Session.GetString("HostName");
 
-            var items = new List<object>();
-            if (table is not null && table.Rows.Count > 0 && table.Columns.Contains("distributorID_FK"))
-            {
-                foreach (DataRow row in table.Rows)
-                {
-                    var fk = row["distributorID_FK"]?.ToString()?.Trim();
-                    if (fk == distributorId.ToString())
-                    {
-                        var value = row["distributorPermissionTypeID"]?.ToString()?.Trim() ?? "";
-                        var text = row["permissionTypeName_A"]?.ToString()?.Trim() ?? "";
-                        if (!string.IsNullOrEmpty(value))
-                            items.Add(new { value, text });
-                    }
-                }
-            }
+        //    var ds = await _mastersServies.GetDataLoadDataSetAsync("Permission", IdaraID, userID, HostName);
+        //    var table = (ds?.Tables?.Count ?? 0) > 4 ? ds.Tables[4] : null;
 
-            if (!items.Any())
-                items.Add(new { value = "-1", text = "لا توجد صلاحيات لهذا الموزع" });
+        //    var items = new List<object>();
+        //    if (table is not null && table.Rows.Count > 0 && table.Columns.Contains("distributorID_FK"))
+        //    {
+        //        foreach (DataRow row in table.Rows)
+        //        {
+        //            var fk = row["distributorID_FK"]?.ToString()?.Trim();
+        //            if (fk == distributorId.ToString())
+        //            {
+        //                var value = row["distributorPermissionTypeID"]?.ToString()?.Trim() ?? "";
+        //                var text = row["permissionTypeName_A"]?.ToString()?.Trim() ?? "";
+        //                if (!string.IsNullOrEmpty(value))
+        //                    items.Add(new { value, text });
+        //            }
+        //        }
+        //    }
 
-            return Json(items);
-        }
+        //    if (!items.Any())
+        //        items.Add(new { value = "-1", text = "لا توجد صلاحيات لهذا الموزع" });
+
+        //    return Json(items);
+        //}
 
         
     }

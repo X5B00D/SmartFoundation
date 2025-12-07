@@ -6,11 +6,11 @@ using System.Linq;
 namespace SmartFoundation.Mvc.Controllers
 {
     [Route("crud")]
-    public class MastersCrudController : Controller
+    public class CrudController : Controller
     {
         private readonly MastersServies _mastersServies;
 
-        public MastersCrudController(MastersServies mastersCrudServies)
+        public CrudController(MastersServies mastersCrudServies)
         {
             _mastersServies = mastersCrudServies;
         }
@@ -245,6 +245,49 @@ namespace SmartFoundation.Mvc.Controllers
                 if (!string.IsNullOrWhiteSpace(referer)) return Redirect(referer);
                 return RedirectToAction("Index", "Home");
             }
+        }
+
+
+
+        [HttpGet("PermissionsByDistributor")]
+        public async Task<IActionResult> PermissionsByDistributor(
+        string? p01, string? FK, string? textcol, string? ValueCol, int tableIndex = 4)
+        {
+
+
+            if (string.IsNullOrWhiteSpace(HttpContext.Session.GetString("userID")))
+                return Unauthorized();
+
+            if (!int.TryParse(p01, out int distributorId) || distributorId == -1)
+                return Json(new List<object> { new { value = "-1", text = "الرجاء الاختيار" } });
+
+            int userID = Convert.ToInt32(HttpContext.Session.GetString("userID"));
+            int IdaraID = Convert.ToInt32(HttpContext.Session.GetString("IdaraID"));
+            string HostName = HttpContext.Session.GetString("HostName");
+
+            var ds = await _mastersServies.GetDataLoadDataSetAsync("Permission", IdaraID, userID, HostName);
+            var table = (ds?.Tables?.Count ?? 0) > 4 ? ds.Tables[4] : null;
+
+            var items = new List<object>();
+            if (table is not null && table.Rows.Count > 0 && table.Columns.Contains("distributorID_FK"))
+            {
+                foreach (DataRow row in table.Rows)
+                {
+                    var fk = row["distributorID_FK"]?.ToString()?.Trim();
+                    if (fk == distributorId.ToString())
+                    {
+                        var value = row["distributorPermissionTypeID"]?.ToString()?.Trim() ?? "";
+                        var text = row["permissionTypeName_A"]?.ToString()?.Trim() ?? "";
+                        if (!string.IsNullOrEmpty(value))
+                            items.Add(new { value, text });
+                    }
+                }
+            }
+
+            if (!items.Any())
+                items.Add(new { value = "-1", text = "لا توجد صلاحيات لهذا الموزع" });
+
+            return Json(items);
         }
     }
 }

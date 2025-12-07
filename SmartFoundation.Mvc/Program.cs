@@ -16,7 +16,7 @@ builder.Services.AddControllersWithViews()
 builder.Services.AddDistributedMemoryCache();
 builder.Services.AddSession(o =>
 {
-    o.IdleTimeout = TimeSpan.FromMinutes(3); // 10-minute inactivity on server side
+    o.IdleTimeout = TimeSpan.FromMinutes(10); // 10-minute inactivity on server side
     o.Cookie.HttpOnly = true;
     o.Cookie.IsEssential = true;
 });
@@ -41,6 +41,8 @@ app.UseRouting();
 app.UseSession();
 // (Optional: your existing guard middleware here)
 app.UseAuthorization();
+
+app.MapControllers();
 
 app.MapControllerRoute(
     name: "default",
