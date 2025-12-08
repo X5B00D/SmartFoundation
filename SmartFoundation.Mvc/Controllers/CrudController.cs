@@ -249,35 +249,38 @@ namespace SmartFoundation.Mvc.Controllers
 
 
 
-        [HttpGet("PermissionsByDistributor")]
-        public async Task<IActionResult> PermissionsByDistributor(
-        string? p01, string? FK, string? textcol, string? ValueCol, int tableIndex = 4)
+        [HttpGet("DDLFiltered")]
+        public async Task<IActionResult> DDLFiltered(
+        string? DDlValues, string? FK, string? textcol, string? ValueCol, string? TableIndex,string? PageName)
         {
 
+            int TableIndexInt = 0;
+            if (!string.IsNullOrWhiteSpace(TableIndex))
+                int.TryParse(TableIndex, out TableIndexInt);
 
             if (string.IsNullOrWhiteSpace(HttpContext.Session.GetString("userID")))
                 return Unauthorized();
 
-            if (!int.TryParse(p01, out int distributorId) || distributorId == -1)
+            if (!int.TryParse(DDlValues, out int DDlValueID) || DDlValueID == -1)
                 return Json(new List<object> { new { value = "-1", text = "الرجاء الاختيار" } });
 
             int userID = Convert.ToInt32(HttpContext.Session.GetString("userID"));
             int IdaraID = Convert.ToInt32(HttpContext.Session.GetString("IdaraID"));
             string HostName = HttpContext.Session.GetString("HostName");
 
-            var ds = await _mastersServies.GetDataLoadDataSetAsync("Permission", IdaraID, userID, HostName);
-            var table = (ds?.Tables?.Count ?? 0) > 4 ? ds.Tables[4] : null;
+            var ds = await _mastersServies.GetDataLoadDataSetAsync(PageName, IdaraID, userID, HostName);
+            var table = (ds?.Tables?.Count ?? 0) > TableIndexInt ? ds.Tables[TableIndexInt] : null;
 
             var items = new List<object>();
-            if (table is not null && table.Rows.Count > 0 && table.Columns.Contains("distributorID_FK"))
+            if (table is not null && table.Rows.Count > 0 && table.Columns.Contains(FK))
             {
                 foreach (DataRow row in table.Rows)
                 {
-                    var fk = row["distributorID_FK"]?.ToString()?.Trim();
-                    if (fk == distributorId.ToString())
+                    var fk = row[FK]?.ToString()?.Trim();
+                    if (fk == DDlValueID.ToString())
                     {
-                        var value = row["distributorPermissionTypeID"]?.ToString()?.Trim() ?? "";
-                        var text = row["permissionTypeName_A"]?.ToString()?.Trim() ?? "";
+                        var value = row[ValueCol]?.ToString()?.Trim() ?? "";
+                        var text = row[textcol]?.ToString()?.Trim() ?? "";
                         if (!string.IsNullOrEmpty(value))
                             items.Add(new { value, text });
                     }
@@ -285,7 +288,7 @@ namespace SmartFoundation.Mvc.Controllers
             }
 
             if (!items.Any())
-                items.Add(new { value = "-1", text = "لا توجد صلاحيات لهذا الموزع" });
+                items.Add(new { value = "-1", text = "لاتوجد خيارات" });
 
             return Json(items);
         }

@@ -513,8 +513,8 @@ new FieldConfig
     ColCss = "3",
     Required = true,
     DependsOn = "p01",              // When p01 changes, fetch new options
-    DependsUrl = "/crud/PermissionsByDistributor" // Endpoint that returns filtered options
-    //DependsUrl = "/crud/permissions-by-distributor?FK=distributorID_FK&textcol=permissionTypeName_A&ValueCol=distributorPermissionTypeID"
+    //DependsUrl = "/crud/DDLFiltered" // Endpoint that returns filtered options
+    DependsUrl = "/crud/DDLFiltered?FK=distributorID_FK&textcol=permissionTypeName_A&ValueCol=distributorPermissionTypeID&PageName=Permission&TableIndex=4"
 },
 
                 new FieldConfig { Name = "p03", Label = "ملاحظات", Type = "date", ColCss = "3", Required = false }

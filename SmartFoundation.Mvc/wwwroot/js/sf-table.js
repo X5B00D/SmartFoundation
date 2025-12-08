@@ -185,7 +185,7 @@
 
                         // حالة اختيار غير صالح
                         if (!parentValue || parentValue === '-1') {
-                            dependentSelect.innerHTML = '<option value="-1">اختر الموزع أولاً</option>';
+                            dependentSelect.innerHTML = '<option value="-1">الرجاء الاختيار</option>';
                             return;
                         }
 
@@ -194,7 +194,9 @@
                         dependentSelect.disabled = true;
 
                         try {
-                            const url = `${dependsUrl}?${encodeURIComponent(parentName)}=${encodeURIComponent(parentValue)}`;
+                           // const url = `${dependsUrl}&${encodeURIComponent(parentName)}=${encodeURIComponent(parentValue)}`;
+                            //const url = `${dependsUrl}&${encodeURIComponent(parentName)}=${encodeURIComponent(parentValue)}`;
+                            const url = `${dependsUrl}${dependsUrl.includes('?') ? '&' : '?'}DDLValues=${encodeURIComponent(parentValue)}`;
 
                             const response = await fetch(url);
                             if (!response.ok) {
@@ -208,7 +210,6 @@
                             if (Array.isArray(data) && data.length > 0) {
                                 data.forEach(item => {
                                     const option = document.createElement('option');
-                                    // اسماء الخصائص كما ترجع من الأكشن: value / text
                                     option.value = item.value;
                                     option.textContent = item.text;
                                     dependentSelect.appendChild(option);
@@ -649,10 +650,6 @@
                 //    html += `<button type="button" class="btn btn-secondary sf-modal-cancel">إلغاء</button>`;
                 //    html += `<button type="submit" class="btn btn-success">حفظ</button>`;
                 //    html += `</div>`;
-
-
-
-                //}
 
 
 
