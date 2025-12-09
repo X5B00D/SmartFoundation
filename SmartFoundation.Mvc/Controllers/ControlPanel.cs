@@ -69,9 +69,12 @@ namespace SmartFoundation.Mvc.Controllers
             if (string.IsNullOrWhiteSpace(HttpContext.Session.GetString("userID")))
                 return RedirectToAction("Index", "Login", new { logout = 1 });
 
+            string? Q1 = Request.Query["Q1"].FirstOrDefault();
+            string? Q2 = Request.Query["Q2"].FirstOrDefault();
+            Q1 = string.IsNullOrWhiteSpace(Q1) ? null : Q1.Trim();
+            Q2 = string.IsNullOrWhiteSpace(Q2) ? null : Q2.Trim();
 
-
-             userID = Convert.ToInt32(HttpContext.Session.GetString("userID"));
+            userID = Convert.ToInt32(HttpContext.Session.GetString("userID"));
              fullName = HttpContext.Session.GetString("fullName");
              IdaraID = Convert.ToInt32(HttpContext.Session.GetString("IdaraID"));
              DepartmentName = HttpContext.Session.GetString("DepartmentName");
@@ -82,7 +85,7 @@ namespace SmartFoundation.Mvc.Controllers
              ControllerName = nameof(ControlPanel);
              PageName = nameof(Permission);
 
-            var spParameters = new object?[] { "Permission", IdaraID, userID, HostName };
+            var spParameters = new object?[] { "Permission", IdaraID, userID, HostName, Q1 };
 
             DataSet ds;
 
@@ -94,41 +97,38 @@ namespace SmartFoundation.Mvc.Controllers
             ds = await _mastersServies.GetDataLoadDataSetAsync(spParameters);
 
 
-            string? Q1 = Request.Query["Q1"].FirstOrDefault();
-            string? Q2 = Request.Query["Q2"].FirstOrDefault();
-            Q1 = string.IsNullOrWhiteSpace(Q1) ? null : Q1.Trim();
-            Q2 = string.IsNullOrWhiteSpace(Q2) ? null : Q2.Trim();
+           
 
 
             DataTable? permissionTable = (ds?.Tables?.Count ?? 0) > 0 ? ds.Tables[0] : null;
 
-            DataTable? rawDt1 = (ds?.Tables?.Count ?? 0) > 1 ? ds.Tables[1] : null;
-            if (rawDt1 != null)
-            {
-                if (!string.IsNullOrWhiteSpace(Q1))
-                {
-                    // Escape single quotes for DataView filter
-                    var escaped = Q1.Replace("'", "''");
+            //DataTable? rawDt1 = (ds?.Tables?.Count ?? 0) > 1 ? ds.Tables[1] : null;
+            //if (rawDt1 != null)
+            //{
+            //    if (!string.IsNullOrWhiteSpace(Q1))
+            //    {
+            //        // Escape single quotes for DataView filter
+            //        var escaped = Q1.Replace("'", "''");
 
-                    // Exact match (use LIKE '%value%' for contains)
-                    var view = new DataView(rawDt1)
-                    {
-                        RowFilter = $"userID = '{escaped}'"
-                        // RowFilter = $"buildingTypeName_A LIKE '%{escaped}%'" // contains alternative
-                    };
-                    dt1 = view.ToTable();
-                }
-                else
-                {
-                    dt1 = rawDt1.Clone();
-                }
-            }
-            else
-            {
-                dt1 = null;
-            }
+            //        // Exact match (use LIKE '%value%' for contains)
+            //        var view = new DataView(rawDt1)
+            //        {
+            //            RowFilter = $"userID = '{escaped}'"
+            //            // RowFilter = $"buildingTypeName_A LIKE '%{escaped}%'" // contains alternative
+            //        };
+            //        dt1 = view.ToTable();
+            //    }
+            //    else
+            //    {
+            //        dt1 = rawDt1.Clone();
+            //    }
+            //}
+            //else
+            //{
+            //    dt1 = null;
+            //}
 
-
+            dt1 = (ds?.Tables?.Count ?? 0) > 1 ? ds.Tables[1] : null;
             dt2 = (ds?.Tables?.Count ?? 0) > 2 ? ds.Tables[2] : null;
             dt3 = (ds?.Tables?.Count ?? 0) > 3 ? ds.Tables[3] : null;
             dt4 = (ds?.Tables?.Count ?? 0) > 4 ? ds.Tables[4] : null;
@@ -144,6 +144,8 @@ namespace SmartFoundation.Mvc.Controllers
                 return RedirectToAction("Index", "Home");
             }
 
+
+           
 
 
             string rowIdField = "";
@@ -224,14 +226,12 @@ namespace SmartFoundation.Mvc.Controllers
                      new FieldConfig {
                          SectionTitle = "البحث عن مستخدم",
                          Name = "Users",
-
                          Type = "select",
                          Options = UsersOptions,
                          ColCss = "6",
                          Placeholder = "اختر المستخدم",
-                         Icon = "fa fa-user" ,
-                         Value = Q1
-
+                         Icon = "fa fa-user",
+                         Value = Q1,
                      },
 
                     //      new FieldConfig
@@ -319,7 +319,8 @@ namespace SmartFoundation.Mvc.Controllers
                             ["menuName_A"] = "اسم الصفحة",
                             ["permissionTypeName_A"] = "الصلاحية",
                             ["permissionStartDate"] = "تاريخ بداية الصلاحية",
-                            ["permissionEndDate"] = "تاريخ نهاية الصلاحية"
+                            ["permissionEndDate"] = "تاريخ نهاية الصلاحية",
+                            ["permissionNote"] = "ملاحظات"
                         };
 
 
@@ -378,7 +379,8 @@ namespace SmartFoundation.Mvc.Controllers
                             dict["p02"] = Get("menuName_A");
                             dict["p03"] = Get("permissionTypeName_A");
                             dict["p04"] = Get("permissionStartDate");
-                            dict["p05"] = Get("permissionStartDate");
+                            dict["p05"] = Get("permissionEndDate");
+                            dict["p06"] = Get("permissionNote");
 
                             rowsList.Add(dict);
                         }
@@ -430,9 +432,11 @@ new FieldConfig
     DependsOn = "p01",          
     DependsUrl = "/crud/DDLFiltered?FK=distributorID_FK&textcol=permissionTypeName_A&ValueCol=distributorPermissionTypeID&PageName=Permission&TableIndex=4"
 },
+                new FieldConfig { Name = "p03", Label = "تاريخ بداية الصلاحية", Type = "date", ColCss = "3", Required = false },
+                new FieldConfig { Name = "p04", Label = "تاريخ نهاية الصلاحية", Type = "date", ColCss = "3", Required = false },
+                new FieldConfig { Name = "p05", Label = "ملاحظات", Type = "text", ColCss = "3", Required = false },
 
-                new FieldConfig { Name = "p03", Label = "ملاحظات", Type = "text", ColCss = "3", Required = false },
-                  new FieldConfig { Name = "p04",Value=Q1, Type = "hidden" },
+                  new FieldConfig { Name = "p06",Value=Q1, Type = "hidden" },
             };
 
 
@@ -448,8 +452,12 @@ new FieldConfig
 
 
             // Optional: help the generic endpoint know where to go back
-            addFields.Insert(0, new FieldConfig { Name = "redirectAction", Type = "hidden", Value = nameof(Permission) });
-            addFields.Insert(0, new FieldConfig { Name = "redirectController", Type = "hidden", Value = "ControlPanel" });
+            addFields.Insert(0, new FieldConfig { Name = "redirectAction", Type = "hidden", Value = PageName });
+            addFields.Insert(0, new FieldConfig { Name = "redirectController", Type = "hidden", Value = ControllerName });
+            addFields.Insert(0, new FieldConfig { Name = "Q1", Type = "hidden", Value = Q1 });
+            
+           
+            
 
 
 
@@ -465,36 +473,44 @@ new FieldConfig
                 new FieldConfig { Name = "__RequestVerificationToken", Type = "hidden", Value = (Request.Headers["RequestVerificationToken"].FirstOrDefault() ?? "") },
                 new FieldConfig { Name = rowIdField,            Type = "hidden" },
 
-                new FieldConfig { Name = "p01", Label = "المعرف",             Type = "hidden", Readonly = true, ColCss = "3" },
-                new FieldConfig { Name = "p02", Label = "رمز المبنى",         Type = "number", Required = true,  ColCss = "3" },
-                new FieldConfig { Name = "p03", Label = "اسم المبنى بالعربي", Type = "text",   ColCss = "3", TextMode = "arabic" },
-                new FieldConfig { Name = "p04", Label = "اسم المبنى بالانجليزي", Type = "text", Required = true, ColCss = "3" },
-                new FieldConfig { Name = "p05", Label = "ملاحظات",            Type = "text",   ColCss = "6" }
+                new FieldConfig { Name = "p01", Label = "المعرف",             Type = "text", Readonly = true, ColCss = "3" },
+                new FieldConfig { Name = "p02", Label = "اسم الصفحة",         Type = "text", Required = true,  ColCss = "3" },
+                new FieldConfig { Name = "p03", Label = "الصلاحية", Type = "text",   ColCss = "3", TextMode = "arabic" },
+                new FieldConfig { Name = "p04", Label = "تاريخ بداية الصلاحية", Type = "date", Required = true, ColCss = "3" },
+                 new FieldConfig { Name = "p05", Label = "تاريخ نهاية الصلاحية", Type = "date", Required = true, ColCss = "3" },
+                new FieldConfig { Name = "p06", Label = "ملاحظات",            Type = "text",   ColCss = "6" }
             };
 
 
             // Delete fields: show confirmation as a label (not textbox) and show ID as label while still posting p01
             var deleteFields = new List<FieldConfig>
             {
-                new FieldConfig { Name = "redirectAction",     Type = "hidden", Value = PageName },
-                new FieldConfig { Name = "redirectController", Type = "hidden", Value = ControllerName },
+
                 new FieldConfig { Name = "pageName_",          Type = "hidden", Value = PageName },
                 new FieldConfig { Name = "ActionType",         Type = "hidden", Value = "DELETE" },
                 new FieldConfig { Name = "idaraID",            Type = "hidden", Value = IdaraID.ToString() },
                 new FieldConfig { Name = "entrydata",          Type = "hidden", Value = userID.ToString() },
                 new FieldConfig { Name = "hostname",           Type = "hidden", Value = HostName },
+
+                                new FieldConfig { Name = "redirectAction",     Type = "hidden", Value = PageName },
+                new FieldConfig { Name = "redirectController", Type = "hidden", Value = ControllerName },
+                new FieldConfig { Name = "Q1", Type = "hidden", Value = Q1 },
+
+
                 new FieldConfig { Name = "__RequestVerificationToken", Type = "hidden", Value = (Request.Headers["RequestVerificationToken"].FirstOrDefault() ?? "") },
 
                 // selection context
                 new FieldConfig { Name = rowIdField, Type = "hidden" },
 
                 // hidden p01 actually posted to SP
-                new FieldConfig { Name = "p01", Type = "hidden", MirrorName = "BuildingTypeID" }
+                new FieldConfig { Name = "p01", Type = "hidden", MirrorName = "permissionID" }
             };
 
 
-            bool hasRows = dt1 is not null && dt1.Rows.Count > 0 && rowsList.Count > 0;
-            ViewBag.HideTable = !hasRows;
+            //bool hasRows = dt1 is not null && dt1.Rows.Count > 0 && rowsList.Count > 0;
+
+            ViewBag.HideTable = string.IsNullOrWhiteSpace(Q1);
+
             // then create dsModel (snippet shows toolbar parts that use the dynamic lists)
             var dsModel = new SmartFoundation.UI.ViewModels.SmartTable.SmartTableDsModel
             {
@@ -515,7 +531,7 @@ new FieldConfig
                     ShowExportCsv = false,
                     ShowExportExcel = false,
                     ShowAdd = canInsert,
-                    ShowEdit = canUpdate,
+                    ShowEdit = true,
                     ShowDelete = canDelete,
                     ShowBulkDelete = false,
 
@@ -620,13 +636,20 @@ new FieldConfig
             return View();
         }
 
+        public IActionResult ssss()
+
+        {
+            var baseUrl = Url.Action(PageName, ControllerName) ?? "/";
+            return Redirect(baseUrl);
+        }
+
 
         // Add an endpoint that returns permissions options filtered by distributorID_FK
         //[HttpGet]
         //public async Task<IActionResult> PermissionsByDistributor1(string p01) // Changed from int distributorId
         //{
 
-            
+
         //    if (string.IsNullOrWhiteSpace(HttpContext.Session.GetString("userID")))
         //        return Unauthorized();
 
@@ -662,6 +685,6 @@ new FieldConfig
         //    return Json(items);
         //}
 
-        
+
     }
 }

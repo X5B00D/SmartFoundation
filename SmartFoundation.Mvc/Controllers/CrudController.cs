@@ -130,8 +130,45 @@ namespace SmartFoundation.Mvc.Controllers
 
                 var redirectAction = f.TryGetValue("redirectAction", out var ra) ? ra.ToString() : null;
                 var redirectController = f.TryGetValue("redirectController", out var rc) ? rc.ToString() : null;
+
                 if (!string.IsNullOrWhiteSpace(redirectAction))
-                    return RedirectToAction(redirectAction, redirectController);
+                {
+                    // 1) Base path using Url.Action (without query)
+                    var baseUrl = Url.Action(redirectAction, redirectController) ?? "/";
+
+                    // 2) Gather Q* keys and order them Q1, Q2, Q3...
+                    var qPairs = new List<(int order, string key, string value)>();
+                    foreach (var key in f.Keys)
+                    {
+                        if (string.IsNullOrWhiteSpace(key)) continue;
+                        if (!key.StartsWith("Q", StringComparison.OrdinalIgnoreCase)) continue;
+
+                        // Extract numeric suffix (default 0 if none)
+                        int order = 0;
+                        var suffix = key.Substring(1);
+                        int.TryParse(suffix, out order);
+
+                        var val = f[key].ToString();
+                        if (!string.IsNullOrWhiteSpace(val))
+                            qPairs.Add((order, key, val));
+                    }
+
+                    qPairs.Sort((a, b) => a.order.CompareTo(b.order)); // ensures Q1, Q2, Q3...
+
+                    // 3) Build query string manually in desired order
+                    var sb = new System.Text.StringBuilder();
+                    for (int i = 0; i < qPairs.Count; i++)
+                    {
+                        var (order, key, value) = qPairs[i];
+                        if (i > 0) sb.Append('&');
+                        sb.Append(Uri.EscapeDataString(key));
+                        sb.Append('=');
+                        sb.Append(Uri.EscapeDataString(value));
+                    }
+
+                    var fullUrl = sb.Length > 0 ? $"{baseUrl}?{sb}" : baseUrl;
+                    return Redirect(fullUrl);
+                }
 
                 var referer = Request.Headers["Referer"].ToString();
                 if (!string.IsNullOrWhiteSpace(referer)) return Redirect(referer);
@@ -181,8 +218,16 @@ namespace SmartFoundation.Mvc.Controllers
 
                 var redirectAction = f.TryGetValue("redirectAction", out var ra) ? ra.ToString() : null;
                 var redirectController = f.TryGetValue("redirectController", out var rc) ? rc.ToString() : null;
+
+                var routeValues = new Dictionary<string, object>();
+                if (f.TryGetValue("Q1", out var q1) && !string.IsNullOrWhiteSpace(q1)) routeValues["Q1"] = q1.ToString();
+
                 if (!string.IsNullOrWhiteSpace(redirectAction))
-                    return RedirectToAction(redirectAction, redirectController);
+                {
+                    return routeValues.Count > 0
+                        ? RedirectToAction(redirectAction, redirectController, routeValues)
+                        : RedirectToAction(redirectAction, redirectController);
+                }
 
                 var referer = Request.Headers["Referer"].ToString();
                 if (!string.IsNullOrWhiteSpace(referer)) return Redirect(referer);
@@ -232,8 +277,16 @@ namespace SmartFoundation.Mvc.Controllers
 
                 var redirectAction = f.TryGetValue("redirectAction", out var ra) ? ra.ToString() : null;
                 var redirectController = f.TryGetValue("redirectController", out var rc) ? rc.ToString() : null;
+
+                var routeValues = new Dictionary<string, object>();
+                if (f.TryGetValue("Q1", out var q1) && !string.IsNullOrWhiteSpace(q1)) routeValues["Q1"] = q1.ToString();
+
                 if (!string.IsNullOrWhiteSpace(redirectAction))
-                    return RedirectToAction(redirectAction, redirectController);
+                {
+                    return routeValues.Count > 0
+                        ? RedirectToAction(redirectAction, redirectController, routeValues)
+                        : RedirectToAction(redirectAction, redirectController);
+                }
 
                 var referer = Request.Headers["Referer"].ToString();
                 if (!string.IsNullOrWhiteSpace(referer)) return Redirect(referer);

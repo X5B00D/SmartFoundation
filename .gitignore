@@ -414,3 +414,4 @@ docs/PRD.md
 .taskmaster/tasks/
 .taskmaster/reports/
 .taskmaster/.initialized
+/SmartFoundation.Mvc/Controllers/MastersCrudController.cs

@@ -18,13 +18,14 @@
 
     @* @await Component.InvokeAsync("SmartTableDS", new { model = Model.Table }) *@
 
-   @*  @if (!(ViewBag.HideTable as bool? ?? false))
-    { *@
-        @await Component.InvokeAsync("SmartTableDS", Model.Table)
-    @* } *@
-   @*  else
+    @if (!(ViewBag.HideTable as bool? ?? false))
     {
-        <div class="mt-4 text-sm text-gray-600">لا توجد بيانات للعرض.</div>
-    } *@
+        @await Component.InvokeAsync("SmartTableDS", Model.Table)
+    }
+    else
+    {
+        <div class="mt-4 text-sm text-gray-600"></div>
+    }
+
 }
 
