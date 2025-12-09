@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using SmartFoundation.Application.Services;
+using SmartFoundation.UI.ViewModels.SmartForm;
 using System.Data;
 using System.Linq;
 
@@ -101,11 +102,11 @@ namespace SmartFoundation.Mvc.Controllers
             {
                 var f = Request.Form;
 
-                string pageName   = f.TryGetValue("pageName_", out var pv) && !string.IsNullOrWhiteSpace(pv) ? pv.ToString() : "BuildingType";
-                string actionType = f.TryGetValue("ActionType", out var av) && !string.IsNullOrWhiteSpace(av) ? av.ToString() : "INSERT";
-                int? idaraID      = f.TryGetValue("idaraID", out var idv) && int.TryParse(idv, out var idParsed) ? idParsed : 1;
-                int? entryData    = f.TryGetValue("entrydata", out var edv) && int.TryParse(edv, out var entryParsed) ? entryParsed : 60014016;
-                string hostName   = f.TryGetValue("hostname", out var hv) && !string.IsNullOrWhiteSpace(hv) ? hv.ToString() : Request.Host.Value;
+                string pageName   = f.TryGetValue("pageName_", out var pv) && !string.IsNullOrWhiteSpace(pv) ? pv.ToString() : "";
+                string actionType = f.TryGetValue("ActionType", out var av) && !string.IsNullOrWhiteSpace(av) ? av.ToString() : "";
+                int? idaraID      = f.TryGetValue("idaraID", out var idv) && int.TryParse(idv, out var idParsed) ? idParsed : 0;
+                int? entryData    = f.TryGetValue("entrydata", out var edv) && int.TryParse(edv, out var entryParsed) ? entryParsed : 0;
+                string hostName   = f.TryGetValue("hostname", out var hv) && !string.IsNullOrWhiteSpace(hv) ? hv.ToString() : "";
 
                 var parameters = new Dictionary<string, object?>(StringComparer.OrdinalIgnoreCase)
                 {
@@ -152,7 +153,7 @@ namespace SmartFoundation.Mvc.Controllers
             {
                 var f = Request.Form;
 
-                string pageName   = f.TryGetValue("pageName_", out var pv) && !string.IsNullOrWhiteSpace(pv) ? pv.ToString() : "BuildingType";
+                string pageName   = f.TryGetValue("pageName_", out var pv) && !string.IsNullOrWhiteSpace(pv) ? pv.ToString() : "";
                 string actionType = f.TryGetValue("ActionType", out var av) && !string.IsNullOrWhiteSpace(av) ? av.ToString() : "UPDATE";
                 int? idaraID      = f.TryGetValue("idaraID", out var idv) && int.TryParse(idv, out var idParsed) ? idParsed : 1;
                 int? entryData    = f.TryGetValue("entrydata", out var edv) && int.TryParse(edv, out var entryParsed) ? entryParsed : 60014016;
@@ -292,5 +293,42 @@ namespace SmartFoundation.Mvc.Controllers
 
             return Json(items);
         }
+
+
+        [HttpGet("GetDDLValues")]
+        public async Task<IActionResult> GetDDLValues(string? textcol, string? ValueCol, string? TableIndex, string? PageName, int userID, int IdaraID, string? HostName)
+        {
+            int TableIndexInt = 0;
+            if (!string.IsNullOrWhiteSpace(TableIndex))
+                int.TryParse(TableIndex, out TableIndexInt);
+
+            var ds = await _mastersServies.GetDataLoadDataSetAsync(PageName, IdaraID, userID, HostName);
+            var table = (ds?.Tables?.Count ?? 0) > TableIndexInt ? ds.Tables[TableIndexInt] : null;
+
+            var items = new List<object>();
+            if (table is not null && table.Rows.Count > 0)
+            {
+                items.Add(new { Value = "-1", Text = "الرجاء الاختيار" });
+                foreach (DataRow row in table.Rows)
+                {
+                    var value = row[ValueCol]?.ToString()?.Trim() ?? "";
+                    var text = row[textcol]?.ToString()?.Trim() ?? "";
+
+                    if (!string.IsNullOrEmpty(value))
+                        // ✅ لاحظ الحروف الكبيرة
+                        items.Add(new { Value = value, Text = text });
+                }
+            }
+
+            if (!items.Any())
+                items.Add(new { Value = "-1", Text = "لاتوجد خيارات" });
+
+            return Json(items);
+        }
+
+
+
+
+
     }
 }

@@ -19,6 +19,29 @@ namespace SmartFoundation.Mvc.Controllers
         
         private readonly MastersServies _mastersServies;
 
+        string? ControllerName;
+        string? PageName ;
+        int userID ;
+        string? fullName;
+        int IdaraID ;
+        string? DepartmentName ;
+        string? ThameName ;
+        string? DeptCode;
+        string? IDNumber;
+        string? HostName;
+
+
+        DataTable? permissionTable;
+        DataTable? dt1;
+        DataTable? dt2;
+        DataTable? dt3;
+        DataTable? dt4;
+        DataTable? dt5;
+        DataTable? dt6;
+        DataTable? dt7;
+        DataTable? dt8;
+        DataTable? dt9;
+
         public HousingController( MastersServies mastersServies)
         {
             
@@ -38,16 +61,16 @@ namespace SmartFoundation.Mvc.Controllers
                 return RedirectToAction("Index", "Login", new { logout = 1 });
 
 
-            string? ControllerName = ControllerContext.ActionDescriptor.ControllerName;
-            string? PageName = ControllerContext.ActionDescriptor.ActionName;
-            int userID = Convert.ToInt32(HttpContext.Session.GetString("userID"));
-            string? fullName = HttpContext.Session.GetString("fullName");
-            int IdaraID = Convert.ToInt32(HttpContext.Session.GetString("IdaraID"));
-            string? DepartmentName = HttpContext.Session.GetString("DepartmentName");
-            string? ThameName = HttpContext.Session.GetString("ThameName");
-            string? DeptCode = HttpContext.Session.GetString("DeptCode");
-            string? IDNumber = HttpContext.Session.GetString("IDNumber");
-            string? HostName = HttpContext.Session.GetString("HostName");
+             ControllerName = ControllerContext.ActionDescriptor.ControllerName;
+             PageName = ControllerContext.ActionDescriptor.ActionName;
+             userID = Convert.ToInt32(HttpContext.Session.GetString("userID"));
+             fullName = HttpContext.Session.GetString("fullName");
+             IdaraID = Convert.ToInt32(HttpContext.Session.GetString("IdaraID"));
+             DepartmentName = HttpContext.Session.GetString("DepartmentName");
+             ThameName = HttpContext.Session.GetString("ThameName");
+             DeptCode = HttpContext.Session.GetString("DeptCode");
+             IDNumber = HttpContext.Session.GetString("IDNumber");
+             HostName = HttpContext.Session.GetString("HostName");
             
 
             var spParameters = new object?[] { PageName, IdaraID, userID, HostName };
@@ -60,16 +83,16 @@ namespace SmartFoundation.Mvc.Controllers
 
             ds = await _mastersServies.GetDataLoadDataSetAsync(spParameters);
 
-            DataTable? permissionTable = (ds?.Tables?.Count ?? 0) > 0 ? ds.Tables[0] : null;
-            DataTable? dt1 = (ds?.Tables?.Count ?? 0) > 1 ? ds.Tables[1] : null;
-            DataTable? dt2 = (ds?.Tables?.Count ?? 0) > 2 ? ds.Tables[2] : null;
-            DataTable? dt3 = (ds?.Tables?.Count ?? 0) > 3 ? ds.Tables[3] : null;
-            DataTable? dt4 = (ds?.Tables?.Count ?? 0) > 4 ? ds.Tables[4] : null;
-            DataTable? dt5 = (ds?.Tables?.Count ?? 0) > 5 ? ds.Tables[5] : null;
-            DataTable? dt6 = (ds?.Tables?.Count ?? 0) > 5 ? ds.Tables[6] : null;
-            DataTable? dt7 = (ds?.Tables?.Count ?? 0) > 5 ? ds.Tables[7] : null;
-            DataTable? dt8 = (ds?.Tables?.Count ?? 0) > 5 ? ds.Tables[8] : null;
-            DataTable? dt9 = (ds?.Tables?.Count ?? 0) > 5 ? ds.Tables[9] : null;
+            permissionTable = (ds?.Tables?.Count ?? 0) > 0 ? ds.Tables[0] : null;
+            dt1 = (ds?.Tables?.Count ?? 0) > 1 ? ds.Tables[1] : null;
+            dt2 = (ds?.Tables?.Count ?? 0) > 2 ? ds.Tables[2] : null;
+            dt3 = (ds?.Tables?.Count ?? 0) > 3 ? ds.Tables[3] : null;
+            dt4 = (ds?.Tables?.Count ?? 0) > 4 ? ds.Tables[4] : null;
+            dt5 = (ds?.Tables?.Count ?? 0) > 5 ? ds.Tables[5] : null;
+            dt6 = (ds?.Tables?.Count ?? 0) > 5 ? ds.Tables[6] : null;
+            dt7 = (ds?.Tables?.Count ?? 0) > 5 ? ds.Tables[7] : null;
+            dt8 = (ds?.Tables?.Count ?? 0) > 5 ? ds.Tables[8] : null;
+            dt9 = (ds?.Tables?.Count ?? 0) > 5 ? ds.Tables[9] : null;
 
             if (permissionTable is null || permissionTable.Rows.Count == 0)
             {
@@ -81,30 +104,10 @@ namespace SmartFoundation.Mvc.Controllers
             string rowIdField = "";
             bool canInsert = false;
             bool canUpdate = false;
-            bool canUpdateGN = false;
             bool canDelete = false;
-
-            //  List<OptionItem> cityOptions = new();
 
             try
             {
-
-
-                //To make city options list for dropdownlist later
-
-                //if (ds != null && ds.Tables.Count > 1 && ds.Tables[1].Rows.Count > 0)
-                //{
-                //    var cityTable = ds.Tables[2];
-
-                //    foreach (DataRow row in cityTable.Rows)
-                //    {
-                //        string value = row["cityID"]?.ToString()?.Trim() ?? "";
-                //        string text = row["cityName_A"]?.ToString()?.Trim() ?? "";
-
-                //        if (!string.IsNullOrEmpty(value))
-                //            cityOptions.Add(new OptionItem { Value = value, Text = text });
-                //    }
-                //}
 
                 if (ds != null && ds.Tables.Count > 0 && ds.Tables[0].Rows.Count > 0)
                 {
@@ -121,9 +124,6 @@ namespace SmartFoundation.Mvc.Controllers
 
                         if (permissionName == "UPDATE")
                             canUpdate = true;
-
-                        if (permissionName == "UPDATEGN" || permissionName == "UPDATEGN")
-                            canUpdateGN = true;
 
                         if (permissionName == "DELETE")
                             canDelete = true;
@@ -200,7 +200,7 @@ namespace SmartFoundation.Mvc.Controllers
 
                             // Prefill pXX fields on the row so Edit form (which uses pXX names) loads the selected row values
                             object? Get(string key) => dict.TryGetValue(key, out var v) ? v : null;
-                            dict["p01"] = Get("buildingTypeID") ?? Get("BuildingTypeID") ?? Get("Id") ?? Get("ID");
+                            dict["p01"] = Get("buildingTypeID") ?? Get("BuildingTypeID");
                             dict["p02"] = Get("buildingTypeCode");
                             dict["p03"] = Get("buildingTypeName_A");
                             dict["p04"] = Get("buildingTypeName_E");
@@ -236,8 +236,7 @@ namespace SmartFoundation.Mvc.Controllers
 
                 // your custom textboxes
                 new FieldConfig { Name = "p01", Label = "رمز نوع المباني", Type = "text", ColCss = "3", Required = true },
-                new FieldConfig { Name = "p02", Label = "اسم نوع المباني بالعربي", Type = "arabictext", ColCss = "3" , Required = true,TextMode = "arabic", InputPattern = @"^[\u0621-\u064A\u0640\s]+$",
-    HelpText = "اكتب أحرف عربية فقط"},
+                new FieldConfig { Name = "p02", Label = "اسم نوع المباني بالعربي", Type = "arabictext", ColCss = "3" , Required = true,TextMode = "arabic", InputPattern = @"^[\u0621-\u064A\u0640\s]+$", HelpText = "اكتب أحرف عربية فقط"},
                 new FieldConfig { Name = "p03", Label = "اسم نوع المباني بالانجليزي", Type = "text", ColCss = "3" , Required = true},
                 new FieldConfig { Name = "p04", Label = "ملاحظات", Type = "text", ColCss = "3", Required = false }
             };
@@ -328,7 +327,6 @@ namespace SmartFoundation.Mvc.Controllers
                     ShowExportExcel = false,
                     ShowAdd = canInsert,
                     ShowEdit = canUpdate,
-                    ShowEdit1 = canUpdateGN,
                     ShowDelete = canDelete,
                     ShowBulkDelete = false,
 
@@ -427,16 +425,16 @@ namespace SmartFoundation.Mvc.Controllers
                 return RedirectToAction("Index", "Login", new { logout = 1 });
 
 
-            string? ControllerName = ControllerContext.ActionDescriptor.ControllerName;
-            string? PageName = ControllerContext.ActionDescriptor.ActionName;
-            int userID = Convert.ToInt32(HttpContext.Session.GetString("userID"));
-            string? fullName = HttpContext.Session.GetString("fullName");
-            int IdaraID = Convert.ToInt32(HttpContext.Session.GetString("IdaraID"));
-            string? DepartmentName = HttpContext.Session.GetString("DepartmentName");
-            string? ThameName = HttpContext.Session.GetString("ThameName");
-            string? DeptCode = HttpContext.Session.GetString("DeptCode");
-            string? IDNumber = HttpContext.Session.GetString("IDNumber");
-            string? HostName = HttpContext.Session.GetString("HostName");
+            ControllerName = ControllerContext.ActionDescriptor.ControllerName;
+            PageName = ControllerContext.ActionDescriptor.ActionName;
+            userID = Convert.ToInt32(HttpContext.Session.GetString("userID"));
+            fullName = HttpContext.Session.GetString("fullName");
+            IdaraID = Convert.ToInt32(HttpContext.Session.GetString("IdaraID"));
+            DepartmentName = HttpContext.Session.GetString("DepartmentName");
+            ThameName = HttpContext.Session.GetString("ThameName");
+            DeptCode = HttpContext.Session.GetString("DeptCode");
+            IDNumber = HttpContext.Session.GetString("IDNumber");
+            HostName = HttpContext.Session.GetString("HostName");
 
 
             var spParameters = new object?[] { PageName, IdaraID, userID, HostName };
@@ -449,16 +447,16 @@ namespace SmartFoundation.Mvc.Controllers
 
             ds = await _mastersServies.GetDataLoadDataSetAsync(spParameters);
 
-            DataTable? permissionTable = (ds?.Tables?.Count ?? 0) > 0 ? ds.Tables[0] : null;
-            DataTable? dt1 = (ds?.Tables?.Count ?? 0) > 1 ? ds.Tables[1] : null;
-            DataTable? dt2 = (ds?.Tables?.Count ?? 0) > 2 ? ds.Tables[2] : null;
-            DataTable? dt3 = (ds?.Tables?.Count ?? 0) > 3 ? ds.Tables[3] : null;
-            DataTable? dt4 = (ds?.Tables?.Count ?? 0) > 4 ? ds.Tables[4] : null;
-            DataTable? dt5 = (ds?.Tables?.Count ?? 0) > 5 ? ds.Tables[5] : null;
-            DataTable? dt6 = (ds?.Tables?.Count ?? 0) > 5 ? ds.Tables[6] : null;
-            DataTable? dt7 = (ds?.Tables?.Count ?? 0) > 5 ? ds.Tables[7] : null;
-            DataTable? dt8 = (ds?.Tables?.Count ?? 0) > 5 ? ds.Tables[8] : null;
-            DataTable? dt9 = (ds?.Tables?.Count ?? 0) > 5 ? ds.Tables[9] : null;
+             permissionTable = (ds?.Tables?.Count ?? 0) > 0 ? ds.Tables[0] : null;
+             dt1 = (ds?.Tables?.Count ?? 0) > 1 ? ds.Tables[1] : null;
+             dt2 = (ds?.Tables?.Count ?? 0) > 2 ? ds.Tables[2] : null;
+             dt3 = (ds?.Tables?.Count ?? 0) > 3 ? ds.Tables[3] : null;
+             dt4 = (ds?.Tables?.Count ?? 0) > 4 ? ds.Tables[4] : null;
+             dt5 = (ds?.Tables?.Count ?? 0) > 5 ? ds.Tables[5] : null;
+             dt6 = (ds?.Tables?.Count ?? 0) > 5 ? ds.Tables[6] : null;
+             dt7 = (ds?.Tables?.Count ?? 0) > 5 ? ds.Tables[7] : null;
+             dt8 = (ds?.Tables?.Count ?? 0) > 5 ? ds.Tables[8] : null;
+             dt9 = (ds?.Tables?.Count ?? 0) > 5 ? ds.Tables[9] : null;
 
             if (permissionTable is null || permissionTable.Rows.Count == 0)
             {
@@ -470,7 +468,6 @@ namespace SmartFoundation.Mvc.Controllers
             string rowIdField = "";
             bool canInsert = false;
             bool canUpdate = false;
-            bool canUpdateGN = false;
             bool canDelete = false;
 
             //  List<OptionItem> cityOptions = new();
@@ -478,22 +475,6 @@ namespace SmartFoundation.Mvc.Controllers
             try
             {
 
-
-                //To make city options list for dropdownlist later
-
-                //if (ds != null && ds.Tables.Count > 1 && ds.Tables[1].Rows.Count > 0)
-                //{
-                //    var cityTable = ds.Tables[2];
-
-                //    foreach (DataRow row in cityTable.Rows)
-                //    {
-                //        string value = row["cityID"]?.ToString()?.Trim() ?? "";
-                //        string text = row["cityName_A"]?.ToString()?.Trim() ?? "";
-
-                //        if (!string.IsNullOrEmpty(value))
-                //            cityOptions.Add(new OptionItem { Value = value, Text = text });
-                //    }
-                //}
 
                 if (ds != null && ds.Tables.Count > 0 && ds.Tables[0].Rows.Count > 0)
                 {
@@ -511,8 +492,6 @@ namespace SmartFoundation.Mvc.Controllers
                         if (permissionName == "UPDATE")
                             canUpdate = true;
 
-                        if (permissionName == "UPDATEGN" || permissionName == "UPDATEGN")
-                            canUpdateGN = true;
 
                         if (permissionName == "DELETE")
                             canDelete = true;
@@ -715,7 +694,6 @@ namespace SmartFoundation.Mvc.Controllers
                     ShowExportExcel = false,
                     ShowAdd = canInsert,
                     ShowEdit = canUpdate,
-                    ShowEdit1 = canUpdateGN,
                     ShowDelete = canDelete,
                     ShowBulkDelete = false,
 

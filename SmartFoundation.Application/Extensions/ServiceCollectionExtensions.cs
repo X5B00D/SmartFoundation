@@ -24,6 +24,7 @@ public static class ServiceCollectionExtensions
     services.AddScoped<DashboardService>();
     services.AddScoped<MastersServies>();
 
+
         // Add more services as they are created:
         // services.AddScoped<YourNewService>();
 

@@ -1,0 +1,10 @@
+﻿@model SmartFoundation.UI.ViewModels.SmartTable.SmartTableDsModel
+
+@{
+    ViewData["Title"] = @Model.PageTitle;
+}
+<div class="container mx-auto py-4">
+    <h1 class="text-xl font-bold mb-4">جدول فقط</h1>
+</div>
+
+@await Component.InvokeAsync("SmartTableDS", new { model = Model })

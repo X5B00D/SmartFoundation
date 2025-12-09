@@ -3,6 +3,7 @@ using SmartFoundation.Application.Services;
 using SmartFoundation.DataEngine.Core.Interfaces;
 using SmartFoundation.DataEngine.Core.Services;
 using SmartFoundation.DataEngine.Core.Utilities;
+using SmartFoundation.Mvc.Controllers;
 using System.Text.Json;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -24,6 +25,7 @@ builder.Services.AddSession(o =>
 builder.Services.AddResponseCompression();
 builder.Services.AddSingleton<ConnectionFactory>();
 builder.Services.AddScoped<ISmartComponentService, SmartComponentService>();
+builder.Services.AddScoped<CrudController>();
 
 
 

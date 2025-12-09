@@ -3,8 +3,7 @@
 namespace SmartFoundation.UI.ViewModels.SmartTable
 {
 
-    public class TableBadgeConfig
-    {
+    public class TableBadgeConfig    {
         public Dictionary<string, string> Map { get; set; } = new();
 
         public string DefaultClass { get; set; } = "bg-gray-100 text-gray-700";
@@ -115,10 +114,8 @@ namespace SmartFoundation.UI.ViewModels.SmartTable
 
         public TableAction? Add { get; set; }
         public bool ShowEdit { get; set; } = false;
-        public bool ShowEdit1 { get; set; } = false;
         public bool ShowDelete { get; set; } = false;
         public TableAction? Edit { get; set; }
-        public TableAction? Edit1 { get; set; }
         public TableAction? Delete { get; set; }
         public List<TableAction> CustomActions { get; set; } = new();
         public TableExportConfig ExportConfig { get; set; } = new();

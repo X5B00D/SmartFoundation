@@ -23,51 +23,42 @@ namespace SmartFoundation.Mvc.Controllers
 
        // private readonly MastersDataLoadService _mastersDataLoadService;
         private readonly MastersServies _mastersServies;
+        private readonly CrudController _CrudController;
 
 
 
-        public ControlPanel(MastersServies mastersServies)
+        public ControlPanel(MastersServies mastersServies, CrudController crudController)
         {
            // _mastersDataLoadService = mastersDataLoadService;
             _mastersServies = mastersServies;
+            _CrudController = crudController;
 
         }
 
+        string? ControllerName;
+        string? PageName;
+        int userID;
+        string? fullName;
+        int IdaraID;
+        string? DepartmentName;
+        string? ThameName;
+        string? DeptCode;
+        string? IDNumber;
+        string? HostName;
 
-        //[HttpGet]
-        //public IActionResult ShowCity(string? cityId, string? cityName)
-        //{
+        
+        DataSet ds;
 
-        //    var msg = "";
-        //    var tostrColor = "";
-        //    // Normalize
-        //    cityId = (string.IsNullOrWhiteSpace(cityId) ? null : cityId.Trim());
-        //    cityName = (string.IsNullOrWhiteSpace(cityName) ? null : cityName.Trim());
-
-        //    // Build message (fallbacks if missing)
-
-        //    if (string.IsNullOrWhiteSpace(cityId))
-        //        {
-        //         msg = "No cityId selected";
-        //        tostrColor = "Error";
-        //        }
-        //    else if (string.IsNullOrWhiteSpace(cityName))
-        //        {
-        //         msg = $"المدينة: (unknown) ({cityId})";
-        //        tostrColor = "Info";
-        //    }
-        //    else
-        //    {
-        //        msg = $"المدينة: {cityName} ({cityId})";
-        //        tostrColor = "Success";
-        //    }
-
-        //    TempData[tostrColor] = msg;
-
-
-        //    // Redirect back to the page (Sami) so Toastr in the layout/view can display the message
-        //    return RedirectToAction(nameof(Permission));
-        //}
+        DataTable? permissionTable;
+        DataTable? dt1;
+        DataTable? dt2;
+        DataTable? dt3;
+        DataTable? dt4;
+        DataTable? dt5;
+        DataTable? dt6;
+        DataTable? dt7;
+        DataTable? dt8;
+        DataTable? dt9;
 
 
 
@@ -80,15 +71,16 @@ namespace SmartFoundation.Mvc.Controllers
 
 
 
-            int userID = Convert.ToInt32(HttpContext.Session.GetString("userID"));
-            string fullName = HttpContext.Session.GetString("fullName");
-            int IdaraID = Convert.ToInt32(HttpContext.Session.GetString("IdaraID"));
-            string DepartmentName = HttpContext.Session.GetString("DepartmentName");
-            string ThameName = HttpContext.Session.GetString("ThameName");
-            string DeptCode = HttpContext.Session.GetString("DeptCode");
-            string IDNumber = HttpContext.Session.GetString("IDNumber");
-            string HostName = HttpContext.Session.GetString("HostName");
-
+             userID = Convert.ToInt32(HttpContext.Session.GetString("userID"));
+             fullName = HttpContext.Session.GetString("fullName");
+             IdaraID = Convert.ToInt32(HttpContext.Session.GetString("IdaraID"));
+             DepartmentName = HttpContext.Session.GetString("DepartmentName");
+             ThameName = HttpContext.Session.GetString("ThameName");
+             DeptCode = HttpContext.Session.GetString("DeptCode");
+             IDNumber = HttpContext.Session.GetString("IDNumber");
+             HostName = HttpContext.Session.GetString("HostName");
+             ControllerName = nameof(ControlPanel);
+             PageName = nameof(Permission);
 
             var spParameters = new object?[] { "Permission", IdaraID, userID, HostName };
 
@@ -111,7 +103,6 @@ namespace SmartFoundation.Mvc.Controllers
             DataTable? permissionTable = (ds?.Tables?.Count ?? 0) > 0 ? ds.Tables[0] : null;
 
             DataTable? rawDt1 = (ds?.Tables?.Count ?? 0) > 1 ? ds.Tables[1] : null;
-            DataTable? dt1;
             if (rawDt1 != null)
             {
                 if (!string.IsNullOrWhiteSpace(Q1))
@@ -138,14 +129,14 @@ namespace SmartFoundation.Mvc.Controllers
             }
 
 
-            DataTable? dt2 = (ds?.Tables?.Count ?? 0) > 2 ? ds.Tables[2] : null;
-            DataTable? dt3 = (ds?.Tables?.Count ?? 0) > 3 ? ds.Tables[3] : null;
-            DataTable? dt4 = (ds?.Tables?.Count ?? 0) > 4 ? ds.Tables[4] : null;
-            DataTable? dt5 = (ds?.Tables?.Count ?? 0) > 5 ? ds.Tables[5] : null;
-            DataTable? dt6 = (ds?.Tables?.Count ?? 0) > 6 ? ds.Tables[6] : null;
-            DataTable? dt7 = (ds?.Tables?.Count ?? 0) > 7 ? ds.Tables[7] : null;
-            DataTable? dt8 = (ds?.Tables?.Count ?? 0) > 8 ? ds.Tables[8] : null;
-            DataTable? dt9 = (ds?.Tables?.Count ?? 0) > 9 ? ds.Tables[9] : null;
+            dt2 = (ds?.Tables?.Count ?? 0) > 2 ? ds.Tables[2] : null;
+            dt3 = (ds?.Tables?.Count ?? 0) > 3 ? ds.Tables[3] : null;
+            dt4 = (ds?.Tables?.Count ?? 0) > 4 ? ds.Tables[4] : null;
+            dt5 = (ds?.Tables?.Count ?? 0) > 5 ? ds.Tables[5] : null;
+            dt6 = (ds?.Tables?.Count ?? 0) > 6 ? ds.Tables[6] : null;
+            dt7 = (ds?.Tables?.Count ?? 0) > 7 ? ds.Tables[7] : null;
+            dt8 = (ds?.Tables?.Count ?? 0) > 8 ? ds.Tables[8] : null;
+            dt9 = (ds?.Tables?.Count ?? 0) > 9 ? ds.Tables[9] : null;
 
             if (permissionTable is null || permissionTable.Rows.Count == 0)
             {
@@ -158,78 +149,52 @@ namespace SmartFoundation.Mvc.Controllers
             string rowIdField = "";
             bool canInsert = false;
             bool canUpdate = false;
-            bool canUpdateGN = false;
             bool canDelete = false;
 
 
 
-            List<OptionItem> UsersOptions = new();
-            List<OptionItem> distributorOptions = new();
             List<OptionItem> permissionsOptions = new();
-
-
-
-
+            List<OptionItem> distributorOptions = new();
+            List<OptionItem> UsersOptions = new();
 
 
             FormConfig form = new();
             try
             {
 
+                // ---------------------- DDLValues ----------------------
 
+                JsonResult? result;
+                string json;
 
-                //To make User options list for dropdownlist later
+                // ---------------------- Users ----------------------
+                result = await _CrudController.GetDDLValues(
+                    "FullName", "userID_", "2", nameof(Permission), userID, IdaraID, HostName
+                ) as JsonResult;
 
-                if (ds != null && ds.Tables.Count > 1 && ds.Tables[2].Rows.Count > 0)
-                {
-                    var userTable = ds.Tables[2];
+                json = JsonSerializer.Serialize(result!.Value);
 
-                    foreach (DataRow row in userTable.Rows)
-                    {
-                        string value = row["userID_"]?.ToString()?.Trim() ?? "";
-                        string text = row["FullName"]?.ToString()?.Trim() ?? "";
+                UsersOptions = JsonSerializer.Deserialize<List<OptionItem>>(json)!;
 
-                        if (!string.IsNullOrEmpty(value))
-                            UsersOptions.Add(new OptionItem { Value = value, Text = text });
-                    }
-                }
+                // ---------------------- Distributors ----------------------
+                result = await _CrudController.GetDDLValues(
+                    "distributorName_A", "distributorID", "3", nameof(Permission), userID, IdaraID, HostName
+                ) as JsonResult;
 
+                json = JsonSerializer.Serialize(result!.Value);
 
+                distributorOptions = JsonSerializer.Deserialize<List<OptionItem>>(json)!;
 
-                //To make distributor options list for dropdownlist later
+                // ---------------------- Distributors ----------------------
+                result = await _CrudController.GetDDLValues(
+                    "permissionTypeName_A", "distributorPermissionTypeID", "4", nameof(Permission), userID, IdaraID, HostName
+                ) as JsonResult;
 
-                if (ds != null && ds.Tables.Count > 1 && ds.Tables[3].Rows.Count > 0)
-                {
-                    var distributorTable = ds.Tables[3];
-                    distributorOptions.Add(new OptionItem { Value = "-1", Text = "الرجاء اختيار الموزع" });
-                    foreach (DataRow row in distributorTable.Rows)
-                    {
-                        string value = row["distributorID"]?.ToString()?.Trim() ?? "";
-                        string text = row["distributorName_A"]?.ToString()?.Trim() ?? "";
+                json = JsonSerializer.Serialize(result!.Value);
 
-                        if (!string.IsNullOrEmpty(value))
-                            distributorOptions.Add(new OptionItem { Value = value, Text = text });
-                    }
-                }
+                permissionsOptions = JsonSerializer.Deserialize<List<OptionItem>>(json)!;
 
-
-
-                //To make permission options list for dropdownlist later
-
-                if (ds != null && ds.Tables.Count > 1 && ds.Tables[4].Rows.Count > 0)
-                {
-                    var permissionsTable = ds.Tables[4];
-                    permissionsOptions.Add(new OptionItem { Value = "-1", Text = "الرجاء اختيار الصلاحية" });
-                    foreach (DataRow row in permissionsTable.Rows)
-                    {
-                        string value = row["distributorPermissionTypeID"]?.ToString()?.Trim() ?? "";
-                        string text = row["permissionTypeName_A"]?.ToString()?.Trim() ?? "";
-
-                        if (!string.IsNullOrEmpty(value))
-                            permissionsOptions.Add(new OptionItem { Value = value, Text = text });
-                    }
-                }
-
+                // ----------------------END DDLValues ----------------------
 
 
 
@@ -308,57 +273,7 @@ namespace SmartFoundation.Mvc.Controllers
               + "})();"
                 },
              
-                         
-                   
-                         
-                
               
-              //      new FormButtonConfig
-              //      {
-              //          Text="طباعة",
-              //          Icon="fa-solid fa-print",
-              //          Type="button",
-              //          Color="danger",
-              //          OnClickJs="window.print();"
-              //      },
-
-
-              //      new FormButtonConfig
-              //      {
-              //          Text="رجوع",
-              //          Icon="fa-solid fa-arrow-left",
-              //          Type="button",
-              //          Color="info",
-              //          OnClickJs="history.back();"
-              //      },
-
-              //         new FormButtonConfig
-              //  {
-              //      Text="تست",
-              //      Icon="fa-solid fa-bullhorn",
-              //      Type="button",
-              //      Color="success",
-              //      // Replace the OnClickJs of the "تجربة" button with this:
-              //         OnClickJs = "(function(){"
-              //+ "var full=document.querySelector('input[name=FullName]');"
-              //+ "var fullVal = full ? (full.value || '').trim() : '';"
-              //+ "var cityHidden=document.querySelector('input[name=Users]');"
-              //+ "var cityVal = cityHidden ? (cityHidden.value || '').trim() : '';"
-              //+ "var anchor = cityHidden ? cityHidden.parentElement.querySelector('.sf-select') : null;"
-              //+ "var cityText = anchor && anchor.querySelector('.truncate') ? anchor.querySelector('.truncate').textContent.trim() : '';"
-              //+ "if (!fullVal && !cityVal) { toastr.warning('أدخل النص واختر مدينة أولاً'); return; }"
-              //+ "var url = '/ControlPanel/Permission';"
-              //+ "var params = [];"
-              //+ "if (fullVal) params.push('buildingTypeName_A=' + encodeURIComponent(fullVal));"
-              //+ "if (cityVal) params.push('cityId=' + encodeURIComponent(cityVal));"
-              //+ "if (cityText) params.push('cityName=' + encodeURIComponent(cityText));"
-              //+ "if (params.length) url += '?' + params.join('&');"
-              //+ "window.location.href = url;"
-              //+ "})();"
-
-
-              //  },
-
 
                     }
                 };
@@ -379,8 +294,6 @@ namespace SmartFoundation.Mvc.Controllers
                         if (permissionName == "UPDATE")
                             canUpdate = true;
 
-                        if (permissionName == "UPDATEGN" || permissionName == "UPDATEGN")
-                            canUpdateGN = true;
 
                         if (permissionName == "DELETE")
                             canDelete = true;
@@ -512,23 +425,23 @@ new FieldConfig
     Options = new List<OptionItem> { new OptionItem { Value = "-1", Text = "اختر الموزع أولاً" } }, // Initial empty state
     ColCss = "3",
     Required = true,
-    DependsOn = "p01",              // When p01 changes, fetch new options
-    //DependsUrl = "/crud/DDLFiltered" // Endpoint that returns filtered options
+    DependsOn = "p01",          
     DependsUrl = "/crud/DDLFiltered?FK=distributorID_FK&textcol=permissionTypeName_A&ValueCol=distributorPermissionTypeID&PageName=Permission&TableIndex=4"
 },
 
-                new FieldConfig { Name = "p03", Label = "ملاحظات", Type = "date", ColCss = "3", Required = false }
+                new FieldConfig { Name = "p03", Label = "ملاحظات", Type = "text", ColCss = "3", Required = false },
+                  new FieldConfig { Name = "p04",Value=Q1, Type = "hidden" },
             };
 
 
 
             // Inject required hidden headers for the add (insert) form BEFORE building dsModel:
             addFields.Insert(0, new FieldConfig { Name = "__RequestVerificationToken", Type = "hidden", Value = (Request.Headers["RequestVerificationToken"].FirstOrDefault() ?? "") });
-            addFields.Insert(0, new FieldConfig { Name = "hostname", Type = "hidden", Value = Request.Host.Value });
-            addFields.Insert(0, new FieldConfig { Name = "entrydata", Type = "hidden", Value = "60014016" });
-            addFields.Insert(0, new FieldConfig { Name = "idaraID", Type = "hidden", Value = "1" });
+            addFields.Insert(0, new FieldConfig { Name = "hostname", Type = "hidden", Value = HostName });
+            addFields.Insert(0, new FieldConfig { Name = "entrydata", Type = "hidden", Value = userID.ToString() });
+            addFields.Insert(0, new FieldConfig { Name = "idaraID", Type = "hidden", Value = IdaraID.ToString() });
             addFields.Insert(0, new FieldConfig { Name = "ActionType", Type = "hidden", Value = "INSERT" }); // upper-case
-            addFields.Insert(0, new FieldConfig { Name = "pageName_", Type = "hidden", Value = "BuildingType" });
+            addFields.Insert(0, new FieldConfig { Name = "pageName_", Type = "hidden", Value = PageName });
 
 
 
@@ -538,21 +451,15 @@ new FieldConfig
 
 
 
-
-            //UPDATE
-            // Keep pXX as the visible inputs. They will now prefill automatically from the selected row
-            // because we injected p01..p05 into each row above.
-            // UPDATE fields: make pXX visible (so the binding engine can copy selected row[pXX] values).
-            // Do NOT hide p01 if you need to see the selected id; keep it readonly instead of hidden.
             var updateFields = new List<FieldConfig>
             {
-                new FieldConfig { Name = "redirectAction",      Type = "hidden", Value = nameof(Permission) },
-                new FieldConfig { Name = "redirectController",  Type = "hidden", Value = "Employees" },
-                new FieldConfig { Name = "pageName_",           Type = "hidden", Value = "BuildingType" },
+                new FieldConfig { Name = "redirectAction",      Type = "hidden", Value = PageName },
+                new FieldConfig { Name = "redirectController",  Type = "hidden", Value = ControllerName },
+                new FieldConfig { Name = "pageName_",           Type = "hidden", Value = PageName },
                 new FieldConfig { Name = "ActionType",          Type = "hidden", Value = "UPDATE" },
-                new FieldConfig { Name = "idaraID",             Type = "hidden", Value = "1" },
-                new FieldConfig { Name = "entrydata",           Type = "hidden", Value = "60014016" },
-                new FieldConfig { Name = "hostname",            Type = "hidden", Value = Request.Host.Value },
+                new FieldConfig { Name = "idaraID",             Type = "hidden", Value = IdaraID.ToString() },
+                new FieldConfig { Name = "entrydata",           Type = "hidden", Value = userID.ToString() },
+                new FieldConfig { Name = "hostname",            Type = "hidden", Value = HostName},
                 new FieldConfig { Name = "__RequestVerificationToken", Type = "hidden", Value = (Request.Headers["RequestVerificationToken"].FirstOrDefault() ?? "") },
                 new FieldConfig { Name = rowIdField,            Type = "hidden" },
 
@@ -567,13 +474,13 @@ new FieldConfig
             // Delete fields: show confirmation as a label (not textbox) and show ID as label while still posting p01
             var deleteFields = new List<FieldConfig>
             {
-                new FieldConfig { Name = "redirectAction",     Type = "hidden", Value = nameof(Permission) },
-                new FieldConfig { Name = "redirectController", Type = "hidden", Value = "Employees" },
-                new FieldConfig { Name = "pageName_",          Type = "hidden", Value = "BuildingType" },
+                new FieldConfig { Name = "redirectAction",     Type = "hidden", Value = PageName },
+                new FieldConfig { Name = "redirectController", Type = "hidden", Value = ControllerName },
+                new FieldConfig { Name = "pageName_",          Type = "hidden", Value = PageName },
                 new FieldConfig { Name = "ActionType",         Type = "hidden", Value = "DELETE" },
-                new FieldConfig { Name = "idaraID",            Type = "hidden", Value = "1" },
-                new FieldConfig { Name = "entrydata",          Type = "hidden", Value = "60014016" },
-                new FieldConfig { Name = "hostname",           Type = "hidden", Value = Request.Host.Value },
+                new FieldConfig { Name = "idaraID",            Type = "hidden", Value = IdaraID.ToString() },
+                new FieldConfig { Name = "entrydata",          Type = "hidden", Value = userID.ToString() },
+                new FieldConfig { Name = "hostname",           Type = "hidden", Value = HostName },
                 new FieldConfig { Name = "__RequestVerificationToken", Type = "hidden", Value = (Request.Headers["RequestVerificationToken"].FirstOrDefault() ?? "") },
 
                 // selection context
@@ -607,7 +514,6 @@ new FieldConfig
                     ShowExportExcel = false,
                     ShowAdd = canInsert,
                     ShowEdit = canUpdate,
-                    ShowEdit1 = canUpdateGN,
                     ShowDelete = canDelete,
                     ShowBulkDelete = false,
 

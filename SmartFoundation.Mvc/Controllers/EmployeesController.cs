@@ -428,7 +428,6 @@ namespace SmartFoundation.Mvc.Controllers
                     ShowExportExcel = false,
                     ShowAdd = canInsert,
                     ShowEdit = canUpdate,
-                    ShowEdit1 = canUpdateGN,
                     ShowDelete = canDelete,
                     ShowBulkDelete = false,
 
