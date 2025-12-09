@@ -164,9 +164,16 @@ body, h1, h2, h3, h4, h5, h6, input, textarea, select, button {
             @apply block text-right text-gray-700;
         }
 
+   
     .sf-select-panel {
-        @apply w-full mt-1 bg-white border border-gray-200 rounded-md shadow-lg;
+        @apply w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg;
+        max-height: 50vh; 
+        overflow-y: auto; 
     }
+
+        .sf-select-panel ul {
+            max-height: none; 
+        }
 
     .sf-select-radio {
         @apply inline-block w-4 h-4 border border-gray-300 rounded-full shrink-0;
@@ -175,6 +182,9 @@ body, h1, h2, h3, h4, h5, h6, input, textarea, select, button {
         .sf-select-radio.selected {
             @apply shadow-inner border-emerald-600 bg-emerald-600;
         }
+
+
+
 
     .sf-date {
         @apply block w-full text-base text-gray-900 transition-colors duration-150 bg-white border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:border-emerald-600 disabled:bg-gray-100 disabled:text-gray-500;
@@ -392,7 +402,7 @@ textarea[readonly] {
    Pagination
    ========================= */
 .pagination {
-    @apply flex flex-col items-center justify-between gap-2 mt-3 text-sm text-gray-600 md:flex-row;
+    @apply flex flex-col items-center justify-between gap-2 mt-3 mb-14 text-sm text-gray-600 md:flex-row;
 }
 
 /* ترقيم الصفحة تحت من الى  */

@@ -241,6 +241,8 @@ namespace SmartFoundation.Mvc.Controllers
                     Title = "نموذج الإدخال",
                     Method = "POST",
                     //   ActionUrl = "/AllComponentsDemo/ExecuteDemo",
+                    SubmitText = null,
+                    
 
                     StoredProcedureName = "sp_SaveDemoForm",
                     Operation = "insert",
@@ -603,7 +605,7 @@ new FieldConfig
                 {
                     ShowRefresh = false,
                     ShowColumns = true,
-                    ShowExportCsv = true,
+                    ShowExportCsv = false,
                     ShowExportExcel = false,
                     ShowAdd = canInsert,
                     ShowEdit = canUpdate,

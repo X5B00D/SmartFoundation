@@ -75,7 +75,7 @@
             modal: {
                 open: false,
                 title: "",
-                message: "",   // 👈 جديد
+                message: "",   // جديد
                 html: "",
                 action: null,
                 loading: false,
