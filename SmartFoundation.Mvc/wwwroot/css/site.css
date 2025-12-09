@@ -566,9 +566,6 @@ body, h1, h2, h3, h4, h5, h6, input, textarea, select, button {
   .mr-2 {
     margin-right: calc(var(--spacing) * 2);
   }
-  .mr-3 {
-    margin-right: calc(var(--spacing) * 3);
-  }
   .mr-auto {
     margin-right: auto;
   }
@@ -580,6 +577,9 @@ body, h1, h2, h3, h4, h5, h6, input, textarea, select, button {
   }
   .mb-2 {
     margin-bottom: calc(var(--spacing) * 2);
+  }
+  .mb-4 {
+    margin-bottom: calc(var(--spacing) * 4);
   }
   .ml-2 {
     margin-left: calc(var(--spacing) * 2);
@@ -774,6 +774,9 @@ body, h1, h2, h3, h4, h5, h6, input, textarea, select, button {
   }
   .gap-0\.5 {
     gap: calc(var(--spacing) * 0.5);
+  }
+  .gap-1 {
+    gap: calc(var(--spacing) * 1);
   }
   .gap-1\.5 {
     gap: calc(var(--spacing) * 1.5);
@@ -1161,6 +1164,12 @@ body, h1, h2, h3, h4, h5, h6, input, textarea, select, button {
   .pb-4 {
     padding-bottom: calc(var(--spacing) * 4);
   }
+  .pl-3 {
+    padding-left: calc(var(--spacing) * 3);
+  }
+  .pl-10 {
+    padding-left: calc(var(--spacing) * 10);
+  }
   .text-center {
     text-align: center;
   }
@@ -1176,10 +1185,6 @@ body, h1, h2, h3, h4, h5, h6, input, textarea, select, button {
   .text-2xl {
     font-size: var(--text-2xl);
     line-height: var(--tw-leading, var(--text-2xl--line-height));
-  }
-  .text-3xl {
-    font-size: var(--text-3xl);
-    line-height: var(--tw-leading, var(--text-3xl--line-height));
   }
   .text-base {
     font-size: var(--text-base);
@@ -1314,9 +1319,6 @@ body, h1, h2, h3, h4, h5, h6, input, textarea, select, button {
   }
   .text-white {
     color: var(--color-white);
-  }
-  .text-yellow-500 {
-    color: var(--color-yellow-500);
   }
   .ordinal {
     --tw-ordinal: ordinal;
@@ -2739,34 +2741,22 @@ body, h1, h2, h3, h4, h5, h6, input, textarea, select, button {
     text-align: right;
     color: var(--color-gray-700);
   }
-.sf-select-panel {
+  .sf-select-panel {
     margin-top: calc(var(--spacing) * 1);
     width: 100%;
-    border-radius: var(--radius-md);
+    border-radius: var(--radius-lg);
     border-style: var(--tw-border-style);
     border-width: 1px;
-    border-color: var(--color-gray-200);
+    border-color: var(--color-gray-300);
     background-color: var(--color-white);
     --tw-shadow: 0 10px 15px -3px var(--tw-shadow-color, rgb(0 0 0 / 0.1)), 0 4px 6px -4px var(--tw-shadow-color, rgb(0 0 0 / 0.1));
     box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
-
-    max-height: 50vh; /* limit panel height */
-    overflow-y: auto; /* enable vertical scroll */
-    overscroll-behavior: contain;
-}
-
-    /* Ensure the list inside can scroll */
-    .sf-select-panel ul {
-        max-height: 60vh;
-        overflow-y: auto;
-    }
-
-/* If a modal/container blocks scrolling */
-.sf-modal .sf-modal-body,
-.sf-form-container {
-    overflow-y: visible;
-}
-
+    max-height: 50vh;
+    overflow-y: auto;
+  }
+  .sf-select-panel ul {
+    max-height: none;
+  }
   .sf-select-radio {
     display: inline-block;
     height: calc(var(--spacing) * 4);
@@ -3372,6 +3362,7 @@ input[readonly], textarea[readonly] {
 }
 .pagination {
   margin-top: calc(var(--spacing) * 3);
+  margin-bottom: calc(var(--spacing) * 14);
   display: flex;
   flex-direction: column;
   align-items: center;
