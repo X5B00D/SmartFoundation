@@ -24,6 +24,7 @@
         columns = Model.Columns ?? new List<TableColumn>(),
         actions = new List<object>(), // row actions not used here; toolbar contains add/edit actions
         selectable = true,
+        singleSelect = true,
         rowIdField = Model.RowIdField ?? "Id",
         rows = Model.Rows ?? new List<Dictionary<string, object?>>(),
         toolbar = Model.Toolbar ?? new TableToolbarConfig()
@@ -142,9 +143,13 @@
                 </template>
 
                 <template x-for="(row, idx) in rows" :key="row[rowIdField] ?? idx">
-                    <tr class="tr-row">
+                    <tr class="tr-row" x-on:click="toggleRow(row)" style="cursor: pointer;">
                         <td x-show="selectable" class="td-cell">
-                            <input type="checkbox" class="sf-checkbox" :value="row[rowIdField]" x-on:click="toggleRow(row)" :checked="isSelected(row)" />
+                            <input type="checkbox"
+                                   class="sf-checkbox"
+                                   :value="row[rowIdField]"
+                                   x-on:click.stop="toggleRow(row)"
+                                   :checked="isSelected(row)" />
                         </td>
 
                         <template x-for="col in visibleColumns()" :key="col.field">
@@ -154,7 +159,11 @@
                         <td x-show="actions.length > 0" class="td-cell">
                             <div class="actions-list">
                                 <template x-for="act in actions" :key="act.label">
-                                    <button type="button" class="btn" :class="'btn-' + (act.color||'secondary')" x-on:click="doAction(act, row)" x-show="act.show !== false">
+                                    <button type="button"
+                                            class="btn"
+                                            :class="'btn-' + (act.color||'secondary')"
+                                            x-on:click.stop="doAction(act, row)"
+                                            x-show="act.show !== false">
                                         <i :class="act.icon"></i> <span x-text="act.label"></span>
                                     </button>
                                 </template>

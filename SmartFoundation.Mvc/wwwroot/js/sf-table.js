@@ -38,7 +38,63 @@
             // Selection
             selectable: !!cfg.selectable,
             rowIdField: cfg.rowIdField || "Id",
-            
+            singleSelect: !!cfg.singleSelect, // NEW: read from config
+
+            // ===== Selection Management =====
+            toggleRow(row) {
+                const key = row?.[this.rowIdField];
+                if (key == null) return;
+
+                if (this.singleSelect) {
+                    // clicking selected row → clear all; else select only this row
+                    if (this.selectedKeys.has(key)) {
+                        this.selectedKeys.clear();
+                    } else {
+                        this.selectedKeys.clear();
+                        this.selectedKeys.add(key);
+                    }
+                } else {
+                    // original multi-select
+                    if (this.selectedKeys.has(key)) {
+                        this.selectedKeys.delete(key);
+                    } else {
+                        this.selectedKeys.add(key);
+                    }
+                }
+                this.updateSelectAllState();
+            },
+
+            toggleSelectAll() {
+                if (this.singleSelect) {
+                    // In single-select mode, select first visible row or clear
+                    if (this.selectAll && this.rows.length > 0) {
+                        this.selectedKeys.clear();
+                        this.selectedKeys.add(this.rows[0][this.rowIdField]);
+                    } else {
+                        this.selectedKeys.clear();
+                    }
+                } else {
+                    if (this.selectAll) {
+                        this.rows.forEach(row => this.selectedKeys.add(row[this.rowIdField]));
+                    } else {
+                        this.selectedKeys.clear();
+                    }
+                }
+                this.updateSelectAllState();
+            },
+
+            updateSelectAllState() {
+                if (this.singleSelect) {
+                    // selectAll reflects whether one selected exists on current page
+                    const pageKeys = new Set(this.rows.map(r => r[this.rowIdField]));
+                    const hasOnPage = Array.from(this.selectedKeys).some(k => pageKeys.has(k));
+                    this.selectAll = hasOnPage && this.selectedKeys.size === 1;
+                    return;
+                }
+                this.selectAll = this.rows.length > 0 &&
+                    this.rows.every(row => this.selectedKeys.has(row[this.rowIdField]));
+            },
+
             // Grouping & Storage
             groupBy: cfg.groupBy || null,
             storageKey: cfg.storageKey || null,
@@ -365,26 +421,56 @@
 
             // ===== Selection Management =====
             toggleRow(row) {
-                const key = row[this.rowIdField];
-                if (this.selectedKeys.has(key)) {
-                    this.selectedKeys.delete(key);
+                const key = row?.[this.rowIdField];
+                if (key == null) return;
+
+                if (this.singleSelect) {
+                    // clicking selected row → clear all; else select only this row
+                    if (this.selectedKeys.has(key)) {
+                        this.selectedKeys.clear();
+                    } else {
+                        this.selectedKeys.clear();
+                        this.selectedKeys.add(key);
+                    }
                 } else {
-                    this.selectedKeys.add(key);
+                    // original multi-select
+                    if (this.selectedKeys.has(key)) {
+                        this.selectedKeys.delete(key);
+                    } else {
+                        this.selectedKeys.add(key);
+                    }
                 }
                 this.updateSelectAllState();
             },
 
             toggleSelectAll() {
-                if (this.selectAll) {
-                    this.rows.forEach(row => this.selectedKeys.add(row[this.rowIdField]));
+                if (this.singleSelect) {
+                    // In single-select mode, select first visible row or clear
+                    if (this.selectAll && this.rows.length > 0) {
+                        this.selectedKeys.clear();
+                        this.selectedKeys.add(this.rows[0][this.rowIdField]);
+                    } else {
+                        this.selectedKeys.clear();
+                    }
                 } else {
-                    this.selectedKeys.clear();
+                    if (this.selectAll) {
+                        this.rows.forEach(row => this.selectedKeys.add(row[this.rowIdField]));
+                    } else {
+                        this.selectedKeys.clear();
+                    }
                 }
                 this.updateSelectAllState();
             },
 
             updateSelectAllState() {
-                this.selectAll = this.rows.length > 0 && 
+                if (this.singleSelect) {
+                    // selectAll reflects whether one selected exists on current page
+                    const pageKeys = new Set(this.rows.map(r => r[this.rowIdField]));
+                    const hasOnPage = Array.from(this.selectedKeys).some(k => pageKeys.has(k));
+                    this.selectAll = hasOnPage && this.selectedKeys.size === 1;
+                    return;
+                }
+                this.selectAll = this.rows.length > 0 &&
                     this.rows.every(row => this.selectedKeys.has(row[this.rowIdField]));
             },
 
@@ -1422,6 +1508,40 @@
         document.addEventListener("alpine:init", register);
     }
 })();
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
