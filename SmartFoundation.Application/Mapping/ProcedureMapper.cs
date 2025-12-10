@@ -1,3 +1,6 @@
+using System;
+using System.Collections.Generic;
+
 namespace SmartFoundation.Application.Mapping;
 
 /// <summary>
@@ -20,8 +23,10 @@ public static class ProcedureMapper
         { "MastersCrud:crud", "dbo.Masters_CRUD" },
         
         // Menu operations
-        { "menu:list", "dbo.ListOfMenuByUser_MVC" },
+        //{ "menu:list", "dbo.GetUserMenuTree" },
         { "menu:listAll", "dbo.sp_GetAllMenuItems" },
+        { "menu:tree", "dbo.GetUserMenuTree" },
+        { "menu:sami", "dbo.GetUserMenuTree" },
         
         // Dashboard operations
         { "dashboard:summary", "dbo.sp_GetDashboardSummary" },

@@ -1,6 +1,6 @@
 USE [DATACORE]
 GO
-/****** Object:  View [dbo].[V_GetListUserPermission]    Script Date: 10/12/2025 01:18:21 ص ******/
+/****** Object:  View [dbo].[V_GetListUserPermission]    Script Date: 11/12/2025 12:28:45 ص ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -29,7 +29,239 @@ WHERE        (m.menuActive = 1) AND (md.menuDistributorActive = 1) AND (d.distri
                          (dpt.distributorPermissionTypeStartDate IS NOT NULL) AND (CAST(dpt.distributorPermissionTypeStartDate AS date) <= CAST(GETDATE() AS date)) AND (p.permissionStartDate IS NOT NULL) AND 
                          (CAST(dpt.distributorPermissionTypeEndDate AS date) >= CAST(GETDATE() AS date)) AND (p.permissionEndDate IS NULL)
 GO
-/****** Object:  StoredProcedure [dbo].[Masters_CRUD]    Script Date: 10/12/2025 01:18:21 ص ******/
+/****** Object:  StoredProcedure [dbo].[GetUserMenuTree]    Script Date: 11/12/2025 12:28:45 ص ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE   PROCEDURE [dbo].[GetUserMenuTree]
+    @UserID int
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    ;WITH UserPermMenus AS
+    (
+        -- المنيوهات اللي للمستخدم عليها صلاحية فعلية
+        SELECT DISTINCT
+            mt.menuID
+        FROM dbo.V_MenuTree AS mt
+        LEFT JOIN dbo.MenuDistributor AS md
+            ON md.menuID_FK = mt.menuID 
+           AND md.menuDistributorActive = 1 
+
+        LEFT JOIN dbo.Distributor AS d
+            ON d.distributorID = md.distributorID_FK 
+           AND d.distributorActive = 1
+
+        INNER JOIN dbo.DistributorPermissionType dpt 
+            ON d.distributorID = dpt.distributorID_FK 
+           AND dpt.distributorPermissionTypeActive = 1 
+           AND dpt.distributorPermissionTypeStartDate IS NOT NULL 
+           AND CAST(dpt.distributorPermissionTypeStartDate AS date) <= CAST(GETDATE() AS date)
+           AND (
+                  dpt.distributorPermissionTypeEndDate IS NULL 
+                  OR CAST(dpt.distributorPermissionTypeEndDate AS date) > CAST(GETDATE() AS date)
+               )
+
+        INNER JOIN dbo.Permission p 
+            ON dpt.distributorPermissionTypeID = p.DistributorPermissionTypeID_FK
+           AND p.permissionActive = 1 
+           AND p.permissionStartDate IS NOT NULL 
+           AND CAST(p.permissionStartDate AS date) <= CAST(GETDATE() AS date)
+           AND (
+                  p.permissionEndDate IS NULL 
+                  OR CAST(p.permissionEndDate AS date) > CAST(GETDATE() AS date)
+               )
+
+        INNER JOIN dbo.PermissionType pt 
+            ON dpt.permissionTypeID_FK = pt.permissionTypeID
+           AND pt.permissionTypeActive = 1 
+
+        INNER JOIN dbo.V_GetListUsersInDSD dsd 
+            ON dsd.userID = p.UserID_FK
+
+        INNER JOIN dbo.V_GetFullStructureForDSD f 
+            ON dsd.DSDID = f.DSDID
+
+        WHERE dsd.userID = @UserID
+    ),
+    MenuHierarchy AS
+    (
+        -- المنيوهات المصرّح بها للمستخدم
+        SELECT 
+            mt.*
+        FROM dbo.V_MenuTree AS mt
+        INNER JOIN UserPermMenus AS up
+            ON up.menuID = mt.menuID
+
+        UNION ALL
+
+        -- جميع الآباء فوقها
+        SELECT 
+            parent.*
+        FROM dbo.V_MenuTree AS parent
+        INNER JOIN MenuHierarchy AS child
+            ON child.parentMenuID_FK = parent.menuID
+    ),
+    ProgramNodes AS
+    (
+        -- عقد البرامج كـ Level 1
+        SELECT DISTINCT
+            mh.programID,
+            mh.programName_A,
+            mh.programName_E,
+            mh.programIcon,
+            mh.programLink,
+            mh.programSerial,
+
+            CAST(NULL AS int)               AS menuID,
+            CAST(NULL AS nvarchar(100))     AS menuName_A,
+            CAST(NULL AS nvarchar(100))     AS menuName_E,
+            CAST(NULL AS nvarchar(4000))    AS menuDescription,
+            CAST(NULL AS nvarchar(1000))    AS menuLink,
+            CAST(NULL AS int)               AS parentMenuID_FK,
+            CAST(NULL AS int)               AS programID_FK,
+            CAST(NULL AS int)               AS menuSerial,
+            CAST(NULL AS bit)               AS menuActive,
+            CAST(NULL AS bit)               AS isDashboard,
+            CAST(1 AS int)                  AS LevelNo,     -- البرنامج = لفل 1
+            mh.programName_A                AS PathName_A,
+            mh.programName_E                AS PathName_E,
+            CAST(
+                RIGHT('0000' + CAST(ISNULL(mh.programSerial, mh.programID) AS varchar(4)), 4)
+                AS varchar(500)
+            ) AS SortKey,
+            CAST(1 AS int)                  AS HasPermissionForUser,
+            mh.programName_A                AS IndentedMenuName
+        FROM MenuHierarchy AS mh
+    ),
+    MenuNodes AS
+    (
+        -- عقد المنيو من الشجرة مع رفع المستوى +1
+        SELECT DISTINCT
+            mh.programID,
+            mh.programName_A,
+            mh.programName_E,
+            mh.programIcon,
+            mh.programLink,
+            mh.programSerial,
+
+            mh.menuID,
+            mh.menuName_A,
+            mh.menuName_E,
+            mh.menuDescription,
+            mh.menuLink,
+            mh.parentMenuID_FK,
+            mh.programID_FK,
+            mh.menuSerial,
+            mh.menuActive,
+            mh.isDashboard,
+            mh.LevelNo + 1 AS LevelNo,         -- نرفع المستوى 1 عشان البرنامج يكون 1
+            mh.PathName_A,
+            mh.PathName_E,
+            mh.SortKey,
+            CASE 
+                WHEN up.menuID IS NULL THEN 0 
+                ELSE 1 
+            END AS HasPermissionForUser,
+            REPLICATE(N'   ', mh.LevelNo) + mh.menuName_A AS IndentedMenuName
+        FROM MenuHierarchy AS mh
+        LEFT JOIN UserPermMenus AS up
+            ON up.menuID = mh.menuID
+    )
+
+
+    --select alls.MPID,alls.menuName_A,alls.MPSerial,alls.MPLink ,alls.parentMenuID_FK,alls.programID,isnull(parentMenuID_FK ,programID ) parents,alls.Levels, alls.MPIcon
+
+
+    -- النتيجة النهائية: Program + Menus
+    SELECT 
+
+        programID as MPID, 
+        programName_A AS menuName_A,
+        programSerial as MPSerial,
+        programLink MPLink,
+        parentMenuID_FK,
+        --programID_FK as programID,
+        parentMenuID_FK  as parents,
+        LevelNo as Levels,
+        programIcon as MPIcon,
+
+
+        programName_A AS MenuNameForView,
+        LevelNo,
+        menuLink,
+        PathName_A,
+        PathName_E,
+        programID,
+        programName_A,
+        programName_E,
+        programIcon,
+        programLink,
+        programSerial,
+        menuID,
+        --menuName_A,
+        --menuName_E,
+        --menuDescription,
+        --parentMenuID_FK,
+       -- programID_FK,
+       -- menuSerial,
+       -- menuActive,
+       -- isDashboard,
+        SortKey,
+        HasPermissionForUser,
+        IndentedMenuName
+        
+    FROM ProgramNodes
+
+    UNION ALL
+
+    SELECT 
+
+        menuID as MPID, 
+        menuName_A AS menuName_A,
+        menuSerial as MPSerial,
+        programLink MPLink,
+        parentMenuID_FK,
+        --programID_FK as programID,
+        isnull(parentMenuID_FK ,programID ) as parents,
+        LevelNo as Levels,
+        programIcon as MPIcon,
+
+
+        menuName_A AS MenuNameForView,
+        LevelNo,
+        menuLink,
+        PathName_A,
+        PathName_E,
+        programID,
+        programName_A,
+        programName_E,
+        programIcon,
+        programLink,
+        programSerial,
+       
+        menuID,
+       -- menuName_A,
+        --menuName_E,
+       -- menuDescription,
+       -- parentMenuID_FK,
+       -- programID_FK,
+       -- menuSerial,
+       -- menuActive,
+       -- isDashboard,
+        SortKey,
+        HasPermissionForUser,
+        IndentedMenuName
+        
+    FROM MenuNodes
+    ORDER BY 
+        SortKey, LevelNo
+    OPTION (MAXRECURSION 50);
+END
+GO
+/****** Object:  StoredProcedure [dbo].[Masters_CRUD]    Script Date: 11/12/2025 12:28:45 ص ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -467,7 +699,7 @@ END
 ----/////////////////////////////////////NAVER TOUCH UP CODE PLEASE/////////////////////////////////////////---
 
 GO
-/****** Object:  StoredProcedure [dbo].[Masters_DataLoad]    Script Date: 10/12/2025 01:18:21 ص ******/
+/****** Object:  StoredProcedure [dbo].[Masters_DataLoad]    Script Date: 11/12/2025 12:28:45 ص ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -518,6 +750,7 @@ BEGIN
 			FROM DATACORE.dbo.V_GetListUserPermission v 
 			where v.userID = @entrydata 
 			AND v.menuName_E = @pageName_
+
 		---/////////////////////--END User Permission Data--////////////////////////--
 
 
@@ -530,8 +763,7 @@ BEGIN
 			FROM [DATACORE].[dbo].[V_GetListUserPermission] p
 			inner join DATACORE.dbo.V_GetListUsersInDSD d on p.userID = d.userID
 			inner join [DATACORE].[dbo].[V_GetFullStructureForDSD] f on f.DSDID = d.DSDID
-			where f.idaraID_FK = @idaraID 
-			and p.userID = @parameter_01
+			where f.idaraID_FK = @idaraID --and 1=2
 			order by p.permissionID desc
 
 			
@@ -653,6 +885,51 @@ BEGIN
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 ----/////////////////////////////////////NAVER TOUCH DOWN CODE PLEASE/////////////////////////////////////////---
    
     ELSE
@@ -715,7 +992,7 @@ END
 ----/////////////////////////////////////NAVER TOUCH UP CODE PLEASE/////////////////////////////////////////---
 
 GO
-/****** Object:  StoredProcedure [dbo].[PermissionSP]    Script Date: 10/12/2025 01:18:21 ص ******/
+/****** Object:  StoredProcedure [dbo].[PermissionSP]    Script Date: 11/12/2025 12:28:45 ص ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -1114,6 +1391,613 @@ BEGIN
     END
 END CATCH
 
+END;
+GO
+/****** Object:  StoredProcedure [dbo].[SetUserPassword]    Script Date: 11/12/2025 12:28:45 ص ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE   PROCEDURE [dbo].[SetUserPassword]
+(
+    @UserID          NVARCHAR(20),     -- الرقم العام / رقم المستخدم
+    @PlainPassword   NVARCHAR(200),    -- كلمة المرور الجديدة
+    @entryData       NVARCHAR(20),     -- المستخدم الذي قام بالتعديل
+    @hostName        NVARCHAR(200) = NULL
+)
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    DECLARE @Salt       VARBINARY(32);
+    DECLARE @Hash       VARBINARY(64);
+
+    DECLARE @PrevSalt   VARBINARY(32);
+    DECLARE @PrevHash   VARBINARY(64);
+    DECLARE @Candidate  VARBINARY(64);
+
+    BEGIN TRY
+
+        ----------------------------------------------------
+        -- 0) التحقق أن المستخدم موجود وفعال في جدول [User]
+        ----------------------------------------------------
+        IF NOT EXISTS (
+            SELECT 1 
+            FROM DATACORE.dbo.[User]
+            WHERE IDNumber = @UserID
+              AND userActive = 1
+        )
+        BEGIN
+            SELECT 0 AS IsSuccessful,
+                   N'المستخدم غير موجود أو غير فعّال في النظام.' AS Message_;
+            RETURN;
+        END
+
+
+        ----------------------------------------------------
+        -- 1) التحقق من تعقيد كلمة المرور الجديدة
+        ----------------------------------------------------
+        IF LEN(@PlainPassword) < 8
+           OR @PlainPassword NOT LIKE '%[0-9]%'      -- لا تحتوي رقم
+           OR @PlainPassword NOT LIKE '%[A-Za-z]%'   -- لا تحتوي حرف إنجليزي
+        BEGIN
+            SELECT 0 AS IsSuccessful,
+                   N'كلمة المرور غير مقبولة. يجب أن لا تقل عن 8 خانات وتحتوي على حروف إنجليزية وأرقام.' AS Message_;
+            RETURN;
+        END
+
+
+        ----------------------------------------------------
+        -- 2) التأكد أن كلمة المرور الجديدة ليست نفسها القديمة
+        ----------------------------------------------------
+        SELECT TOP (1)
+            @PrevSalt = PasswordSalt,
+            @PrevHash = PasswordHash
+        FROM dbo.userPassword
+        WHERE IDNumber_FK = @UserID
+          AND ISNULL(userPasswordActive, 1) = 1
+        ORDER BY userPasswordStartDate DESC, userPasswordID DESC;
+
+        IF @PrevHash IS NOT NULL
+        BEGIN
+            SET @Candidate = HASHBYTES(
+                                'SHA2_256',
+                                @PrevSalt + CAST(@PlainPassword AS VARBINARY(200))
+                             );
+
+            IF @Candidate = @PrevHash
+            BEGIN
+                SELECT 0 AS IsSuccessful,
+                       N'لا يمكن استخدام نفس كلمة المرور السابقة. الرجاء اختيار كلمة مرور جديدة مختلفة.' AS Message_;
+                RETURN;
+            END
+        END
+
+
+        ----------------------------------------------------
+        -- 3) البدء في المعاملة
+        ----------------------------------------------------
+        BEGIN TRANSACTION;
+
+        -- تعطيل كل كلمات المرور السابقة
+        UPDATE dbo.userPassword
+        SET 
+            userPasswordActive  = 0,
+            userPasswordEndDate = CAST(GETDATE() AS DATE)
+        WHERE IDNumber_FK = @UserID
+          AND ISNULL(userPasswordActive, 1) = 1;
+
+
+        ----------------------------------------------------
+        -- 4) إنشاء Salt جديد + Hash جديد
+        ----------------------------------------------------
+        SET @Salt = CRYPT_GEN_RANDOM(32);
+
+        SET @Hash = HASHBYTES(
+                        'SHA2_256',
+                        @Salt + CAST(@PlainPassword AS VARBINARY(200))
+                    );
+
+
+        ----------------------------------------------------
+        -- 5) إدخال كلمة المرور الجديدة
+        ----------------------------------------------------
+        INSERT INTO dbo.userPassword
+        (
+            IDNumber_FK,
+            PasswordHash,
+            PasswordSalt,
+            HashAlgorithm,
+            userPasswordStartDate,
+            userPasswordActive,
+            entryDate,
+            entryData,
+            hostName
+        )
+        VALUES
+        (
+            @UserID,
+            @Hash,
+            @Salt,
+            'SHA2_256',
+            CAST(GETDATE() AS DATE),
+            1,
+            GETDATE(),
+            @entryData,
+            ISNULL(@hostName, HOST_NAME())
+        );
+
+        COMMIT TRANSACTION;
+
+        SELECT 1 AS IsSuccessful,
+               N'تم تحديث كلمة المرور / إنشاؤها بنجاح.' AS Message_;
+
+
+    END TRY
+    BEGIN CATCH
+
+        IF @@TRANCOUNT > 0
+            ROLLBACK TRANSACTION;
+
+        SELECT 0 AS IsSuccessful,
+               N'حصل خطأ أثناء تنفيذ العملية: ' + ERROR_MESSAGE() AS Message_;
+    END CATCH
+END
+GO
+/****** Object:  StoredProcedure [Housing].[BuildingClassSP]    Script Date: 11/12/2025 12:28:45 ص ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE PROCEDURE [Housing].[BuildingClassSP] ( @Action NVARCHAR(200)   
+										  ,@buildingClassID bigint					   =   NULL
+										  ,@buildingClassName_A nvarchar(100)		   =   NULL
+										  ,@buildingClassName_E nvarchar(100)		   =   NULL
+										  ,@buildingClassDescription nvarchar(1000)	   =   NULL
+										  ,@entryData nvarchar(20)					   =   NULL
+										  ,@hostName nvarchar(200)				       =  NULL
+										  )
+AS
+BEGIN
+	SET NOCOUNT ON; 
+    DECLARE @ErrorMessage NVARCHAR(4000)
+	, @NewID        INT
+	, @Note         NVARCHAR(MAX)
+	, @Identity_Insert NVARCHAR(500)
+	, @Identity_Update NVARCHAR(500)
+	, @Identity_Delete NVARCHAR(500);
+	BEGIN TRY
+	BEGIN TRANSACTION;
+	IF @Action = 'INSERT'
+
+
+	BEGIN
+		
+		
+			IF ( select count (*) from DATACORE.Housing.BuildingClass c where c.buildingClassName_A= @buildingClassName_A  ) > 0 
+		    BEGIN
+				
+				SELECT 0 As IsSuccessful,N'البيانات مدخلة مسبقا' AS Message_
+			 END 
+		ELSE
+			 BEGIN
+
+	INSERT INTO DATACORE.[Housing].BuildingClass
+           ([buildingClassName_A]
+           ,[buildingClassName_E]
+           ,[buildingClassDescription]
+           ,[buildingClassActive]
+           ,[entryData]
+           ,[hostName])
+     VALUES
+           (@buildingClassName_A 
+           ,@buildingClassName_E 
+           ,@buildingClassDescription 
+           ,1 
+           ,@entryData 
+           ,@hostName )
+
+
+           
+     
+
+        SET @NewID = SCOPE_IDENTITY(); 
+        SET @Note = '{' + '"buildingClassName_A": "' + ISNULL(CONVERT(NVARCHAR(MAX), @buildingClassName_A), '') + '"' 
+		+ ',' + '"buildingClassName_E": "' + ISNULL(CONVERT(NVARCHAR(MAX), @buildingClassName_E), '') + '"' + ',' + '"buildingClassDescription": "' + ISNULL(CONVERT(NVARCHAR(MAX), @buildingClassDescription), '') + '"' 
+		+ ',' + '"buildingClassActive": "' + ISNULL(CONVERT(NVARCHAR(MAX), 1), '') + '"' + ',' + '"entryData": "' + ISNULL(CONVERT(NVARCHAR(MAX), @entryData), '') + '"'
+		+ ',' + '"hostName": "' + ISNULL(CONVERT(NVARCHAR(MAX), @hostName), '') + '"' + '}'; 
+
+
+		SET @Identity_Insert = SCOPE_IDENTITY(); 
+		IF(@Identity_Insert > 0)
+		Begin
+		        INSERT INTO DATACORE.dbo.AuditLog ( TableName,            ActionType, RecordID, PerformedBy,  Notes )
+		VALUES                ( '[Housing].[BuildingClass]', 'INSERT',   @NewID,   @entryData, @Note ); 
+        COMMIT;
+		SELECT 1 As IsSuccessful,N'تم اضافة البيانات بنجاح' AS Message_
+		END
+	ELSE
+	    Begin
+		       
+        RollBAck;
+		SELECT 0 As IsSuccessful,N'حصل خطأ في اضافة البيانات ' AS Message_
+		END
+
+
+	END 
+	END
+
+
+    ELSE IF @Action = 'UPDATE'
+		BEGIN
+			IF EXISTS (SELECT 1
+				FROM DATACORE.[Housing].[BuildingClass]
+				WHERE BuildingClassID = @BuildingClassID)
+			BEGIN
+				UPDATE DATACORE.[Housing].[BuildingClass]
+				SET  [BuildingClassName_A]	  =ISNULL(@BuildingClassName_A, [BuildingClassName_A])
+				,   [BuildingClassName_E]	  =ISNULL(@BuildingClassName_E, [BuildingClassName_E])
+				,   [BuildingClassDescription] =ISNULL(@BuildingClassDescription, [BuildingClassActive])
+				,   [BuildingClassActive]	  =ISNULL(1, [BuildingClassActive])
+				,   [entryData]			      =ISNULL(@entryData, [entryData])
+				,   [hostName]			      =ISNULL(@entryData,  [hostName])
+				WHERE [BuildingClassID] = @BuildingClassID; 
+
+				
+				 SET @Note = '{' + '"BuildingClassName_A": "' + ISNULL(CONVERT(NVARCHAR(MAX), @BuildingClassName_A), '') + '"' 
+							+ ',' + '"BuildingClassName_E": "' + ISNULL(CONVERT(NVARCHAR(MAX), @BuildingClassName_E), '') + '"' + ',' + '"BuildingClassDescription": "' + ISNULL(CONVERT(NVARCHAR(MAX), @BuildingClassDescription), '') + '"' 
+							+ ',' + '"BuildingClassActive": "' + ISNULL(CONVERT(NVARCHAR(MAX), 1), '') + '"' + ',' + '"entryData": "' + ISNULL(CONVERT(NVARCHAR(MAX), @entryData), '') + '"'
+							+ ',' + '"hostName": "' + ISNULL(CONVERT(NVARCHAR(MAX), @hostName), '') + '"' + '}'; 
+
+
+
+
+							SET @Identity_Update = @@ROWCOUNT; 
+		IF(@Identity_Update > 0)
+		Begin
+		         INSERT INTO AuditLog ( TableName,            ActionType, RecordID, PerformedBy,  Notes )
+					VALUES                ( '[Housing].[BuildingClass]', 'UPDATE',   @NewID,   @entryData, @Note ); 
+				COMMIT;
+				SELECT 1 As IsSuccessful,N'تم تحديث البيانات بنجاح' AS Message_
+		END
+	ELSE
+	    Begin
+		       
+        RollBAck;
+		SELECT 0 As IsSuccessful,N'حصل خطأ في تحديث البيانات ' AS Message_
+		END
+
+
+
+				
+			END 
+			ELSE 
+			SELECT 0 As IsSuccessful,N'حصل خطأ في تحديث البيانات x' AS Message_
+
+
+		END 
+
+		 ELSE IF @Action = 'DELETE'
+		BEGIN
+			IF EXISTS (SELECT 1
+				FROM DATACORE.[Housing].[BuildingClass]
+				WHERE BuildingClassID = @BuildingClassID)
+			BEGIN
+				UPDATE DATACORE.[Housing].[BuildingClass]
+				SET [BuildingClassActive]		  = 0
+				WHERE [BuildingClassID] = @BuildingClassID; 
+
+				 SET @Note = '{' + '"BuildingClassName_A": "' + ISNULL(CONVERT(NVARCHAR(MAX), @BuildingClassName_A), '') + '"' 
+							+ ',' + '"BuildingClassName_E": "' + ISNULL(CONVERT(NVARCHAR(MAX), @BuildingClassName_E), '') + '"' + ',' + '"BuildingClassDescription": "' + ISNULL(CONVERT(NVARCHAR(MAX), @BuildingClassDescription), '') + '"' 
+							+ ',' + '"BuildingClassActive": "' + ISNULL(CONVERT(NVARCHAR(MAX), 1), '') + '"' + ',' + '"entryData": "' + ISNULL(CONVERT(NVARCHAR(MAX), @entryData), '') + '"'
+							+ ',' + '"hostName": "' + ISNULL(CONVERT(NVARCHAR(MAX), @hostName), '') + '"' + '}'; 
+
+
+							
+							SET @Identity_Update = @@ROWCOUNT; 
+		IF(@Identity_Update > 0)
+		Begin
+		         INSERT INTO AuditLog ( TableName,            ActionType, RecordID, PerformedBy,  Notes )
+					VALUES                ( '[Housing].[BuildingClass]', 'UPDATE',   @NewID,   @entryData, @Note ); 
+				COMMIT;
+				SELECT 1 As IsSuccessful,N'تم حذف البيانات بنجاح' AS Message_
+		END
+	ELSE
+	    Begin
+		       
+        RollBAck;
+		SELECT 0 As IsSuccessful,N'حصل خطأ في حذف البيانات ' AS Message_
+		END
+
+
+
+				
+			END 
+			ELSE 
+			SELECT 0 As IsSuccessful,N'حصل خطأ في حذف البيانات x' AS Message_
+
+
+		END 
+
+	 
+	ELSE 
+	SELECT 0 As IsSuccessful,N'العملية غير مسجلة' AS Message_
+		
+	END TRY
+	BEGIN CATCH
+	IF @@TRANCOUNT > 0
+
+		 DECLARE @ErrMsg NVARCHAR(4000), @ErrSeverity INT, @ErrState INT,@IdentityCatchError int
+        --SELECT 
+          set  @ErrMsg = cast(ERROR_MESSAGE() as nvarchar(4000));
+          set  @ErrSeverity = cast(ERROR_SEVERITY()as nvarchar(4000));
+          set  @ErrState = cast(ERROR_STATE()as nvarchar(4000));
+
+		  INSERT INTO DATACORE.dbo.ErrorLog
+		  (ERROR_MESSAGE_,
+		  ERROR_SEVERITY_,
+		  ERROR_STATE_,
+		  SP_NAME,
+		  entryData,
+		  hostName)
+		  Values
+		  (@ErrMsg,
+		  @ErrSeverity,
+		  @ErrState,
+		  N'[Housing].[BuildingClassSP]',
+		  @entrydata,
+		  @hostName
+		  )
+
+		  set @IdentityCatchError = SCOPE_IDENTITY()
+		  if(@IdentityCatchError > 0)
+		  Begin
+
+		   SELECT 0 As IsSuccessful,N'حصل خطأ غير معروف رمز الخطأ : '+CAST(@IdentityCatchError as nvarchar(200)) AS Message_
+
+		  END
+    ELSE
+		  BEGIN
+
+		   SELECT 0 As IsSuccessful,N'حصل خطأ غير معروف رمز الخطأ : xxx'
+
+		  END
+
+
+		ROLLBACK;
+	--SET @ErrorMessage = ERROR_MESSAGE();
+	--RAISERROR(@ErrorMessage, 16, 1);
+	END CATCH
+END;
+GO
+/****** Object:  StoredProcedure [Housing].[BuildingTypeSP]    Script Date: 11/12/2025 12:28:45 ص ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE PROCEDURE [Housing].[BuildingTypeSP] ( @Action NVARCHAR(200)   
+										  ,@buildingTypeID bigint					   =   NULL
+                                          ,@buildingTypeCode nvarchar(10)              =   NULL
+										  ,@buildingTypeName_A nvarchar(100)		   =   NULL
+										  ,@buildingTypeName_E nvarchar(100)		   =   NULL
+										  ,@buildingTypeDescription nvarchar(1000)	   =   NULL
+										  ,@entryData nvarchar(20)					   =   NULL
+										  ,@hostName nvarchar(200)				       =  NULL
+										  )
+AS
+BEGIN
+	SET NOCOUNT ON; 
+    DECLARE @ErrorMessage NVARCHAR(4000)
+	, @NewID        INT
+	, @Note         NVARCHAR(MAX)
+	, @Identity_Insert NVARCHAR(500)
+	, @Identity_Update NVARCHAR(500)
+	, @Identity_Delete NVARCHAR(500);
+	BEGIN TRY
+	BEGIN TRANSACTION;
+	IF @Action = 'INSERT'
+
+
+	BEGIN
+		
+		
+			IF ( select count (*) from DATACORE.Housing.BuildingType bt where bt.buildingTypeName_A= @buildingTypeName_A  ) > 0 
+		    BEGIN
+				
+				SELECT 0 As IsSuccessful,N'البيانات مدخلة مسبقا' AS Message_
+			 END 
+		ELSE
+			 BEGIN
+
+	INSERT INTO DATACORE.[Housing].[BuildingType]
+           ([buildingTypeCode]
+           ,[buildingTypeName_A]
+           ,[buildingTypeName_E]
+           ,[buildingTypeDescription]
+           ,[buildingTypeActive]
+           ,[entryData]
+           ,[hostName])
+     VALUES
+           (@buildingTypeCode 
+           ,@buildingTypeName_A 
+           ,@buildingTypeName_E 
+           ,@buildingTypeDescription 
+           ,1 
+           ,@entryData 
+           ,@hostName )
+
+
+           
+     
+
+        SET @NewID = SCOPE_IDENTITY(); 
+        SET @Note = '{' + '"buildingTypeCode": "' + ISNULL(CONVERT(NVARCHAR(MAX), @buildingTypeCode), '') + '"' + ',' + '"buildingTypeName_A": "' + ISNULL(CONVERT(NVARCHAR(MAX), @buildingTypeName_A), '') + '"' 
+		+ ',' + '"buildingTypeName_E": "' + ISNULL(CONVERT(NVARCHAR(MAX), @buildingTypeName_E), '') + '"' + ',' + '"buildingTypeDescription": "' + ISNULL(CONVERT(NVARCHAR(MAX), @buildingTypeDescription), '') + '"' 
+		+ ',' + '"buildingTypeActive": "' + ISNULL(CONVERT(NVARCHAR(MAX), 1), '') + '"' + ',' + '"entryData": "' + ISNULL(CONVERT(NVARCHAR(MAX), @entryData), '') + '"'
+		+ ',' + '"hostName": "' + ISNULL(CONVERT(NVARCHAR(MAX), @hostName), '') + '"' + '}'; 
+
+
+		SET @Identity_Insert = SCOPE_IDENTITY(); 
+		IF(@Identity_Insert > 0)
+		Begin
+		        INSERT INTO DATACORE.dbo.AuditLog ( TableName,            ActionType, RecordID, PerformedBy,  Notes )
+		VALUES                ( '[Housing].[BuildingType]', 'INSERT',   @NewID,   @entryData, @Note ); 
+        COMMIT;
+		SELECT 1 As IsSuccessful,N'تم اضافة البيانات بنجاح' AS Message_
+		END
+	ELSE
+	    Begin
+		       
+        RollBAck;
+		SELECT 0 As IsSuccessful,N'حصل خطأ في اضافة البيانات ' AS Message_
+		END
+
+
+	END 
+	END
+
+
+    ELSE IF @Action = 'UPDATE'
+		BEGIN
+			IF EXISTS (SELECT 1
+				FROM DATACORE.[Housing].[BuildingType]
+				WHERE buildingTypeID = @buildingTypeID)
+			BEGIN
+				UPDATE DATACORE.[Housing].[BuildingType]
+				SET [buildingTypeCode]		  =ISNULL(@buildingTypeCode, [buildingTypeCode])
+				,   [buildingTypeName_A]	  =ISNULL(@buildingTypeName_A, [buildingTypeName_A])
+				,   [buildingTypeName_E]	  =ISNULL(@buildingTypeName_E, [buildingTypeName_E])
+				,   [buildingTypeDescription] =ISNULL(@buildingTypeDescription, [buildingTypeActive])
+				,   [buildingTypeActive]	  =ISNULL(1, [buildingTypeActive])
+				,   [entryData]			      =ISNULL(@entryData, [entryData])
+				,   [hostName]			      =ISNULL(@entryData,  [hostName])
+				WHERE [buildingTypeID] = @buildingTypeID; 
+
+				
+				 SET @Note = '{' + '"buildingTypeCode": "' + ISNULL(CONVERT(NVARCHAR(MAX), @buildingTypeCode), '') + '"' + ',' + '"buildingTypeName_A": "' + ISNULL(CONVERT(NVARCHAR(MAX), @buildingTypeName_A), '') + '"' 
+							+ ',' + '"buildingTypeName_E": "' + ISNULL(CONVERT(NVARCHAR(MAX), @buildingTypeName_E), '') + '"' + ',' + '"buildingTypeDescription": "' + ISNULL(CONVERT(NVARCHAR(MAX), @buildingTypeDescription), '') + '"' 
+							+ ',' + '"buildingTypeActive": "' + ISNULL(CONVERT(NVARCHAR(MAX), 1), '') + '"' + ',' + '"entryData": "' + ISNULL(CONVERT(NVARCHAR(MAX), @entryData), '') + '"'
+							+ ',' + '"hostName": "' + ISNULL(CONVERT(NVARCHAR(MAX), @hostName), '') + '"' + '}'; 
+
+
+
+
+							SET @Identity_Update = @@ROWCOUNT; 
+		IF(@Identity_Update > 0)
+		Begin
+		         INSERT INTO AuditLog ( TableName,            ActionType, RecordID, PerformedBy,  Notes )
+					VALUES                ( '[Housing].[BuildingType]', 'UPDATE',   @NewID,   @entryData, @Note ); 
+				COMMIT;
+				SELECT 1 As IsSuccessful,N'تم تحديث البيانات بنجاح' AS Message_
+		END
+	ELSE
+	    Begin
+		       
+        RollBAck;
+		SELECT 0 As IsSuccessful,N'حصل خطأ في تحديث البيانات ' AS Message_
+		END
+
+
+
+				
+			END 
+			ELSE 
+			SELECT 0 As IsSuccessful,N'حصل خطأ في تحديث البيانات x' AS Message_
+
+
+		END 
+
+		 ELSE IF @Action = 'DELETE'
+		BEGIN
+			IF EXISTS (SELECT 1
+				FROM DATACORE.[Housing].[BuildingType]
+				WHERE buildingTypeID = @buildingTypeID)
+			BEGIN
+				UPDATE DATACORE.[Housing].[BuildingType]
+				SET [buildingTypeActive]		  = 0
+				WHERE [buildingTypeID] = @buildingTypeID; 
+
+				 SET @Note = '{' + '"buildingTypeCode": "' + ISNULL(CONVERT(NVARCHAR(MAX), @buildingTypeCode), '') + '"' + ',' + '"buildingTypeName_A": "' + ISNULL(CONVERT(NVARCHAR(MAX), @buildingTypeName_A), '') + '"' 
+							+ ',' + '"buildingTypeName_E": "' + ISNULL(CONVERT(NVARCHAR(MAX), @buildingTypeName_E), '') + '"' + ',' + '"buildingTypeDescription": "' + ISNULL(CONVERT(NVARCHAR(MAX), @buildingTypeDescription), '') + '"' 
+							+ ',' + '"buildingTypeActive": "' + ISNULL(CONVERT(NVARCHAR(MAX), 1), '') + '"' + ',' + '"entryData": "' + ISNULL(CONVERT(NVARCHAR(MAX), @entryData), '') + '"'
+							+ ',' + '"hostName": "' + ISNULL(CONVERT(NVARCHAR(MAX), @hostName), '') + '"' + '}'; 
+
+
+							
+							SET @Identity_Update = @@ROWCOUNT; 
+		IF(@Identity_Update > 0)
+		Begin
+		         INSERT INTO AuditLog ( TableName,            ActionType, RecordID, PerformedBy,  Notes )
+					VALUES                ( '[Housing].[BuildingType]', 'UPDATE',   @NewID,   @entryData, @Note ); 
+				COMMIT;
+				SELECT 1 As IsSuccessful,N'تم حذف البيانات بنجاح' AS Message_
+		END
+	ELSE
+	    Begin
+		       
+        RollBAck;
+		SELECT 0 As IsSuccessful,N'حصل خطأ في حذف البيانات ' AS Message_
+		END
+
+
+
+				
+			END 
+			ELSE 
+			SELECT 0 As IsSuccessful,N'حصل خطأ في حذف البيانات x' AS Message_
+
+
+		END 
+
+	 
+	ELSE 
+	SELECT 0 As IsSuccessful,N'العملية غير مسجلة' AS Message_
+		
+	END TRY
+	BEGIN CATCH
+	IF @@TRANCOUNT > 0
+
+		 DECLARE @ErrMsg NVARCHAR(4000), @ErrSeverity INT, @ErrState INT,@IdentityCatchError int
+        --SELECT 
+          set  @ErrMsg = cast(ERROR_MESSAGE() as nvarchar(4000));
+          set  @ErrSeverity = cast(ERROR_SEVERITY()as nvarchar(4000));
+          set  @ErrState = cast(ERROR_STATE()as nvarchar(4000));
+
+		  INSERT INTO DATACORE.dbo.ErrorLog
+		  (ERROR_MESSAGE_,
+		  ERROR_SEVERITY_,
+		  ERROR_STATE_,
+		  SP_NAME,
+		  entryData,
+		  hostName)
+		  Values
+		  (@ErrMsg,
+		  @ErrSeverity,
+		  @ErrState,
+		  N'[Housing].[BuildingTypeSP]',
+		  @entrydata,
+		  @hostName
+		  )
+
+		  set @IdentityCatchError = SCOPE_IDENTITY()
+		  if(@IdentityCatchError > 0)
+		  Begin
+
+		   SELECT 0 As IsSuccessful,N'حصل خطأ غير معروف رمز الخطأ : '+CAST(@IdentityCatchError as nvarchar(200)) AS Message_
+
+		  END
+    ELSE
+		  BEGIN
+
+		   SELECT 0 As IsSuccessful,N'حصل خطأ غير معروف رمز الخطأ : xxx'
+
+		  END
+
+
+		ROLLBACK;
+	--SET @ErrorMessage = ERROR_MESSAGE();
+	--RAISERROR(@ErrorMessage, 16, 1);
+	END CATCH
 END;
 GO
 EXEC sys.sp_addextendedproperty @name=N'MS_DiagramPane1', @value=N'[0E232FF0-B466-11cf-A24F-00AA00A3EFFF, 1.00]

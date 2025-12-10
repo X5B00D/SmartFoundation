@@ -199,11 +199,12 @@
                     display: none;
                 }
 
-                /* توحيد الألوان داخل السايدبار ومنع أي أبيض موروث */
+                /* خلفية وألوان */
                 #logo-sidebar {
                     background: #1f2937;
+                    border-top: 0 !important;
                 }
-                    /* bg-slate-800 */
+
                     #logo-sidebar .bg-white {
                         background: transparent !important;
                     }
@@ -212,100 +213,100 @@
                         color: #e2e8f0 !important;
                     }
 
-                    /* حدود التقسيم بلون داكن مناسب */
                     #logo-sidebar .divide-y > :not([hidden]) ~ :not([hidden]) {
-                        border-color: #334155 !important; /* slate-700 */
+                        border-color: #334155 !important;
                     }
 
-                    /* ألوان الروابط والأزرار */
+                    /* روابط وأزرار */
                     #logo-sidebar a,
                     #logo-sidebar button {
                         color: #e2e8f0;
+                        /* 👇 من هنا يبدأ السحر */
+                        display: flex;
+                        align-items: center;
+                        gap: 0.35rem;
+                        white-space: normal !important; /* يسمح بالتفاف النص */
+                        word-break: break-word !important; /* يكسر الكلمات الطويلة */
+                        overflow: visible !important;
+                        text-overflow: unset !important;
+                        line-height: 1.25; /* تصغير الارتفاع */
+                        font-size: 15px; /* تصغير النص قليلاً */
+                        padding-top: 0.45rem !important;
+                        padding-bottom: 0.45rem !important;
                     }
 
-                        /* منع hover أبيض واستبداله بدرجة داكنة واضحة */
+                        /* تأثير hover */
                         #logo-sidebar a:hover,
                         #logo-sidebar button:hover,
                         #logo-sidebar .hover\:bg-white:hover {
-                            background: #334155 !important; /* slate-700 */
-                            color: #f8fafc !important; /* slate-50 */
+                            background: #334155 !important;
+                            color: #f8fafc !important;
                         }
 
-                /* إزالة أي خط علوي غامق محتمل */
-                #logo-sidebar {
-                    border-top: 0 !important;
-                }
-
-                /* Hierarchical Navigation - تنسيق القوائم المتداخلة */
-                
-                /* إزالة margin من أول عنصر dl-ref */
-                #logo-sidebar ul li a > .dl-ref:first-child {
-                    margin-left: 0 !important;
-                }
-
-                /* تنسيق القوائم الفرعية */
-                #logo-sidebar ul > li > ul {
-                    position: relative;
-                    padding-right: 1.75rem; /* مساحة للخط والنقاط */
-                }
-
-                    /* خط عمودي يربط العناصر المتداخلة */
-                    #logo-sidebar ul > li > ul:before {
-                        content: "";
-                        display: block;
-                        position: absolute;
-                        z-index: 0;
-                        right: 1rem;
-                        top: 0;
-                        bottom: 0;
-                        border-right: 1px solid #475569;
-                    }
-
-                    /* وضع نسبي للعناصر الفرعية */
-                    #logo-sidebar ul > li > ul > li {
+                    /* تنسيق القوائم الفرعية */
+                    #logo-sidebar ul > li > ul {
                         position: relative;
+                        padding-right: 1rem; /* ↓ صغرناها */
                     }
 
-                        #logo-sidebar ul > li > ul > li a,
-                        #logo-sidebar ul > li > ul > li button {
-                            position: relative;
-                            padding-right: 0.5rem !important; /* تقليل padding الأيمن */
+                        /* الخط العمودي */
+                        #logo-sidebar ul > li > ul:before {
+                            content: "";
+                            display: block;
+                            position: absolute;
+                            z-index: 0;
+                            right: 0.6rem; /* ↓ صغرناها */
+                            top: 0;
+                            bottom: 0;
+                            border-right: 1px solid #475569;
                         }
 
-                    /* نقاط الاتصال للعناصر الفرعية */
-                    #logo-sidebar ul > li > ul > li a:after,
-                    #logo-sidebar ul > li > ul > li button:after {
-                        content: "";
-                        display: block;
-                        position: absolute;
-                        width: 0.4rem;
-                        height: 0.4rem;
-                        background-color: #94a3b8;
-                        right: -0.9rem; /* وضع النقطة خارج الـ padding */
-                        top: calc(50% - 0.2rem);
-                        border: 1px solid #333;
-                        border-radius: 50%;
-                        z-index: 1;
-                    }
+                        /* عناصر فرعية */
+                        #logo-sidebar ul > li > ul > li {
+                            position: relative;
+                        }
 
-                    /* إزالة border عند hover */
-                    #logo-sidebar ul > li > ul > li a:hover:after,
-                    #logo-sidebar ul > li > ul > li button:hover:after {
-                        border-color: transparent;
-                        background-color: #cbd5e1;
-                    }
+                            #logo-sidebar ul > li > ul > li a,
+                            #logo-sidebar ul > li > ul > li button {
+                                padding-right: 0.25rem !important; /* ↓ تقليل المساحة */
+                            }
 
-                    /* إخفاء النقاط من المستويات الأعمق */
-                    #logo-sidebar ul > li > ul > li ul > li a:after,
-                    #logo-sidebar ul > li > ul > li ul > li button:after {
-                        display: none;
-                    }
+                                /* النقطة */
+                                #logo-sidebar ul > li > ul > li a:after,
+                                #logo-sidebar ul > li > ul > li button:after {
+                                    content: "";
+                                    display: block;
+                                    position: absolute;
+                                    width: 0.3rem;
+                                    height: 0.3rem;
+                                    background-color: #94a3b8;
+                                    right: -0.55rem; /* ↓ صغرناها */
+                                    top: calc(50% - 0.15rem);
+                                    border-radius: 50%;
+                                    z-index: 1;
+                                }
 
-                    /* إزالة margin-left من الأيقونات في القوائم الفرعية */
-                    #logo-sidebar ul > li > ul li a i {
-                        margin-left: 0 !important;
+                            /* إلغاء النقاط للمستويات الأعمق */
+                            #logo-sidebar ul > li > ul > li ul > li a:after,
+                            #logo-sidebar ul > li > ul > li ul > li button:after {
+                                display: none;
+                            }
+
+                        /* إزالة مسافة اليسار للأيقونة */
+                        #logo-sidebar ul > li > ul li a i {
+                            margin-left: 0 !important;
+                        }
+
+                    /* تطبيق الالتفاف على كل الروابط في جميع الأعماق */
+                    #logo-sidebar ul li a,
+                    #logo-sidebar ul li button {
+                        white-space: normal !important;
+                        word-break: break-word !important;
                     }
             </style>
+
+
+
 
             <div class="flex-1 px-3 space-y-1 divide-y">
                 <ul class="pb-2 space-y-2">
@@ -321,186 +322,186 @@
 
 
 <script>
-  // ================================================================
-  // 🔹 Multi-Level Menu Renderer for Flowbite Sidebar
-  // ================================================================
+        // ================================================================
+        // 🔹 Multi-Level Menu Renderer for Sidebar
+        // ================================================================
 
-  // ✅ Serialize backend menu data
-  const menuData = @Html.Raw(JsonSerializer.Serialize(
-                                                                                                                                                                                                                                                                                                                                                                                                Model ?? new List<MenuItem>(),
-        new JsonSerializerOptions { Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping }
-        ));
+        const menuData = @Html.Raw(JsonSerializer.Serialize(
+                        Model ?? new List<MenuItem>(),
+                        new JsonSerializerOptions { Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping }
+                ));
 
-  // ✅ Debug: Check JSON structure in console
-  console.log("Menu data:", menuData);
+        console.log("Menu data:", menuData);
 
-  // ✅ Current page path for active link highlighting
-  const currentPath = window.location.pathname.toLowerCase();
+        const currentPath = window.location.pathname.toLowerCase();
 
-  // ------------------------------------------------------------
-  // 🔹 Utility: Clean menu link (removes ../, leading /, .aspx)
-  // ------------------------------------------------------------
-  function cleanMenuLink(link) {
-    if (!link || typeof link !== 'string') return '';
-    let cleaned = link.trim();
-    // Remove leading ../
-    while (cleaned.startsWith('../')) {
-      cleaned = cleaned.substring(3);
-    }
-    // Remove leading /
-    if (cleaned.startsWith('/')) {
-      cleaned = cleaned.substring(1);
-    }
-    // Remove .aspx extension
-    if (cleaned.toLowerCase().endsWith('.aspx')) {
-      cleaned = cleaned.substring(0, cleaned.length - 5);
-    }
-    return cleaned;
-  }
+        function cleanMenuLink(link) {
+            if (!link || typeof link !== "string") return "";
+            let cleaned = link.trim();
 
-  // ------------------------------------------------------------
-  // 🔹 Utility: Escape HTML to prevent XSS
-  // ------------------------------------------------------------
-  function escapeHtml(text) {
-    const div = document.createElement('div');
-    div.textContent = text;
-    return div.innerHTML;
-  }
+            // ../Employee -> Employee
+            while (cleaned.startsWith("../")) {
+                cleaned = cleaned.substring(3);
+            }
+            // /Employee -> Employee
+            if (cleaned.startsWith("/")) {
+                cleaned = cleaned.substring(1);
+            }
+            // /BuildingClass.aspx -> /BuildingClass
+            if (cleaned.toLowerCase().endsWith(".aspx")) {
+                cleaned = cleaned.substring(0, cleaned.length - 5);
+            }
 
-  // ------------------------------------------------------------
-  // 🔹 Get child menu items by parent ID
-  // ------------------------------------------------------------
-  function getChildMenuItems(allItems, parentId) {
-    return allItems
-      .filter(item => {
-        if (parentId === null) {
-          // Top-level (Level 1)
-          return item.Levels === 1;
+            return cleaned;
         }
-        // Level 2 or deeper (Level 3, etc.)
-        return item.Parents === parentId;
-      })
-      .sort((a, b) => (a.MPSerial || 0) - (b.MPSerial || 0));
-  }
 
-  // ------------------------------------------------------------
-  // 🔹 Build a single menu item (recursively)
-  // ------------------------------------------------------------
-  function buildMenuItem(item, allItems, level) {
-    const paddingClass = level > 1 ? ' ps-10' : '';
-    const baseClasses = 'flex items-center w-full p-2 rounded-lg transition duration-75 group hover:bg-gray-100 hover:text-gray-900 text-gray-900 dark:text-gray-200 dark:hover:bg-gray-700 dark:hover:text-white';
-    const linkClasses = level === 1 ? baseClasses : `${baseClasses}${paddingClass}`;
+        function escapeHtml(text) {
+            const div = document.createElement("div");
+            div.textContent = text ?? "";
+            return div.innerHTML;
+        }
 
-    const menuName = escapeHtml(item.MenuName_A || '');
-    let itemLink;
-    if (item.Levels === 1 && !item.Parents) {
-      // Top-level: just clean the link
-      itemLink = '/' + cleanMenuLink(item.MPLink);
-    } else if (item.Levels === 2 && item.Parents) {
-      // Child: always clean both segments
-      const parentItem = allItems.find(x => x.MPID === item.Parents);
-      const parentController = parentItem ? cleanMenuLink(parentItem.MPLink) : '';
-      const childAction = cleanMenuLink(item.MPLink);
-      itemLink = parentController
-        ? '/' + parentController + '/' + childAction
-        : '/' + childAction;
-    } else if (item.Levels > 2 && item.Parents) {
-      // Multi-level: always clean both segments
-      let ancestor = item;
-      while (ancestor.Parents) {
-        const parent = allItems.find(x => x.MPID === ancestor.Parents);
-        if (!parent) break;
-        ancestor = parent;
-      }
-      const rootController = cleanMenuLink(ancestor.MPLink);
-      const currentAction = cleanMenuLink(item.MPLink);
-      itemLink = '/' + rootController + '/' + currentAction;
-    } else {
-      // Fallback for other cases
-      itemLink = '/' + cleanMenuLink(item.MPLink);
-    }
-    const isActive = currentPath === itemLink.toLowerCase();
-    const activeClass = isActive ? ' bg-gray-100 dark:bg-gray-700' : '';
+        // ------------------------------------------------------------
+        // 🔹 بناء عنصر واحد (recursive) بالاعتماد على Children من JSON
+        // ------------------------------------------------------------
+        function buildMenuItem(item, level) {
+            const paddingClass = level > 1 ? " ps-10" : "";
+            const baseClasses =
+                "flex items-center w-full p-2 rounded-lg transition duration-75 group " +
+                "hover:bg-slate-700 hover:text-slate-50 text-slate-200";
+            const linkClasses = level === 1 ? baseClasses : baseClasses + paddingClass;
 
-    const iconHtml = item.MPIcon && item.MPIcon.trim() !== ''
-      ? `<i class="${escapeHtml(item.MPIcon)} w-5 h-5 me-3 text-gray-500 group-hover:text-gray-900 dark:text-gray-400 dark:group-hover:text-white transition-colors duration-200"></i>`
-      : '';
+            const menuName = escapeHtml(item.MenuName_A || item.MenuNameForView || "");
 
-    const childItems = getChildMenuItems(allItems, item.MPID);
-    const hasChildren = childItems.length > 0;
+            // ⭐ ندعم الأسماء الكبيرة/الصغيرة في JSON
+            const rawController = item.MPLink ?? item.mpLink ?? "";
+            const rawAction    = item.MenuLink ?? item.menuLink ?? "";
 
-    let html = '';
+            const controller = cleanMenuLink(rawController);  // ../Employee -> Employee
+            const action     = cleanMenuLink(rawAction);      // /BuildingClass.aspx -> BuildingClass
 
-    if (hasChildren) {
-      const collapseId = `dropdown-${item.MPID}`;
-      html += `
-      <button type="button"
-              class="${linkClasses}${activeClass}"
-              data-collapse-toggle="${collapseId}"
-              aria-controls="${collapseId}">
-        ${iconHtml}
-        <span class="flex-1 text-right text-gray-900 whitespace-nowrap dark:text-gray-200">${menuName}</span>
-        <svg class="w-4 h-4 text-gray-500 group-hover:text-gray-900 dark:text-gray-400 dark:group-hover:text-white"
-             fill="currentColor" viewBox="0 0 20 20">
-          <path fill-rule="evenodd"
-                d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
-                clip-rule="evenodd"></path>
-        </svg>
-      </button>
-      <ul id="${collapseId}" class="hidden py-2 space-y-2">
+            const hasChildren     = Array.isArray(item.Children) && item.Children.length > 0;
+            const hasAnyLinkInfo  = (controller !== "" || action !== "");
+            const isClickableLink = hasAnyLinkInfo && !hasChildren;
+
+            // 🔗 بناء الرابط النهائي
+            let itemLink = "#";
+            if (isClickableLink) {
+                if (controller && action) {
+                    itemLink = `/${controller}/${action}`;      // /Employee/BuildingClass
+                } else if (action) {
+                    itemLink = `/${action}`;
+                } else if (controller) {
+                    itemLink = `/${controller}`;
+                }
+            }
+
+            const isActive = isClickableLink && currentPath === itemLink.toLowerCase();
+            const activeClass = isActive ? " bg-slate-700 text-slate-50" : "";
+
+            const iconHtml =
+                item.MPIcon && item.MPIcon.trim() !== ""
+                    ? `<i class="${escapeHtml(
+                          item.MPIcon
+                      )} w-5 h-5 me-3 text-slate-400 group-hover:text-slate-50 transition-colors duration-200"></i>`
+                    : "";
+
+            let html = "";
+
+            if (hasChildren) {
+                // زر يفتح ويقفل الشجرة، حتى لو MenuLink = null
+                const collapseId = `dropdown-${item.MPID}`;
+                html += `
+    <button type="button"
+            class="${linkClasses}${activeClass}"
+            data-collapse-toggle="${collapseId}"
+            aria-controls="${collapseId}">
+      ${iconHtml}
+    <span class="flex-1 text-right whitespace-normal break-words leading-snug">
+        ${menuName}
+    </span>
+          <svg class="w-4 h-4 text-slate-400 group-hover:text-slate-50"
+           fill="currentColor" viewBox="0 0 20 20">
+        <path fill-rule="evenodd"
+              d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+              clip-rule="evenodd"></path>
+      </svg>
+    </button>
+    <ul id="${collapseId}" class="hidden py-2 space-y-2">
     `;
-      childItems.forEach(child => {
-        html += `<li >${buildMenuItem(child, allItems, level + 1)}</li>`;
-      });
-      html += `</ul>`;
-    } else {
-      html += `
-      <a href="${escapeHtml(itemLink)}"
-         class="${linkClasses}${activeClass}">
-        ${iconHtml}
-        <span class="flex-1 text-gray-900 whitespace-nowrap dark:text-gray-200">${menuName}</span>
-      </a>
-    `;
-    }
+                item.Children.forEach(child => {
+                    html += `<li>${buildMenuItem(child, level + 1)}</li>`;
+                });
+                html += `</ul>`;
+            } else if (isClickableLink) {
+                // ✅ Leaf + عنده معلومات رابط → نطبعه كرابط
+                // console.log("Leaf link:",
+                //     {
+                //         id: item.MPID,
+                //         name: menuName,
+                //         rawController,
+                //         rawAction,
+                //         controller,
+                //         action,
+                //         itemLink
+                //     });
 
-    return html;
-  }
+                html += `
+    <a href="${escapeHtml(itemLink)}"
+       class="${linkClasses}${activeClass}">
+      ${iconHtml}
+    <span class="flex-1 whitespace-normal break-words leading-snug">
+        ${menuName}
+    </span>
+        </a>`;
+            } else {
+                // عنصر بدون رابط (عنوان فقط)
+                html += `
+    <div class="${linkClasses}${activeClass}">
+      ${iconHtml}
+    <span class="flex-1 whitespace-normal break-words leading-snug">
+        ${menuName}
+    </span>
+        </div>`;
+            }
 
+            return html;
+        }
 
-  function removeDuplicateMenuItems(items) {
-    const seen = new Set();
-    return items.filter(item => {
-      if (seen.has(item.MPID)) return false;
-      seen.add(item.MPID);
-      return true;
-    });
-  }
+        // إزالة التكرار لو موجود
+        function removeDuplicateMenuItems(items) {
+            const seen = new Set();
+            return items.filter(item => {
+                if (seen.has(item.MPID)) return false;
+                seen.add(item.MPID);
+                return true;
+            });
+        }
 
-  // ------------------------------------------------------------
-  // 🔹 Build all menu items starting from level 1
-  // ------------------------------------------------------------
-  function buildMenuItems(items, level) {
-    // ✅ Level 1 items are those with Levels === 1
-    const rootItems = level === 1 ? getChildMenuItems(items, null) : items;
-    let html = '';
-    rootItems.forEach(item => {
-      html += `<li><hr class="my-1 border-slate-700">${buildMenuItem(item, items, level)}</li>`;
-    });
-    return html;
-  }
+        // بناء المنيو من الروت (Levels = 1)
+        function buildMenuItems(items) {
+            const rootItems = items
+                .filter(x => x.Levels === 1)
+                .sort((a, b) => (a.MPSerial || 0) - (b.MPSerial || 0));
 
+            let html = "";
+            rootItems.forEach(item => {
+                html += `<li><hr class="my-1 border-slate-700">${buildMenuItem(item, 1)}</li>`;
+            });
 
-  // ------------------------------------------------------------
-  // 🔹 Initialize menu when DOM ready
-  // ------------------------------------------------------------
-  document.addEventListener('DOMContentLoaded', () => {
-    const container = document.getElementById('menu-container');
-    if (container && Array.isArray(menuData)) {
-      // ✅ Remove duplicates first
-      const uniqueMenuData = removeDuplicateMenuItems(menuData);
-      container.outerHTML = buildMenuItems(uniqueMenuData, 1);
-    } else {
-      console.error("Menu container not found or menuData invalid");
-    }
-  });
+            return html;
+        }
+
+        document.addEventListener("DOMContentLoaded", () => {
+            const container = document.getElementById("menu-container");
+            if (container && Array.isArray(menuData)) {
+                const uniqueMenuData = removeDuplicateMenuItems(menuData);
+                container.outerHTML = buildMenuItems(uniqueMenuData);
+            } else {
+                console.error("Menu container not found or menuData invalid");
+            }
+        });
 </script>
+
+
+

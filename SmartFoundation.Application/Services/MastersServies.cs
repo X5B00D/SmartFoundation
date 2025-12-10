@@ -8,11 +8,6 @@ using System.Text.Json;
 
 namespace SmartFoundation.Application.Services
 {
-    /// <summary>
-    /// Service for CRUD-style master operations with up to 50 dynamic parameters.
-    /// Parameter order (positional overload):
-    /// [0] pageName, [1] ActionType, [2] idaraID, [3] entryData, [4] hostName, [5..] parameter_01..parameter_50
-    /// </summary>
     public class MastersServies : BaseService
     {
         public MastersServies(
@@ -22,23 +17,49 @@ namespace SmartFoundation.Application.Services
         {
         }
 
-
-
+        /// <summary>
+        /// Gets the user menu (flat list) using ProcedureMapper: menu:list.
+        /// </summary>
+        public async Task<string> GetUserMenu(Dictionary<string, object?> parameters)
+            => await ExecuteOperation("menu", "list", parameters);
 
         /// <summary>
-        /// MenuService
+        /// Gets the user menu tree using ProcedureMapper: menu:tree -> dbo.GetUserMenuTree.
+        /// Required parameter: UserID (string/int).
+        /// Logs raw JSON response for debugging.
         /// </summary>
-        /// <param name="args"></param>
-        /// <returns></returns>
-        /// 
-
-
-
-        public async Task<string> GetUserMenu(Dictionary<string, object?> parameters)
+        public async Task<string> GetUserMenuTree(Dictionary<string, object?> parameters)
         {
-            // Use base class method - no hard-coded SP names!
-            return await ExecuteOperation("menu", "list", parameters);
+            var json = await ExecuteOperation("menu", "tree", parameters);
+
+            // Print in console and log for verification
+            Console.WriteLine($"[GetUserMenuTree] Raw JSON: {json}");
+            _logger.LogInformation("GetUserMenuTree raw JSON: {Json}", json);
+
+            // Optionally, also log a preview of the first item if JSON data array exists
+            try
+            {
+                using var doc = JsonDocument.Parse(json);
+                var root = doc.RootElement;
+                if (root.TryGetProperty("success", out var successProp) && successProp.GetBoolean() &&
+                    root.TryGetProperty("data", out var dataProp) && dataProp.ValueKind == JsonValueKind.Array)
+                {
+                    var first = dataProp.EnumerateArray().FirstOrDefault();
+                    if (first.ValueKind == JsonValueKind.Object)
+                    {
+                        _logger.LogInformation("First menu row sample: {Row}", first.ToString());
+                        Console.WriteLine($"[GetUserMenuTree] First row: {first}");
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(ex, "Failed to parse JSON for preview in GetUserMenuTree");
+            }
+
+            return json;
         }
+
 
         /// <summary>
         /// Retrieves all available menu items (admin function).

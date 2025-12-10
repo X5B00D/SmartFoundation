@@ -2,7 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using SmartFoundation.Mvc.Models;
 using System.Diagnostics;
 
-namespace SmartFoundation.Mvc.Controllers
+namespace SmartFoundation.Mvc.Controllers.Home
 {
     public class HomeController : Controller
     {
