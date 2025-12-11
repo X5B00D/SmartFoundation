@@ -100,6 +100,8 @@ namespace SmartFoundation.UI.ViewModels.SmartTable
     public class TableToolbarConfig
     {
         public bool ShowAdd { get; set; } = false;
+        public bool ShowAdd1 { get; set; } = false;
+        public bool ShowAdd2 { get; set; } = false;
         public bool ShowRefresh { get; set; } = true;
         public bool ShowColumns { get; set; } = true;
         public bool ShowExportCsv { get; set; } = true;
@@ -113,10 +115,20 @@ namespace SmartFoundation.UI.ViewModels.SmartTable
         public bool ShowThemeToggle { get; set; } = false;
 
         public TableAction? Add { get; set; }
+        public TableAction? Add1 { get; set; }
+        public TableAction? Add2 { get; set; }
         public bool ShowEdit { get; set; } = false;
+        public bool ShowEdit1 { get; set; } = false;
+        public bool ShowEdit2 { get; set; } = false;
         public bool ShowDelete { get; set; } = false;
+        public bool ShowDelete1 { get; set; } = false;
+        public bool ShowDelete2 { get; set; } = false;
         public TableAction? Edit { get; set; }
+        public TableAction? Edit1 { get; set; }
+        public TableAction? Edit2 { get; set; }
         public TableAction? Delete { get; set; }
+        public TableAction? Delete1 { get; set; }
+        public TableAction? Delete2 { get; set; }
         public List<TableAction> CustomActions { get; set; } = new();
         public TableExportConfig ExportConfig { get; set; } = new();
         public bool ShowSearch { get; set; } = true;

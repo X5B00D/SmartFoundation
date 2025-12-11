@@ -150,6 +150,7 @@ namespace SmartFoundation.Mvc.Controllers
 
             string rowIdField = "";
             bool canInsert = false;
+            bool canInsertFullAccess = false;
             bool canUpdate = false;
             bool canDelete = false;
 
@@ -293,6 +294,9 @@ namespace SmartFoundation.Mvc.Controllers
                         if (permissionName == "INSERT")
                             canInsert = true;
 
+                        if (permissionName == "INSERTFULLACCESS")
+                            canInsertFullAccess = true;
+
                         if (permissionName == "UPDATE")
                             canUpdate = true;
 
@@ -411,27 +415,27 @@ namespace SmartFoundation.Mvc.Controllers
                 new FieldConfig { Name = rowIdField, Type = "hidden" },
 
                 // your custom textboxes
-new FieldConfig
-{
-    Name = "p01",
-    Label = "الموزع",
-    Type = "select",
-    Options = distributorOptions,
-    ColCss = "3",
-    Required = true
-},
-
-new FieldConfig
-{
-    Name = "p02",
-    Label = "الصلاحية",
-    Type = "select",
-    Options = new List<OptionItem> { new OptionItem { Value = "-1", Text = "اختر الموزع أولاً" } }, // Initial empty state
-    ColCss = "3",
-    Required = true,
-    DependsOn = "p01",          
-    DependsUrl = "/crud/DDLFiltered?FK=distributorID_FK&textcol=permissionTypeName_A&ValueCol=distributorPermissionTypeID&PageName=Permission&TableIndex=4"
-},
+                new FieldConfig
+                {
+                    Name = "p01",
+                    Label = "الموزع",
+                    Type = "select",
+                    Options = distributorOptions,
+                    ColCss = "3",
+                    Required = true
+                },
+                
+                new FieldConfig
+                {
+                    Name = "p02",
+                    Label = "الصلاحية",
+                    Type = "select",
+                    Options = new List<OptionItem> { new OptionItem { Value = "-1", Text = "اختر الموزع أولاً"     } }, //       Initial empty state
+                    ColCss = "3",
+                    Required = true,
+                    DependsOn = "p01",          
+                    DependsUrl = "/crud/DDLFiltered?FK=distributorID_FK&textcol=permissionTypeName_A&ValueCol=distributorPermissionTypeID&PageName=Permission&TableIndex=4"
+                },
                 new FieldConfig { Name = "p03", Label = "تاريخ بداية الصلاحية", Type = "date", ColCss = "3", Required = false },
                 new FieldConfig { Name = "p04", Label = "تاريخ نهاية الصلاحية", Type = "date", ColCss = "3", Required = false },
                 new FieldConfig { Name = "p05", Label = "ملاحظات", Type = "text", ColCss = "3", Required = false },
@@ -455,9 +459,50 @@ new FieldConfig
             addFields.Insert(0, new FieldConfig { Name = "redirectAction", Type = "hidden", Value = PageName });
             addFields.Insert(0, new FieldConfig { Name = "redirectController", Type = "hidden", Value = ControllerName });
             addFields.Insert(0, new FieldConfig { Name = "Q1", Type = "hidden", Value = Q1 });
-            
-           
-            
+
+
+
+
+            var addFields1 = new List<FieldConfig>
+            {
+                // keep id hidden first so row id can flow when needed
+                new FieldConfig { Name = rowIdField, Type = "hidden" },
+
+                // your custom textboxes
+                new FieldConfig
+                {
+                    Name = "p01",
+                    Label = "الموزع",
+                    Type = "select",
+                    Options = distributorOptions,
+                    ColCss = "3",
+                    Required = true
+                },
+
+                new FieldConfig { Name = "p02", Label = "تاريخ بداية الصلاحية", Type = "date", ColCss = "3", Required = false },
+                new FieldConfig { Name = "p03", Label = "تاريخ نهاية الصلاحية", Type = "date", ColCss = "3", Required = false },
+                new FieldConfig { Name = "p04", Label = "ملاحظات", Type = "text", ColCss = "3", Required = false },
+
+                  new FieldConfig { Name = "p05",Value=Q1, Type = "hidden" },
+            };
+
+
+
+            // Inject required hidden headers for the add (insert) form BEFORE building dsModel:
+            addFields1.Insert(0, new FieldConfig { Name = "__RequestVerificationToken", Type = "hidden", Value = (Request.Headers["RequestVerificationToken"].FirstOrDefault() ?? "") });
+            addFields1.Insert(0, new FieldConfig { Name = "hostname", Type = "hidden", Value = HostName });
+            addFields1.Insert(0, new FieldConfig { Name = "entrydata", Type = "hidden", Value = userID.ToString() });
+            addFields1.Insert(0, new FieldConfig { Name = "idaraID", Type = "hidden", Value = IdaraID.ToString() });
+            addFields1.Insert(0, new FieldConfig { Name = "ActionType", Type = "hidden", Value = "INSERTFULLACCESS" }); // upper-case
+            addFields1.Insert(0, new FieldConfig { Name = "pageName_", Type = "hidden", Value = PageName });
+
+
+
+            // Optional: help the generic endpoint know where to go back
+            addFields1.Insert(0, new FieldConfig { Name = "redirectAction", Type = "hidden", Value = PageName });
+            addFields1.Insert(0, new FieldConfig { Name = "redirectController", Type = "hidden", Value = ControllerName });
+            addFields1.Insert(0, new FieldConfig { Name = "Q1", Type = "hidden", Value = Q1 });
+
 
 
 
@@ -473,7 +518,7 @@ new FieldConfig
                 new FieldConfig { Name = "__RequestVerificationToken", Type = "hidden", Value = (Request.Headers["RequestVerificationToken"].FirstOrDefault() ?? "") },
                 new FieldConfig { Name = rowIdField,            Type = "hidden" },
 
-                new FieldConfig { Name = "p01", Label = "المعرف",             Type = "text", Readonly = true, ColCss = "3" },
+                new FieldConfig { Name = "p01", Label = "المعرف",             Type = "hidden", Readonly = true, ColCss = "3" },
                 new FieldConfig { Name = "p02", Label = "اسم الصفحة",         Type = "text", Required = true,  ColCss = "3" },
                 new FieldConfig { Name = "p03", Label = "الصلاحية", Type = "text",   ColCss = "3", TextMode = "arabic" },
                 new FieldConfig { Name = "p04", Label = "تاريخ بداية الصلاحية", Type = "date", Required = true, ColCss = "3" },
@@ -531,7 +576,8 @@ new FieldConfig
                     ShowExportCsv = false,
                     ShowExportExcel = false,
                     ShowAdd = canInsert,
-                    ShowEdit = true,
+                    ShowAdd1 = canInsertFullAccess,
+                    ShowEdit = canUpdate,
                     ShowDelete = canDelete,
                     ShowBulkDelete = false,
 
@@ -544,17 +590,39 @@ new FieldConfig
                         ModalTitle = "إضافة صلاحية جديد",
                         OpenForm = new FormConfig
                         {
-                            FormId = "employeeInsertForm",
+                            FormId = "InsertForm",
                             Title = "بيانات الموظف الجديد",
                             Method = "post",
                             ActionUrl = "/crud/insert",
-                            LabelText = "sami", // <-- show 'sami' at top of Add form
                             Fields = addFields,
                             Buttons = new List<FormButtonConfig>
                             {
                                 new FormButtonConfig { Text = "حفظ", Type = "submit", Color = "success" /*Icon = "fa fa-save"*/ },
                                 new FormButtonConfig { Text = "إلغاء", Type = "button", Color = "secondary", /*Icon = "fa fa-times",*/ OnClickJs = "this.closest('.sf-modal').__x.$data.closeModal();" },
                                
+                            }
+                        }
+                    },
+
+                    Add1 = new TableAction
+                    {
+                        Label = "إضافة وصول كامل",
+                        Icon = "fa fa-plus",
+                        Color = "success",
+                        OpenModal = true,
+                        ModalTitle = "إضافة وصول كامل",
+                        OpenForm = new FormConfig
+                        {
+                            FormId = "InsertBackageForm",
+                            Title = "إضافة وصول كامل",
+                            Method = "post",
+                            ActionUrl = "/crud/insert",
+                            Fields = addFields1,
+                            Buttons = new List<FormButtonConfig>
+                            {
+                                new FormButtonConfig { Text = "حفظ", Type = "submit", Color = "success" /*Icon = "fa fa-save"*/ },
+                                new FormButtonConfig { Text = "إلغاء", Type = "button", Color = "secondary", /*Icon = "fa fa-times",*/ OnClickJs = "this.closest('.sf-modal').__x.$data.closeModal();" },
+
                             }
                         }
                     },

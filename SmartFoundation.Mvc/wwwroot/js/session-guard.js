@@ -1,7 +1,7 @@
 (function () {
     // --- CONFIG ---
-    const INACTIVITY_LIMIT_MS   = 3 * 60 * 1000;  // total inactivity (e.g., 3 minutes)
-    const WARNING_THRESHOLD_MS  = 2 * 60 * 1000;  // warn after 2 minutes of inactivity
+    const INACTIVITY_LIMIT_MS   = 10 * 60 * 1000;  // total inactivity (e.g., 3 minutes)
+    const WARNING_THRESHOLD_MS  = 8 * 60 * 1000;  // warn after 2 minutes of inactivity
     const KEEPALIVE_INTERVAL_MS = 1 * 60 * 1000;  // keep-alive at most every 1 minute
     const ACTIVITY_EVENTS       = ["mousemove","mousedown","keydown","scroll","touchstart","touchmove","click"];
     const ACTIVITY_KEY          = "sf_activity_ping";
