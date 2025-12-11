@@ -791,7 +791,6 @@ new FieldConfig
                             Title = "بيانات نوع المباني الجديد",
                             Method = "post",
                             ActionUrl = "/crud/insert",
-                            LabelText = "sami", // <-- show 'sami' at top of Add form
                             Fields = addFields,
                             Buttons = new List<FormButtonConfig>
                             {
@@ -819,7 +818,6 @@ new FieldConfig
                             ActionUrl = "/crud/update",
                             SubmitText = "حفظ التعديلات",
                             CancelText = "إلغاء",
-                            LabelText = "sami", // <-- show 'sami' at top of Edit form
                             Fields = updateFields
                         },
                         RequireSelection = true,
@@ -845,7 +843,6 @@ new FieldConfig
                             Title = "تأكيد حذف نوع المباني",
                             Method = "post",
                             ActionUrl = "/crud/delete",
-                            LabelText = "sami", // <-- show 'sami' at top of Delete form
                             Buttons = new List<FormButtonConfig>
                             {
                                 new FormButtonConfig { Text = "حذف", Type = "submit", Color = "danger", Icon = "fa fa-save" },
@@ -1363,7 +1360,6 @@ new FieldConfig
                             Title = "بيانات الموظف الجديد",
                             Method = "post",
                             ActionUrl = "/crud/insert",
-                            LabelText = "sami", // <-- show 'sami' at top of Add form
                             Fields = addFields,
                             Buttons = new List<FormButtonConfig>
                             {
@@ -1392,7 +1388,6 @@ new FieldConfig
                             ActionUrl = "/crud/update",
                             SubmitText = "حفظ التعديلات",
                             CancelText = "إلغاء",
-                            LabelText = "sami", // <-- show 'sami' at top of Edit form
                             Fields = updateFields
                         },
                         RequireSelection = true,
@@ -1418,7 +1413,6 @@ new FieldConfig
                             Title = "تأكيد حذف السجل",
                             Method = "post",
                             ActionUrl = "/crud/delete",
-                            LabelText = "sami", // <-- show 'sami' at top of Delete form
                             Buttons = new List<FormButtonConfig>
                             {
                                 new FormButtonConfig { Text = "حذف", Type = "submit", Color = "danger", Icon = "fa fa-save" },

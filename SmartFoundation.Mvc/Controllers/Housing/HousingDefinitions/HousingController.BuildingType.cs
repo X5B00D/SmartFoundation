@@ -215,7 +215,6 @@ namespace SmartFoundation.Mvc.Controllers.Housing
                             Title = "بيانات نوع المباني الجديد",
                             Method = "post",
                             ActionUrl = "/crud/insert",
-                            LabelText = "sami",
                             Fields = addFields,
                             Buttons = new List<FormButtonConfig>
                             {
@@ -241,7 +240,6 @@ namespace SmartFoundation.Mvc.Controllers.Housing
                             ActionUrl = "/crud/update",
                             SubmitText = "حفظ التعديلات",
                             CancelText = "إلغاء",
-                            LabelText = "sami",
                             Fields = updateFields
                         },
                         RequireSelection = true,
@@ -264,7 +262,6 @@ namespace SmartFoundation.Mvc.Controllers.Housing
                             Title = "تأكيد حذف نوع المباني",
                             Method = "post",
                             ActionUrl = "/crud/delete",
-                            LabelText = "sami",
                             Buttons = new List<FormButtonConfig>
                             {
                                 new FormButtonConfig { Text = "حذف", Type = "submit", Color = "danger", Icon = "fa fa-save" },
