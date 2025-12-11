@@ -1,35 +1,6 @@
 USE [DATACORE]
 GO
-/****** Object:  View [dbo].[V_GetListUserPermission]    Script Date: 11/12/2025 12:28:45 ص ******/
-SET ANSI_NULLS ON
-GO
-SET QUOTED_IDENTIFIER ON
-GO
-CREATE VIEW [dbo].[V_GetListUserPermission]
-AS
-SELECT        p.UserID_FK AS userID, m.menuName_A, m.menuName_E, pt.permissionTypeName_A, pt.permissionTypeName_E, m.menuID, md.menuDistributorID, d.distributorID, dpt.distributorPermissionTypeID, p.permissionID, 
-                         p.DistributorPermissionTypeID_FK, pt.permissionTypeID, p.permissionStartDate, p.permissionEndDate, p.permissionActive, p.entryDate, p.entryData, p.hostName, dpt.distributorPermissionTypeStartDate, 
-                         dpt.distributorPermissionTypeEndDate, dpt.distributorPermissionTypeActive, p.permissionNote
-FROM            dbo.Menu AS m INNER JOIN
-                         dbo.MenuDistributor AS md ON md.menuID_FK = m.menuID INNER JOIN
-                         dbo.Distributor AS d ON md.distributorID_FK = d.distributorID INNER JOIN
-                         dbo.distributorPermissionType AS dpt ON d.distributorID = dpt.distributorID_FK INNER JOIN
-                         dbo.Permission AS p ON dpt.distributorPermissionTypeID = p.DistributorPermissionTypeID_FK INNER JOIN
-                         dbo.PermissionType AS pt ON pt.permissionTypeID = dpt.permissionTypeID_FK
-WHERE        (m.menuActive = 1) AND (md.menuDistributorActive = 1) AND (d.distributorActive = 1) AND (dpt.distributorPermissionTypeActive = 1) AND (p.permissionActive = 1) AND (pt.permissionTypeActive = 1) AND 
-                         (dpt.distributorPermissionTypeStartDate IS NOT NULL) AND (CAST(dpt.distributorPermissionTypeStartDate AS date) <= CAST(GETDATE() AS date)) AND (p.permissionStartDate IS NOT NULL) AND 
-                         (CAST(p.permissionEndDate AS date) >= CAST(GETDATE() AS date)) AND (dpt.distributorPermissionTypeEndDate IS NULL) OR
-                         (m.menuActive = 1) AND (md.menuDistributorActive = 1) AND (d.distributorActive = 1) AND (dpt.distributorPermissionTypeActive = 1) AND (p.permissionActive = 1) AND (pt.permissionTypeActive = 1) AND 
-                         (dpt.distributorPermissionTypeStartDate IS NOT NULL) AND (CAST(dpt.distributorPermissionTypeStartDate AS date) <= CAST(GETDATE() AS date)) AND (p.permissionStartDate IS NOT NULL) AND 
-                         (CAST(p.permissionEndDate AS date) >= CAST(GETDATE() AS date)) AND (CAST(dpt.distributorPermissionTypeEndDate AS date) >= CAST(GETDATE() AS date)) OR
-                         (m.menuActive = 1) AND (md.menuDistributorActive = 1) AND (d.distributorActive = 1) AND (dpt.distributorPermissionTypeActive = 1) AND (p.permissionActive = 1) AND (pt.permissionTypeActive = 1) AND 
-                         (dpt.distributorPermissionTypeStartDate IS NOT NULL) AND (CAST(dpt.distributorPermissionTypeStartDate AS date) <= CAST(GETDATE() AS date)) AND (p.permissionStartDate IS NOT NULL) AND 
-                         (dpt.distributorPermissionTypeEndDate IS NULL) AND (p.permissionEndDate IS NULL) OR
-                         (m.menuActive = 1) AND (md.menuDistributorActive = 1) AND (d.distributorActive = 1) AND (dpt.distributorPermissionTypeActive = 1) AND (p.permissionActive = 1) AND (pt.permissionTypeActive = 1) AND 
-                         (dpt.distributorPermissionTypeStartDate IS NOT NULL) AND (CAST(dpt.distributorPermissionTypeStartDate AS date) <= CAST(GETDATE() AS date)) AND (p.permissionStartDate IS NOT NULL) AND 
-                         (CAST(dpt.distributorPermissionTypeEndDate AS date) >= CAST(GETDATE() AS date)) AND (p.permissionEndDate IS NULL)
-GO
-/****** Object:  StoredProcedure [dbo].[GetUserMenuTree]    Script Date: 11/12/2025 12:28:45 ص ******/
+/****** Object:  StoredProcedure [dbo].[GetUserMenuTree]    Script Date: 12/11/2025 03:02:25 م ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -261,7 +232,7 @@ BEGIN
     OPTION (MAXRECURSION 50);
 END
 GO
-/****** Object:  StoredProcedure [dbo].[Masters_CRUD]    Script Date: 11/12/2025 12:28:45 ص ******/
+/****** Object:  StoredProcedure [dbo].[Masters_CRUD]    Script Date: 12/11/2025 03:02:25 م ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -359,6 +330,32 @@ BEGIN
                        ,@permissionEndDate 	=@parameter_04
                        ,@permissionNote =@parameter_05
                        ,@UserID_FK 		=@parameter_06
+					   ,@entryData 					=@entrydata
+					   ,@hostName 					=@hostName
+
+              END
+           
+				ELSE
+			 BEGIN
+				SELECT 0 As IsSuccessful,N'عفوا لاتملك صلاحية لهذه العملية' AS Message_
+		     END
+       
+		END
+
+
+		 ELSE IF @ActionType = 'INSERTFULLACCESS'
+              BEGIN
+				IF(select count(*) FROM DATACORE.dbo.V_GetListUserPermission v where v.userID = @entrydata AND v.menuName_E = @pageName_ AND v.permissionTypeName_E = @ActionType) > 0
+				--GetListUserPermission(@entrydata,@pageName_,@ActionType)
+				Begin
+
+                    EXEC [dbo].[PermissionSP]
+                        @Action =    @ActionType
+					   ,@DistributorID_FK = @parameter_01
+					   ,@permissionStartDate 	=@parameter_02
+                       ,@permissionEndDate 	=@parameter_03
+                       ,@permissionNote =@parameter_04
+                       ,@UserID_FK 		=@parameter_05
 					   ,@entryData 					=@entrydata
 					   ,@hostName 					=@hostName
 
@@ -699,7 +696,7 @@ END
 ----/////////////////////////////////////NAVER TOUCH UP CODE PLEASE/////////////////////////////////////////---
 
 GO
-/****** Object:  StoredProcedure [dbo].[Masters_DataLoad]    Script Date: 11/12/2025 12:28:45 ص ******/
+/****** Object:  StoredProcedure [dbo].[Masters_DataLoad]    Script Date: 12/11/2025 03:02:25 م ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -750,6 +747,8 @@ BEGIN
 			FROM DATACORE.dbo.V_GetListUserPermission v 
 			where v.userID = @entrydata 
 			AND v.menuName_E = @pageName_
+			AND cast(v.permissionStartDate as date) <= cast(GETDATE() as date)
+			and ((cast(v.permissionEndDate as date) > cast(GETDATE() as date)) or (v.permissionEndDate is null))
 
 		---/////////////////////--END User Permission Data--////////////////////////--
 
@@ -763,7 +762,7 @@ BEGIN
 			FROM [DATACORE].[dbo].[V_GetListUserPermission] p
 			inner join DATACORE.dbo.V_GetListUsersInDSD d on p.userID = d.userID
 			inner join [DATACORE].[dbo].[V_GetFullStructureForDSD] f on f.DSDID = d.DSDID
-			where f.idaraID_FK = @idaraID --and 1=2
+			where f.idaraID_FK = @idaraID and p.userID = @parameter_01
 			order by p.permissionID desc
 
 			
@@ -820,6 +819,8 @@ BEGIN
 			FROM DATACORE.dbo.V_GetListUserPermission v 
 			where v.userID = @entrydata 
 			AND v.menuName_E = @pageName_
+			AND cast(v.permissionStartDate as date) <= cast(GETDATE() as date)
+			and ((cast(v.permissionEndDate as date) > cast(GETDATE() as date)) or (v.permissionEndDate is null))
 		---/////////////////////--END User Permission Data--////////////////////////--
 
 
@@ -858,6 +859,8 @@ BEGIN
 			FROM DATACORE.dbo.V_GetListUserPermission v 
 			where v.userID = @entrydata 
 			AND v.menuName_E = @pageName_
+			AND cast(v.permissionStartDate as date) <= cast(GETDATE() as date)
+			and ((cast(v.permissionEndDate as date) > cast(GETDATE() as date)) or (v.permissionEndDate is null))
 		       ---/////////////////////--END User Permission Data--////////////////////////--
 
 
@@ -992,7 +995,7 @@ END
 ----/////////////////////////////////////NAVER TOUCH UP CODE PLEASE/////////////////////////////////////////---
 
 GO
-/****** Object:  StoredProcedure [dbo].[PermissionSP]    Script Date: 11/12/2025 12:28:45 ص ******/
+/****** Object:  StoredProcedure [dbo].[PermissionSP]    Script Date: 12/11/2025 03:02:25 م ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -1226,6 +1229,70 @@ BEGIN
 		
 	END
 
+	  ELSE IF @Action = 'INSERTFULLACCESS'
+		BEGIN
+
+		INSERT INTO DATACORE.DBO.Permission
+			(
+			DistributorPermissionTypeID_FK,
+			UserID_FK,
+			permissionStartDate,
+			permissionEndDate,
+			permissionNote,
+			permissionActive,
+			entryData,
+			hostName
+			)
+			select dt.distributorPermissionTypeID,@UserID_FK,ISNULL(@permissionStartDate,GETDATE()) ,@permissionEndDate,@permissionNote,1,@entryData,@hostName
+			from DATACORE.dbo.DistributorPermissionType dt
+			inner join PermissionType p on dt.permissionTypeID_FK = p.permissionTypeID
+			
+			where 
+			dt.distributorID_FK = @DistributorID_FK 
+			and dt.distributorPermissionTypeActive =1 
+			and p.permissionTypeActive = 1
+			and cast(dt.distributorPermissionTypeStartDate as date) <= cast(GETDATE() as date)
+			and (cast(dt.distributorPermissionTypeEndDate as date) > cast(GETDATE() as date) OR dt.distributorPermissionTypeEndDate is null)
+			and dt.distributorPermissionTypeID NOT IN
+			(
+			
+			select r.DistributorPermissionTypeID_FK from DATACORE.dbo.Permission r where
+			r.permissionActive = 1
+			and cast(r.permissionStartDate as date) <= cast(GETDATE() as date)
+			and (cast(r.permissionEndDate as date) > cast(GETDATE() as date) OR r.permissionEndDate is null)
+			and r.UserID_FK = @UserID_FK
+			)
+
+			   SET @NewID = SCOPE_IDENTITY(); 
+							        SET @Note = '{' + '"distributorID_FK": "' + ISNULL(CONVERT(NVARCHAR(MAX), @distributorID_FK), '') + '"' 
+									+ ',' + '"userID_FK": "' + ISNULL(CONVERT(NVARCHAR(MAX), @userID_FK), '') + '"' + ',' + '"UDStartDate": "' + ISNULL(CONVERT(NVARCHAR(MAX), @permissionStartDate), '') + '"' 
+									+ ',' + '"Note": "' + ISNULL(CONVERT(NVARCHAR(MAX), @Note), '') + '"' + ','+ '"DistributorPermissionTypeID_FK": "' + ISNULL(CONVERT(NVARCHAR(MAX), @DistributorPermissionTypeID_FK), '') + '"' + 
+									',' + '"permissionStartDate": "' + ISNULL(CONVERT(NVARCHAR(MAX), @permissionStartDate), '') + '"'
+									+',' + '"permissionNote": "' + ISNULL(CONVERT(NVARCHAR(MAX), @permissionNote), '') + '"'
+									+',' + '"entryData": "' + ISNULL(CONVERT(NVARCHAR(MAX), @entryData), '') + '"'
+									+ ',' + '"hostName": "' + ISNULL(CONVERT(NVARCHAR(MAX), @hostName), '') + '"' + '}'; 
+							
+							
+									SET @Identity_Insert = SCOPE_IDENTITY(); 
+									IF(@Identity_Insert > 0)
+									Begin
+									        INSERT INTO DATACORE.dbo.AuditLog ( TableName,            ActionType, RecordID, PerformedBy,  Notes )
+									VALUES                ( '[dbo].[PermissionSP]', 'INSERTFULLACCESS',   @NewID,   @entryData, @Note ); 
+							        COMMIT;
+									SELECT 1 As IsSuccessful,N'تم اضافة البيانات بنجاح' AS Message_
+									END
+								ELSE
+								    Begin
+									       
+							        RollBAck;
+									SELECT 0 As IsSuccessful,N'حصل خطأ في اضافة البيانات او الموظف يملك جميع الصلاحيات ' AS Message_
+									END
+
+
+
+
+		END
+
 
     ELSE IF @Action = 'UPDATE'
 		BEGIN
@@ -1393,158 +1460,7 @@ END CATCH
 
 END;
 GO
-/****** Object:  StoredProcedure [dbo].[SetUserPassword]    Script Date: 11/12/2025 12:28:45 ص ******/
-SET ANSI_NULLS ON
-GO
-SET QUOTED_IDENTIFIER ON
-GO
-CREATE   PROCEDURE [dbo].[SetUserPassword]
-(
-    @UserID          NVARCHAR(20),     -- الرقم العام / رقم المستخدم
-    @PlainPassword   NVARCHAR(200),    -- كلمة المرور الجديدة
-    @entryData       NVARCHAR(20),     -- المستخدم الذي قام بالتعديل
-    @hostName        NVARCHAR(200) = NULL
-)
-AS
-BEGIN
-    SET NOCOUNT ON;
-
-    DECLARE @Salt       VARBINARY(32);
-    DECLARE @Hash       VARBINARY(64);
-
-    DECLARE @PrevSalt   VARBINARY(32);
-    DECLARE @PrevHash   VARBINARY(64);
-    DECLARE @Candidate  VARBINARY(64);
-
-    BEGIN TRY
-
-        ----------------------------------------------------
-        -- 0) التحقق أن المستخدم موجود وفعال في جدول [User]
-        ----------------------------------------------------
-        IF NOT EXISTS (
-            SELECT 1 
-            FROM DATACORE.dbo.[User]
-            WHERE IDNumber = @UserID
-              AND userActive = 1
-        )
-        BEGIN
-            SELECT 0 AS IsSuccessful,
-                   N'المستخدم غير موجود أو غير فعّال في النظام.' AS Message_;
-            RETURN;
-        END
-
-
-        ----------------------------------------------------
-        -- 1) التحقق من تعقيد كلمة المرور الجديدة
-        ----------------------------------------------------
-        IF LEN(@PlainPassword) < 8
-           OR @PlainPassword NOT LIKE '%[0-9]%'      -- لا تحتوي رقم
-           OR @PlainPassword NOT LIKE '%[A-Za-z]%'   -- لا تحتوي حرف إنجليزي
-        BEGIN
-            SELECT 0 AS IsSuccessful,
-                   N'كلمة المرور غير مقبولة. يجب أن لا تقل عن 8 خانات وتحتوي على حروف إنجليزية وأرقام.' AS Message_;
-            RETURN;
-        END
-
-
-        ----------------------------------------------------
-        -- 2) التأكد أن كلمة المرور الجديدة ليست نفسها القديمة
-        ----------------------------------------------------
-        SELECT TOP (1)
-            @PrevSalt = PasswordSalt,
-            @PrevHash = PasswordHash
-        FROM dbo.userPassword
-        WHERE IDNumber_FK = @UserID
-          AND ISNULL(userPasswordActive, 1) = 1
-        ORDER BY userPasswordStartDate DESC, userPasswordID DESC;
-
-        IF @PrevHash IS NOT NULL
-        BEGIN
-            SET @Candidate = HASHBYTES(
-                                'SHA2_256',
-                                @PrevSalt + CAST(@PlainPassword AS VARBINARY(200))
-                             );
-
-            IF @Candidate = @PrevHash
-            BEGIN
-                SELECT 0 AS IsSuccessful,
-                       N'لا يمكن استخدام نفس كلمة المرور السابقة. الرجاء اختيار كلمة مرور جديدة مختلفة.' AS Message_;
-                RETURN;
-            END
-        END
-
-
-        ----------------------------------------------------
-        -- 3) البدء في المعاملة
-        ----------------------------------------------------
-        BEGIN TRANSACTION;
-
-        -- تعطيل كل كلمات المرور السابقة
-        UPDATE dbo.userPassword
-        SET 
-            userPasswordActive  = 0,
-            userPasswordEndDate = CAST(GETDATE() AS DATE)
-        WHERE IDNumber_FK = @UserID
-          AND ISNULL(userPasswordActive, 1) = 1;
-
-
-        ----------------------------------------------------
-        -- 4) إنشاء Salt جديد + Hash جديد
-        ----------------------------------------------------
-        SET @Salt = CRYPT_GEN_RANDOM(32);
-
-        SET @Hash = HASHBYTES(
-                        'SHA2_256',
-                        @Salt + CAST(@PlainPassword AS VARBINARY(200))
-                    );
-
-
-        ----------------------------------------------------
-        -- 5) إدخال كلمة المرور الجديدة
-        ----------------------------------------------------
-        INSERT INTO dbo.userPassword
-        (
-            IDNumber_FK,
-            PasswordHash,
-            PasswordSalt,
-            HashAlgorithm,
-            userPasswordStartDate,
-            userPasswordActive,
-            entryDate,
-            entryData,
-            hostName
-        )
-        VALUES
-        (
-            @UserID,
-            @Hash,
-            @Salt,
-            'SHA2_256',
-            CAST(GETDATE() AS DATE),
-            1,
-            GETDATE(),
-            @entryData,
-            ISNULL(@hostName, HOST_NAME())
-        );
-
-        COMMIT TRANSACTION;
-
-        SELECT 1 AS IsSuccessful,
-               N'تم تحديث كلمة المرور / إنشاؤها بنجاح.' AS Message_;
-
-
-    END TRY
-    BEGIN CATCH
-
-        IF @@TRANCOUNT > 0
-            ROLLBACK TRANSACTION;
-
-        SELECT 0 AS IsSuccessful,
-               N'حصل خطأ أثناء تنفيذ العملية: ' + ERROR_MESSAGE() AS Message_;
-    END CATCH
-END
-GO
-/****** Object:  StoredProcedure [Housing].[BuildingClassSP]    Script Date: 11/12/2025 12:28:45 ص ******/
+/****** Object:  StoredProcedure [Housing].[BuildingClassSP]    Script Date: 12/11/2025 03:02:25 م ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -1770,7 +1686,7 @@ BEGIN
 	END CATCH
 END;
 GO
-/****** Object:  StoredProcedure [Housing].[BuildingTypeSP]    Script Date: 11/12/2025 12:28:45 ص ******/
+/****** Object:  StoredProcedure [Housing].[BuildingTypeSP]    Script Date: 12/11/2025 03:02:25 م ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -1999,224 +1915,4 @@ BEGIN
 	--RAISERROR(@ErrorMessage, 16, 1);
 	END CATCH
 END;
-GO
-EXEC sys.sp_addextendedproperty @name=N'MS_DiagramPane1', @value=N'[0E232FF0-B466-11cf-A24F-00AA00A3EFFF, 1.00]
-Begin DesignProperties = 
-   Begin PaneConfigurations = 
-      Begin PaneConfiguration = 0
-         NumPanes = 4
-         Configuration = "(H (1[40] 4[20] 2[20] 3) )"
-      End
-      Begin PaneConfiguration = 1
-         NumPanes = 3
-         Configuration = "(H (1 [50] 4 [25] 3))"
-      End
-      Begin PaneConfiguration = 2
-         NumPanes = 3
-         Configuration = "(H (1 [50] 2 [25] 3))"
-      End
-      Begin PaneConfiguration = 3
-         NumPanes = 3
-         Configuration = "(H (4 [30] 2 [40] 3))"
-      End
-      Begin PaneConfiguration = 4
-         NumPanes = 2
-         Configuration = "(H (1 [56] 3))"
-      End
-      Begin PaneConfiguration = 5
-         NumPanes = 2
-         Configuration = "(H (2 [66] 3))"
-      End
-      Begin PaneConfiguration = 6
-         NumPanes = 2
-         Configuration = "(H (4 [50] 3))"
-      End
-      Begin PaneConfiguration = 7
-         NumPanes = 1
-         Configuration = "(V (3))"
-      End
-      Begin PaneConfiguration = 8
-         NumPanes = 3
-         Configuration = "(H (1[56] 4[18] 2) )"
-      End
-      Begin PaneConfiguration = 9
-         NumPanes = 2
-         Configuration = "(H (1 [75] 4))"
-      End
-      Begin PaneConfiguration = 10
-         NumPanes = 2
-         Configuration = "(H (1[66] 2) )"
-      End
-      Begin PaneConfiguration = 11
-         NumPanes = 2
-         Configuration = "(H (4 [60] 2))"
-      End
-      Begin PaneConfiguration = 12
-         NumPanes = 1
-         Configuration = "(H (1) )"
-      End
-      Begin PaneConfiguration = 13
-         NumPanes = 1
-         Configuration = "(V (4))"
-      End
-      Begin PaneConfiguration = 14
-         NumPanes = 1
-         Configuration = "(V (2))"
-      End
-      ActivePaneConfig = 0
-   End
-   Begin DiagramPane = 
-      Begin Origin = 
-         Top = 0
-         Left = 0
-      End
-      Begin Tables = 
-         Begin Table = "m"
-            Begin Extent = 
-               Top = 6
-               Left = 38
-               Bottom = 136
-               Right = 221
-            End
-            DisplayFlags = 280
-            TopColumn = 0
-         End
-         Begin Table = "md"
-            Begin Extent = 
-               Top = 6
-               Left = 259
-               Bottom = 136
-               Right = 468
-            End
-            DisplayFlags = 280
-            TopColumn = 0
-         End
-         Begin Table = "d"
-            Begin Extent = 
-               Top = 6
-               Left = 506
-               Bottom = 136
-               Right = 710
-            End
-            DisplayFlags = 280
-            TopColumn = 0
-         End
-         Begin Table = "dpt"
-            Begin Extent = 
-               Top = 6
-               Left = 748
-               Bottom = 136
-               Right = 1024
-            End
-            DisplayFlags = 280
-            TopColumn = 3
-         End
-         Begin Table = "p"
-            Begin Extent = 
-               Top = 138
-               Left = 38
-               Bottom = 268
-               Right = 296
-            End
-            DisplayFlags = 280
-            TopColumn = 6
-         End
-         Begin Table = "pt"
-            Begin Extent = 
-               Top = 6
-               Left = 1062
-               Bottom = 136
-               Right = 1280
-            End
-            DisplayFlags = 280
-            TopColumn = 0
-         End
-      End
-   End
-   Begin SQLPane = 
-   End
-   Begin DataPane = 
-      Begin ParameterDefaults = ""
-      End
-      Begin ColumnWidths = 54
-         Width = 284
-         Width = 1500
-         Width = 1500
-         Width = 1500
-         Width =' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'VIEW',@level1name=N'V_GetListUserPermission'
-GO
-EXEC sys.sp_addextendedproperty @name=N'MS_DiagramPane2', @value=N' 1665
-         Width = 1500
-         Width = 2430
-         Width = 1875
-         Width = 1500
-         Width = 1500
-         Width = 1500
-         Width = 1500
-         Width = 1500
-         Width = 1980
-         Width = 1725
-         Width = 1500
-         Width = 1500
-         Width = 1500
-         Width = 1500
-         Width = 1500
-         Width = 1500
-         Width = 1500
-         Width = 1500
-         Width = 1500
-         Width = 1500
-         Width = 1500
-         Width = 1500
-         Width = 1500
-         Width = 1500
-         Width = 1500
-         Width = 1500
-         Width = 1500
-         Width = 1500
-         Width = 1500
-         Width = 1500
-         Width = 1500
-         Width = 1500
-         Width = 1500
-         Width = 1500
-         Width = 1500
-         Width = 1500
-         Width = 1500
-         Width = 1500
-         Width = 1500
-         Width = 1500
-         Width = 1500
-         Width = 1500
-         Width = 1500
-         Width = 1500
-         Width = 1500
-         Width = 1500
-         Width = 1500
-         Width = 1500
-         Width = 1500
-      End
-   End
-   Begin CriteriaPane = 
-      Begin ColumnWidths = 12
-         Column = 3015
-         Alias = 2520
-         Table = 1170
-         Output = 720
-         Append = 1400
-         NewValue = 1170
-         SortType = 1350
-         SortOrder = 1410
-         GroupBy = 1350
-         Filter = 1350
-         Or = 1350
-         Or = 1350
-         Or = 1350
-         Or = 1350
-      End
-   End
-End
-' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'VIEW',@level1name=N'V_GetListUserPermission'
-GO
-EXEC sys.sp_addextendedproperty @name=N'MS_DiagramPaneCount', @value=2 , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'VIEW',@level1name=N'V_GetListUserPermission'
 GO
