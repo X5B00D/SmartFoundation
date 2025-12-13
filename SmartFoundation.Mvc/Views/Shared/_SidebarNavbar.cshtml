@@ -119,9 +119,24 @@
                     <div>
                         <button type="button"
                                 class="flex text-sm rounded-full focus:ring-1 focus:ring-slate-400"
-                                id="user-menu-button" aria-expanded="false" data-dropdown-toggle="user-dropdown">
+                                id="user-menu-button"
+                                aria-expanded="false"
+                                data-dropdown-toggle="user-dropdown">
+
                             <span class="sr-only">فتح قائمة المستخدم</span>
-                            <img class="w-8 h-8" src="~/img/user_.png" alt="user photo">
+
+                            @if (!string.IsNullOrEmpty(sessionUserPhoto))
+                            {
+                                <img class="w-8 h-8 rounded-full"
+                                     src="data:image/png;base64,@sessionUserPhoto"
+                                     alt="user photo">
+                            }
+                            else
+                            {
+                                <img class="w-8 h-8 rounded-full"
+                                     src="~/img/user_.png"
+                                     alt="user photo">
+                            }
                         </button>
                     </div>
 
@@ -536,7 +551,7 @@
         }
 
         // مثال للتجربة
-        setNotificationCount(2);
+        setNotificationCount(1);
 
     });
 </script>
