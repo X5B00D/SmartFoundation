@@ -13,6 +13,9 @@
     var sessionUserId = Context.Session.GetString("userID");
     var sessionfullname = Context.Session.GetString("fullName");
     var sessionUserPhoto = Context.Session.GetString("photoBase64");
+    var photo = sessionUserPhoto;
+    var hasPhoto = !string.IsNullOrWhiteSpace(photo);
+                    
 }
 
 
@@ -93,23 +96,38 @@
 
                 <!-- المستخدم -->
                 <div class="flex items-center ms-3">
+                  
+
+
                     <div>
                         <button type="button"
-                                class="p-3 rounded-lg text-slate-300 hover:text-slate-50 hover:bg-slate-700 hover:shadow-md transition
-                                focus:ring-1 focus:ring-slate-400"
+                                class="flex text-sm rounded-full focus:ring-1 focus:ring-slate-400"
                                 id="user-menu-button" aria-expanded="false" data-dropdown-toggle="user-dropdown">
 
                             <span class="sr-only">فتح قائمة المستخدم</span>
-                            <img class="w-8 h-8" src="~/img/user_.png" alt="user photo">
+
+                            @if (hasPhoto)
+                            {
+                                <img src="data:image/jpeg;base64,@photo"
+                                     alt="user"
+                                     class="w-full h-full object-cover rounded-full" />
+                            }
+                            else
+                            {
+                                <img src="~/img/user_.png"
+                                     alt="user photo"
+                                     class="w-full h-full object-cover rounded-full" />
+                            }
                         </button>
+
                     </div>
 
                     <!-- User dropdown -->
                     <div id="user-dropdown"
                          class="z-50 hidden w-55 my-2 overflow-hidden rounded-sm shadow-sm bg-slate-800 ring-1 ring-slate-700">
                         <div class="px-4 py-3">
-                            <p class="text-sm font-medium text-slate-200">المستخدم</p>
-                            <p class="mt-0.5 text-xs text-slate-400 truncate">user@smartfoundation.com</p>
+                            <p class="text-sm font-medium text-slate-200"> @(sessionfullname?.ToString() ?? "غير معروف")</p>
+                            <p class="mt-0.5 text-xs text-slate-400 truncate"> @(sessionUserId?.ToString() ?? "غير معروف")</p>
                         </div>
                         <ul class="py-1">
                             <li><hr class="my-1 border-slate-700">
@@ -124,7 +142,7 @@
                             </li>
                             <li><hr class="my-1 border-slate-700"></li>
                             <li>
-                                <a href="/Account/Logout" class="flex items-center gap-2 px-4 py-2 text-sm text-red-400 hover:bg-slate-700">
+                                <a href="/Login/Logout" class="flex items-center gap-2 px-4 py-2 text-sm text-red-400 hover:bg-slate-700">
                                     <i class="fa-solid fa-right-from-bracket text-[13px]"></i> تسجيل الخروج
                                 </a>
                             </li>
@@ -298,10 +316,7 @@
                 <!-- بطاقة المستخدم -->
                 <div class="py-1 flex flex-col items-center text-center">
 
-                    @{
-                        var photo = sessionUserPhoto;
-                        var hasPhoto = !string.IsNullOrWhiteSpace(photo);
-                    }
+                 
 
                     <div class="w-16 h-16 rounded-full overflow-hidden bg-slate-700/60
     flex items-center justify-center mb-3 shadow-md ring-1 ring-slate-600">

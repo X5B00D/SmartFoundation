@@ -13,8 +13,14 @@ namespace SmartFoundation.Mvc.Controllers.Home
             _logger = logger;
         }
 
+        [ResponseCache(NoStore = true, Location = ResponseCacheLocation.None)]
         public IActionResult Index()
         {
+
+            if (string.IsNullOrWhiteSpace(HttpContext.Session.GetString("userID")))
+            {
+                return  RedirectToAction("Index", "Login", new { logout = 1 });
+            }
             return View();
         }
 

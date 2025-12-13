@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 
-namespace SmartFoundation.Mvc.Controllers
+namespace SmartFoundation.Mvc.Controllers.Login
 {
     public class LoginController : Controller
     {
@@ -70,9 +70,27 @@ namespace SmartFoundation.Mvc.Controllers
             HttpContext.Session.Clear();
 
             // If forced here by SessionGuard, show a message
+            //if (Request.Query.ContainsKey("logout"))
+            //{
+            //    TempData["Error"] = "تم تسجيل خروجك من النظام لعدم وجود نشاط";
+            //}
+
             if (Request.Query.ContainsKey("logout"))
             {
-                TempData["Error"] = "تم تسجيل خروجك من النظام لعدم وجود نشاط على النظام لوقت طويل";
+                var logoutValue = Request.Query["logout"].ToString();
+
+                if (logoutValue == "1")
+                {
+                    TempData["Error"] = "تم تسجيل خروجك من النظام لعدم وجود نشاط";
+                }
+                else if (logoutValue == "2")
+                {
+                    TempData["Success"] = "تم تسجيل خروجك بنجاح";
+                }
+                else
+                {
+                    TempData["Error"] = "تم تسجيل الخروج";
+                }
             }
 
             // Extra anti-cache headers (defense-in-depth)
@@ -143,5 +161,18 @@ namespace SmartFoundation.Mvc.Controllers
 
             return RedirectToAction("Index", "Home");
         }
+
+        [HttpGet]
+        public IActionResult Logout()
+        {
+            // حذف جميع السيشنات
+            HttpContext.Session.Clear();
+
+            // حذف الكوكيز إذا كنت تستخدم Cookie Authentication (اختياري)
+            // await HttpContext.SignOutAsync();
+
+            return RedirectToAction("Index", "Login", new { logout = 2 });
+        }
+
     }
 }
