@@ -13,10 +13,8 @@
     var sessionUserId = Context.Session.GetString("userID");
     var sessionfullname = Context.Session.GetString("fullName");
     var sessionUserPhoto = Context.Session.GetString("photoBase64");
-    var photo = sessionUserPhoto;
-    var hasPhoto = !string.IsNullOrWhiteSpace(photo);
-                    
 }
+
 
 
 
@@ -37,9 +35,9 @@
                 </button>
 
                 <!-- الشعار -->
-                <a href="/" class="flex ms-1 md:me-10">
-                    <img src="../img/ppng.png" class="h-12 me-2" alt="KFMC Logo" />
-                    <span class="self-center font-semibold text-lg sm:text-1xl whitespace-nowrap text-slate-100">البوابة الموحدة</span>
+                <a href="/" class="flex ms-2 md:me-24">
+                    <img src="../img/ppng.png" class="h-8 me-3" alt="KFMC Logo" />
+                    <span class="self-center font-semibold text-md sm:text-1xl whitespace-nowrap text-slate-200">البوابة الموحدة</span>
                 </a>
 
                 <!-- البحث -->
@@ -61,7 +59,7 @@
             </div>
 
             <!-- جهة اليمين -->
-            <div class="flex items-center gap-0">
+            <div class="flex items-center gap-3">
                 <!-- روابط سريعة -->
                 <nav class="flex items-center gap-0.5 me-4 flex-none" dir="rtl" aria-label="روابط سريعة">
                     <a href="/Home" class="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm text-slate-200 rounded-md hover:bg-slate-700">
@@ -75,16 +73,35 @@
                 </nav>
 
                 <!-- الإشعارات -->
-                <button type="button" data-dropdown-toggle="notification-dropdown"
-                        class="p-3 rounded-lg text-slate-300 hover:text-slate-50 hover:bg-slate-700"
+                <button type="button"
+                        data-dropdown-toggle="notification-dropdown"
+                        class="relative p-3 rounded-lg text-slate-300 hover:text-slate-50 hover:bg-slate-700"
                         aria-haspopup="true" aria-expanded="false">
+
                     <span class="sr-only">عرض الإشعارات</span>
-                    <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20"><path d="M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6zM10 18a3 3 0 01-3-3h6a3 3 0 01-3 3z"></path></svg>
+
+                    <!-- أيقونة الجرس -->
+                    <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6zM10 18a3 3 0 01-3-3h6a3 3 0 01-3 3z"></path>
+                    </svg>
+
+                    <!-- Badge عدد الإشعارات -->
+                    <span id="notif-count"
+                          class="absolute -top-0.5 -right-0.5
+             min-w-[18px] h-[18px]
+             px-1 rounded-full
+             bg-red-600 text-white text-[11px]
+             flex items-center justify-center
+             font-bold ring-2 ring-slate-800 hidden">
+                        
+                    </span>
+
                 </button>
+
                 <div id="notification-dropdown" class="z-50 hidden my-2 overflow-hidden rounded-lg shadow-lg w-80 bg-slate-800 ring-1 ring-slate-700">
                     <div class="px-4 py-2 text-base font-medium text-center text-slate-200">الإشعارات</div>
                     <div>
-                        <a href="#" class="flex px-4 py-3 border-t border-slate-700 hover:bg-slate-700/60">
+                        <a href="/Housing/Index" class="flex px-4 py-3 border-t border-slate-700 hover:bg-slate-700/60">
                             <div class="w-full">
                                 <div class="mb-1.5 text-sm text-slate-200">رسالة جديدة من المستخدم</div>
                                 <div class="text-xs font-medium text-emerald-400">قبل دقائق</div>
@@ -94,55 +111,43 @@
                     <a href="#" class="block py-2 text-base text-center bg-slate-700 text-slate-100 hover:bg-slate-600">عرض الكل</a>
                 </div>
 
+
+  
+
                 <!-- المستخدم -->
                 <div class="flex items-center ms-3">
-                  
-
-
                     <div>
                         <button type="button"
                                 class="flex text-sm rounded-full focus:ring-1 focus:ring-slate-400"
                                 id="user-menu-button" aria-expanded="false" data-dropdown-toggle="user-dropdown">
-
                             <span class="sr-only">فتح قائمة المستخدم</span>
-
-                            @if (hasPhoto)
-                            {
-                                <img src="data:image/jpeg;base64,@photo"
-                                     alt="user"
-                                     class="w-full h-full object-cover rounded-full" />
-                            }
-                            else
-                            {
-                                <img src="~/img/user_.png"
-                                     alt="user photo"
-                                     class="w-full h-full object-cover rounded-full" />
-                            }
+                            <img class="w-8 h-8" src="~/img/user_.png" alt="user photo">
                         </button>
-
                     </div>
 
                     <!-- User dropdown -->
                     <div id="user-dropdown"
-                         class="z-50 hidden w-55 my-2 overflow-hidden rounded-sm shadow-sm bg-slate-800 ring-1 ring-slate-700">
+                         class="z-50 hidden w-56 my-2 overflow-hidden rounded-lg shadow-lg bg-slate-800 ring-1 ring-slate-700">
                         <div class="px-4 py-3">
-                            <p class="text-sm font-medium text-slate-200"> @(sessionfullname?.ToString() ?? "غير معروف")</p>
-                            <p class="mt-0.5 text-xs text-slate-400 truncate"> @(sessionUserId?.ToString() ?? "غير معروف")</p>
+                            <p class="text-sm font-medium text-slate-200">@(sessionfullname?.ToString() ?? "غير معروف")</p>
+                            <p class="mt-0.5 text-xs text-slate-400 truncate">@(sessionUserId?.ToString() ?? "غير معروف")</p>
                         </div>
                         <ul class="py-1">
-                            <li><hr class="my-1 border-slate-700">
+                            <li>
+                                <hr class="my-1 border-slate-700">
                                 <a href="/Dashboard" class="flex items-center gap-2 px-4 py-2 text-sm text-slate-200 hover:bg-slate-700">
                                     <i class="fa-solid fa-gauge text-[13px] text-slate-300"></i> لوحة التحكم
                                 </a>
                             </li>
-                            <li><hr class="my-1 border-slate-700">
+                            <li>
+                                <hr class="my-1 border-slate-700">
                                 <a href="/Settings" class="flex items-center gap-2 px-4 py-2 text-sm text-slate-200 hover:bg-slate-700">
                                     <i class="fa-solid fa-gear text-[13px] text-slate-300"></i> الإعدادات
                                 </a>
                             </li>
                             <li><hr class="my-1 border-slate-700"></li>
                             <li>
-                                <a href="/Login/Logout" class="flex items-center gap-2 px-4 py-2 text-sm text-red-400 hover:bg-slate-700">
+                                <a href="/Account/Logout" class="flex items-center gap-2 px-4 py-2 text-sm text-red-400 hover:bg-slate-700">
                                     <i class="fa-solid fa-right-from-bracket text-[13px]"></i> تسجيل الخروج
                                 </a>
                             </li>
@@ -156,10 +161,11 @@
 </nav>
 
 
+
+
 <aside id="logo-sidebar"
        class="fixed top-0 right-0 z-40 w-64 h-screen translate-x-full border-l pt-25 sm:translate-x-0 bg-slate-800 text-slate-200 border-slate-700"
        aria-label="Sidebar">
-
 
     <div class="relative flex flex-col flex-1 h-full min-h-0 pt-0 bg-transparent">
         <div class="flex flex-col flex-1 pt-5 pb-4 overflow-y-auto"
@@ -191,26 +197,22 @@
                     /* روابط وأزرار */
                     #logo-sidebar a,
                     #logo-sidebar button {
-                        color: #f8fafc;
+                        color: #e2e8f0;
+                        /* 👇 من هنا يبدأ السحر */
                         display: flex;
                         align-items: center;
-                        
-                        justify-content: flex-start;
-                        text-align: right;
-                        gap: 0; 
-
-                        white-space: normal !important;
-                        word-break: break-word !important;
+                        gap: 0.35rem;
+                        white-space: normal !important; /* يسمح بالتفاف النص */
+                        word-break: break-word !important; /* يكسر الكلمات الطويلة */
                         overflow: visible !important;
                         text-overflow: unset !important;
-                        line-height: 1.25;
-                        font-size: 15px;
-                        padding-top: 0.60rem !important;
+                        line-height: 1.25; /* تصغير الارتفاع */
+                        font-size: 15px; /* تصغير النص قليلاً */
+                        padding-top: 0.45rem !important;
                         padding-bottom: 0.45rem !important;
                     }
 
-
-                        /*  hover */
+                        /* تأثير hover */
                         #logo-sidebar a:hover,
                         #logo-sidebar button:hover,
                         #logo-sidebar .hover\:bg-white:hover {
@@ -218,97 +220,66 @@
                             color: #f8fafc !important;
                         }
 
-                    
+                    /* تنسيق القوائم الفرعية */
                     #logo-sidebar ul > li > ul {
-                        padding-right: 0.75rem;
-                        margin-top: 0.10rem;
-                        border-right: none;
-                    }
-
-                        /* إلغاء الخط العمودي القديم */
-                        #logo-sidebar ul > li > ul::before {
-                            content: none;
-                            border-right: none;
-                        }
-
-                    /* إلغاء أي نقاط قديمة */
-                    #logo-sidebar ul li ul li a::after,
-                    #logo-sidebar ul li ul li button::after {
-                        content: none;
-                    }
-
-                    /* العناصر الفرعية (المستوى الثاني) */
-                    #logo-sidebar ul > li > ul > li > a,
-                    #logo-sidebar ul > li > ul > li > button {
                         position: relative;
-                        padding-top: 0.40rem !important;
-                        padding-bottom: 0.40rem !important;
-                        padding-right: 0.75rem !important;
-                        padding-left: 0.75rem !important;
-                        margin-inline: 0.25rem;
-                        border-radius: 0.3rem;
-                        font-size: 14px;
-                        line-height: 1.4;
-                        opacity: 0.9;                       
-                        background: transparent;
-                        box-shadow: 0 0 0 0 rgba(15, 23, 42, 0);
-                        transform: translateX(0);
-                        transition: background-color 0.18s ease, color 0.18s ease, box-shadow 0.18s ease, transform 0.14s ease, opacity 0.18s ease;
+                        padding-right: 1rem; /* ↓ صغرناها */
                     }
 
-                        /* hover */
-                        #logo-sidebar ul > li > ul > li > a:hover,
-                        #logo-sidebar ul > li > ul > li > button:hover {
-                            background: #334155 !important; 
-                            color: #f9fafb !important;
-                            opacity: 1;
-                            transform: translateX(-4px); 
-                            box-shadow: 0 4px 10px rgba(15, 23, 42, 0.45);
-                        }
-
-                        
-                        #logo-sidebar ul > li > ul > li > a.bg-slate-700,
-                        #logo-sidebar ul > li > ul > li > button.bg-slate-700 {
-                            background: #334155 !important;
-                            color: #f9fafb !important;
-                            box-shadow: 0 0 0 1px #1e293b, 0 6px 14px rgba(15, 23, 42, 0.55);
-                            opacity: 1;
-                            transform: translateX(-2px);
-                        }
-
-                        /* مؤشر على يمين العنصر    */
-                        #logo-sidebar ul > li > ul > li > a::before,
-                        #logo-sidebar ul > li > ul > li > button::before {
+                        /* الخط العمودي */
+                        #logo-sidebar ul > li > ul:before {
                             content: "";
+                            display: block;
                             position: absolute;
-                            right: 0.15rem;
-                            top: 50%;
-                            transform: translateY(-50%);
-                            width: 3px;
-                            height: 10px; 
-                            border-radius: 999px;
-                            background: transparent;
-                            transition: background 0.18s ease, height 0.18s ease, transform 0.14s ease;
+                            z-index: 0;
+                            right: 0.6rem; /* ↓ صغرناها */
+                            top: 0;
+                            bottom: 0;
+                            border-right: 1px solid #475569;
                         }
 
-                        #logo-sidebar ul > li > ul > li > a:hover::before,
-                        #logo-sidebar ul > li > ul > li > button:hover::before,
-                        #logo-sidebar ul > li > ul > li > a.bg-slate-700::before,
-                        #logo-sidebar ul > li > ul > li > button.bg-slate-700::before {
-                            background: #15803d; 
-                            height: 18px; 
-                            transform: translateY(-50%) scaleX(1.02);
+                        /* عناصر فرعية */
+                        #logo-sidebar ul > li > ul > li {
+                            position: relative;
                         }
 
-                        
-                        #logo-sidebar ul > li > ul > li > a:focus-visible,
-                        #logo-sidebar ul > li > ul > li > button:focus-visible {
-                            outline: none;
-                            box-shadow: 0 0 0 2px rgba(21, 128, 61, 0.75);
-                            transform: translateX(-2px);
-                            opacity: 1;
+                            #logo-sidebar ul > li > ul > li a,
+                            #logo-sidebar ul > li > ul > li button {
+                                padding-right: 0.25rem !important; /* ↓ تقليل المساحة */
+                            }
+
+                                /* النقطة */
+                                #logo-sidebar ul > li > ul > li a:after,
+                                #logo-sidebar ul > li > ul > li button:after {
+                                    content: "";
+                                    display: block;
+                                    position: absolute;
+                                    width: 0.3rem;
+                                    height: 0.3rem;
+                                    background-color: #94a3b8;
+                                    right: -0.55rem; /* ↓ صغرناها */
+                                    top: calc(50% - 0.15rem);
+                                    border-radius: 50%;
+                                    z-index: 1;
+                                }
+
+                            /* إلغاء النقاط للمستويات الأعمق */
+                            #logo-sidebar ul > li > ul > li ul > li a:after,
+                            #logo-sidebar ul > li > ul > li ul > li button:after {
+                                display: none;
+                            }
+
+                        /* إزالة مسافة اليسار للأيقونة */
+                        #logo-sidebar ul > li > ul li a i {
+                            margin-left: 0 !important;
                         }
 
+                    /* تطبيق الالتفاف على كل الروابط في جميع الأعماق */
+                    #logo-sidebar ul li a,
+                    #logo-sidebar ul li button {
+                        white-space: normal !important;
+                        word-break: break-word !important;
+                    }
             </style>
 
             <div class="flex-1 px-4 space-y-1">
@@ -316,10 +287,13 @@
                 <!-- بطاقة المستخدم -->
                 <div class="py-1 flex flex-col items-center text-center">
 
-                 
+                    @{
+                        var photo = sessionUserPhoto;
+                        var hasPhoto = !string.IsNullOrWhiteSpace(photo);
+                    }
 
                     <div class="w-16 h-16 rounded-full overflow-hidden bg-slate-700/60
-    flex items-center justify-center mb-3 shadow-md ring-1 ring-slate-600">
+                    flex items-center justify-center mb-3 shadow-md ring-1 ring-slate-600">
                         @if (hasPhoto)
                         {
                             <img src="data:image/jpeg;base64,@photo"
@@ -332,89 +306,100 @@
                         }
                     </div>
 
+                    <div class="text-sm font-medium text-slate-200 leading-tight">
+                        @(sessionfullname?.ToString() ?? "غير معروف")
+                    </div>
+
+                    <div class="text-base font-bold text-emerald-400 mt-0.5">
+                        @(sessionUserId?.ToString() ?? "غير معروف")
+                    </div>
                 </div>
 
-                <!-- ✅ القائمة (خارج text-center و items-center) -->
-                <div class="flex-1 w-full px-2.5 space-y-1 divide-y text-right">
-                    <ul class="w-full pb-2 space-y-2">
-                        <li id="menu-container"></li>
-                    </ul>
-                </div>
-
-
-                </div>
+                <!-- قائمة المنيو -->
+                <ul class="pt-2 pb-2 space-y-2" style="margin-top:-6px;">
+                    <li id="menu-container"></li>
+                </ul>
             </div>
+
+
+
+
         </div>
-    
+    </div>
 </aside>
 
 
 
 
+
 <script>
-    // ================================================================
-    // 🔹 Multi-Level Menu Renderer for Sidebar
-    // ================================================================
+        // ================================================================
+        // 🔹 Multi-Level Menu Renderer for Sidebar
+        // ================================================================
 
-    const menuData = @Html.Raw(JsonSerializer.Serialize(
-        Model ?? new List<MenuItem>(),
-        new JsonSerializerOptions { Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping }
-    ));
+        const menuData = @Html.Raw(JsonSerializer.Serialize(
+                                                Model ?? new List<MenuItem>(),
+                                                new JsonSerializerOptions { Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping }
+                                ));
 
-    console.log("Menu data:", menuData);
+        console.log("Menu data:", menuData);
 
-    const currentPath = window.location.pathname.toLowerCase();
+        const currentPath = window.location.pathname.toLowerCase();
 
-    function cleanMenuLink(link) {
-        if (!link || typeof link !== "string") return "";
-        let cleaned = link.trim();
+        function cleanMenuLink(link) {
+            if (!link || typeof link !== "string") return "";
+            let cleaned = link.trim();
 
-        // ../Employee -> Employee
-        while (cleaned.startsWith("../")) {
-            cleaned = cleaned.substring(3);
+            // ../Employee -> Employee
+            while (cleaned.startsWith("../")) {
+                cleaned = cleaned.substring(3);
+            }
+            // /Employee -> Employee
+            if (cleaned.startsWith("/")) {
+                cleaned = cleaned.substring(1);
+            }
+            // /BuildingClass.aspx -> /BuildingClass
+            if (cleaned.toLowerCase().endsWith(".aspx")) {
+                cleaned = cleaned.substring(0, cleaned.length - 5);
+            }
+
+            return cleaned;
         }
-        // /Employee -> Employee
-        if (cleaned.startsWith("/")) {
-            cleaned = cleaned.substring(1);
-        }
-        // /BuildingClass.aspx -> /BuildingClass
-        if (cleaned.toLowerCase().endsWith(".aspx")) {
-            cleaned = cleaned.substring(0, cleaned.length - 5);
+
+        function escapeHtml(text) {
+            const div = document.createElement("div");
+            div.textContent = text ?? "";
+            return div.innerHTML;
         }
 
-        return cleaned;
-    }
+        // ------------------------------------------------------------
+        // 🔹 بناء عنصر واحد (recursive) بالاعتماد على Children من JSON
+        // ------------------------------------------------------------
+        function buildMenuItem(item, level) {
+            const paddingClass = level > 1 ? " ps-10" : "";
+            const baseClasses =
+                "flex items-center w-full p-2 rounded-lg transition duration-75 group " +
+                "hover:bg-slate-700 hover:text-slate-50 text-slate-200";
+            const linkClasses = level === 1 ? baseClasses : baseClasses + paddingClass;
 
-    function escapeHtml(text) {
-        const div = document.createElement("div");
-        div.textContent = text ?? "";
-        return div.innerHTML;
-    }
+            const menuName = escapeHtml(item.MenuName_A || item.MenuNameForView || "");
 
+            // ⭐ ندعم الأسماء الكبيرة/الصغيرة في JSON
+            const rawController = item.MPLink ?? item.mpLink ?? "";
+            const rawAction    = item.MenuLink ?? item.menuLink ?? "";
 
+            const controller = cleanMenuLink(rawController);  // ../Employee -> Employee
+            const action     = cleanMenuLink(rawAction);      // /BuildingClass.aspx -> BuildingClass
 
+            const hasChildren     = Array.isArray(item.Children) && item.Children.length > 0;
+            const hasAnyLinkInfo  = (controller !== "" || action !== "");
+            const isClickableLink = hasAnyLinkInfo && !hasChildren;
 
-
-
-            // ترجع true إذا كان تحت هذا العنصر أي ابن (أو ابن ابن...) صفحته الحالية نشطة
-    function hasActiveChildRecursive(item) {
-        if (!Array.isArray(item.Children)) return false;
-
-        for (const child of item.Children) {
-            const rawController = child.MPLink ?? child.mpLink ?? "";
-            const rawAction    = child.MenuLink ?? child.menuLink ?? "";
-
-            const controller = cleanMenuLink(rawController);
-            const action     = cleanMenuLink(rawAction);
-
-            const childHasChildren = Array.isArray(child.Children) && child.Children.length > 0;
-            const hasAnyLinkInfo   = (controller !== "" || action !== "");
-            const isClickableLink  = hasAnyLinkInfo && !childHasChildren;
-
+            // 🔗 بناء الرابط النهائي
             let itemLink = "#";
             if (isClickableLink) {
                 if (controller && action) {
-                    itemLink = `/${controller}/${action}`;
+                    itemLink = `/${controller}/${action}`;      // /Employee/BuildingClass
                 } else if (action) {
                     itemLink = `/${action}`;
                 } else if (controller) {
@@ -423,119 +408,78 @@
             }
 
             const isActive = isClickableLink && currentPath === itemLink.toLowerCase();
+            const activeClass = isActive ? " bg-slate-700 text-slate-50" : "";
 
-            if (isActive || hasActiveChildRecursive(child)) {
-                return true;
-            }
-        }
+            const iconHtml =
+                item.MPIcon && item.MPIcon.trim() !== ""
+                    ? `<i class="${escapeHtml(
+                          item.MPIcon
+                      )} w-5 h-5 me-3 text-slate-400 group-hover:text-slate-50 transition-colors duration-200"></i>`
+                    : "";
 
-        return false;
-    }
+            let html = "";
 
-
-
-
-
-
-
-
-
-        // ------------------------------------------------------------
-        // 🔹 بناء عنصر واحد (recursive) بالاعتماد على Children من JSON
-        // ------------------------------------------------------------
-            function buildMenuItem(item, level) {
-        const paddingClass = level > 1 ? " ps-10" : "";
-        const baseClasses =
-            "flex items-center w-full p-2 rounded-lg transition duration-75 group " +
-            "hover:bg-slate-700 hover:text-slate-50 text-slate-200";
-        const linkClasses = level === 1 ? baseClasses : baseClasses + paddingClass;
-
-        const menuName = escapeHtml(item.MenuName_A || item.MenuNameForView || "");
-
-        const rawController = item.MPLink ?? item.mpLink ?? "";
-        const rawAction = item.MenuLink ?? item.menuLink ?? "";
-
-        const controller = cleanMenuLink(rawController);
-        const action = cleanMenuLink(rawAction);
-
-        const hasChildren = Array.isArray(item.Children) && item.Children.length > 0;
-        const hasAnyLinkInfo = (controller !== "" || action !== "");
-        const isClickableLink = hasAnyLinkInfo && !hasChildren;
-
-        let itemLink = "#";
-        if (isClickableLink) {
-            if (controller && action) itemLink = `/${controller}/${action}`;
-            else if (action) itemLink = `/${action}`;
-            else if (controller) itemLink = `/${controller}`;
-        }
-
-        const isActive = isClickableLink && currentPath === itemLink.toLowerCase();
-        const activeClass = isActive ? " bg-slate-700 text-slate-50" : "";
-
-        const iconHtml =
-            item.MPIcon && item.MPIcon.trim() !== ""
-                ? `<i class="${escapeHtml(item.MPIcon)} text-slate-400 group-hover:text-slate-50 transition-colors duration-200 shrink-0"></i>`
-                : "";
-
-        let html = "";
-
-        if (hasChildren) {
-            const collapseId = `dropdown-${item.MPID}`;
-
-            const shouldBeOpen = hasActiveChildRecursive(item);
-            const childListClasses = shouldBeOpen ? "py-2 space-y-2" : "hidden py-2 space-y-2";
-            const expandedAttr = shouldBeOpen ? 'aria-expanded="true"' : 'aria-expanded="false"';
-
-            html += `
+            if (hasChildren) {
+                // زر يفتح ويقفل الشجرة، حتى لو MenuLink = null
+                const collapseId = `dropdown-${item.MPID}`;
+                html += `
     <button type="button"
             class="${linkClasses}${activeClass}"
             data-collapse-toggle="${collapseId}"
-            aria-controls="${collapseId}"
-            ${expandedAttr}>
+            aria-controls="${collapseId}">
       ${iconHtml}
-      <span class="ms-2 whitespace-normal break-words leading-snug">
+    <span class="flex-1 text-right whitespace-normal break-words leading-snug">
         ${menuName}
-      </span>
-      <!-- ✅ ادفع السهم لأقصى اليسار بشكل ثابت -->
-      <svg class="w-4 h-4 text-slate-400 group-hover:text-slate-50" style="margin-inline-start:auto;"
+    </span>
+          <svg class="w-4 h-4 text-slate-400 group-hover:text-slate-50"
            fill="currentColor" viewBox="0 0 20 20">
         <path fill-rule="evenodd"
               d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
               clip-rule="evenodd"></path>
       </svg>
     </button>
-    <ul id="${collapseId}" class="${childListClasses}">
+    <ul id="${collapseId}" class="hidden py-2 space-y-2">
     `;
+                item.Children.forEach(child => {
+                    html += `<li>${buildMenuItem(child, level + 1)}</li>`;
+                });
+                html += `</ul>`;
+            } else if (isClickableLink) {
+                // ✅ Leaf + عنده معلومات رابط → نطبعه كرابط
+                // console.log("Leaf link:",
+                //     {
+                //         id: item.MPID,
+                //         name: menuName,
+                //         rawController,
+                //         rawAction,
+                //         controller,
+                //         action,
+                //         itemLink
+                //     });
 
-            item.Children.forEach(child => {
-                html += `<li><hr class="my-1 border-slate-700">${buildMenuItem(child, level + 1)}</li>`;
-            });
-
-            html += `</ul>`;
-        }
-        else if (isClickableLink) {
-            html += `
+                html += `
     <a href="${escapeHtml(itemLink)}"
-       class="${linkClasses}${activeClass} sidebar-link"
-       data-url="${escapeHtml(itemLink)}">
+       class="${linkClasses}${activeClass}">
       ${iconHtml}
-      <span class="ms-2 whitespace-normal break-words leading-snug">
+    <span class="flex-1 whitespace-normal break-words leading-snug">
         ${menuName}
-      </span>
-    </a>`;
-        }
-        else {
-            html += `
+    </span>
+        </a>`;
+            } else {
+                // عنصر بدون رابط (عنوان فقط)
+                html += `
     <div class="${linkClasses}${activeClass}">
       ${iconHtml}
-      <span class="ms-2 whitespace-normal break-words leading-snug">
+    <span class="flex-1 whitespace-normal break-words leading-snug">
         ${menuName}
-      </span>
-    </div>`;
+    </span>
+        </div>`;
+            }
+
+            return html;
         }
 
-        return html;
-    }
+        // إزالة التكرار لو موجود
         function removeDuplicateMenuItems(items) {
             const seen = new Set();
             return items.filter(item => {
@@ -545,7 +489,7 @@
             });
         }
 
-        
+        // بناء المنيو من الروت (Levels = 1)
         function buildMenuItems(items) {
             const rootItems = items
                 .filter(x => x.Levels === 1)
@@ -559,119 +503,43 @@
             return html;
         }
 
-
-            function setActiveSidebar(url) {
-        const path = (url || "").split("?")[0].toLowerCase();
-
-        
-        document.querySelectorAll("a.sidebar-link").forEach(a => {
-            a.classList.remove("bg-slate-700", "text-slate-50");
-
-            const itemUrl = (a.getAttribute("data-url") || "").split("?")[0].toLowerCase();
-            if (itemUrl === path) {
-                
-                a.classList.add("bg-slate-700", "text-slate-50");
+        document.addEventListener("DOMContentLoaded", () => {
+            const container = document.getElementById("menu-container");
+            if (container && Array.isArray(menuData)) {
+                const uniqueMenuData = removeDuplicateMenuItems(menuData);
+                container.outerHTML = buildMenuItems(uniqueMenuData);
+            } else {
+                console.error("Menu container not found or menuData invalid");
             }
         });
-    }
 
-             
-        function loadPageIntoMainContent(url) {
-        const main = document.getElementById("main-content");
+
+
         
-            if (!main) {
-        hideMainLoading();
-        window.location.href = url;
-        return;
-    }
+   
+</script>
 
+// NotificationCount
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
 
-        fetch(url, { headers: { "X-Requested-With": "XMLHttpRequest" } })
-            .then(function (response) { return response.text(); })
-            .then(function (html) {
-                const parser = new DOMParser();
-                const doc = parser.parseFromString(html, "text/html");
+        function setNotificationCount(count) {
+            const badge = document.getElementById("notif-count");
+            if (!badge) return;
 
-                const newMain = doc.getElementById("main-content");
-                
-                    if (!newMain) {
-        hideMainLoading();
-        window.location.href = url;
-        return;
-    }
-
-                
-                main.innerHTML = newMain.innerHTML;
-
-                
-                window.history.pushState({}, "", url);
-
-                
-                const titleEl = doc.querySelector("title");
-                if (titleEl && titleEl.textContent) {
-                    document.title = titleEl.textContent;
-                }
-
-                
-                setActiveSidebar(url);
-                hideMainLoading();
-            })
-                .catch(function (err) {
-        console.error("Error loading page", err);
-        hideMainLoading();
-        window.location.href = url;
-    });
-
-    }
-
-
-
-
-                document.addEventListener("DOMContentLoaded", () => {
-        const container = document.getElementById("menu-container");
-        if (container && Array.isArray(menuData)) {
-            const uniqueMenuData = removeDuplicateMenuItems(menuData);
-            container.outerHTML = buildMenuItems(uniqueMenuData);
-        } else {
-            console.error("Menu container not found or menuData invalid");
+            if (count > 0) {
+                badge.textContent = count > 99 ? "99+" : String(count);
+                badge.classList.remove("hidden");
+            } else {
+                badge.classList.add("hidden");
+            }
         }
 
-       
-        setActiveSidebar(window.location.pathname + window.location.search);
+        // مثال للتجربة
+        setNotificationCount(2);
 
-        document.body.addEventListener("click", function (e) {
-            const link = e.target.closest("a.sidebar-link");
-            if (!link) return;
-
-            if (e.button !== 0 || e.ctrlKey || e.shiftKey || e.metaKey || e.altKey) {
-                return;
-            }
-
-            
-                e.preventDefault();
-
-    const url = link.getAttribute("data-url");
-    if (!url) return;
-
-    //Overlay
-        showMainLoading();
-        document.body.style.pointerEvents = "none";
-
-    setTimeout(() => {
-        loadPageIntoMainContent(url);
-    }, 1000);
-    // loadPageIntoMainContent(url);
-
-
-
-        });
-
-        window.addEventListener("popstate", function () {
-            loadPageIntoMainContent(window.location.pathname + window.location.search);
-        });
     });
-
-
-
-      
 </script>
+
+
+
