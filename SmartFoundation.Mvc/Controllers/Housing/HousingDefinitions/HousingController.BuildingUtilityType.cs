@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using SmartFoundation.UI.ViewModels.SmartForm;
+using SmartFoundation.UI.ViewModels.SmartPage;
 using SmartFoundation.UI.ViewModels.SmartTable;
 using System.Data;
 using System.Linq;
@@ -344,7 +345,16 @@ namespace SmartFoundation.Mvc.Controllers.Housing
                 }
             };
 
-            return View("HousingDefinitions/BuildingType", dsModel);
+            //return View("HousingDefinitions/BuildingType", dsModel);
+            var page = new SmartPageViewModel
+            {
+                PageTitle = dsModel.PageTitle,
+                PanelTitle = dsModel.PanelTitle,
+                PanelIcon = "fa-layer-group",
+                TableDS = dsModel
+            };
+
+            return View("HousingDefinitions/BuildingUtilityType", page);
         }
     }
 }

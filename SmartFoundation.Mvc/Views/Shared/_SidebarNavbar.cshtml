@@ -176,16 +176,21 @@
                         color: #f8fafc;
                         display: flex;
                         align-items: center;
-                        gap: 0rem;
-                        white-space: normal !important; 
-                        word-break: break-word !important; 
+                        
+                        justify-content: flex-start;
+                        text-align: right;
+                        gap: 0; 
+
+                        white-space: normal !important;
+                        word-break: break-word !important;
                         overflow: visible !important;
                         text-overflow: unset !important;
-                        line-height: 1.25; 
-                        font-size: 15px; 
+                        line-height: 1.25;
+                        font-size: 15px;
                         padding-top: 0.60rem !important;
                         padding-bottom: 0.45rem !important;
                     }
+
 
                         /*  hover */
                         #logo-sidebar a:hover,
@@ -299,7 +304,7 @@
                     }
 
                     <div class="w-16 h-16 rounded-full overflow-hidden bg-slate-700/60
-                    flex items-center justify-center mb-3 shadow-md ring-1 ring-slate-600">
+    flex items-center justify-center mb-3 shadow-md ring-1 ring-slate-600">
                         @if (hasPhoto)
                         {
                             <img src="data:image/jpeg;base64,@photo"
@@ -312,61 +317,64 @@
                         }
                     </div>
 
-            <div class="flex-1 px-2.5 space-y-1 divide-y">
-                <ul class="pb-2 space-y-2">
-                    <li id="menu-container"></li>
-                </ul>
+                </div>
+
+                <!-- ✅ القائمة (خارج text-center و items-center) -->
+                <div class="flex-1 w-full px-2.5 space-y-1 divide-y text-right">
+                    <ul class="w-full pb-2 space-y-2">
+                        <li id="menu-container"></li>
+                    </ul>
+                </div>
+
+
+                </div>
             </div>
-
-
-
-
         </div>
-    </div>
+    
 </aside>
 
 
 
 
 <script>
-        // ================================================================
-        // 🔹 Multi-Level Menu Renderer for Sidebar
-        // ================================================================
+    // ================================================================
+    // 🔹 Multi-Level Menu Renderer for Sidebar
+    // ================================================================
 
-        const menuData = @Html.Raw(JsonSerializer.Serialize(
-                        Model ?? new List<MenuItem>(),
-                        new JsonSerializerOptions { Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping }
-                ));
+    const menuData = @Html.Raw(JsonSerializer.Serialize(
+        Model ?? new List<MenuItem>(),
+        new JsonSerializerOptions { Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping }
+    ));
 
-        console.log("Menu data:", menuData);
+    console.log("Menu data:", menuData);
 
-        const currentPath = window.location.pathname.toLowerCase();
+    const currentPath = window.location.pathname.toLowerCase();
 
-        function cleanMenuLink(link) {
-            if (!link || typeof link !== "string") return "";
-            let cleaned = link.trim();
+    function cleanMenuLink(link) {
+        if (!link || typeof link !== "string") return "";
+        let cleaned = link.trim();
 
-            // ../Employee -> Employee
-            while (cleaned.startsWith("../")) {
-                cleaned = cleaned.substring(3);
-            }
-            // /Employee -> Employee
-            if (cleaned.startsWith("/")) {
-                cleaned = cleaned.substring(1);
-            }
-            // /BuildingClass.aspx -> /BuildingClass
-            if (cleaned.toLowerCase().endsWith(".aspx")) {
-                cleaned = cleaned.substring(0, cleaned.length - 5);
-            }
-
-            return cleaned;
+        // ../Employee -> Employee
+        while (cleaned.startsWith("../")) {
+            cleaned = cleaned.substring(3);
+        }
+        // /Employee -> Employee
+        if (cleaned.startsWith("/")) {
+            cleaned = cleaned.substring(1);
+        }
+        // /BuildingClass.aspx -> /BuildingClass
+        if (cleaned.toLowerCase().endsWith(".aspx")) {
+            cleaned = cleaned.substring(0, cleaned.length - 5);
         }
 
-        function escapeHtml(text) {
-            const div = document.createElement("div");
-            div.textContent = text ?? "";
-            return div.innerHTML;
-        }
+        return cleaned;
+    }
+
+    function escapeHtml(text) {
+        const div = document.createElement("div");
+        div.textContent = text ?? "";
+        return div.innerHTML;
+    }
 
 
 
@@ -420,115 +428,99 @@
         // ------------------------------------------------------------
         // 🔹 بناء عنصر واحد (recursive) بالاعتماد على Children من JSON
         // ------------------------------------------------------------
-        function buildMenuItem(item, level) {
-            const paddingClass = level > 1 ? " ps-10" : "";
-            const baseClasses =
-                "flex items-center w-full p-2 rounded-lg transition duration-75 group " +
-                "hover:bg-slate-700 hover:text-slate-50 text-slate-200";
-            const linkClasses = level === 1 ? baseClasses : baseClasses + paddingClass;
+            function buildMenuItem(item, level) {
+        const paddingClass = level > 1 ? " ps-10" : "";
+        const baseClasses =
+            "flex items-center w-full p-2 rounded-lg transition duration-75 group " +
+            "hover:bg-slate-700 hover:text-slate-50 text-slate-200";
+        const linkClasses = level === 1 ? baseClasses : baseClasses + paddingClass;
 
-            const menuName = escapeHtml(item.MenuName_A || item.MenuNameForView || "");
+        const menuName = escapeHtml(item.MenuName_A || item.MenuNameForView || "");
 
-            // ⭐ ندعم الأسماء الكبيرة/الصغيرة في JSON
-            const rawController = item.MPLink ?? item.mpLink ?? "";
-            const rawAction    = item.MenuLink ?? item.menuLink ?? "";
+        const rawController = item.MPLink ?? item.mpLink ?? "";
+        const rawAction = item.MenuLink ?? item.menuLink ?? "";
 
-            const controller = cleanMenuLink(rawController);  // ../Employee -> Employee
-            const action     = cleanMenuLink(rawAction);      // /BuildingClass.aspx -> BuildingClass
+        const controller = cleanMenuLink(rawController);
+        const action = cleanMenuLink(rawAction);
 
-            const hasChildren     = Array.isArray(item.Children) && item.Children.length > 0;
-            const hasAnyLinkInfo  = (controller !== "" || action !== "");
-            const isClickableLink = hasAnyLinkInfo && !hasChildren;
+        const hasChildren = Array.isArray(item.Children) && item.Children.length > 0;
+        const hasAnyLinkInfo = (controller !== "" || action !== "");
+        const isClickableLink = hasAnyLinkInfo && !hasChildren;
 
-            //  بناء الرابط النهائي
-            let itemLink = "#";
-            if (isClickableLink) {
-                if (controller && action) {
-                    itemLink = `/${controller}/${action}`;      // /Employee/BuildingClass
-                } else if (action) {
-                    itemLink = `/${action}`;
-                } else if (controller) {
-                    itemLink = `/${controller}`;
-                }
-            }
-
-            const isActive = isClickableLink && currentPath === itemLink.toLowerCase();
-            const activeClass = isActive ? " bg-slate-700 text-slate-50" : "";
-
-            const iconHtml =
-                item.MPIcon && item.MPIcon.trim() !== ""
-                    ? `<i class="${escapeHtml(
-                          item.MPIcon
-                      )} w-5 h-5 me-3 text-slate-400 group-hover:text-slate-50 transition-colors duration-200"></i>`
-                    : "";
-
-            let html = "";
-
-                if (hasChildren) {
-        const collapseId = `dropdown-${item.MPID}`;
-
-        
-        const shouldBeOpen = hasActiveChildRecursive(item);
-        const childListClasses = shouldBeOpen ? "py-2 space-y-2" : "hidden py-2 space-y-2";
-        const expandedAttr = shouldBeOpen ? 'aria-expanded="true"' : 'aria-expanded="false"';
-
-        html += `
-        <button type="button"
-                class="${linkClasses}${activeClass}"
-                data-collapse-toggle="${collapseId}"
-                aria-controls="${collapseId}"
-                ${expandedAttr}>
-          ${iconHtml}
-        <span class="flex-1 text-right whitespace-normal break-words leading-snug">
-            ${menuName}
-        </span>
-              <svg class="w-4 h-4 text-slate-400 group-hover:text-slate-50"
-               fill="currentColor" viewBox="0 0 20 20">
-            <path fill-rule="evenodd"
-                  d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
-                  clip-rule="evenodd"></path>
-          </svg>
-        </button>
-        <ul id="${collapseId}" class="${childListClasses}">
-        `;
-        item.Children.forEach(child => {
-            html += `<li><hr class="my-1 border-slate-700">${buildMenuItem(child, level + 1)}</li>`;
-        });
-        html += `</ul>`;
-    }
-
-
-
-
-        else if (isClickableLink) {
-        html += `
-        <a href="${escapeHtml(itemLink)}"
-           class="${linkClasses}${activeClass} sidebar-link"
-           data-url="${escapeHtml(itemLink)}">
-          ${iconHtml}
-        <span class="flex-1 whitespace-normal break-words leading-snug">
-            ${menuName}
-        </span>
-            </a>`;
-    }
-
- 
-            
-            else {
-               
-                html += `
-    <div class="${linkClasses}${activeClass}">
-      ${iconHtml}
-    <span class="flex-1 whitespace-normal break-words leading-snug">
-        ${menuName}
-    </span>
-        </div>`;
-            }
-
-            return html;
+        let itemLink = "#";
+        if (isClickableLink) {
+            if (controller && action) itemLink = `/${controller}/${action}`;
+            else if (action) itemLink = `/${action}`;
+            else if (controller) itemLink = `/${controller}`;
         }
 
-        
+        const isActive = isClickableLink && currentPath === itemLink.toLowerCase();
+        const activeClass = isActive ? " bg-slate-700 text-slate-50" : "";
+
+        const iconHtml =
+            item.MPIcon && item.MPIcon.trim() !== ""
+                ? `<i class="${escapeHtml(item.MPIcon)} text-slate-400 group-hover:text-slate-50 transition-colors duration-200 shrink-0"></i>`
+                : "";
+
+        let html = "";
+
+        if (hasChildren) {
+            const collapseId = `dropdown-${item.MPID}`;
+
+            const shouldBeOpen = hasActiveChildRecursive(item);
+            const childListClasses = shouldBeOpen ? "py-2 space-y-2" : "hidden py-2 space-y-2";
+            const expandedAttr = shouldBeOpen ? 'aria-expanded="true"' : 'aria-expanded="false"';
+
+            html += `
+    <button type="button"
+            class="${linkClasses}${activeClass}"
+            data-collapse-toggle="${collapseId}"
+            aria-controls="${collapseId}"
+            ${expandedAttr}>
+      ${iconHtml}
+      <span class="ms-2 whitespace-normal break-words leading-snug">
+        ${menuName}
+      </span>
+      <!-- ✅ ادفع السهم لأقصى اليسار بشكل ثابت -->
+      <svg class="w-4 h-4 text-slate-400 group-hover:text-slate-50" style="margin-inline-start:auto;"
+           fill="currentColor" viewBox="0 0 20 20">
+        <path fill-rule="evenodd"
+              d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+              clip-rule="evenodd"></path>
+      </svg>
+    </button>
+    <ul id="${collapseId}" class="${childListClasses}">
+    `;
+
+            item.Children.forEach(child => {
+                html += `<li><hr class="my-1 border-slate-700">${buildMenuItem(child, level + 1)}</li>`;
+            });
+
+            html += `</ul>`;
+        }
+        else if (isClickableLink) {
+            html += `
+    <a href="${escapeHtml(itemLink)}"
+       class="${linkClasses}${activeClass} sidebar-link"
+       data-url="${escapeHtml(itemLink)}">
+      ${iconHtml}
+      <span class="ms-2 whitespace-normal break-words leading-snug">
+        ${menuName}
+      </span>
+    </a>`;
+        }
+        else {
+            html += `
+    <div class="${linkClasses}${activeClass}">
+      ${iconHtml}
+      <span class="ms-2 whitespace-normal break-words leading-snug">
+        ${menuName}
+      </span>
+    </div>`;
+        }
+
+        return html;
+    }
         function removeDuplicateMenuItems(items) {
             const seen = new Set();
             return items.filter(item => {
@@ -668,9 +660,3 @@
 
       
 </script>
-
-
-
-
-
-

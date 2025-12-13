@@ -528,14 +528,14 @@ body, h1, h2, h3, h4, h5, h6, input, textarea, select, button {
   .ms-1 {
     margin-inline-start: calc(var(--spacing) * 1);
   }
+  .ms-2 {
+    margin-inline-start: calc(var(--spacing) * 2);
+  }
   .ms-3 {
     margin-inline-start: calc(var(--spacing) * 3);
   }
   .me-2 {
     margin-inline-end: calc(var(--spacing) * 2);
-  }
-  .me-3 {
-    margin-inline-end: calc(var(--spacing) * 3);
   }
   .me-4 {
     margin-inline-end: calc(var(--spacing) * 4);
@@ -585,6 +585,9 @@ body, h1, h2, h3, h4, h5, h6, input, textarea, select, button {
   .mb-2 {
     margin-bottom: calc(var(--spacing) * 2);
   }
+  .mb-3 {
+    margin-bottom: calc(var(--spacing) * 3);
+  }
   .mb-4 {
     margin-bottom: calc(var(--spacing) * 4);
   }
@@ -633,6 +636,9 @@ body, h1, h2, h3, h4, h5, h6, input, textarea, select, button {
   .h-12 {
     height: calc(var(--spacing) * 12);
   }
+  .h-16 {
+    height: calc(var(--spacing) * 16);
+  }
   .h-full {
     height: 100%;
   }
@@ -654,9 +660,6 @@ body, h1, h2, h3, h4, h5, h6, input, textarea, select, button {
   .w-4 {
     width: calc(var(--spacing) * 4);
   }
-  .w-5 {
-    width: calc(var(--spacing) * 5);
-  }
   .w-6 {
     width: calc(var(--spacing) * 6);
   }
@@ -665,6 +668,9 @@ body, h1, h2, h3, h4, h5, h6, input, textarea, select, button {
   }
   .w-10 {
     width: calc(var(--spacing) * 10);
+  }
+  .w-16 {
+    width: calc(var(--spacing) * 16);
   }
   .w-55 {
     width: calc(var(--spacing) * 55);
@@ -689,6 +695,9 @@ body, h1, h2, h3, h4, h5, h6, input, textarea, select, button {
   }
   .flex-none {
     flex: none;
+  }
+  .shrink-0 {
+    flex-shrink: 0;
   }
   .-translate-x-full {
     --tw-translate-x: -100%;
@@ -961,6 +970,12 @@ body, h1, h2, h3, h4, h5, h6, input, textarea, select, button {
   }
   .bg-slate-700 {
     background-color: var(--color-slate-700);
+  }
+  .bg-slate-700\/60 {
+    background-color: color-mix(in srgb, oklch(37.2% 0.044 257.287) 60%, transparent);
+    @supports (color: color-mix(in lab, red, red)) {
+      background-color: color-mix(in oklab, var(--color-slate-700) 60%, transparent);
+    }
   }
   .bg-slate-800 {
     background-color: var(--color-slate-800);
@@ -1360,6 +1375,9 @@ body, h1, h2, h3, h4, h5, h6, input, textarea, select, button {
   }
   .ring-red-500 {
     --tw-ring-color: var(--color-red-500);
+  }
+  .ring-slate-600 {
+    --tw-ring-color: var(--color-slate-600);
   }
   .ring-slate-700 {
     --tw-ring-color: var(--color-slate-700);
