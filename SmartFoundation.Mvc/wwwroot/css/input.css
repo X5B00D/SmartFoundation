@@ -220,7 +220,7 @@ body, h1, h2, h3, h4, h5, h6, input, textarea, select, button {
         }
 
     .sf-checkbox {
-        @apply w-4 h-4 bg-white border border-gray-300 rounded-sm shadow-sm appearance-none cursor-pointer text-emerald-600 focus:ring-2 focus:ring-emerald-600 focus:border-emerald-600 checked:bg-emerald-600 checked:border-emerald-600 disabled:bg-gray-100 disabled:border-gray-200 disabled:cursor-not-allowed;
+        @apply w-4 h-4 bg-white border border-gray-300 rounded-none shadow-sm appearance-none cursor-pointer text-emerald-600 focus:ring-2 focus:ring-emerald-600 focus:border-emerald-600 checked:bg-emerald-600 checked:border-emerald-600 disabled:bg-gray-100 disabled:border-gray-200 disabled:cursor-not-allowed;
         margin-top: 5px;
     }
 
@@ -236,7 +236,7 @@ body, h1, h2, h3, h4, h5, h6, input, textarea, select, button {
    ========================= */
 
 .btn {
-    @apply inline-flex items-center justify-center h-8 gap-2 px-3 text-sm font-medium transition rounded-sm focus:outline-none focus:ring-2 focus:ring-offset-0 disabled:opacity-60 disabled:pointer-events-none;
+    @apply inline-flex items-center justify-center h-8.5 gap-2 px-2 text-sm font-medium transition rounded-sm focus:outline-none focus:ring-2 focus:ring-offset-0 disabled:opacity-60 disabled:pointer-events-none;
 }
     .btn i {
         @apply text-sm;
@@ -250,7 +250,7 @@ body, h1, h2, h3, h4, h5, h6, input, textarea, select, button {
 }
 
 .btn-success {
-    @apply text-white bg-emerald-600 hover:bg-emerald-700 focus:ring-emerald-400;
+    @apply text-white bg-emerald-600 hover:bg-emerald-800 focus:ring-emerald-600;
 }
 
 .btn-danger {
@@ -275,7 +275,7 @@ textarea[readonly] {
 }
 
 .table-box {
-    @apply relative w-full overflow-x-auto border border-gray-300 rounded-none;
+    @apply relative w-full overflow-x-auto border border-gray-300  rounded-sm;
 }
 
 
@@ -284,13 +284,13 @@ textarea[readonly] {
 }
 
 .table-head {
-    @apply sticky top-0 z-10 bg-gray-300 text-base font-bold tracking-wide text-gray-900 uppercase text-center;
+    @apply sticky top-0 z-10 bg-gray-300 text-base font-medium tracking-wide text-gray-900 uppercase text-center;
 }
 
 .th-cell {
-    @apply px-6 py-3 text-base font-bold tracking-wider text-center text-gray-700 uppercase;
-    @apply text-gray-700 bg-gray-300 align-middle border-b border-gray-300;
-    @apply transition-colors duration-100 hover:bg-gray-200;
+    @apply px-6 py-2 text-base font-semibold tracking-wider text-center text-gray-900 uppercase;
+    @apply text-gray-600 bg-gray-300 align-middle border-b border-gray-300;
+    @apply transition-colors duration-100 hover:bg-gray-100;
 }
 
 
@@ -310,10 +310,26 @@ textarea[readonly] {
         @apply bg-gray-300; 
     }
 
+
 .td-cell {
-    @apply px-0 py-3 text-base text-center text-gray-800 align-middle;
-    @apply whitespace-nowrap;
+    @apply px-0 py-0.5 text-base text-center align-middle whitespace-nowrap;
+    @apply text-gray-600 text-lg font-medium leading-relaxed;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
 }
+
+/*.td-cell {
+    @apply px-0 py-2 text-center align-middle whitespace-nowrap;
+    @apply text-gray-600 text-lg font-medium leading-relaxed;*/
+    /* تحسين جودة الخط */
+    /*-webkit-font-smoothing: antialiased;*/ /* Chrome / Edge */
+    /*-moz-osx-font-smoothing: grayscale;*/ /* Firefox macOS */
+    /*text-rendering: optimizeLegibility;*/ /* تحسين تشكيل الحروف */
+    /*font-feature-settings: "kern" 1, "liga" 1;
+    letter-spacing: 0.01em;
+}*/
+
+
 
 
 
@@ -353,7 +369,7 @@ textarea[readonly] {
    ========================= */
 .toolbar {
     @apply flex flex-col items-stretch justify-between gap-4 mb-5 md:flex-row md:items-center;
-    @apply px-4 py-3 border border-gray-200 rounded-none bg-gray-200;
+    @apply px-2.5 py-2 border border-gray-200 rounded-sm bg-gray-100;
 }
 
 .toolbar-search {
@@ -361,14 +377,14 @@ textarea[readonly] {
 }
 
 .search-input {
-    @apply w-full text-sm bg-white border border-gray-300 rounded-sm md:w-72;
+    @apply w-full text-sm bg-white border border-gray-300 rounded-sm md:w-65;
     @apply px-3 py-2 transition-colors duration-50;
     @apply focus:outline-none focus:border-emerald-50 focus:ring-1 focus:ring-emerald-700;
-    /* لاحظ: ما فيه shadow */
+    
 }
 
 .select-sm {
-    @apply w-33 px-13 text-sm bg-white border border-gray-300 rounded-sm h-9;
+    @apply w-18 px-2 text-sm bg-white border border-gray-300 rounded-sm h-9;
     @apply transition focus:outline-none focus:border-emerald-100 focus:ring-1 focus:ring-emerald-700;
 }
 
@@ -414,11 +430,11 @@ textarea[readonly] {
 }*/
 /* أزرار التنقل */
 .pagination-nav {
-    @apply flex items-center gap-3;
+    @apply flex items-center gap-1;
 }
 
     .pagination-nav button {
-        @apply inline-flex items-center justify-center min-w-[88px] h-8 rounded-none border border-gray-300 bg-gray-200 text-sm font-medium text-gray-800 transition-colors duration-50;
+        @apply inline-flex items-center justify-center min-w-[20px] h-7 rounded-sm border border-gray-300 bg-gray-200 text-sm font-medium text-gray-600 transition-colors duration-50;
         
         @apply focus:outline-none focus:ring-0;
         
@@ -529,14 +545,46 @@ textarea[readonly] {
     /*البانل بصفحة الرندر*/
 
 /* ===== لوحة العرض (Panel) ===== */
+
 .sf-panel {
-    @apply relative w-full mx-auto mt-10 mb-6 overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm;
+    @apply relative w-full mx-auto mt-20 mb-6 bg-white overflow-hidden shadow-sm rounded-sm transition-all duration-900 ease-in-out;
+    border: 0px solid rgb(229 231 235); 
+
 }
+
+/*.sf-panel-full {
+    position: fixed !important;
+    inset: 1rem !important;
+    z-index: 9999 !important;
+    margin: 0 !important;
+    width: auto !important;
+    height: calc(100vh - 2rem) !important;
+    border-radius: 0.75rem !important;
+}
+
+    .sf-panel-full .sf-panel-body {
+        height: calc(100vh - 6rem) !important;
+        overflow: auto !important;
+    }
+*/
+
+
 
 /* ===== ترويسة اللوحة ===== */
 .sf-panel-header {
-    @apply sticky top-0 z-10 flex items-center justify-between border-b border-gray-200 bg-gray-100 px-4 py-3;
+    @apply sticky top-0 z-10 flex items-center justify-between bg-gray-300 px-7 py-3;
 }
+
+
+.sf-panel-title {
+    @apply text-base md:text-lg font-semibold tracking-tight text-gray-600;
+    @apply leading-snug;
+}
+
+
+
+
+
 
 /* ===== جسم اللوحة ===== */
 .sf-panel-body {
@@ -583,7 +631,43 @@ textarea[readonly] {
 
 /* ===== Panel Body ===== */
 .sf-panel-body {
-    @apply p-6 bg-white;
+    @apply p-1.5 bg-gray-100;
+}
+
+
+/* =========================
+     Loader – Bouncing Dots
+     ========================= */
+.sf-loader-dots {
+    @apply flex gap-1 items-center justify-center;
+}
+
+    .sf-loader-dots span {
+        @apply h-3 w-3 rounded-full bg-emerald-600;
+        animation: sf-bounce 0.8s infinite ease-in-out;
+    }
+
+        .sf-loader-dots span:nth-child(2) {
+            animation-delay: 0.15s;
+        }
+
+        .sf-loader-dots span:nth-child(3) {
+            animation-delay: 0.3s;
+        }
+
+
+
+/* الحركة نفسها */
+@keyframes sf-bounce {
+    0%, 80%, 100% {
+        transform: translateY(0);
+        opacity: 0.4;
+    }
+
+    40% {
+        transform: translateY(-20px); /*  قوة الحركة */
+        opacity: 1;
+    }
 }
 
 /* =========================

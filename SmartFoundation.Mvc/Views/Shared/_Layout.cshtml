@@ -17,7 +17,7 @@
 
 
 
-    <script src="~/js/toastr.min.js"></script>
+    @* <script src="~/js/toastr.min.js"></script> *@
     <style>
         [x-cloak] { display: none !important; }
 
@@ -87,30 +87,46 @@
 <body class="text-gray-900 transition-colors duration-300 bg-gray-50 dark:bg-gray-900 dark:text-gray-100">
 
 
+
+
     <!-- ✅ Navbar + Sidebar -->
     @await Component.InvokeAsync("MenuItems")
 
     <!-- ✅ Main content area -->
     <div id="main-content"
          class="relative z-0 flex flex-col min-h-screen pt-16 transition-all duration-300 bg-gray-100 sm:mr-64" >
+        <!-- ===== Main Content Loading Overlay ===== -->
+        <div id="main-loading"
+             style="display:none"
+             class="absolute inset-0 z-[9999] bg-white/70 flex items-center justify-center">
+            <div class="sf-loader-dots">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
 
+
+        </div>
         <!-- Content -->
         <main class="flex-1 px-4 pt-6">
-            @* <div class="p-6 bg-white border rounded-lg shadow-sm " style="border-color: rgb(229 231 235)"> *@
                 @RenderBody()
-            @* </div> *@
         </main>
 
-        <!-- ✅ Footer -->
-        <footer class="mt-auto bg-white border-t " style="border-color:rgb(229 231 235)">
-            <div class="px-4 py-4 text-sm text-center text-gray-600 dark:text-gray-400">
-              <span class="text-black-600 ">
-                   إدارة مدينة الملك فيصل العسكرية &copy;
-                </span>
-                   @* - All rights reserved @DateTime.UtcNow.Year - &copy; *@
-              
+        <!-- ✅ Modern Footer -->
+        <footer class="mt-auto border-t bg-gray-200" style="border-color:#e5e7eb">
+            <div class="px-4 py-5">
+                <div class="text-sm text-center text-gray-400">
+                    <span class="font-medium text-gray-700">
+                        إدارة مدينة الملك فيصل العسكرية
+                    </span>
+                    <span class="mx-1 text-gray-400">©</span>
+                    <span class="text-gray-500">
+                        @DateTime.UtcNow.Year
+                    </span>
+                </div>
             </div>
         </footer>
+
     </div>
 
     <!-- ✅ Scripts -->
@@ -128,7 +144,8 @@
     <script src="~/js/moment.min.js"></script>
     <script src="~/js/moment-hijri.min.js"></script>
     <script src="~/js/sf-select.js"></script>
-    <script src="~/js/sf-date.js?v=@(DateTime.Now.Ticks)"></script>
+    @* <script src="~/js/sf-date.js?v=@(DateTime.Now.Ticks)"></script> *@
+    <script src="~/js/sf-date.js" asp-append-version="true" defer></script>
     <script src="~/js/alpinejs.min.js" defer></script>
     <script src="~/js/sf-form.js"></script>
     <script src="~/js/sf-table.js"></script>
@@ -149,7 +166,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   if (!btn || !darkIcon || !lightIcon) return;
 
-  // ✅ Ensure dark class is applied to <html> BEFORE rendering
+  //  Ensure dark class is applied to <html> BEFORE rendering
   if (localStorage.getItem('color-theme') === 'dark' ||
      (!('color-theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
     document.documentElement.classList.add('dark'); // ✅ this line is missing in your version
@@ -159,7 +176,7 @@ document.addEventListener('DOMContentLoaded', function () {
     darkIcon.classList.remove('hidden');
   }
 
-  // 🌗 Toggle theme
+  //  Toggle theme
   btn.addEventListener('click', () => {
     darkIcon.classList.toggle('hidden');
     lightIcon.classList.toggle('hidden');
@@ -186,5 +203,29 @@ document.addEventListener('DOMContentLoaded', function () {
 </script>
 
     <script src="~/js/session-guard.js"></script>
+
+    <!-- ===== Global Loading Overlay ===== -->
+
+    <script>
+        function showMainLoading() {
+            const el = document.getElementById("main-loading");
+            if (!el) return;
+            el.style.display = "flex";
+            // document.body.style.pointerEvents = "none";
+        }
+
+                function hideMainLoading() {
+            const el = document.getElementById("main-loading");
+            if (el) el.style.display = "none";
+
+            // يرجع التفاعل بعد انتهاء التحميل
+            document.body.style.pointerEvents = "";
+        }
+
+    </script>
+
+
+
 </body>
 </html>
+

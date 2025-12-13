@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using SmartFoundation.UI.ViewModels.SmartForm;
+using SmartFoundation.UI.ViewModels.SmartPage;
 using SmartFoundation.UI.ViewModels.SmartTable;
 using System.Data;
 using System.Linq;
@@ -190,12 +191,12 @@ namespace SmartFoundation.Mvc.Controllers.Housing
                 QuickSearchFields = dynamicColumns.Select(c => c.Field).Take(4).ToList(),
                 Searchable = true,
                 AllowExport = true,
-                PanelTitle = "عرض ",
+                PanelTitle = "أنواع المباني",
                 Toolbar = new TableToolbarConfig
                 {
                     ShowRefresh = false,
                     ShowColumns = true,
-                    ShowExportCsv = true,
+                    ShowExportCsv = false,
                     ShowExportExcel = false,
                     ShowAdd = canInsert,
                     ShowEdit = canUpdate,
@@ -279,7 +280,18 @@ namespace SmartFoundation.Mvc.Controllers.Housing
                 }
             };
 
-            return View("HousingDefinitions/BuildingType", dsModel);
+            //return View("HousingDefinitions/BuildingType", dsModel);
+
+            var page = new SmartPageViewModel
+            {
+                PageTitle = dsModel.PageTitle,
+                PanelTitle = dsModel.PanelTitle,
+                PanelIcon = "fa-layer-group",
+                TableDS = dsModel
+            };
+
+            return View("HousingDefinitions/BuildingType", page);
+
         }
     }
 }

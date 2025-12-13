@@ -9,11 +9,15 @@ namespace SmartFoundation.UI.ViewModels.SmartPage
         public string? PageTitle { get; set; } = "Smart Demo";
         public string? PanelTitle { get; set; } = "Smart Demo";
 
+        public string? PanelIcon { get; set; } //جديد
+
         public string SpName { get; set; } = "";
         public string Operation { get; set; } = "select";
 
         public FormConfig? Form { get; set; }
         public TableConfig? Table { get; set; }
+
+        public SmartTableDsModel? TableDS { get; set; } //جديد
         public DatepickerViewModel? DatePicker { get; set; }
 
     }
