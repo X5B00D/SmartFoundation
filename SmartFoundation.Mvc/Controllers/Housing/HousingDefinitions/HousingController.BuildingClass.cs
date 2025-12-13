@@ -232,7 +232,6 @@ namespace SmartFoundation.Mvc.Controllers.Housing
                             Title = "بيانات الفئة الجديدة",
                             Method = "post",
                             ActionUrl = "/crud/insert",
-                            LabelText = "sami",
                             Fields = addFields,
                             Buttons = new List<FormButtonConfig>
                             {
@@ -280,7 +279,6 @@ namespace SmartFoundation.Mvc.Controllers.Housing
                             Title = "تأكيد حذف الفئة",
                             Method = "post",
                             ActionUrl = "/crud/delete",
-                            LabelText = "sami",
                             Buttons = new List<FormButtonConfig>
                             {
                                 new FormButtonConfig { Text = "حذف",   Type = "submit", Color = "danger", Icon = "fa fa-save" },

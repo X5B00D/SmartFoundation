@@ -131,6 +131,7 @@ namespace SmartFoundation.Mvc.Controllers
             HttpContext.Session.SetString("IDNumber", auth.IDNumber!);
             HttpContext.Session.SetString("HostName", clientHostName ?? "");
             HttpContext.Session.SetString("LastActivityUtc", DateTime.UtcNow.ToString("O"));
+            HttpContext.Session.SetString("photoBase64", auth.PhotoBase64 ?? "");
 
             switch (auth.useractive)
             {

@@ -645,7 +645,6 @@ namespace SmartFoundation.Mvc.Controllers
                             ActionUrl = "/crud/update",
                             SubmitText = "حفظ التعديلات",
                             CancelText = "إلغاء",
-                            LabelText = "sami", // <-- show 'sami' at top of Edit form
                             Fields = updateFields
                         },
                         RequireSelection = true,
@@ -671,7 +670,6 @@ namespace SmartFoundation.Mvc.Controllers
                             Title = "تأكيد حذف السجل",
                             Method = "post",
                             ActionUrl = "/crud/delete",
-                            LabelText = "sami", // <-- show 'sami' at top of Delete form
                             Buttons = new List<FormButtonConfig>
                             {
                                 new FormButtonConfig { Text = "حذف", Type = "submit", Color = "danger", Icon = "fa fa-save" },

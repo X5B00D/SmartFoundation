@@ -38,7 +38,7 @@ namespace SmartFoundation.DataEngine.Core.Services
             try
             {
                 if (string.IsNullOrWhiteSpace(request.SpName))
-                    throw new ArgumentException("SpName is required.");
+                    throw new ArgumentException("لايوجد بيانات");
 
                 // القائمة البيضاء
                 var whitelist = _config.GetSection("SmartData:Whitelist").Get<string[]>() ?? [];

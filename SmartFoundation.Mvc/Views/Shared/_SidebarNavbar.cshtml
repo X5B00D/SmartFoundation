@@ -6,6 +6,16 @@
 @using SmartFoundation.Mvc.Models
 @model List<MenuItem>
 
+@using Microsoft.AspNetCore.Http
+
+@{
+    // غيّر "userID" إذا اسم السيشن عندك مختلف
+    var sessionUserId = Context.Session.GetString("userID");
+    var sessionfullname = Context.Session.GetString("fullName");
+    var sessionUserPhoto = Context.Session.GetString("photoBase64");
+}
+
+
 
 <nav class="fixed z-50 w-full border-bottom" style="background:#1f2937; color:#e2e8f0; border-color:#334155">
     <div class="px-3 py-3 lg:px-5 lg:pe-3">
@@ -278,12 +288,39 @@
 
             </style>
 
+            <div class="flex-1 px-4 space-y-1">
+
+                <!-- بطاقة المستخدم -->
+                <div class="py-1 flex flex-col items-center text-center">
+
+                    @{
+                        var photo = sessionUserPhoto;
+                        var hasPhoto = !string.IsNullOrWhiteSpace(photo);
+                    }
+
+                    <div class="w-16 h-16 rounded-full overflow-hidden bg-slate-700/60
+                    flex items-center justify-center mb-3 shadow-md ring-1 ring-slate-600">
+                        @if (hasPhoto)
+                        {
+                            <img src="data:image/jpeg;base64,@photo"
+                                 alt="user"
+                                 class="w-full h-full object-cover" />
+                        }
+                        else
+                        {
+                            <i class="fa-regular fa-user text-2xl text-slate-300"></i>
+                        }
+                    </div>
 
             <div class="flex-1 px-2.5 space-y-1 divide-y">
                 <ul class="pb-2 space-y-2">
                     <li id="menu-container"></li>
                 </ul>
             </div>
+
+
+
+
         </div>
     </div>
 </aside>
