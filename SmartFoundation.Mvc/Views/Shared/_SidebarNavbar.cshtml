@@ -64,10 +64,10 @@
                         <i class="fa-solid fa-house text-[16px]"></i>
                         <span>الصفحة الرئيسية</span>
                     </a>
-                    <a href="/Account/ChangePassword" class="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm text-slate-200 rounded-md hover:bg-slate-700">
+                 @*    <a href="/Account/ChangePassword" class="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm text-slate-200 rounded-md hover:bg-slate-700">
                         <i class="fa-solid fa-key text-[16px]"></i>
                         <span>تغيير كلمة المرور</span>
-                    </a>
+                    </a> *@
                 </nav>
 
                 <!-- الإشعارات -->
@@ -92,7 +92,7 @@
              bg-red-600 text-white text-[10px]
              flex items-center justify-center
              font-bold ring-1 ring-slate-800 hidden">
-
+                         
                     </span>
 
                 </button>
@@ -121,7 +121,7 @@
 
                             <span class="sr-only">فتح قائمة المستخدم</span>
 
-                            @if (!string.IsNullOrEmpty(sessionUserPhoto))
+                           @*  @if (!string.IsNullOrEmpty(sessionUserPhoto))
                             {
                                 <img class="w-8 h-8 rounded-full"
                                      src="data:image/png;base64,@sessionUserPhoto"
@@ -132,7 +132,7 @@
                                 <img class="w-8 h-8 rounded-full"
                                      src="~/img/user_.png"
                                      alt="user photo">
-                            }
+                            } *@
                             @* <img class="w-8 h-8" src="~/img/user_.png" alt="user photo"> *@
                             <i class="fa-solid fa-gear text-[16px] text-slate-300"></i>
                         </button>
@@ -141,12 +141,13 @@
                     <!-- User dropdown -->
                     <div id="user-dropdown"
                          class="z-50 hidden w-55 my-2 overflow-hidden rounded-sm shadow-sm bg-slate-800 ring-1 ring-slate-700">
-                        <div class="px-4 py-3">
+                         
+                       @*  <div class="px-4 py-3">
                             <p class="text-sm font-medium text-slate-200">@(sessionfullname?.ToString() ?? "غير معروف")</p>
                             <p class="mt-0.5 text-xs text-slate-400 truncate">@(sessionUserId?.ToString() ?? "غير معروف")</p>
-                            <p class="text-sm font-medium text-slate-200">@(sessionfullname?.ToString() ?? "غير معروف")</p>
-                            <p class="mt-0.5 text-xs text-slate-400 truncate">@(sessionUserId?.ToString() ?? "غير معروف")</p>
-                        </div>
+                            
+                        </div> *@
+                        
                         <ul class="py-1">
                             <li>
                                 <hr class="my-1 border-slate-700">
