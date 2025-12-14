@@ -3,6 +3,7 @@ using SmartFoundation.Application.Mapping;
 using SmartFoundation.Application.Services.Models;
 using SmartFoundation.DataEngine.Core.Interfaces;
 using SmartFoundation.DataEngine.Core.Models;
+using SmartFoundation.DataEngine.Core.Services;
 using System.Data;
 using System.Text.Json;
 
@@ -582,7 +583,186 @@ namespace SmartFoundation.Application.Services
 
         // END OF AuthDataLoadService
 
-        
+
+
+        /// <summary>
+        /// NotificationService
+        /// </summary>
+        /// <param name="args"></param>
+        /// <returns></returns>
+        /// 
+
+
+
+        public async Task<int> GetUserNotificationCount(string userId)
+        {
+            var parameters = new Dictionary<string, object?>
+    {
+        { "UserID", userId },
+        { "Type", "Count" }
+    };
+
+            try
+            {
+                var jsonResult = await ExecuteOperation("Notification", "count", parameters);
+                var response = JsonSerializer.Deserialize<JsonElement>(jsonResult);
+
+                if (response.GetProperty("success").GetBoolean() &&
+                    response.GetProperty("data").ValueKind == JsonValueKind.Array)
+                {
+                    var firstRow = response.GetProperty("data").EnumerateArray().FirstOrDefault();
+                    if (firstRow.ValueKind != JsonValueKind.Undefined)
+                    {
+                        return firstRow.TryGetProperty("NotificationCount", out var countProp)
+                            ? countProp.GetInt32()
+                            : 0;
+                    }
+                }
+                return 0;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error getting notification count for user {UserId}", userId);
+                return 0;
+            }
+        }
+
+        public async Task<List<NotificationItem>> GetUserNotifications(string userId)
+        {
+            var parameters = new Dictionary<string, object?>
+    {
+        { "UserID", userId },
+        { "Type", "Body" }
+    };
+
+            try
+            {
+                var jsonResult = await ExecuteOperation("Notification", "body", parameters);
+                var response = JsonSerializer.Deserialize<JsonElement>(jsonResult);
+
+                var notifications = new List<NotificationItem>();
+
+                if (response.GetProperty("success").GetBoolean() &&
+                    response.GetProperty("data").ValueKind == JsonValueKind.Array)
+                {
+                    foreach (var row in response.GetProperty("data").EnumerateArray())
+                    {
+                        notifications.Add(new NotificationItem
+                        {
+                            UserNotificationId = row.GetProperty("UserNotificationId").GetInt64(),
+                            NotificationId_FK = row.GetProperty("NotificationId_FK").GetInt64(),
+                            Title = row.TryGetProperty("Title", out var title) ? title.GetString() : null,
+                            Body = row.TryGetProperty("Body", out var body) ? body.GetString() : null,
+                            Url_ = row.TryGetProperty("Url_", out var url) ? url.GetString() : null,
+                            DeliveredUtc = row.TryGetProperty("DeliveredUtc", out var delivered)
+                                ? delivered.GetDateTime()
+                                : null,
+                            IsClicked = row.TryGetProperty("IsClicked", out var clicked) && clicked.GetBoolean(),
+                            IsRead = row.TryGetProperty("IsRead", out var read) && read.GetBoolean()
+                        });
+                    }
+                }
+
+                return notifications;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error getting notifications for user {UserId}", userId);
+                return new List<NotificationItem>();
+            }
+        }
+
+        public async Task<bool> MarkNotificationAsClicked(string userId, long userNotificationId)
+        {
+            var parameters = new Dictionary<string, object?>
+    {
+        { "UserID", userId },
+        { "Type", "MarkClicked" },
+        { "UserNotificationId", userNotificationId }
+    };
+
+            try
+            {
+                var jsonResult = await ExecuteOperation("Notification", "markClicked", parameters);
+                var response = JsonSerializer.Deserialize<JsonElement>(jsonResult);
+
+                return response.GetProperty("success").GetBoolean();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error marking notification {NotificationId} as clicked for user {UserId}",
+                    userNotificationId, userId);
+                return false;
+            }
+        }
+
+        public async Task<bool> MarkAllNotificationsAsRead(string userId)
+        {
+            var parameters = new Dictionary<string, object?>
+    {
+        { "UserID", userId },
+        { "Type", "MarkAllRead" }
+    };
+
+            try
+            {
+                var jsonResult = await ExecuteOperation("Notification", "markAllRead", parameters);
+                var response = JsonSerializer.Deserialize<JsonElement>(jsonResult);
+
+                return response.GetProperty("success").GetBoolean();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error marking all notifications as read for user {UserId}", userId);
+                return false;
+            }
+        }
+
+        public async Task<bool> MarkAllNotificationsAsClicked(string userId)
+        {
+            var parameters = new Dictionary<string, object?>
+    {
+        { "UserID", userId },
+        { "Type", "MarkAllClicked" }
+    };
+
+            try
+            {
+                var jsonResult = await ExecuteOperation("Notification", "markAllClicked", parameters);
+                var response = JsonSerializer.Deserialize<JsonElement>(jsonResult);
+
+                return response.GetProperty("success").GetBoolean();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error marking all notifications as clicked for user {UserId}", userId);
+                return false;
+            }
+        }
+
+        public async Task<bool> MarkNotificationAsRead(string userId, long userNotificationId)
+        {
+            var parameters = new Dictionary<string, object?>
+    {
+        { "UserID", userId },
+        { "Type", "MarkRead" },
+        { "UserNotificationId", userNotificationId }
+    };
+
+            try
+            {
+                var jsonResult = await ExecuteOperation("Notification", "markRead", parameters);
+                var response = JsonSerializer.Deserialize<JsonElement>(jsonResult);
+
+                return response.GetProperty("success").GetBoolean();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error marking notification {NotificationId} as read for user {UserId}",
+                    userNotificationId, userId);
+                return false;
+            }
+        }
 
     }
 }

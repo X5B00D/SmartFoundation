@@ -1,0 +1,40 @@
+/* Custom scrollbar for notification dropdown */
+#notification-dropdown::-webkit-scrollbar {
+    width: 6px;
+}
+
+#notification-dropdown::-webkit-scrollbar-track {
+    background: #1e293b;
+}
+
+#notification-dropdown::-webkit-scrollbar-thumb {
+    background: #475569;
+    border-radius: 3px;
+}
+
+#notification-dropdown::-webkit-scrollbar-thumb:hover {
+    background: #64748b;
+}
+
+/* Ensure the dropdown content scrolls */
+#notification-dropdown .notification-list {
+    max-height: calc(384px - 90px);
+    overflow-y: auto;
+}
+
+/* Animation for new notifications */
+@keyframes slideIn {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+.notification-item.new {
+    animation: slideIn 0.3s ease-out;
+    background-color: #1e40af20;
+}

@@ -27,6 +27,16 @@ public static class ProcedureMapper
         { "menu:listAll", "dbo.sp_GetAllMenuItems" },
         { "menu:tree", "dbo.GetUserMenuTree" },
         { "menu:sami", "dbo.GetUserMenuTree" },
+
+        //Notification operations
+        
+        { "Notification:count", "dbo.Notifications_CRUD" },
+        { "Notification:body", "dbo.Notifications_CRUD" },
+        { "Notification:markClicked", "dbo.Notifications_CRUD" },
+        { "Notification:markRead", "dbo.Notifications_CRUD" },  
+        { "Notification:markAllRead", "dbo.Notifications_CRUD" },
+        { "Notification:markAllClicked", "dbo.Notifications_CRUD" },
+
         
         // Dashboard operations
         { "dashboard:summary", "dbo.sp_GetDashboardSummary" },
@@ -34,9 +44,7 @@ public static class ProcedureMapper
         // Demo operations
         { "demo:getData", "dbo.sp_GetDemoData" },
         { "demo:saveForm", "dbo.sp_SaveDemoForm" },
-        
-        // Pakistani operations (from existing controller)
-        { "pakistani:getData", "dbo.sp_SmartFormDemo" },
+
 
         // Authentication operations
         { "auth:sessions_", "dbo.GetSessionInfoForMVC" }  // Replace with your actual SP name
