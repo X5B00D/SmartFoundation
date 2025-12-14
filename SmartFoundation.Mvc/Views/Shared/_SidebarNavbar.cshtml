@@ -76,6 +76,7 @@
                         class="relative p-1 rounded-lg text-slate-300 hover:text-slate-50 hover:bg-slate-700"
                         aria-haspopup="true" aria-expanded="false">
 
+
                     <span class="sr-only">عرض الإشعارات</span>
 
                     <!-- أيقونة الجرس -->
@@ -96,10 +97,11 @@
 
                 </button>
 
+
                 <div id="notification-dropdown" class="z-50 hidden my-2 overflow-hidden rounded-lg shadow-lg w-80 bg-slate-800 ring-1 ring-slate-700">
                     <div class="px-4 py-2 text-base font-medium text-center text-slate-200">الإشعارات</div>
                     <div>
-                        <a href="#" class="flex px-4 py-3 border-t border-slate-700 hover:bg-slate-700/60">
+                        <a href="/Housing/Index" class="flex px-4 py-3 border-t border-slate-700 hover:bg-slate-700/60">
                             <div class="w-full">
                                 <div class="mb-1.5 text-sm text-slate-200">رسالة جديدة من المستخدم</div>
                                 <div class="text-xs font-medium text-emerald-400">قبل دقائق</div>
@@ -118,6 +120,19 @@
                                 id="user-menu-button" aria-expanded="false" data-dropdown-toggle="user-dropdown">
 
                             <span class="sr-only">فتح قائمة المستخدم</span>
+
+                            @if (!string.IsNullOrEmpty(sessionUserPhoto))
+                            {
+                                <img class="w-8 h-8 rounded-full"
+                                     src="data:image/png;base64,@sessionUserPhoto"
+                                     alt="user photo">
+                            }
+                            else
+                            {
+                                <img class="w-8 h-8 rounded-full"
+                                     src="~/img/user_.png"
+                                     alt="user photo">
+                            }
                             @* <img class="w-8 h-8" src="~/img/user_.png" alt="user photo"> *@
                             <i class="fa-solid fa-gear text-[16px] text-slate-300"></i>
                         </button>
@@ -129,14 +144,18 @@
                         <div class="px-4 py-3">
                             <p class="text-sm font-medium text-slate-200">@(sessionfullname?.ToString() ?? "غير معروف")</p>
                             <p class="mt-0.5 text-xs text-slate-400 truncate">@(sessionUserId?.ToString() ?? "غير معروف")</p>
+                            <p class="text-sm font-medium text-slate-200">@(sessionfullname?.ToString() ?? "غير معروف")</p>
+                            <p class="mt-0.5 text-xs text-slate-400 truncate">@(sessionUserId?.ToString() ?? "غير معروف")</p>
                         </div>
                         <ul class="py-1">
-                            <li><hr class="my-1 border-slate-700">
+                            <li>
+                                <hr class="my-1 border-slate-700">
                                 <a href="/Dashboard" class="flex items-center gap-2 px-4 py-2 text-sm text-slate-200 hover:bg-slate-700">
                                     <i class="fa-solid fa-gauge text-[13px] text-slate-300"></i> لوحة التحكم
                                 </a>
                             </li>
-                            <li><hr class="my-1 border-slate-700">
+                            <li>
+                                <hr class="my-1 border-slate-700">
                                 <a href="/Settings" class="flex items-center gap-2 px-4 py-2 text-sm text-slate-200 hover:bg-slate-700">
                                     <i class="fa-solid fa-gear text-[13px] text-slate-300"></i> الإعدادات
                                 </a>
@@ -353,6 +372,10 @@
                     <li id="menu-container"></li>
                 </ul>
             </div>
+
+
+
+
         </div>
     </div>
 </aside>
@@ -366,9 +389,9 @@
         // ================================================================
 
         const menuData = @Html.Raw(JsonSerializer.Serialize(
-                        Model ?? new List<MenuItem>(),
-                        new JsonSerializerOptions { Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping }
-                ));
+                                                Model ?? new List<MenuItem>(),
+                                                new JsonSerializerOptions { Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping }
+                                ));
 
         console.log("Menu data:", menuData);
 

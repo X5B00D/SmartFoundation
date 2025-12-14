@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using SmartFoundation.UI.ViewModels.SmartForm;
+using SmartFoundation.UI.ViewModels.SmartPage;
 using SmartFoundation.UI.ViewModels.SmartTable;
 using System.Data;
 using System.Linq;
@@ -9,13 +10,14 @@ namespace SmartFoundation.Mvc.Controllers.Housing
 {
     public partial class HousingController : Controller
     {
-        public async Task<IActionResult> BuildingClass()
+        public async Task<IActionResult> BuildingUtilityType()
         {
-            //  تهيئة بيانات الصفحة (السيشن + ControllerName + PageName...)
+            //  قراءة السيشن والكونتكست
             if (!InitPageContext(out var redirect))
                 return redirect!;
 
             var spParameters = new object?[] { PageName, IdaraID, userID, HostName };
+
             var rowsList = new List<Dictionary<string, object?>>();
             var dynamicColumns = new List<TableColumn>();
 
@@ -36,11 +38,21 @@ namespace SmartFoundation.Mvc.Controllers.Housing
             bool canUpdate = false;
             bool canDelete = false;
 
+            // ---------------------- ISRent DDLValues ----------------------
+            List<OptionItem> IsRentOptions = new()
+                {
+                    new OptionItem { Value = "1", Text = "نعم" },
+                    new OptionItem { Value = "0", Text = "لا" }
+                };
+            // ---------------------- ISRent DDLValues ----------------------
+
+
+
             try
             {
                 if (ds != null && ds.Tables.Count > 0 && permissionTable!.Rows.Count > 0)
                 {
-                    // 🔐 قراءة الصلاحيات من الجدول الأول
+                    // صلاحيات
                     foreach (DataRow row in permissionTable.Rows)
                     {
                         var permissionName = row["permissionTypeName_E"]?.ToString()?.Trim().ToUpper();
@@ -50,24 +62,29 @@ namespace SmartFoundation.Mvc.Controllers.Housing
                         if (permissionName == "DELETE") canDelete = true;
                     }
 
-                    if (dt1 != null && dt1.Rows.Count > 0)
+                    if (dt1 != null && dt1.Columns.Count > 0)
                     {
-                        // 🔑 تحديد حقل الـ Id
-                        rowIdField = "buildingClassID";
-                        var possibleIdNames = new[] { "buildingClassID", "BuildingClassID" };
+                        // RowId
+                        rowIdField = "buildingUtilityTypeID";
+                        var possibleIdNames = new[] { "buildingUtilityTypeID", "BuildingUtilityTypeID", "Id", "ID" };
                         rowIdField = possibleIdNames.FirstOrDefault(n => dt1.Columns.Contains(n))
                                      ?? dt1.Columns[0].ColumnName;
 
-                        // 🏷️ عناوين الأعمدة بالعربي
+                        // عناوين الأعمدة بالعربي
                         var headerMap = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
                         {
-                            ["buildingClassID"] = "الرقم المرجعي",
-                            ["buildingClassName_A"] = "فئة المبنى بالعربي",
-                            ["buildingClassName_E"] = "فئة المبنى بالانجليزي",
-                            ["buildingClassDescription"] = "ملاحظات"
+                            ["buildingUtilityTypeID"] = "الرقم المرجعي",
+                            ["buildingUtilityTypeName_A"] = "نوع المرفق بالعربي",
+                            ["buildingUtilityTypeName_E"] = "نوع المرفق بالانجليزي",
+                            ["buildingUtilityTypeDescription"] = "ملاحظات",
+                            ["buildingUtilityTypeActive"] = "نشط",
+                            ["buildingUtilityTypeStartDate"] = "بداية المرفق",
+                            ["buildingUtilityTypeEndDate"] = "نهاية المرفق",
+                            ["buildingUtilityIsRent"] = "يتطلب ايجار"
                         };
 
-                        // 🧱 الأعمدة
+
+                        // الأعمدة
                         foreach (DataColumn c in dt1.Columns)
                         {
                             string colType = "text";
@@ -78,22 +95,49 @@ namespace SmartFoundation.Mvc.Controllers.Housing
                                      || t == typeof(float) || t == typeof(double) || t == typeof(decimal))
                                 colType = "number";
 
+                            bool isbuildingUtilityTypeActive =
+                                c.ColumnName.Equals("buildingUtilityTypeActive", StringComparison.OrdinalIgnoreCase);
 
-                            // إخفاء بعض الأعمدة
-                            bool isbuildingClassOrder = c.ColumnName.Equals("buildingClassOrder", StringComparison.OrdinalIgnoreCase);
-                            bool isbuildingClassActive = c.ColumnName.Equals("buildingClassActive", StringComparison.OrdinalIgnoreCase);
-
-                            dynamicColumns.Add(new TableColumn
+                            // نخفي العمود الـ Active مثل ما كنت تسوي
+                            if (isbuildingUtilityTypeActive)
                             {
-                                Field = c.ColumnName,
-                                Label = headerMap.TryGetValue(c.ColumnName, out var label) ? label : c.ColumnName,
-                                Type = colType,
-                                Sortable = true,
-                                Visible = !(isbuildingClassOrder || isbuildingClassActive)
-                            });
+                                dynamicColumns.Add(new TableColumn
+                                {
+                                    Field = c.ColumnName,
+                                    Label = headerMap.TryGetValue(c.ColumnName, out var label) ? label : c.ColumnName,
+                                    Type = colType,
+                                    Sortable = true,
+                                    Visible = false
+                                });
+                            }
+                            // هنا نخصص عمود يتطلب ايجار ليعرض النص الجديد
+                            else if (c.ColumnName.Equals("buildingUtilityIsRent", StringComparison.OrdinalIgnoreCase))
+                            {
+                                dynamicColumns.Add(new TableColumn
+                                {
+                                    Field = "buildingUtilityIsRentText", // ✅ حقل العرض
+                                    Label = headerMap.TryGetValue(c.ColumnName, out var label) ? label : "يتطلب ايجار",
+                                    Type = "text",
+                                    Sortable = true
+                                });
+                            }
+                            else
+                            {
+                                dynamicColumns.Add(new TableColumn
+                                {
+                                    Field = c.ColumnName,
+                                    Label = headerMap.TryGetValue(c.ColumnName, out var label) ? label : c.ColumnName,
+                                    Type = colType,
+                                    Sortable = true,
+                                    Visible = true
+                                });
+                            }
                         }
 
-                        //  الصفوف
+
+
+
+                        // الصفوف
                         foreach (DataRow r in dt1.Rows)
                         {
                             var dict = new Dictionary<string, object?>(StringComparer.OrdinalIgnoreCase);
@@ -103,23 +147,29 @@ namespace SmartFoundation.Mvc.Controllers.Housing
                                 dict[c.ColumnName] = val == DBNull.Value ? null : val;
                             }
 
-                            // التأكد من وجود حقل الـ Id
-                            if (!dict.ContainsKey(rowIdField))
-                            {
-                                if (rowIdField.Equals("buildingClassID", StringComparison.OrdinalIgnoreCase) &&
-                                    dict.TryGetValue("buildingClassID", out var alt))
-                                    dict["buildingClassID"] = alt;
-                                else if (rowIdField.Equals("BuildingClassID", StringComparison.OrdinalIgnoreCase) &&
-                                         dict.TryGetValue("BuildingClassID", out var alt2))
-                                    dict["BuildingClassID"] = alt2;
-                            }
-
-                            // تعبئة p01..p04 لاستخدامها في الفورم
+                            // p01..p05
                             object? Get(string key) => dict.TryGetValue(key, out var v) ? v : null;
-                            dict["p01"] = Get("buildingClassID") ?? Get("BuildingClassID");
-                            dict["p02"] = Get("buildingClassName_A");
-                            dict["p03"] = Get("buildingClassName_E");
-                            dict["p04"] = Get("buildingClassDescription");
+
+                            var isRentRaw = Get("buildingUtilityIsRent")?.ToString();
+
+                            // نخزن القيمة الأصلية عشان الفورم (الـ select)
+                            dict["buildingUtilityIsRent"] = isRentRaw;
+
+                            // نخزن قيمة نصية جديدة للعرض في الجدول
+                            dict["buildingUtilityIsRentText"] = isRentRaw == "1"
+                                ? "نعم"
+                                : isRentRaw == "0"
+                                    ? "لا"
+                                    : "";
+
+                            dict["p01"] = Get("buildingUtilityTypeID") ?? Get("BuildingUtilityTypeID");
+                            dict["p02"] = Get("buildingUtilityTypeName_A");
+                            dict["p03"] = Get("buildingUtilityTypeName_E");
+                            dict["p04"] = Get("buildingUtilityTypeDescription");
+                            dict["p05"] = Get("buildingUtilityTypeActive");
+                            dict["p06"] = Get("buildingUtilityTypeStartDate");
+                            dict["p07"] = Get("buildingUtilityTypeEndDate");
+                            dict["p08"] = isRentRaw;
 
                             rowsList.Add(dict);
                         }
@@ -128,30 +178,23 @@ namespace SmartFoundation.Mvc.Controllers.Housing
             }
             catch (Exception ex)
             {
-                ViewBag.buildingClassDataSetError = ex.Message;
+                ViewBag.BuildingTypeDataSetError = ex.Message;
             }
 
-            //  ADD fields
+            // ADD fields
             var addFields = new List<FieldConfig>
             {
                 new FieldConfig { Name = rowIdField, Type = "hidden" },
 
-                new FieldConfig
-                {
-                    Name = "p01",
-                    Label = "اسم الفئة بالعربي",
-                    Type = "arabictext",
-                    ColCss = "3",
-                    Required = true,
-                    TextMode = "arabic",
-                    InputPattern = @"^[\u0621-\u064A\u0640\s]+$",
-                    HelpText = "اكتب أحرف عربية فقط"
-                },
-                new FieldConfig { Name = "p02", Label = "اسم الفئة بالانجليزي", Type = "text", ColCss = "3", Required = false },
-                new FieldConfig { Name = "p03", Label = "ملاحظات",             Type = "text", ColCss = "3", Required = false }
+                new FieldConfig { Name = "p01", Label = "نوع المرفق بالعربي", Type = "text", ColCss = "3",Placeholder = "حقل عربي فقط", Required = true,MaxLength = 50, },
+                new FieldConfig { Name = "p02", Label = "اسم نوع المرفق بالانجليزي", Type = "text", Required = true,Placeholder = "حقل انجليزي فقط",Icon = "fa-solid fa-user",ColCss = "col-span-12 md:col-span-3",MaxLength = 50,TextMode = "arsentence",},
+                new FieldConfig { Name = "p04", Label = "بداية المرفق", Type = "date", ColCss = "3", Required = true },
+                new FieldConfig { Name = "p05", Label = "نهاية المرفق", Type = "date", ColCss = "3", Required = false },
+                new FieldConfig { Name = "p06", Label = "يتطلب ايجار", Type = "select",Options=IsRentOptions, ColCss = "3", Required = true },
+                 new FieldConfig { Name = "p03", Label = "ملاحظات", Type = "text", ColCss = "3" },
             };
 
-            // hidden fields المشتركة
+            // hidden fields
             addFields.Insert(0, new FieldConfig { Name = "__RequestVerificationToken", Type = "hidden", Value = (Request.Headers["RequestVerificationToken"].FirstOrDefault() ?? "") });
             addFields.Insert(0, new FieldConfig { Name = "hostname", Type = "hidden", Value = Request.Host.Value });
             addFields.Insert(0, new FieldConfig { Name = "entrydata", Type = "hidden", Value = userID.ToString() });
@@ -161,7 +204,7 @@ namespace SmartFoundation.Mvc.Controllers.Housing
             addFields.Insert(0, new FieldConfig { Name = "redirectAction", Type = "hidden", Value = PageName });
             addFields.Insert(0, new FieldConfig { Name = "redirectController", Type = "hidden", Value = ControllerName });
 
-            // ✏️ UPDATE fields
+            // UPDATE fields
             var updateFields = new List<FieldConfig>
             {
                 new FieldConfig { Name = "redirectAction",      Type = "hidden", Value = PageName },
@@ -174,13 +217,23 @@ namespace SmartFoundation.Mvc.Controllers.Housing
                 new FieldConfig { Name = "__RequestVerificationToken", Type = "hidden", Value = (Request.Headers["RequestVerificationToken"].FirstOrDefault() ?? "") },
                 new FieldConfig { Name = rowIdField,            Type = "hidden" },
 
-                new FieldConfig { Name = "p01", Label = "الرقم المرجعي",        Type = "hidden", Readonly = true, ColCss = "3" },
-                new FieldConfig { Name = "p02", Label = "اسم الفئة بالعربي",    Type = "text",   Required = true,  ColCss = "3", TextMode = "arabic" },
-                new FieldConfig { Name = "p03", Label = "اسم الفئة بالانجليزي", Type = "text",   Required = false, ColCss = "3" },
-                new FieldConfig { Name = "p04", Label = "ملاحظات",              Type = "text",   Required = false, ColCss = "6" }
+             
+
+                new FieldConfig { Name = "p01", Label = "الرقم المرجعي",             Type = "hidden", Readonly = true, ColCss = "3" },
+                new FieldConfig { Name = "p02", Label = "نوع المرفق بالعربي",         Type = "text", Required = true,  ColCss = "3" },
+                new FieldConfig { Name = "p03", Label = "نوع المرفق بالانجليزي", Type = "text",
+                    ColCss = "3", Required = true, TextMode = "arsentence" },
+                new FieldConfig { Name = "p06", Label = "بداية المرفق", Type = "date", Required = true, ColCss = "3" },
+                new FieldConfig { Name = "p07", Label = "نهاية المرفق", Type = "date", Required = true, ColCss = "3" },
+                new FieldConfig { Name = "p08", Label = "يتطلب ايجار", Type = "select",Options=IsRentOptions, Required = true, ColCss = "3" },
+                new FieldConfig { Name = "p04", Label = "ملاحظات",            Type = "text",   ColCss = "6" },
+                new FieldConfig { Name = "p05", Label = "buildingUtilityTypeActive",            Type = "hidden",   ColCss = "6" },
+
+
+
             };
 
-            // 🗑️ DELETE fields
+            // DELETE fields
             var deleteFields = new List<FieldConfig>
             {
                 new FieldConfig { Name = "redirectAction",     Type = "hidden", Value = PageName },
@@ -192,13 +245,12 @@ namespace SmartFoundation.Mvc.Controllers.Housing
                 new FieldConfig { Name = "hostname",           Type = "hidden", Value = Request.Host.Value },
                 new FieldConfig { Name = "__RequestVerificationToken", Type = "hidden", Value = (Request.Headers["RequestVerificationToken"].FirstOrDefault() ?? "") },
                 new FieldConfig { Name = rowIdField, Type = "hidden" },
-                new FieldConfig { Name = "p01", Type = "hidden", MirrorName = "buildingClassID" }
+                new FieldConfig { Name = "p01", Type = "hidden", MirrorName = "buildingUtilityTypeID" }
             };
 
-            //  SmartTable model
-            var dsModel = new SmartFoundation.UI.ViewModels.SmartTable.SmartTableDsModel
+            var dsModel = new SmartTableDsModel
             {
-                PageTitle = "فئات المباني",
+                PageTitle = "انواع المباني",
                 Columns = dynamicColumns,
                 Rows = rowsList,
                 RowIdField = rowIdField,
@@ -207,12 +259,12 @@ namespace SmartFoundation.Mvc.Controllers.Housing
                 QuickSearchFields = dynamicColumns.Select(c => c.Field).Take(4).ToList(),
                 Searchable = true,
                 AllowExport = true,
-                PanelTitle = "فئات المباني ",
+                PanelTitle = "عرض ",
                 Toolbar = new TableToolbarConfig
                 {
                     ShowRefresh = false,
                     ShowColumns = true,
-                    ShowExportCsv = false,
+                    ShowExportCsv = true,
                     ShowExportExcel = false,
                     ShowAdd = canInsert,
                     ShowEdit = canUpdate,
@@ -221,21 +273,21 @@ namespace SmartFoundation.Mvc.Controllers.Housing
 
                     Add = new TableAction
                     {
-                        Label = "إضافة فئة",
+                        Label = "إضافة نوع مرفق جديد",
                         Icon = "fa fa-plus",
                         Color = "success",
                         OpenModal = true,
-                        ModalTitle = "إدخال فئة جديدة",
+                        ModalTitle = "إدخال بيانات نوع المرفق الجديد",
                         OpenForm = new FormConfig
                         {
-                            FormId = "buildingClassInsertForm",
-                            Title = "بيانات الفئة الجديدة",
+                            FormId = "buildingUtilityInsertForm",
+                            Title = "بيانات نوع المرفق الجديد",
                             Method = "post",
                             ActionUrl = "/crud/insert",
                             Fields = addFields,
                             Buttons = new List<FormButtonConfig>
                             {
-                                new FormButtonConfig { Text = "حفظ",   Type = "submit", Color = "success" },
+                                new FormButtonConfig { Text = "حفظ", Type = "submit", Color = "success" },
                                 new FormButtonConfig { Text = "إلغاء", Type = "button", Color = "secondary", OnClickJs = "this.closest('.sf-modal').__x.$data.closeModal();" }
                             }
                         }
@@ -243,16 +295,16 @@ namespace SmartFoundation.Mvc.Controllers.Housing
 
                     Edit = new TableAction
                     {
-                        Label = "تعديل فئة",
+                        Label = "تعديل نوع المرفق",
                         Icon = "fa fa-pen-to-square",
                         Color = "info",
                         IsEdit = true,
                         OpenModal = true,
-                        ModalTitle = "تعديل بيانات فئة",
+                        ModalTitle = "تعديل بيانات نوع المرفق",
                         OpenForm = new FormConfig
                         {
-                            FormId = "BuildingTypeEditForm", // أبقيته كما هو عندك
-                            Title = "تعديل بيانات فئة",
+                            FormId = "BuildingTypeEditForm",
+                            Title = "تعديل بيانات نوع مرفق",
                             Method = "post",
                             ActionUrl = "/crud/update",
                             SubmitText = "حفظ التعديلات",
@@ -266,22 +318,22 @@ namespace SmartFoundation.Mvc.Controllers.Housing
 
                     Delete = new TableAction
                     {
-                        Label = "حذف فئة",
+                        Label = "حذف نوع مباني",
                         Icon = "fa fa-trash",
                         Color = "danger",
                         IsEdit = true,
                         OpenModal = true,
                         ModalTitle = "<i class='fa fa-exclamation-triangle text-red-600 text-xl mr-2'></i> تحذير",
-                        ModalMessage = "هل أنت متأكد من حذف هذا الفئة؟",
+                        ModalMessage = "هل أنت متأكد من حذف هذا نوع المباني؟",
                         OpenForm = new FormConfig
                         {
-                            FormId = "buildingClassDeleteForm",
-                            Title = "تأكيد حذف الفئة",
+                            FormId = "BuildingTypeDeleteForm",
+                            Title = "تأكيد حذف نوع المباني",
                             Method = "post",
                             ActionUrl = "/crud/delete",
                             Buttons = new List<FormButtonConfig>
                             {
-                                new FormButtonConfig { Text = "حذف",   Type = "submit", Color = "danger", Icon = "fa fa-save" },
+                                new FormButtonConfig { Text = "حذف", Type = "submit", Color = "danger", Icon = "fa fa-save" },
                                 new FormButtonConfig { Text = "إلغاء", Type = "button", Color = "secondary", Icon = "fa fa-times", OnClickJs = "this.closest('.sf-modal').__x.$data.closeModal();" }
                             },
                             Fields = deleteFields
@@ -293,18 +345,16 @@ namespace SmartFoundation.Mvc.Controllers.Housing
                 }
             };
 
-            //return View("HousingDefinitions/BuildingClass", dsModel);
-
-            var page = new SmartFoundation.UI.ViewModels.SmartPage.SmartPageViewModel
+            //return View("HousingDefinitions/BuildingType", dsModel);
+            var page = new SmartPageViewModel
             {
                 PageTitle = dsModel.PageTitle,
                 PanelTitle = dsModel.PanelTitle,
-                PanelIcon = "fa-sitemap",
+                PanelIcon = "fa-layer-group",
                 TableDS = dsModel
             };
 
-            return View("HousingDefinitions/BuildingClass", page);
-
+            return View("HousingDefinitions/BuildingUtilityType", page);
         }
     }
 }

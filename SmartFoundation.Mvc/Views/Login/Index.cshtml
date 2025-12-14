@@ -18,11 +18,11 @@
     <script src="~/js/jquery-3.7.1.min.js"></script>
     <script src="~/js/toastr.min.js"></script>
 
-    <script>
-        document.getElementById("txtUserID").addEventListener("input", function () {
-            this.value = this.value.replace(/[^0-9]/g, ""); // يسمح بالأرقام فقط
-        });
-    </script>
+    // <script>
+    //     document.getElementById("txtUserID").addEventListener("input", function () {
+    //         this.value = this.value.replace(/[^0-9]/g, ""); // يسمح بالأرقام فقط
+    //     });
+    // </script>
     <!-- END JS -->
 
     <!-- Custom CSS -->
@@ -144,7 +144,7 @@
     </style>
 </head>
 <body class="login-page">
-    <script>
+    @* <script>
         window.onload = function() {
             const toggle = document.getElementById("togglePassword");
             const password = document.getElementById("txtPassword");
@@ -165,7 +165,49 @@
                 setTimeout(() => form.submit(), 500);
             });
         };
+    </script> *@
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+
+            // أرقام فقط في الهوية
+            const userId = document.getElementById("txtUserID");
+            if (userId) {
+                userId.addEventListener("input", function () {
+                    this.value = this.value.replace(/[^0-9]/g, "");
+                });
+            }
+
+            // إظهار/إخفاء كلمة المرور
+            const toggle = document.getElementById("togglePassword");
+            const password = document.getElementById("txtPassword");
+            const eye = document.getElementById("eyeIcon");
+
+            if (toggle && password && eye) {
+                toggle.addEventListener("click", () => {
+                    const isPwd = password.type === "password";
+                    password.type = isPwd ? "text" : "password";
+                    eye.classList.toggle("fa-eye");
+                    eye.classList.toggle("fa-eye-slash");
+                });
+            }
+
+            
+            const form = document.getElementById("loginForm");
+            const btnLogin = document.getElementById("btnLogin");
+            const btnText = document.getElementById("btnText");
+            const spinner = btnLogin ? btnLogin.querySelector(".spinner-border") : null;
+
+            if (form && btnLogin) {
+                form.addEventListener("submit", function () {
+                    if (btnText) btnText.style.display = "none";
+                    if (spinner) spinner.style.display = "block";
+                    btnLogin.disabled = true;
+                });
+            }
+        });
     </script>
+
 
     <form id="loginForm" method="post" asp-controller="Login" asp-action="CheckLogin">
         <div class="-m-3 sm:-mx-8 p-3 sm:px-8 relative h-screen lg:overflow-hidden bg-primary xl:bg-white dark:bg-darkmode-800 xl:dark:bg-darkmode-600 before:hidden before:xl:block before:content-[''] before:w-[57%] before:-mt-[28%] before:-mb-[16%] before:-ml-[13%] before:absolute before:inset-y-0 before:left-0 before:transform before:rotate-[-4.5deg] before:bg-primary/20 before:rounded-[100%] before:dark:bg-darkmode-400 after:hidden after:xl:block after:content-[''] after:w-[57%] after:-mt-[20%] after:-mb-[13%] after:-ml-[13%] after:absolute after:inset-y-0 after:left-0 after:transform after:rotate-[-4.5deg] after:bg-primary after:rounded-[100%] after:dark:bg-darkmode-700">
@@ -305,11 +347,11 @@
 
     <!-- JS -->
 
-    <script>
+    @* <script>
         document.getElementById("txtUserID").addEventListener("input", function () {
             this.value = this.value.replace(/[^0-9]/g, ""); // يسمح بالأرقام فقط
         });
-    </script>
+    </script> *@
     <!-- END JS -->
 
 </body>

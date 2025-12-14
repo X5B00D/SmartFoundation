@@ -16,9 +16,9 @@ using static System.Net.Mime.MediaTypeNames;
 
 
 
-namespace SmartFoundation.Mvc.Controllers
+namespace SmartFoundation.Mvc.Controllers.ControlPanel
 {
-    public class ControlPanel : Controller
+    public class ControlPanelController : Controller
     {
 
        // private readonly MastersDataLoadService _mastersDataLoadService;
@@ -27,7 +27,7 @@ namespace SmartFoundation.Mvc.Controllers
 
 
 
-        public ControlPanel(MastersServies mastersServies, CrudController crudController)
+        public ControlPanelController(MastersServies mastersServies, CrudController crudController)
         {
            // _mastersDataLoadService = mastersDataLoadService;
             _mastersServies = mastersServies;
@@ -82,7 +82,7 @@ namespace SmartFoundation.Mvc.Controllers
              DeptCode = HttpContext.Session.GetString("DeptCode");
              IDNumber = HttpContext.Session.GetString("IDNumber");
              HostName = HttpContext.Session.GetString("HostName");
-             ControllerName = nameof(ControlPanel);
+             ControllerName = nameof(ControlPanelController);
              PageName = nameof(Permission);
 
             var spParameters = new object?[] { "Permission", IdaraID, userID, HostName, Q1 };
@@ -557,7 +557,7 @@ namespace SmartFoundation.Mvc.Controllers
             ViewBag.HideTable = string.IsNullOrWhiteSpace(Q1);
 
             // then create dsModel (snippet shows toolbar parts that use the dynamic lists)
-            var dsModel = new SmartFoundation.UI.ViewModels.SmartTable.SmartTableDsModel
+            var dsModel = new SmartTableDsModel
             {
                 Columns = dynamicColumns,
                 Rows = rowsList,
@@ -645,7 +645,6 @@ namespace SmartFoundation.Mvc.Controllers
                             ActionUrl = "/crud/update",
                             SubmitText = "حفظ التعديلات",
                             CancelText = "إلغاء",
-                            LabelText = "sami", // <-- show 'sami' at top of Edit form
                             Fields = updateFields
                         },
                         RequireSelection = true,
@@ -671,7 +670,6 @@ namespace SmartFoundation.Mvc.Controllers
                             Title = "تأكيد حذف السجل",
                             Method = "post",
                             ActionUrl = "/crud/delete",
-                            LabelText = "sami", // <-- show 'sami' at top of Delete form
                             Buttons = new List<FormButtonConfig>
                             {
                                 new FormButtonConfig { Text = "حذف", Type = "submit", Color = "danger", Icon = "fa fa-save" },
@@ -686,7 +684,7 @@ namespace SmartFoundation.Mvc.Controllers
                 }
             };
 
-            var vm = new SmartFoundation.UI.ViewModels.SmartPage.FormTableViewModel
+            var vm = new FormTableViewModel
             {
                 Form = form,
                 Table = dsModel,
