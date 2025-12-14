@@ -195,10 +195,10 @@ namespace SmartFoundation.Mvc.Controllers.Housing
                 new FieldConfig { Name = "p01", Type = "hidden", MirrorName = "buildingClassID" }
             };
 
-            // 📦 SmartTable model
+            //  SmartTable model
             var dsModel = new SmartFoundation.UI.ViewModels.SmartTable.SmartTableDsModel
             {
-                PageTitle = "انواع الفئات",
+                PageTitle = "فئات المباني",
                 Columns = dynamicColumns,
                 Rows = rowsList,
                 RowIdField = rowIdField,
@@ -207,12 +207,12 @@ namespace SmartFoundation.Mvc.Controllers.Housing
                 QuickSearchFields = dynamicColumns.Select(c => c.Field).Take(4).ToList(),
                 Searchable = true,
                 AllowExport = true,
-                PanelTitle = "عرض ",
+                PanelTitle = "فئات المباني ",
                 Toolbar = new TableToolbarConfig
                 {
                     ShowRefresh = false,
                     ShowColumns = true,
-                    ShowExportCsv = true,
+                    ShowExportCsv = false,
                     ShowExportExcel = false,
                     ShowAdd = canInsert,
                     ShowEdit = canUpdate,
@@ -295,7 +295,18 @@ namespace SmartFoundation.Mvc.Controllers.Housing
                 }
             };
 
-            return View("HousingDefinitions/BuildingClass", dsModel);
+            //return View("HousingDefinitions/BuildingClass", dsModel);
+
+            var page = new SmartFoundation.UI.ViewModels.SmartPage.SmartPageViewModel
+            {
+                PageTitle = dsModel.PageTitle,
+                PanelTitle = dsModel.PanelTitle,
+                PanelIcon = "fa-sitemap",
+                TableDS = dsModel
+            };
+
+            return View("HousingDefinitions/BuildingClass", page);
+
         }
     }
 }

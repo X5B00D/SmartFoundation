@@ -1,4 +1,4 @@
-﻿@model SmartFoundation.UI.ViewModels.SmartTable.SmartTableDsModel
+﻿@* @model SmartFoundation.UI.ViewModels.SmartTable.SmartTableDsModel
 
 @{
     ViewData["Title"] = @Model.PageTitle;
@@ -7,4 +7,13 @@
     <h1 class="text-xl font-bold mb-4">@Model.PageTitle</h1>
 </div>
 
-@await Component.InvokeAsync("SmartTableDS", new { model = Model })
+@await Component.InvokeAsync("SmartTableDS", new { model = Model }) *@
+
+
+@* @await Component.InvokeAsync("SmartRenderer", new { model = Model }) *@
+
+@model SmartFoundation.UI.ViewModels.SmartPage.SmartPageViewModel
+@{
+    ViewData["Title"] = Model.PageTitle;
+}
+@await Component.InvokeAsync("SmartRenderer", new { model = Model })

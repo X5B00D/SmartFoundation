@@ -34,6 +34,10 @@
 <div x-data='sfTable(@Html.Raw(JsonSerializer.Serialize(tableConfig, webJson)))'
      x-init="init()" x-cloak x-on:refresh-table.window="refresh()">
 
+
+
+
+
     <!-- reuse same markup as SmartTable Default: toolbar, table, pagination, modal -->
     <!-- Toolbar / table markup intentionally identical to existing SmartTable Default to reuse sf-table JS -->
     @* Toolbar portion *@
