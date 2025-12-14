@@ -441,11 +441,17 @@ body, h1, h2, h3, h4, h5, h6, input, textarea, select, button {
   .inset-y-0 {
     inset-block: calc(var(--spacing) * 0);
   }
+  .-top-0\.5 {
+    top: calc(var(--spacing) * -0.5);
+  }
   .top-0 {
     top: calc(var(--spacing) * 0);
   }
   .top-4 {
     top: calc(var(--spacing) * 4);
+  }
+  .-right-0\.5 {
+    right: calc(var(--spacing) * -0.5);
   }
   .right-0 {
     right: calc(var(--spacing) * 0);
@@ -585,6 +591,9 @@ body, h1, h2, h3, h4, h5, h6, input, textarea, select, button {
   .mb-2 {
     margin-bottom: calc(var(--spacing) * 2);
   }
+  .mb-3 {
+    margin-bottom: calc(var(--spacing) * 3);
+  }
   .mb-4 {
     margin-bottom: calc(var(--spacing) * 4);
   }
@@ -624,6 +633,9 @@ body, h1, h2, h3, h4, h5, h6, input, textarea, select, button {
   .h-6 {
     height: calc(var(--spacing) * 6);
   }
+  .h-7 {
+    height: calc(var(--spacing) * 7);
+  }
   .h-8 {
     height: calc(var(--spacing) * 8);
   }
@@ -632,6 +644,12 @@ body, h1, h2, h3, h4, h5, h6, input, textarea, select, button {
   }
   .h-12 {
     height: calc(var(--spacing) * 12);
+  }
+  .h-16 {
+    height: calc(var(--spacing) * 16);
+  }
+  .h-\[17px\] {
+    height: 17px;
   }
   .h-full {
     height: 100%;
@@ -666,6 +684,9 @@ body, h1, h2, h3, h4, h5, h6, input, textarea, select, button {
   .w-10 {
     width: calc(var(--spacing) * 10);
   }
+  .w-16 {
+    width: calc(var(--spacing) * 16);
+  }
   .w-55 {
     width: calc(var(--spacing) * 55);
   }
@@ -680,6 +701,9 @@ body, h1, h2, h3, h4, h5, h6, input, textarea, select, button {
   }
   .min-w-32 {
     min-width: calc(var(--spacing) * 32);
+  }
+  .min-w-\[15px\] {
+    min-width: 15px;
   }
   .min-w-full {
     min-width: 100%;
@@ -962,6 +986,12 @@ body, h1, h2, h3, h4, h5, h6, input, textarea, select, button {
   .bg-slate-700 {
     background-color: var(--color-slate-700);
   }
+  .bg-slate-700\/60 {
+    background-color: color-mix(in srgb, oklch(37.2% 0.044 257.287) 60%, transparent);
+    @supports (color: color-mix(in lab, red, red)) {
+      background-color: color-mix(in oklab, var(--color-slate-700) 60%, transparent);
+    }
+  }
   .bg-slate-800 {
     background-color: var(--color-slate-800);
   }
@@ -1083,6 +1113,9 @@ body, h1, h2, h3, h4, h5, h6, input, textarea, select, button {
   .p-4 {
     padding: calc(var(--spacing) * 4);
   }
+  .px-1\.5 {
+    padding-inline: calc(var(--spacing) * 1.5);
+  }
   .px-2 {
     padding-inline: calc(var(--spacing) * 2);
   }
@@ -1199,6 +1232,9 @@ body, h1, h2, h3, h4, h5, h6, input, textarea, select, button {
   .text-xs {
     font-size: var(--text-xs);
     line-height: var(--tw-leading, var(--text-xs--line-height));
+  }
+  .text-\[10px\] {
+    font-size: 10px;
   }
   .text-\[13px\] {
     font-size: 13px;
@@ -1361,8 +1397,14 @@ body, h1, h2, h3, h4, h5, h6, input, textarea, select, button {
   .ring-red-500 {
     --tw-ring-color: var(--color-red-500);
   }
+  .ring-slate-600 {
+    --tw-ring-color: var(--color-slate-600);
+  }
   .ring-slate-700 {
     --tw-ring-color: var(--color-slate-700);
+  }
+  .ring-slate-800 {
+    --tw-ring-color: var(--color-slate-800);
   }
   .outline {
     outline-style: var(--tw-outline-style);
