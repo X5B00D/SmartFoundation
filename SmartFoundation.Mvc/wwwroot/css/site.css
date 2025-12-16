@@ -3593,19 +3593,19 @@ input[readonly], textarea[readonly] {
 }
 .dark .sf-modal-header {
   border-color: var(--color-gray-100);
-  background-color: var(--color-gray-300);
+  background-color: var(--color-slate-700);
   --tw-font-weight: var(--font-weight-bold);
   font-weight: var(--font-weight-bold);
-  color: var(--color-gray-600);
+  color: var(--color-white);
 }
 .dark .sf-modal-title {
   color: var(--color-gray-100);
 }
 .dark .sf-modal-close {
-  color: var(--color-gray-900);
+  color: var(--color-gray-100);
   &:hover {
     @media (hover: hover) {
-      color: var(--color-gray-200);
+      color: var(--color-gray-300);
     }
   }
 }
@@ -3620,7 +3620,7 @@ input[readonly], textarea[readonly] {
     padding-inline: calc(var(--spacing) * 3);
     padding-block: calc(var(--spacing) * 2);
     &:focus {
-      border-color: var(--color-emerald-600);
+      border-color: var(--color-slate-500);
     }
     &:focus {
       --tw-ring-shadow: var(--tw-ring-inset,) 0 0 0 calc(2px + var(--tw-ring-offset-width)) var(--tw-ring-color, currentcolor);
@@ -3637,7 +3637,7 @@ input[readonly], textarea[readonly] {
 }
 .sf-modal-close {
   cursor: pointer;
-  color: var(--color-gray-500);
+  color: var(--color-gray-100);
   &:hover {
     @media (hover: hover) {
       color: var(--color-gray-700);
@@ -3647,7 +3647,7 @@ input[readonly], textarea[readonly] {
 .sf-modal-body {
   max-height: 70vh;
   overflow-y: auto;
-  padding: calc(var(--spacing) * 4);
+  padding: calc(var(--spacing) * 6);
 }
 .sf-modal-footer {
   display: flex;
@@ -3699,7 +3699,7 @@ input[readonly], textarea[readonly] {
   height: auto !important;
   min-height: 34px !important;
   font-size: 13px !important;
-  border-radius: 5px !important;
+  border-radius: 4px !important;
   border: 1px solid transparent !important;
   cursor: pointer;
   line-height: 1.2;
@@ -3728,16 +3728,25 @@ input[readonly], textarea[readonly] {
 }
 .sf-modal .form-group > label {
   font-size: 16px !important;
+  margin-bottom: 10px;
+  display: block;
 }
 .sf-modal-select {
-  height: 42px;
-  font-size: 14px;
-  border-radius: 6px;
+  height: 44px;
+  font-size: 16px;
+  border-radius: 5px;
   padding-inline: 12px;
 }
+.sf-modal-select option {
+  background-color: #ffffff;
+  color: #0f172a;
+}
+.sf-modal-select option:hover, .sf-modal-select option:focus {
+  background-color: #e2e8f0 !important;
+  color: #0f172a;
+}
 .sf-modal-select option:checked {
-  background-color: #10b981;
-  color: #ffffff;
+  background-color: #334a62  color: #ffffff;
 }
 .sf-panel {
   position: relative;
