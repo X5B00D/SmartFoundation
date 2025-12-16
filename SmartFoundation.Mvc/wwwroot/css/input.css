@@ -696,20 +696,20 @@ textarea[readonly] {
     border-radius: 6px;
     padding-inline: 12px;
 }*/
-    /* العنصر المحدد */
-    /*.sf-modal-select option:checked {
+/* العنصر المحدد */
+/*.sf-modal-select option:checked {
         background-color: #10b981;*/ /* emerald-500 */
-        /*color: #ffffff;
+/*        color: #ffffff;
     }*/
 
-    /* عند المرور بالماوس */
-    /*.sf-modal-select option:hover {
+/* عند المرور بالماوس */
+/*.sf-modal-select option:hover {
         background-color: #10b981;
         color: #ffffff;
     }*/
 
-    /* عند السحب بالكيبورد / active */
-    /*.sf-modal-select option:active {
+/* عند السحب بالكيبورد / active */
+/*.sf-modal-select option:active {
         background-color: #10b981;
         color: #ffffff;
     }*/
@@ -902,3 +902,29 @@ textarea[readonly] {
     @apply text-gray-900;
   }
 }
+
+/* =========================
+   Hidden Fields on Page Load
+   ========================= */
+
+/* Hide any field with hidden-field class */
+.hidden-field {
+    display: none !important;
+}
+
+/* Hide form-group containers that have hidden-field inputs */
+.form-group:has(.hidden-field) {
+    display: none !important;
+}
+
+/* Hide search-field containers on page load */
+.form-group:has(.search-field) {
+    display: none !important;
+}
+
+/* Show field when it has the 'active' class */
+.form-group.active {
+    display: block !important;
+}
+
+

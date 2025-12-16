@@ -7,6 +7,7 @@
             multiple: !!cfg.multiple,
             disabled: !!cfg.disabled,
             readonly: !!cfg.readonly,
+            onchangeJs: cfg.onchangeJs || '', // ✅ Store OnChangeJs globally
             open: false,
             q: '',
             options: [],
@@ -57,15 +58,14 @@
 
             _attachListeners() {
                 window.addEventListener('resize', this._repositionBound, { passive: true });
-                // useCapture=true لالتقاط scroll من الحاويات الداخلية أيضًا
                 window.addEventListener('scroll', this._repositionBound, true);
             },
+            
             _detachListeners() {
                 window.removeEventListener('resize', this._repositionBound, { passive: true });
                 window.removeEventListener('scroll', this._repositionBound, true);
             },
 
-            // حساب مكان/حجم اللوحة (position:fixed) + قلبها لأعلى عند الحاجة
             reposition() {
                 const a = this.$refs.anchor;
                 const p = this.$refs.panel;
@@ -76,20 +76,16 @@
                 const vh = window.innerHeight || document.documentElement.clientHeight;
 
                 const width = r.width;
-                const left = Math.min(Math.max(8, r.left), vw - width - 8); // إبقاء اللوحة داخل الشاشة
+                const left = Math.min(Math.max(8, r.left), vw - width - 8);
 
-                // المساحات المتاحة
                 const spaceBelow = vh - r.bottom - 8;
                 const spaceAbove = r.top - 8;
 
-                // ارتفاع القائمة المرغوب
-                const desiredMax = 320; // px
+                const desiredMax = 320;
                 let maxH = Math.min(desiredMax, Math.max(180, spaceBelow));
 
-                // الوضع الافتراضي: أسفل الزر
                 let top = r.bottom + 8;
 
-                // إذا المساحة أسفل قليلة وأعلى أوسع، اقلب لأعلى
                 if (spaceBelow < 180 && spaceAbove > spaceBelow) {
                     maxH = Math.min(desiredMax, Math.max(180, spaceAbove));
                     const panelH = (p ? p.offsetHeight : Math.min(desiredMax, spaceAbove));
@@ -106,7 +102,9 @@
                 return this.options.filter(o => (o.text || '').toLowerCase().includes(q));
             },
 
-            isSelected(opt) { return this.selected.some(s => s.value === opt.value); },
+            isSelected(opt) { 
+                return this.selected.some(s => s.value === opt.value); 
+            },
 
             toggle(opt) {
                 if (opt.disabled || this.disabled || this.readonly) return;
@@ -140,11 +138,31 @@
                     : (this.selected[0]?.value || '');
             },
 
-            syncHidden() { if (this.$refs.hidden) this.$refs.hidden.value = this.serialize(); },
+            syncHidden() { 
+                if (this.$refs.hidden) this.$refs.hidden.value = this.serialize(); 
+            },
 
-            emitChange() { this.$dispatch('change', { name: this.name, value: this.serialize() }); }
+            emitChange() { 
+                this.$dispatch('change', { name: this.name, value: this.serialize() });
+                
+                // ✅ Trigger native change event
+                if (this.$refs.hidden) {
+                    this.$refs.hidden.dispatchEvent(new Event('change', { bubbles: true }));
+                }
+                
+                // ✅ Execute OnChangeJs
+                if (this.onchangeJs && this.onchangeJs.trim()) {
+                    try {
+                        const fn = new Function('value', 'text', this.onchangeJs);
+                        fn.call(this.$refs.hidden, this.serialize(), this.displayText());
+                    } catch(e) {
+                        console.error('OnChangeJs execution error:', e, '\nCode:', this.onchangeJs);
+                    }
+                }
+            }
         }));
     };
+    
     if (window.Alpine) register();
     else document.addEventListener('alpine:init', register);
 })();

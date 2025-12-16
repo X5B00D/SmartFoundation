@@ -91,86 +91,89 @@ else
                     @switch (field.Type.ToLower())
                     {
                         case "select":
-                            <div
-                                x-data='sfSelect({
-                                    name: "@field.Name",
-                                    placeholder: "@(field.Placeholder ?? "اختر...")",
-                                    multiple: @(field.Multiple.ToString().ToLower()),
-                                    disabled: @(field.Disabled.ToString().ToLower()),
-                                    readonly: @(field.Readonly.ToString().ToLower()),
-                                    initial: "@(field.Value ?? "")",
-                                    options: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(
-                                                field.Options.Select(o => new { o.Value, o.Text, o.Disabled, o.Selected })))
-                                })'
-                                x-init="init()"
-                                x-on:change="@field.OnChangeJs"
-                                data-dependson="@field.DependsOn"
-                                data-dependsurl="@field.DependsUrl"
-                                class="relative"
-                                x-on:keydown.escape.window="open=false">
+    
+        var selectConfig = new
+        {
+            name = field.Name,
+            placeholder = field.Placeholder ?? "اختر...",
+            multiple = field.Multiple,
+            disabled = field.Disabled,
+            @readonly = field.Readonly,
+            initial = field.Value ?? "",
+            onchangeJs = field.OnChangeJs ?? "",
+            options = field.Options.Select(o => new { Value = o.Value, Text = o.Text, Disabled = o.Disabled, Selected = o.Selected }).ToList()
+        };
+        var selectConfigJson = JsonSerializer.Serialize(selectConfig, webJson);
+    
+    <div x-data='sfSelect(@Html.Raw(selectConfigJson))'
+         x-init="init()"
+         data-dependson="@field.DependsOn"
+         data-dependsurl="@field.DependsUrl"
+         class="relative"
+         x-on:keydown.escape.window="open=false">
 
-                                
-                                <input type="hidden" x-ref="hidden" name="@field.Name" :value="serialize()"
-                                       @(field.Required ? "required" : null) @(field.Disabled ? "disabled" : null) />
+        <!-- Hidden input -->
+        <input type="hidden" x-ref="hidden" name="@field.Name" :value="serialize()"
+               @(field.Required ? "required" : null) @(field.Disabled ? "disabled" : null) />
 
-                                
-                                <button type="button"
-                                        x-ref="anchor"
-                                        class="sf-select @field.ExtraCss"
-                                        x-bind:disabled="disabled || readonly"
-                                        x-bind:aria-expanded="open.toString()"
-                                        x-on:click="togglePanel()"
-                                        x-on:keydown.enter="togglePanel()">
-                                    <span class="truncate" x-text="displayText()"></span>
-                                    <span class="absolute inset-y-0 flex items-center pointer-events-none end-0 pe-2">
-                                        <svg class="w-5 h-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                                            <path fill-rule="evenodd" d="M10 3a.75.75 0 01.53.22l3.5 3.5a.75.75 0 01-1.06 1.06L10 4.81 6.53 8.28a.75.75 0 01-1.06-1.06l3.5-3.5A.75.75 0 0110 3zm-3.72 9.28a.75.75 0 011.06 0L10 15.19l2.67-2.91a.75.75 0 111.06 1.06l-3.5 3.5a.75.75 0 01-1.06 0l-3.5-3.5a.75.75 0 010-1.06z" clip-rule="evenodd" />
-                                        </svg>
-                                    </span>
-                                </button>
+        <!-- Select button -->
+        <button type="button"
+                x-ref="anchor"
+                class="sf-select @field.ExtraCss"
+                x-bind:disabled="disabled || readonly"
+                x-bind:aria-expanded="open.toString()"
+                x-on:click="togglePanel()"
+                x-on:keydown.enter="togglePanel()">
+            <span class="truncate" x-text="displayText()"></span>
+            <span class="absolute inset-y-0 flex items-center pointer-events-none end-0 pe-2">
+                <svg class="w-5 h-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                    <path fill-rule="evenodd" d="M10 3a.75.75 0 01.53.22l3.5 3.5a.75.75 0 01-1.06 1.06L10 4.81 6.53 8.28a.75.75 0 01-1.06-1.06l3.5-3.5A.75.75 0 0110 3zm-3.72 9.28a.75.75 0 011.06 0L10 15.19l2.67-2.91a.75.75 0 111.06 1.06l-3.5 3.5a.75.75 0 01-1.06 0l-3.5-3.5a.75.75 0 010-1.06z" clip-rule="evenodd" />
+                </svg>
+            </span>
+        </button>
 
-                                
-                                <template x-teleport="body">
-                                    <div x-show="open" x-transition x-cloak
-                                         x-on:click.outside="open=false"
-                                         x-bind:style="panelStyle"
-                                         class="sf-select-panel fixed z-[9999] animate-fade-in"> 
+        <!-- Dropdown panel -->
+        <template x-teleport="body">
+            <div x-show="open" x-transition x-cloak
+                 x-on:click.outside="open=false"
+                 x-bind:style="panelStyle"
+                 class="sf-select-panel fixed z-[9999] animate-fade-in">
 
-                                        <!-- شريط علوي -->
-                                        <div class="flex justify-end p-2 pb-0">
-                                            <button type="button" class="text-xs text-gray-600 hover:text-gray-700" x-on:click="clear()">مسح</button>
-                                        </div>
+                <!-- شريط علوي -->
+                <div class="flex justify-end p-2 pb-0">
+                    <button type="button" class="text-xs text-gray-600 hover:text-gray-700" x-on:click="clear()">مسح</button>
+                </div>
 
-                                        <!-- البحث -->
-                                        <div class="p-2">
-                                            <input type="text" x-model.trim="q" placeholder="بحث..." dir="rtl"
-                                                   class="w-full px-3 py-2 text-sm border border-gray-200 rounded-md focus:outline-none focus:ring-1 focus:ring-emerald-600" />
-                                        </div>
+                <!-- البحث -->
+                <div class="p-2">
+                    <input type="text" x-model.trim="q" placeholder="بحث..." dir="rtl"
+                           class="w-full px-3 py-2 text-sm border border-gray-200 rounded-md focus:outline-none focus:ring-1 focus:ring-emerald-600" />
+                </div>
 
-                                        <!-- العناصر -->
-                                        <ul class="py-1 overflow-y-auto max-h-60">
-                                            <template x-for="opt in filtered()" :key="opt.value">
-                                                <li class="px-3 py-2 cursor-pointer select-none hover:bg-gray-50"
-                                                    :class="opt.disabled ? 'opacity-50 cursor-not-allowed' : ''"        
-                                                    x-on:click.stop="toggle(opt)">
-                                                    <div class="flex items-center gap-3">
-                                                        <template x-if="!multiple">
-                                                            <span class="sf-select-radio"
-                                                                  :class="isSelected(opt) ? 'selected' : ''"></span>
-                                                        </template>
-                                                        <template x-if="multiple">
-                                                            <input type="checkbox" class="w-4 h-4 shrink-0"
-                                                                   :checked="isSelected(opt)" x-on:click.stop>
-                                                        </template>
-                                                        <span class="truncate grow" x-text="opt.text"></span>
-                                                    </div>
-                                                </li>
-                                            </template>
-                                        </ul>
-                                    </div>
+                <!-- العناصر -->
+                <ul class="py-1 overflow-y-auto max-h-60">
+                    <template x-for="opt in filtered()" :key="opt.value">
+                        <li class="px-3 py-2 cursor-pointer select-none hover:bg-gray-50"
+                            :class="opt.disabled ? 'opacity-50 cursor-not-allowed' : ''"
+                            x-on:click.stop="toggle(opt)">
+                            <div class="flex items-center gap-3">
+                                <template x-if="!multiple">
+                                    <span class="sf-select-radio"
+                                          :class="isSelected(opt) ? 'selected' : ''"></span>
                                 </template>
+                                <template x-if="multiple">
+                                    <input type="checkbox" class="w-4 h-4 shrink-0"
+                                           :checked="isSelected(opt)" x-on:click.stop>
+                                </template>
+                                <span class="truncate grow" x-text="opt.text"></span>
                             </div>
-                            break;
+                        </li>
+                    </template>
+                </ul>
+            </div>
+        </template>
+    </div>
+    break;
 
                         default:
                             <div class="form-group @field.GetResolvedColCss() relative">

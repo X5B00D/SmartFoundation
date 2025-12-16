@@ -10,7 +10,6 @@
     <link rel="stylesheet" href="~/css/datepicker.min.css" />
     <link rel="stylesheet" href="~/lib/toastr/css/toastr.min.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/lib/toastr/css/toastr.override.css" asp-append-version="true" />
-    <link rel="stylesheet" href="~/css/notifications.css" />
     <link rel="stylesheet" href="~/vendor/flatpickr/flatpickr.min.css" />
 
     <!-- FontAwesome -->
@@ -132,32 +131,31 @@
     </div>
 
     <!-- ✅ Scripts -->
+<script src="~/js/jquery-3.7.1.min.js"></script>
+<script src="~/lib/jquery/jquery-3.7.1.min.js"></script>
 
-    <script src="~/js/jquery-3.7.1.min.js"></script>
+<!-- ✅ Load toastr EARLY -->
+<script src="~/lib/toastr/js/toastr.min.js" asp-append-version="true"></script>
+<script>
+    toastr.options.positionClass = "toast-top-center";
+</script>
 
-    <script src="~/lib/jquery/jquery-3.7.1.min.js"></script>
-    <script>
-        toastr.options.positionClass = "toast-top-center";
-    </script>
+<!-- ✅ Then load other scripts -->
+<script src="~/js/flowbite.min.js" defer></script>
+<script src="~/js/datepicker.min.js"></script>
+<script src="~/js/moment.min.js"></script>
+<script src="~/js/moment-hijri.min.js"></script>
+<script src="~/js/sf-select.js"></script>
+<script src="~/js/sf-date.js" asp-append-version="true" defer></script>
+<script src="~/js/alpinejs.min.js" defer></script>
+<script src="~/js/sf-form.js"></script>
+<script src="~/js/sf-table.js"></script>
 
-    <script src="~/js/flowbite.min.js" defer></script>
-    <script src="~/js/datepicker.min.js"></script>
-    <!-- moment.js + moment-hijri for Hijri date support (MUST load before sf-date.js) -->
-    <script src="~/js/moment.min.js"></script>
-    <script src="~/js/moment-hijri.min.js"></script>
-    <script src="~/js/sf-select.js"></script>
-    @* <script src="~/js/sf-date.js?v=@(DateTime.Now.Ticks)"></script> *@
-    <script src="~/js/sf-date.js" asp-append-version="true" defer></script>
-    <script src="~/js/alpinejs.min.js" defer></script>
-    <script src="~/js/sf-form.js"></script>
-    <script src="~/js/sf-table.js"></script>
-    <script src="~/lib/toastr/js/toastr.min.js" asp-append-version="true"></script>
-    <partial name="_Toastr" />
+<partial name="_Toastr" />
 
-    <!-- moment.js + moment-hijri for Hijri date support (local files) -->
-    <script src="~/js/moment.min.js"></script>
-    <script src="~/js/moment-hijri.min.js"></script>
-    <script src="~/js/sf-dual-date.js"></script>
+<!-- Other scripts -->
+<script src="~/js/sf-dual-date.js"></script>
+<script src="~/js/form-helpers.js"></script>
 
     @await RenderSectionAsync("Scripts", required: false)
 <script>

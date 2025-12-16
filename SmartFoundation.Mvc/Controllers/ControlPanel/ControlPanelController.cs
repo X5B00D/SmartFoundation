@@ -167,8 +167,26 @@ namespace SmartFoundation.Mvc.Controllers.ControlPanel
 
                 // ---------------------- DDLValues ----------------------
 
+
+
+
                 JsonResult? result;
                 string json;
+                // ---------------------- permissin Type ----------------------
+
+
+                List<OptionItem> permissinTypeOptions = new()
+                {
+                    
+                    new OptionItem { Value = "1", Text = "مستخدم" },
+                    new OptionItem { Value = "2", Text = "موزع" },
+                    new OptionItem { Value = "3", Text = "دور" },
+                    new OptionItem { Value = "4", Text = "ادارة" },
+                    new OptionItem { Value = "5", Text = "قسم" },
+                    new OptionItem { Value = "6", Text = "فرع" },
+                    new OptionItem { Value = "7", Text = "شعبة" }
+
+                };
 
                 // ---------------------- Users ----------------------
                 result = await _CrudController.GetDDLValues(
@@ -208,7 +226,6 @@ namespace SmartFoundation.Mvc.Controllers.ControlPanel
                     FormId = "dynamicForm",
                     Title = "نموذج الإدخال",
                     Method = "POST",
-                    //   ActionUrl = "/AllComponentsDemo/ExecuteDemo",
                     SubmitText = null,
                     
 
@@ -220,12 +237,57 @@ namespace SmartFoundation.Mvc.Controllers.ControlPanel
                     Fields = new List<FieldConfig>
                 {
                     // ========= البيانات الشخصية =========
-                    
-
-                    
 
                      new FieldConfig {
-                         SectionTitle = "البحث عن مستخدم",
+                         SectionTitle = "نوع البحث",
+                         Name = "permissinType",
+                         Type = "select",
+                         Options = permissinTypeOptions,
+                         ColCss = "3",
+                         Placeholder = "اختر نوع البحث",
+                         Icon = "fa fa-user",
+                         OnChangeJs = @"
+    // Remove 'active' class from all search fields
+    document.querySelectorAll('.search-field-container').forEach(function(el) {
+        el.classList.remove('active');
+    });
+    
+    // Hide all search fields
+    document.querySelectorAll('.search-field, .hidden-field').forEach(function(field) {
+        var container = field.closest('.form-group');
+        if (container) {
+            container.style.display = 'none';
+            container.classList.remove('active');
+        }
+    });
+    
+    // Map selection to field name
+    var fieldMap = {
+        '1': 'Users',
+        '2': 'Distributors', 
+        '3': 'Roles',
+        '4': 'Idara',
+        '5': 'Dept',
+        '6': 'Section',
+        '7': 'Divison'
+    };
+    
+    var fieldToShow = fieldMap[value];
+    if (fieldToShow) {
+        var targetField = document.querySelector('input[name=""' + fieldToShow + '""]');
+        if (targetField) {
+            var container = targetField.closest('.form-group');
+            if (container) {
+                container.style.display = 'block';
+                container.classList.add('active');
+            }
+        }
+    }
+"
+                     },
+                   
+                     new FieldConfig {
+                         
                          Name = "Users",
                          Type = "select",
                          Options = UsersOptions,
@@ -233,48 +295,117 @@ namespace SmartFoundation.Mvc.Controllers.ControlPanel
                          Placeholder = "اختر المستخدم",
                          Icon = "fa fa-user",
                          Value = Q1,
+                         ExtraCss = "search-field hidden-field", // Add this class
+                         OnChangeJs = @"
+        var userId = value.trim();
+        if (!userId) {
+            if (typeof toastr !== 'undefined') {
+                toastr.info('اختر مستخدم أولاً');
+            }
+            return;
+        }
+        var url = '/ControlPanel/Permission?Q1=' + encodeURIComponent(userId);
+        window.location.href = url;
+    "
                      },
+                   
 
-                    //      new FieldConfig
-                    //{
+                          new FieldConfig
+                    {
 
+                        Name = "Distributors",
+                         Type = "select",
+                         Options = distributorOptions,
+                         ColCss = "6",
+                         Placeholder = "اختر الموزع",
+                         Icon = "fa fa-user",
+                         ExtraCss = "search-field hidden-field", // Add this
+                    },
+                          new FieldConfig
+                    {
 
-                    //    Name = "FullName",
-                    //    Label = "إدخال نص",
-                    //    Type = "text",
-                    //    Required = true,
-                    //    Placeholder = "حقل عربي فقط",
-                    //    Icon = "fa-solid fa-user",
-                    //    ColCss = "col-span-12 md:col-span-3",
-                    //    MaxLength = 50,
-                    //    TextMode = "text",
-                    //    Value = filterNameAr,
-                    //},
+                        Name = "Roles",
+                         Type = "select",
+                         Options = UsersOptions,
+                         ColCss = "6",
+                         Placeholder = "اختر الدور",
+                         Icon = "fa fa-user",
+                         ExtraCss = "search-field hidden-field" // Add this
+                    },
+                          new FieldConfig
+                    {
 
+                        Name = "Idara",
+                         Type = "select",
+                         Options = UsersOptions,
+                         ColCss = "6",
+                         Placeholder = "اختر الادارة",
+                         Icon = "fa fa-user",
+                         Value = Q1,
+                         ExtraCss = "hidden-field", // Add this
+                    },
+                          new FieldConfig
+                    {
+
+                        Name = "Dept",
+                         Type = "select",
+                         Options = UsersOptions,
+                         ColCss = "6",
+                         Placeholder = "اختر القسم",
+                         Icon = "fa fa-user",
+                         Value = Q1,
+                         ExtraCss = "hidden-field", // Add this
+                    },
+                          new FieldConfig
+                    {
+
+                        Name = "Section",
+                         Type = "select",
+                         Options = UsersOptions,
+                         ColCss = "6",
+                         Placeholder = "اختر الفرع",
+                         Icon = "fa fa-user",
+                         Value = Q1,
+                         ExtraCss = "hidden-field", // Add this
+                    },
+                          new FieldConfig
+                    {
+
+                        Name = "Divison",
+                         Type = "select",
+                         Options = UsersOptions,
+                         ColCss = "6",
+                         Placeholder = "اختر الشعبة",
+                         Icon = "fa fa-user",
+                         Value = Q1,
+                         ExtraCss = "hidden-field", // Add this
+                    },
+
+                 
 
                         },
 
 
                     Buttons = new List<FormButtonConfig>
                 {
-                         new FormButtonConfig
-                {
-                    Text="بحث",
-                    Icon="fa-solid fa-search",
-                    Type="button",
-                    Color="success",
-                    // Replace the OnClickJs of the "تجربة" button with this:
-                    OnClickJs = "(function(){"
-              + "var hidden=document.querySelector('input[name=Users]');"
-              + "if(!hidden){toastr.error('لا يوجد حقل مستخدم');return;}"
-              + "var userId = (hidden.value||'').trim();"
-              + "var anchor = hidden.parentElement.querySelector('.sf-select');"
-              + "var userName = anchor && anchor.querySelector('.truncate') ? anchor.querySelector('.truncate').textContent.trim() : '';"
-              + "if(!userId){toastr.info('اختر مستخدم أولاً');return;}"
-              + "var url = '/ControlPanel/Permission?Q1=' + encodeURIComponent(userId);"
-              + "window.location.href = url;"
-              + "})();"
-                },
+              //           new FormButtonConfig
+              //  {
+              //      Text="بحث",
+              //      Icon="fa-solid fa-search",
+              //      Type="button",
+              //      Color="success",
+              //      // Replace the OnClickJs of the "تجربة" button with this:
+              //      OnClickJs = "(function(){"
+              //+ "var hidden=document.querySelector('input[name=Users]');"
+              //+ "if(!hidden){toastr.error('لا يوجد حقل مستخدم');return;}"
+              //+ "var userId = (hidden.value||'').trim();"
+              //+ "var anchor = hidden.parentElement.querySelector('.sf-select');"
+              //+ "var userName = anchor && anchor.querySelector('.truncate') ? anchor.querySelector('.truncate').textContent.trim() : '';"
+              //+ "if(!userId){toastr.info('اختر مستخدم أولاً');return;}"
+              //+ "var url = '/ControlPanel/Permission?Q1=' + encodeURIComponent(userId);"
+              //+ "window.location.href = url;"
+              //+ "})();"
+              //  },
              
               
 
