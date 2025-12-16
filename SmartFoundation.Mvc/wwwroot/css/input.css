@@ -461,30 +461,38 @@ textarea[readonly] {
    Modal Backdrop
    ========================= */
 .sf-modal-backdrop {
-    @apply fixed inset-0 z-40 flex items-center justify-center;
-    @apply bg-black/60;
+    @apply fixed inset-0 z-40 flex items-center justify-center ;
+    @apply bg-black/70;
 }
 
 /* =========================
    Modal
    ========================= */
-.sf-modal {
-    @apply z-50 w-full max-w-3xl mx-2 overflow-hidden bg-gray-50 rounded-sm md:mx-0;
+/*.sf-modal {
+    @apply z-50 w-full max-w-4xl mx-2 overflow-hidden bg-gray-100 rounded-sm md:mx-0;
     @apply max-h-[80vh] flex flex-col;
-    @apply transition-transform duration-50 ease-out;  
+    @apply transition-transform duration-50 ease-out;
+}*/
+
+
+.sf-modal {
+    @apply z-50 w-full mx-2 overflow-hidden bg-gray-100 rounded-sm md:mx-0;
+    @apply flex flex-col;
+    @apply transition-transform duration-50 ease-out;
+    /* بدل max-w-4xl الثابت */
+    width: calc(100vw - 24px);
+    max-width: 1000px; /* على الديسكتوب */
+    max-height: 80vh;
 }
-
-
-
     
 
 /* =========================
    Modal Header
    ========================= */
 .sf-modal-header {
-    @apply relative flex items-center justify-center px-5 py-4 border-b border-gray-200;
-    @apply bg-gray-200;
-    @apply min-h-[3rem]; /* فصل  */
+    @apply relative flex items-center justify-center px-5 py-3 border-b border-gray-200;
+    @apply bg-gray-300;
+    @apply min-h-[4rem]; /* فصل  */
 }
 
 .sf-modal-title {
@@ -507,16 +515,23 @@ textarea[readonly] {
    Dark Mode
    ========================= */
 .dark .sf-modal-header {
-    @apply bg-gray-300 border-gray-100;
+    @apply bg-gray-300 font-bold border-gray-100 text-gray-600;
 }
 
 .dark .sf-modal-title {
-    @apply text-gray-100;
+    @apply text-gray-100 ;
 }
 
 .dark .sf-modal-close {
-    @apply text-gray-400 hover:text-gray-200;
+    @apply text-gray-900 hover:text-gray-200;
 }
+
+@layer components {
+    .sf-modal-input {
+        @apply w-full px-3 py-2 border border-gray-300 rounded-sm bg-gray-50 focus:outline-none focus:ring-2 focus:ring-emerald-600 focus:border-emerald-600;
+    }
+}
+
 
 .sf-modal-close {
     @apply text-gray-500 cursor-pointer hover:text-gray-700;
@@ -541,6 +556,177 @@ textarea[readonly] {
     .sf-modal-table td {
         @apply px-3 py-2 text-sm border-b border-gray-100;
     }
+
+
+/*.sf-modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 16px;
+}
+
+.sf-modal-btn {
+    padding: 10px 18px;
+    border-radius: 8px;
+    font-size: 14px;
+    border: 1px solid transparent;
+    cursor: pointer;
+}
+
+.sf-modal-btn-save {
+    background: #059669;
+    color: #fff;
+}
+
+    .sf-modal-btn-save:hover {
+        filter: brightness(0.95);
+    }
+
+.sf-modal-btn-cancel {
+    background: #e5e7eb;
+    color: #111827;
+    border-color: #d1d5db;
+}
+
+    .sf-modal-btn-cancel:hover {
+        filter: brightness(0.97);
+    }
+
+.sf-modal .btn.btn-success {
+    padding: 10px 18px;
+    border-radius: 8px;
+    font-size: 14px;
+    border: 1px solid transparent;
+    background: #059669;
+    color: #fff;
+}
+
+.sf-modal .btn.btn-secondary {
+    padding: 10px 18px;
+    border-radius: 8px;
+    font-size: 14px;
+    border: 1px solid transparent;
+    background: #e5e7eb;
+    color: #111827;
+    border-color: #d1d5db;
+}*/
+
+/* =========================
+   Modal Buttons (Unified)
+   ========================= */
+
+/* =========================
+   Modal Buttons – FINAL FIX
+   ========================= */
+
+/* =========================
+   Modal Buttons - SAFE OVERRIDE
+   ========================= */
+
+/* حاوية أزرار المودال (لو عندك sf-modal-actions أو actions-bar) */
+.sf-modal-actions,
+.sf-modal .actions-bar .actions-inner {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 16px;
+}
+
+/* توحيد المقاس داخل المودال فقط (بدون unset) */
+.sf-modal .sf-modal-actions button,
+.sf-modal .actions-bar button,
+.sf-modal .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 8px 18px !important;
+    height: auto !important;
+    min-height: 34px !important;
+    font-size: 13px !important;
+    border-radius: 5px !important;
+    border: 1px solid transparent !important;
+    cursor: pointer;
+    line-height: 1.2;
+}
+
+    /* ألوان الحفظ (يدعم sf-modal-btn-save و btn-success) */
+    .sf-modal .sf-modal-btn-save,
+    .sf-modal .btn.btn-success {
+        background: #059669 !important;
+        color: #fff !important;
+    }
+
+        .sf-modal .sf-modal-btn-save:hover,
+        .sf-modal .btn.btn-success:hover {
+            filter: brightness(0.95);
+        }
+
+    /* ألوان الإلغاء (يدعم sf-modal-btn-cancel و btn-secondary) */
+    .sf-modal .sf-modal-btn-cancel,
+    .sf-modal .btn.btn-secondary {
+        background: #e5e7eb !important;
+        color: #111827 !important;
+        border-color: #d1d5db !important;
+    }
+
+        .sf-modal .sf-modal-btn-cancel:hover,
+        .sf-modal .btn.btn-secondary:hover {
+            filter: brightness(0.97);
+        }
+
+    /* ألوان الحذف (إن كان زر الحذف btn-danger) */
+    .sf-modal .btn.btn-danger {
+        background: #b91c1c !important;
+        color: #fff !important;
+    }
+
+        .sf-modal .btn.btn-danger:hover {
+            filter: brightness(0.95);
+        }
+
+
+.sf-modal .form-group > label {
+    font-size: 16px !important; /* حجم الخط داخل المودال */
+}
+
+/* select داخل المودال */
+/*.sf-modal-select {
+    height: 42px;
+    font-size: 14px;
+    border-radius: 6px;
+    padding-inline: 12px;
+}*/
+    /* العنصر المحدد */
+    /*.sf-modal-select option:checked {
+        background-color: #10b981;*/ /* emerald-500 */
+        /*color: #ffffff;
+    }*/
+
+    /* عند المرور بالماوس */
+    /*.sf-modal-select option:hover {
+        background-color: #10b981;
+        color: #ffffff;
+    }*/
+
+    /* عند السحب بالكيبورد / active */
+    /*.sf-modal-select option:active {
+        background-color: #10b981;
+        color: #ffffff;
+    }*/
+/* select داخل المودال */
+.sf-modal-select {
+    height: 42px;
+    font-size: 14px;
+    border-radius: 6px;
+    padding-inline: 12px;
+}
+
+    /* العنصر المختار فقط */
+    .sf-modal-select option:checked {
+        background-color: #10b981; /* أخضر */
+        color: #ffffff;
+    }
+
 
     /*البانل بصفحة الرندر*/
 
@@ -667,6 +853,35 @@ textarea[readonly] {
     40% {
         transform: translateY(-20px); /*  قوة الحركة */
         opacity: 1;
+    }
+}
+
+
+
+/* =========================
+   Modal Responsive
+   ========================= */
+@media (max-width: 768px) {
+    .sf-modal {
+        width: calc(100vw - 16px);
+        max-width: 95vw;
+        max-height: 90vh;
+        border-radius: 10px;
+    }
+
+    .sf-modal-body {
+        max-height: calc(90vh - 70px); /*  الهيدر  */
+        overflow-y: auto;
+    }
+
+    /*  حقول المودال تصير عمود واحد */
+    .sf-modal .form-row {
+        grid-template-columns: 1fr !important;
+        gap: 12px !important;
+    }
+
+    .sf-modal .form-group {
+        grid-column: 1 / -1 !important;
     }
 }
 

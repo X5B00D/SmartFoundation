@@ -186,12 +186,12 @@ namespace SmartFoundation.Mvc.Controllers.Housing
             {
                 new FieldConfig { Name = rowIdField, Type = "hidden" },
 
-                new FieldConfig { Name = "p01", Label = "نوع المرفق بالعربي", Type = "text", ColCss = "3",Placeholder = "حقل عربي فقط", Required = true,MaxLength = 50, },
-                new FieldConfig { Name = "p02", Label = "اسم نوع المرفق بالانجليزي", Type = "text", Required = true,Placeholder = "حقل انجليزي فقط",Icon = "fa-solid fa-user",ColCss = "col-span-12 md:col-span-3",MaxLength = 50,TextMode = "arsentence",},
-                new FieldConfig { Name = "p04", Label = "بداية المرفق", Type = "date", ColCss = "3", Required = true },
-                new FieldConfig { Name = "p05", Label = "نهاية المرفق", Type = "date", ColCss = "3", Required = false },
+                new FieldConfig { Name = "p01", Label = "نوع المرفق بالعربي", Type = "text", ColCss = "6",Placeholder = "حقل عربي فقط", Required = true,MaxLength = 50,TextMode = "arabic" },
+                new FieldConfig { Name = "p02", Label = "اسم نوع المرفق بالانجليزي", Type = "text", Required = true,Placeholder = "حقل انجليزي فقط",Icon = "fa-solid fa-user",ColCss = "6",MaxLength = 50,TextMode = "english",},
+                new FieldConfig { Name = "p04", Label = "بداية المرفق", Type = "date", ColCss = "3", Required = true, Icon = "fa fa-calendar" },
+                new FieldConfig { Name = "p05", Label = "نهاية المرفق", Type = "date", ColCss = "3", Required = false,Icon = "fa fa-calendar" },
                 new FieldConfig { Name = "p06", Label = "يتطلب ايجار", Type = "select",Options=IsRentOptions, ColCss = "3", Required = true },
-                 new FieldConfig { Name = "p03", Label = "ملاحظات", Type = "text", ColCss = "3" },
+                 new FieldConfig { Name = "p03", Label = "ملاحظات", Type = "textarea", ColCss = "6" },
             };
 
             // hidden fields
@@ -219,15 +219,14 @@ namespace SmartFoundation.Mvc.Controllers.Housing
 
              
 
-                new FieldConfig { Name = "p01", Label = "الرقم المرجعي",             Type = "hidden", Readonly = true, ColCss = "3" },
-                new FieldConfig { Name = "p02", Label = "نوع المرفق بالعربي",         Type = "text", Required = true,  ColCss = "3" },
-                new FieldConfig { Name = "p03", Label = "نوع المرفق بالانجليزي", Type = "text",
-                    ColCss = "3", Required = true, TextMode = "arsentence" },
+                new FieldConfig { Name = "p01", Label = "الرقم المرجعي",Type = "hidden", Readonly = true, ColCss = "3" },
+                new FieldConfig { Name = "p02", Label = "نوع المرفق بالعربي",Type = "text", Required = true, TextMode = "arabic", ColCss = "6" },
+                new FieldConfig { Name = "p03", Label = "نوع المرفق بالانجليزي", Type ="text",ColCss = "6", Required = true, TextMode = "english" },
                 new FieldConfig { Name = "p06", Label = "بداية المرفق", Type = "date", Required = true, ColCss = "3" },
                 new FieldConfig { Name = "p07", Label = "نهاية المرفق", Type = "date", Required = true, ColCss = "3" },
                 new FieldConfig { Name = "p08", Label = "يتطلب ايجار", Type = "select",Options=IsRentOptions, Required = true, ColCss = "3" },
-                new FieldConfig { Name = "p04", Label = "ملاحظات",            Type = "text",   ColCss = "6" },
-                new FieldConfig { Name = "p05", Label = "buildingUtilityTypeActive",            Type = "hidden",   ColCss = "6" },
+                new FieldConfig { Name = "p04", Label = "ملاحظات", Type = "textarea",   ColCss = "6" },
+                new FieldConfig { Name = "p05", Label = "buildingUtilityTypeActive",Type = "hidden",ColCss = "6" },
 
 
 
@@ -255,7 +254,7 @@ namespace SmartFoundation.Mvc.Controllers.Housing
                 Rows = rowsList,
                 RowIdField = rowIdField,
                 PageSize = 10,
-                PageSizes = new List<int> { 10, 25, 50, 100 },
+                PageSizes = new List<int> {10, 25, 50, 100 },
                 QuickSearchFields = dynamicColumns.Select(c => c.Field).Take(4).ToList(),
                 Searchable = true,
                 AllowExport = true,
@@ -264,7 +263,7 @@ namespace SmartFoundation.Mvc.Controllers.Housing
                 {
                     ShowRefresh = false,
                     ShowColumns = true,
-                    ShowExportCsv = true,
+                    ShowExportCsv = false,
                     ShowExportExcel = false,
                     ShowAdd = canInsert,
                     ShowEdit = canUpdate,
@@ -333,8 +332,8 @@ namespace SmartFoundation.Mvc.Controllers.Housing
                             ActionUrl = "/crud/delete",
                             Buttons = new List<FormButtonConfig>
                             {
-                                new FormButtonConfig { Text = "حذف", Type = "submit", Color = "danger", Icon = "fa fa-save" },
-                                new FormButtonConfig { Text = "إلغاء", Type = "button", Color = "secondary", Icon = "fa fa-times", OnClickJs = "this.closest('.sf-modal').__x.$data.closeModal();" }
+                                new FormButtonConfig { Text = "حذف", Type = "submit", Color = "danger", },
+                                new FormButtonConfig { Text = "إلغاء", Type = "button", Color = "secondary", OnClickJs = "this.closest('.sf-modal').__x.$data.closeModal();" }
                             },
                             Fields = deleteFields
                         },

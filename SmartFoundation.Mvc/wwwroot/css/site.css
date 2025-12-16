@@ -447,14 +447,26 @@ body, h1, h2, h3, h4, h5, h6, input, textarea, select, button {
   .top-0 {
     top: calc(var(--spacing) * 0);
   }
+  .top-3 {
+    top: calc(var(--spacing) * 3);
+  }
   .top-4 {
     top: calc(var(--spacing) * 4);
+  }
+  .top-16 {
+    top: calc(var(--spacing) * 16);
+  }
+  .top-full {
+    top: 100%;
   }
   .-right-0\.5 {
     right: calc(var(--spacing) * -0.5);
   }
   .right-0 {
     right: calc(var(--spacing) * 0);
+  }
+  .right-3 {
+    right: calc(var(--spacing) * 3);
   }
   .right-4 {
     right: calc(var(--spacing) * 4);
@@ -600,6 +612,12 @@ body, h1, h2, h3, h4, h5, h6, input, textarea, select, button {
   .ml-2 {
     margin-left: calc(var(--spacing) * 2);
   }
+  .line-clamp-2 {
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+  }
   .block {
     display: block;
   }
@@ -651,6 +669,9 @@ body, h1, h2, h3, h4, h5, h6, input, textarea, select, button {
   .h-\[17px\] {
     height: 17px;
   }
+  .h-\[calc\(100vh-4rem\)\] {
+    height: calc(100vh - 4rem);
+  }
   .h-full {
     height: 100%;
   }
@@ -683,6 +704,9 @@ body, h1, h2, h3, h4, h5, h6, input, textarea, select, button {
   }
   .w-10 {
     width: calc(var(--spacing) * 10);
+  }
+  .w-12 {
+    width: calc(var(--spacing) * 12);
   }
   .w-16 {
     width: calc(var(--spacing) * 16);
@@ -797,9 +821,6 @@ body, h1, h2, h3, h4, h5, h6, input, textarea, select, button {
   .gap-0\.5 {
     gap: calc(var(--spacing) * 0.5);
   }
-  .gap-1 {
-    gap: calc(var(--spacing) * 1);
-  }
   .gap-1\.5 {
     gap: calc(var(--spacing) * 1.5);
   }
@@ -843,6 +864,11 @@ body, h1, h2, h3, h4, h5, h6, input, textarea, select, button {
       border-top-style: var(--tw-border-style);
       border-top-width: calc(1px * var(--tw-divide-y-reverse));
       border-bottom-width: calc(1px * calc(1 - var(--tw-divide-y-reverse)));
+    }
+  }
+  .divide-slate-700 {
+    :where(& > :not(:last-child)) {
+      border-color: var(--color-slate-700);
     }
   }
   .self-center {
@@ -897,6 +923,10 @@ body, h1, h2, h3, h4, h5, h6, input, textarea, select, button {
   .border-t {
     border-top-style: var(--tw-border-style);
     border-top-width: 1px;
+  }
+  .border-b {
+    border-bottom-style: var(--tw-border-style);
+    border-bottom-width: 1px;
   }
   .border-l {
     border-left-style: var(--tw-border-style);
@@ -1191,12 +1221,6 @@ body, h1, h2, h3, h4, h5, h6, input, textarea, select, button {
   .pb-4 {
     padding-bottom: calc(var(--spacing) * 4);
   }
-  .pl-3 {
-    padding-left: calc(var(--spacing) * 3);
-  }
-  .pl-10 {
-    padding-left: calc(var(--spacing) * 10);
-  }
   .text-center {
     text-align: center;
   }
@@ -1314,6 +1338,9 @@ body, h1, h2, h3, h4, h5, h6, input, textarea, select, button {
   }
   .text-gray-900 {
     color: var(--color-gray-900);
+  }
+  .text-green-500 {
+    color: var(--color-green-500);
   }
   .text-green-600 {
     color: var(--color-green-600);
@@ -3473,24 +3500,22 @@ input[readonly], textarea[readonly] {
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: color-mix(in srgb, #000 60%, transparent);
+  background-color: color-mix(in srgb, #000 70%, transparent);
   @supports (color: color-mix(in lab, red, red)) {
-    background-color: color-mix(in oklab, var(--color-black) 60%, transparent);
+    background-color: color-mix(in oklab, var(--color-black) 70%, transparent);
   }
 }
 .sf-modal {
   z-index: 50;
   margin-inline: calc(var(--spacing) * 2);
   width: 100%;
-  max-width: var(--container-3xl);
   overflow: hidden;
   border-radius: var(--radius-sm);
-  background-color: var(--color-gray-50);
+  background-color: var(--color-gray-100);
   @media (width >= 48rem) {
     margin-inline: calc(var(--spacing) * 0);
   }
   display: flex;
-  max-height: 80vh;
   flex-direction: column;
   transition-property: transform, translate, scale, rotate;
   transition-timing-function: var(--tw-ease, var(--default-transition-timing-function));
@@ -3499,6 +3524,9 @@ input[readonly], textarea[readonly] {
   transition-duration: 50ms;
   --tw-ease: var(--ease-out);
   transition-timing-function: var(--ease-out);
+  width: calc(100vw - 24px);
+  max-width: 1000px;
+  max-height: 80vh;
 }
 .sf-modal-header {
   position: relative;
@@ -3509,9 +3537,9 @@ input[readonly], textarea[readonly] {
   border-bottom-width: 1px;
   border-color: var(--color-gray-200);
   padding-inline: calc(var(--spacing) * 5);
-  padding-block: calc(var(--spacing) * 4);
-  background-color: var(--color-gray-200);
-  min-height: 3rem;
+  padding-block: calc(var(--spacing) * 3);
+  background-color: var(--color-gray-300);
+  min-height: 4rem;
 }
 .sf-modal-title {
   font-size: var(--text-2xl);
@@ -3566,15 +3594,44 @@ input[readonly], textarea[readonly] {
 .dark .sf-modal-header {
   border-color: var(--color-gray-100);
   background-color: var(--color-gray-300);
+  --tw-font-weight: var(--font-weight-bold);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-gray-600);
 }
 .dark .sf-modal-title {
   color: var(--color-gray-100);
 }
 .dark .sf-modal-close {
-  color: var(--color-gray-400);
+  color: var(--color-gray-900);
   &:hover {
     @media (hover: hover) {
       color: var(--color-gray-200);
+    }
+  }
+}
+@layer components {
+  .sf-modal-input {
+    width: 100%;
+    border-radius: var(--radius-sm);
+    border-style: var(--tw-border-style);
+    border-width: 1px;
+    border-color: var(--color-gray-300);
+    background-color: var(--color-gray-50);
+    padding-inline: calc(var(--spacing) * 3);
+    padding-block: calc(var(--spacing) * 2);
+    &:focus {
+      border-color: var(--color-emerald-600);
+    }
+    &:focus {
+      --tw-ring-shadow: var(--tw-ring-inset,) 0 0 0 calc(2px + var(--tw-ring-offset-width)) var(--tw-ring-color, currentcolor);
+      box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
+    }
+    &:focus {
+      --tw-ring-color: var(--color-emerald-600);
+    }
+    &:focus {
+      --tw-outline-style: none;
+      outline-style: none;
     }
   }
 }
@@ -3627,6 +3684,60 @@ input[readonly], textarea[readonly] {
   padding-block: calc(var(--spacing) * 2);
   font-size: var(--text-sm);
   line-height: var(--tw-leading, var(--text-sm--line-height));
+}
+.sf-modal-actions, .sf-modal .actions-bar .actions-inner {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 16px;
+}
+.sf-modal .sf-modal-actions button, .sf-modal .actions-bar button, .sf-modal .btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 18px !important;
+  height: auto !important;
+  min-height: 34px !important;
+  font-size: 13px !important;
+  border-radius: 5px !important;
+  border: 1px solid transparent !important;
+  cursor: pointer;
+  line-height: 1.2;
+}
+.sf-modal .sf-modal-btn-save, .sf-modal .btn.btn-success {
+  background: #059669 !important;
+  color: #fff !important;
+}
+.sf-modal .sf-modal-btn-save:hover, .sf-modal .btn.btn-success:hover {
+  filter: brightness(0.95);
+}
+.sf-modal .sf-modal-btn-cancel, .sf-modal .btn.btn-secondary {
+  background: #e5e7eb !important;
+  color: #111827 !important;
+  border-color: #d1d5db !important;
+}
+.sf-modal .sf-modal-btn-cancel:hover, .sf-modal .btn.btn-secondary:hover {
+  filter: brightness(0.97);
+}
+.sf-modal .btn.btn-danger {
+  background: #b91c1c !important;
+  color: #fff !important;
+}
+.sf-modal .btn.btn-danger:hover {
+  filter: brightness(0.95);
+}
+.sf-modal .form-group > label {
+  font-size: 16px !important;
+}
+.sf-modal-select {
+  height: 42px;
+  font-size: 14px;
+  border-radius: 6px;
+  padding-inline: 12px;
+}
+.sf-modal-select option:checked {
+  background-color: #10b981;
+  color: #ffffff;
 }
 .sf-panel {
   position: relative;
@@ -3764,6 +3875,25 @@ input[readonly], textarea[readonly] {
   40% {
     transform: translateY(-20px);
     opacity: 1;
+  }
+}
+@media (max-width: 768px) {
+  .sf-modal {
+    width: calc(100vw - 16px);
+    max-width: 95vw;
+    max-height: 90vh;
+    border-radius: 10px;
+  }
+  .sf-modal-body {
+    max-height: calc(90vh - 70px);
+    overflow-y: auto;
+  }
+  .sf-modal .form-row {
+    grid-template-columns: 1fr !important;
+    gap: 12px !important;
+  }
+  .sf-modal .form-group {
+    grid-column: 1 / -1 !important;
   }
 }
 /*! tailwindcss v4.0.0-beta.10 | MIT License | https://tailwindcss.com */

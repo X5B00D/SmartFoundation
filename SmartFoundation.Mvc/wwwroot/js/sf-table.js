@@ -675,9 +675,15 @@
                         this.modal.html = this.formatDetailView(json.data, action.modalColumns);
                     }
                     
+                    
                     this.$nextTick(() => {
                         this.initModalScripts();
+
+                        const modalEl = this.$el.querySelector('.sf-modal'); // الأفضل من document
+                        this.initDatePickers(modalEl);
                     });
+
+
                     
                 } catch (e) {
                     console.error("Modal error:", e);
@@ -694,6 +700,8 @@
                 this.modal.error = null;
                 this.modal.message = ""; //  جديد
             },
+
+
 
             // ===== Form Generation =====
             generateFormHtml(formConfig, rowData) {
@@ -715,27 +723,6 @@
                         html += this.generateFieldHtml(field, rowData);
                     }
                 });
-                
-                // Generate buttons
-                //if (formConfig.buttons && formConfig.buttons.length > 0) {
-                //    html += `<div class="col-span-12 flex justify-end gap-2 mt-4">`;
-                //    formConfig.buttons.forEach(btn => {
-                //        if (btn.show !== false) {
-                //            const btnType = btn.type || "button";
-                //            const btnClass = `btn btn-${btn.color || 'secondary'}`;
-                //            const icon = btn.icon ? `<i class="${btn.icon}"></i> ` : "";
-                //            const onClick = btn.type === 'submit' ? "" : (btn.onClickJs || "");
-                //            html += `<button type="${btnType}" class="${btnClass}" ${onClick ? `onclick="${onClick}"` : ""}>${icon}${btn.text}</button>`;
-                //        }
-                //    });
-                //    html += `</div>`;
-                //} else {
-                //    // Default buttons
-                //    html += `<div class="col-span-12 flex justify-end gap-2 mt-4">`;
-                //    /*html += `<button type="button" class="btn btn-secondary" onclick="this.closest('.sf-modal').__x.$data.closeModal()">إلغاء</button>`;*/
-                //    html += `<button type="button" class="btn btn-secondary sf-modal-cancel">إلغاء</button>`;
-                //    html += `<button type="submit" class="btn btn-success">حفظ</button>`;
-                //    html += `</div>`;
 
 
 
@@ -770,10 +757,11 @@
                     html += `</div>`;
                 } else {
                     // Default buttons
-                    html += `<div class="col-span-12 flex justify-end gap-2 mt-4">`;
-                    html += `<button type="button" class="btn btn-secondary sf-modal-cancel">إلغاء</button>`;
-                    html += `<button type="submit" class="btn btn-success">حفظ</button>`;
+                    html += `<div class="col-span-12 flex justify-end gap-2 mt-4 sf-modal-actions">`;
+                    html += `<button type="button" class="sf-modal-btn sf-modal-btn-cancel sf-modal-cancel">إلغاء</button>`;
+                    html += `<button type="submit" class="sf-modal-btn sf-modal-btn-save">حفظ</button>`;
                     html += `</div>`;
+
                 }
 
 
@@ -782,37 +770,176 @@
                 return html;
             },
 
+
+            
+
+            initDatePickers(rootEl) {
+                if (typeof flatpickr === "undefined") return;
+
+                (rootEl || document)
+                    .querySelectorAll("input.js-date")
+                    .forEach(el => {
+                        if (el._flatpickr) return;
+
+                        flatpickr(el, {
+                            locale: flatpickr.l10ns.ar,
+                            dateFormat: el.dataset.dateFormat || "Y-m-d",
+                            disableMobile: true
+                        });
+                    });
+            },
+
             generateFieldHtml(field, rowData) {
                 if (!field || !field.name) return "";
-                
-                const value = rowData ? (rowData[field.name] || field.value || "") : (field.value || "");
+
+                const value = rowData
+                    ? (rowData[field.name] || field.value || "")
+                    : (field.value || "");
+
                 const colCss = this.resolveColCss(field.colCss || "6");
+
                 const required = field.required ? "required" : "";
                 const disabled = field.disabled ? "disabled" : "";
                 const readonly = field.readonly ? "readonly" : "";
-                const placeholder = field.placeholder ? `placeholder="${this.escapeHtml(field.placeholder)}"` : "";
-                const maxLength = field.maxLength ? `maxlength="${field.maxLength}"` : "";
-                
+
+                const placeholder = field.placeholder
+                    ? `placeholder="${this.escapeHtml(field.placeholder)}"`
+                    : "";
+
+                const maxLength = field.maxLength
+                    ? `maxlength="${field.maxLength}"`
+                    : "";
+
+                const autocomplete = field.autocomplete
+                    ? `autocomplete="${this.escapeHtml(field.autocomplete)}"`
+                    : "";
+
+                const spellcheck =
+                    (field.spellcheck !== undefined && field.spellcheck !== null)
+                        ? `spellcheck="${field.spellcheck ? "true" : "false"}"`
+                        : "";
+
+                const autocapitalize = field.autocapitalize
+                    ? `autocapitalize="${this.escapeHtml(field.autocapitalize)}"`
+                    : "";
+
+                const autocorrect = field.autocorrect
+                    ? `autocorrect="${this.escapeHtml(field.autocorrect)}"`
+                    : "";
+
+                const textMode = (field.textMode || "").toLowerCase();
+                let oninput = "";
+                let pattern = "";
+
+                switch (textMode) {
+                    case "arabic":
+                        oninput = `oninput="this.value=this.value.replace(/[^\\u0600-\\u06FF\\s]/g,'')"`;
+                        pattern = 'pattern="[\\u0600-\\u06FF\\s]+"';
+                        break;
+
+                    case "english":
+                        oninput = `oninput="this.value=this.value.replace(/[^A-Za-z\\s]/g,'')"`;
+                        pattern = 'pattern="[A-Za-z\\s]+"';
+                        break;
+
+                    case "numeric":
+                        oninput = `oninput="this.value=this.value.replace(/[^0-9]/g,'')"`;
+                        pattern = 'pattern="[0-9]+"';
+                        break;
+
+                    case "alphanumeric":
+                        oninput = `oninput="this.value=this.value.replace(/[^A-Za-z0-9\\s]/g,'')"`;
+                        pattern = 'pattern="[A-Za-z0-9\\s]+"';
+                        break;
+
+                    case "arabicnum":
+                        oninput = `oninput="this.value=this.value.replace(/[^\\u0600-\\u06FF0-9\\s]/g,'')"`;
+                        pattern = 'pattern="[\\u0600-\\u06FF0-9\\s]+"';
+                        break;
+
+                    case "engsentence":
+                        oninput = `oninput="this.value=this.value.replace(/[^A-Za-z0-9\\s.,!?'"()-]/g,'')"`;
+                        pattern = 'pattern="[A-Za-z0-9\\s.,!?\'\\"()-]+"';
+                        break;
+
+                    case "arsentence":
+                        oninput = `oninput="this.value=this.value.replace(/[^\\u0600-\\u06FF0-9\\s.,!?،؟'"()-]/g,'')"`;
+                        pattern = 'pattern="[\\u0600-\\u06FF0-9\\s.,!?،؟\'\\"()-]+"';
+                        break;
+
+                    case "email":
+                        oninput = `oninput="this.value=this.value.replace(/[^A-Za-z0-9@._-]/g,'')"`;
+                        pattern = 'pattern="[A-Za-z0-9@._-]+"';
+                        break;
+
+                    case "url":
+                        oninput = `oninput="this.value=this.value.replace(/[^A-Za-z0-9/:.?&=#_-]/g,'')"`;
+                        pattern = 'pattern="[A-Za-z0-9/:.?&=#_-]+"';
+                        break;
+
+                    case "custom":
+                        pattern = field.pattern ? `pattern="${field.pattern}"` : "";
+                        oninput = "";
+                        break;
+
+                }
+
+                let inputType = (field.type || "text").toLowerCase();
+
+                if (textMode === "email") inputType = "email";
+                if (textMode === "url") inputType = "url";
+
+
                 let fieldHtml = "";
-                
+
+
+                const hasIcon = field.icon && field.icon.trim() !== "";
+                const iconHtml = hasIcon
+                    ? `<i class="${this.escapeHtml(field.icon)} absolute right-3 top-3 text-gray-400 pointer-events-none"></i>`
+                    : "";
+
+
                 switch ((field.type || "text").toLowerCase()) {
                     case "text":
                     case "email":
                     case "url":
                     case "search":
-                        fieldHtml = `
-                        <div class="form-group ${colCss}">
-                            <label class="block text-sm font-medium text-gray-700 mb-1">
-                                ${this.escapeHtml(field.label)} ${field.required ? '<span class="text-red-500">*</span>' : ''}
 
-                            </label>
-                            <input type="${field.type || 'text'}" name="${this.escapeHtml(field.name)}" 
-                                   value="${this.escapeHtml(value)}" 
-                                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                   ${placeholder} ${required} ${disabled} ${readonly} ${maxLength}>
-                            ${field.helpText ? `<p class="mt-1 text-xs text-gray-500">${this.escapeHtml(field.helpText)}</p>` : ''}
-                        </div>`;
+                        fieldHtml = `
+            <div class="form-group ${colCss}">
+                <label class="block text-sm font-medium text-gray-700 mb-1">
+                    ${this.escapeHtml(field.label)}
+                    ${field.required ? '<span class="text-red-500">*</span>' : ''}
+                </label>
+
+                <input
+                    
+                    type="${inputType}"
+                    name="${this.escapeHtml(field.name)}"
+                    value="${this.escapeHtml(value)}"
+                    class="sf-modal-input"
+                    ${placeholder}
+                    ${required}
+                    ${disabled}
+                    ${readonly}
+                    ${maxLength}
+                    ${autocomplete}
+                    ${spellcheck}
+                    ${autocapitalize}
+                    ${autocorrect}
+                    ${pattern}
+                    ${oninput}
+
+                />
+
+                ${field.helpText
+                                ? `<p class="mt-1 text-xs text-gray-500">${this.escapeHtml(field.helpText)}</p>`
+                                : ''}
+            </div>`;
                         break;
+                
+
+                
                         
                     case "textarea":
                         const rows = field.rows || 3;
@@ -823,7 +950,7 @@
 
                             </label>
                             <textarea name="${this.escapeHtml(field.name)}" rows="${rows}"
-                                     class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                     class="sf-modal-input"
                                      ${placeholder} ${required} ${disabled} ${readonly} ${maxLength}>${this.escapeHtml(value)}</textarea>
                             ${field.helpText ? `<p class="mt-1 text-xs text-gray-500">${this.escapeHtml(field.helpText)}</p>` : ''}
                         </div>`;
@@ -861,7 +988,7 @@
             ${this.escapeHtml(field.label)} ${field.required ? '<span class="text-red-500">*</span>' : ''}
         </label>
         <select name="${this.escapeHtml(field.name)}" 
-                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+        class="sf-modal-input sf-modal-select"
                 ${required} ${disabled} ${onChangeAttr} ${dependsOnAttr} ${dependsUrlAttr}>
             ${options}
         </select>
@@ -886,93 +1013,34 @@
                         </div>`;
                         break;
 
-                          //case "date":
-                          //  {
-                          //      var inputId = field.Name;
-                          //      var mirrorId = $"{field.Name}__mirror";
-                          //      var hasIcon = !string.IsNullOrWhiteSpace(field.Icon);
-                          //      var inputCss = $"sf-date text-right {(hasIcon ? "pl-10" : "")} {field.ExtraCss}";
-                          //      var placeholder = field.Placeholder
-                          //          ?? ((field.DisplayFormat ?? "yyyy-mm-dd").ToLower() == "yyyy-mm-dd"
-                          //              ? "YYYY-MM-DD"
-                          //              : field.DisplayFormat);
 
-                          //      fieldHtml = `
-                          //      <div class="form-group ${colCss} relative">
-                          //          <label class="block text-sm font-medium text-gray-700 mb-1">
-                          //              ${this.escapeHtml(field.label)} ${field.required ? '<span class="text-red-500">*</span>' : ''}
-                          //          </label>
-                          //          ${hasIcon ? `
-                          //          <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none" style="top: 28px;">
-                          //              <i class="${this.escapeHtml(field.icon)} text-gray-400 text-md"></i>
-                          //          </div>
-                          //          ` : ''}
-                          //          <input type="text"
-                          //                 id="${this.escapeHtml(inputId)}"
-                          //                 name="${this.escapeHtml(field.name)}"
-                          //                 value="${this.escapeHtml(value)}"
-                          //                 placeholder="${this.escapeHtml(placeholder)}"
-                          //                 inputmode="numeric"
-                          //                 style="direction:ltr; text-align:right"
-                          //                 autocomplete="off" 
-                          //                 spellcheck="false" 
-                          //                 autocapitalize="none" 
-                          //                 autocorrect="off"
-                          //                 class="${inputCss}"
-                          //                 pattern="^\\d{4}-\\d{2}-\\d{2}$"
-                          //                 data-role="sf-date"
-                          //                 data-date-format="${this.escapeHtml(field.DisplayFormat ?? 'yyyy-mm-dd')}"
-                          //                 data-manual-order="dmy"
-                          //                 data-calendar="${this.escapeHtml(field.Calendar ?? 'gregorian')}"
-                          //                 data-input-calendar="${this.escapeHtml(field.DateInputCalendar ?? 'gregorian')}"
-                          //                 data-display-lang="${this.escapeHtml(field.DateDisplayLang ?? 'ar')}"
-                          //                 data-numerals="${this.escapeHtml(field.DateNumerals ?? 'arabic')}"
-                          //                 data-show-day-name="@(field.ShowDayName.ToString().ToLower())"
-                          //                 data-default-today="@(field.DefaultToday.ToString().ToLower())"
-                          //                 data-min-date="${this.escapeHtml(field.MinDateStr ?? '')}"
-                          //                 data-max-date="${this.escapeHtml(field.MaxDateStr ?? '')}"
-                          //                 data-mirror-name="${this.escapeHtml(field.MirrorName ?? '')}"
-                          //                 data-mirror-calendar="${this.escapeHtml(field.MirrorCalendar ?? 'hijri')}"
-                          //                 ${required} ${disabled} ${readonly}>
-
-                          //          @if (!string.IsNullOrWhiteSpace(field.MirrorName))
-                          //          {
-                          //              <input type="hidden" id="${this.escapeHtml(mirrorId)}" name="${this.escapeHtml(field.MirrorName)}" value="" />
-                          //          }
-                          //          <div id="${this.escapeHtml(inputId)}__info" class="mt-2">
-                          //              <div class="date-info-box">
-                          //                  <div class="flex items-center gap-1 text-xs text-gray-500">
-                          //                      <i class="fa-regular fa-calendar"></i>
-                          //                      <span>الميلادي:</span>
-                          //                      <span data-greg-full>—</span>
-                          //                  </div>
-                          //                  <div class="flex items-center gap-1 mt-1 text-xs text-gray-500">
-                          //                      <i class="fa-regular fa-moon"></i>
-                          //                      <span>الهجري:</span>
-                          //                      <span data-hijri-full>—</span>
-                          //                  </div>
-                          //              </div>
-                          //          </div>
-                          //          ${field.helpText ? `<p class="mt-1 text-xs text-gray-500">${this.escapeHtml(field.helpText)}</p>` : ''}
-                          //      </div>`;
-                          //  }
-                          //  break;
-                        
                     case "date":
                         fieldHtml = `
-                        <div class="form-group ${colCss}">
+                          <div class="form-group ${colCss}">
                             <label class="block text-sm font-medium text-gray-700 mb-1">
-                                ${this.escapeHtml(field.label)} ${field.required ? '<span class="text-red-500">*</span>' : ''}
+                            ${this.escapeHtml(field.label)}
+                             ${field.required ? '<span class="text-red-500">*</span>' : ''}
+                             </label>
+                        <div class="relative">
+                       ${iconHtml}
+                       <input
+                       type="text"
+                       name="${this.escapeHtml(field.name)}"
+                       value="${this.escapeHtml(value)}"
+                       class="sf-modal-input js-date ${hasIcon ? "pr-10" : ""}"
+                       data-date-format="Y-m-d"
+                       ${required} ${disabled} ${readonly}
+                        />
+                       </div>
+                       ${field.helpText
+                                ? `<p class="mt-1 text-xs text-gray-500">${this.escapeHtml(field.helpText)}</p>`
+                                : ''}
+                       </div>`;
+                           break;
 
-                            </label>
-                            <input type="date" name="${this.escapeHtml(field.name)}" 
-                                   value="${this.escapeHtml(value)}" 
-                                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                   ${required} ${disabled} ${readonly}>
-                            ${field.helpText ? `<p class="mt-1 text-xs text-gray-500">${this.escapeHtml(field.helpText)}</p>` : ''}
-                        </div>`;
-                        break;
-                        
+
+
+
                     case "number":
                         const min = field.min !== undefined ? `min="${field.min}"` : "";
                         const max = field.max !== undefined ? `max="${field.max}"` : "";
@@ -985,7 +1053,7 @@
                             </label>
                             <input type="number" name="${this.escapeHtml(field.name)}" 
                                    value="${this.escapeHtml(value)}" 
-                                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                   class="sf-modal-input"
                                    ${placeholder} ${min} ${max} ${step} ${required} ${disabled} ${readonly}>
                             ${field.helpText ? `<p class="mt-1 text-xs text-gray-500">${this.escapeHtml(field.helpText)}</p>` : ''}
                         </div>`;
@@ -1001,7 +1069,7 @@
                             </label>
                             <input type="tel" name="${this.escapeHtml(field.name)}" 
                                    value="${this.escapeHtml(value)}" 
-                                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                   class="sf-modal-input"
                                    ${placeholder} ${required} ${disabled} ${readonly} ${maxLength}>
                             ${field.helpText ? `<p class="mt-1 text-xs text-gray-500">${this.escapeHtml(field.helpText)}</p>` : ''}
                         </div>`;
@@ -1032,7 +1100,7 @@
                             </label>
                             <input type="text" name="${this.escapeHtml(field.name)}" 
                                    value="${this.escapeHtml(value)}" 
-                                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                   class="sf-modal-input"
                                    ${placeholder} ${required} ${disabled} ${readonly} ${maxLength}>
                             ${field.helpText ? `<p class="mt-1 text-xs text-gray-500">${this.escapeHtml(field.helpText)}</p>` : ''}
                         </div>`;
@@ -1508,50 +1576,3 @@
         document.addEventListener("alpine:init", register);
     }
 })();
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

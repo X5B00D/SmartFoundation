@@ -123,15 +123,15 @@ namespace SmartFoundation.Mvc.Controllers.Housing
             {
                 new FieldConfig { Name = rowIdField, Type = "hidden" },
 
-                new FieldConfig { Name = "p01", Label = "رمز نوع المباني", Type = "text", ColCss = "3" },
+                new FieldConfig { Name = "p01", Label = "رمز نوع المباني", Type = "text", ColCss = "6", },
                 new FieldConfig { Name = "p02", Label = "اسم نوع المباني بالعربي", Type = "text", Required = true,
                     Placeholder = "حقل عربي فقط",
                     Icon = "fa-solid fa-user",
-                    ColCss = "col-span-12 md:col-span-3",
+                    ColCss = "6",
                     MaxLength = 50,
-                    TextMode = "arsentence",},
-                new FieldConfig { Name = "p03", Label = "اسم نوع المباني بالانجليزي", Type = "text", ColCss = "3" , Required = true},
-                new FieldConfig { Name = "p04", Label = "ملاحظات", Type = "text", ColCss = "3", Required = false }
+                    TextMode = "arabic",},
+                new FieldConfig { Name = "p03", Label = "اسم نوع المباني بالانجليزي", Type = "text", ColCss = "6" , Required = true, TextMode = "english"},
+                new FieldConfig { Name = "p04", Label = "ملاحظات", Type = "textarea", ColCss = "6", Required = false }
             };
 
             // hidden fields
@@ -158,11 +158,11 @@ namespace SmartFoundation.Mvc.Controllers.Housing
                 new FieldConfig { Name = rowIdField,            Type = "hidden" },
 
                 new FieldConfig { Name = "p01", Label = "الرقم المرجعي",             Type = "hidden", Readonly = true, ColCss = "3" },
-                new FieldConfig { Name = "p02", Label = "رمز نوع المباني",         Type = "number", Required = true,  ColCss = "3" },
+                new FieldConfig { Name = "p02", Label = "رمز نوع المباني",         Type = "text", Required = true,  ColCss = "6" },
                 new FieldConfig { Name = "p03", Label = "اسم نوع المباني بالعربي", Type = "text",
-                    ColCss = "3", Required = true, TextMode = "arsentence" },
-                new FieldConfig { Name = "p04", Label = "اسم نوع المباني بالانجليزي", Type = "text", Required = true, ColCss = "3" },
-                new FieldConfig { Name = "p05", Label = "ملاحظات",            Type = "text",   ColCss = "6" }
+                    ColCss = "6", Required = true, TextMode = "arabic" },
+                new FieldConfig { Name = "p04", Label = "اسم نوع المباني بالانجليزي", Type = "text", Required = true, ColCss = "6",TextMode = "english" },
+                new FieldConfig { Name = "p05", Label = "ملاحظات",            Type = "textarea",   ColCss = "6" }
             };
 
             // DELETE fields
@@ -265,8 +265,8 @@ namespace SmartFoundation.Mvc.Controllers.Housing
                             ActionUrl = "/crud/delete",
                             Buttons = new List<FormButtonConfig>
                             {
-                                new FormButtonConfig { Text = "حذف", Type = "submit", Color = "danger", Icon = "fa fa-save" },
-                                new FormButtonConfig { Text = "إلغاء", Type = "button", Color = "secondary", Icon = "fa fa-times", OnClickJs = "this.closest('.sf-modal').__x.$data.closeModal();" }
+                                new FormButtonConfig { Text = "حذف", Type = "submit", Color = "danger", },
+                                new FormButtonConfig { Text = "إلغاء", Type = "button", Color = "secondary", OnClickJs = "this.closest('.sf-modal').__x.$data.closeModal();" }
                             },
                             Fields = deleteFields
                         },

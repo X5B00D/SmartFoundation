@@ -31,6 +31,7 @@
     "electron-to-chromium": "^1.5.207",
     "escalade": "^3.2.0",
     "estree-walker": "^2.0.2",
+    "flatpickr": "^4.6.13",
     "flowbite-icons": "^1.5.0",
     "fraction.js": "^4.3.7",
     "function-bind": "^1.1.2",
