@@ -274,6 +274,20 @@
                                 dependentSelect.innerHTML = '<option value="-1">لا توجد خيارات متاحة</option>';
                             }
 
+
+                            // ✅ تحديث select2 بعد تغيير الخيارات
+                            if (window.jQuery && jQuery.fn.select2 && dependentSelect.classList.contains('js-select2')) {
+                                const parentModal = dependentSelect.closest('.sf-modal') || document.body;
+
+                                $(dependentSelect).select2('destroy');
+                                $(dependentSelect).select2({
+                                    width: '100%',
+                                    dir: 'rtl',
+                                    dropdownParent: $(parentModal)
+                                });
+                            }
+
+
                         } catch (error) {
                             console.error('Error loading dependent options:', error);
                             dependentSelect.innerHTML = originalHtml;
@@ -681,6 +695,7 @@
 
                         const modalEl = this.$el.querySelector('.sf-modal'); // الأفضل من document
                         this.initDatePickers(modalEl);
+                        initModalSelect2(modalEl);
                     });
 
 
@@ -988,7 +1003,9 @@
             ${this.escapeHtml(field.label)} ${field.required ? '<span class="text-red-500">*</span>' : ''}
         </label>
         <select name="${this.escapeHtml(field.name)}" 
-        class="sf-modal-input sf-modal-select"
+        
+        class="sf-modal-input sf-modal-select js-select2"
+
                 ${required} ${disabled} ${onChangeAttr} ${dependsOnAttr} ${dependsUrlAttr}>
             ${options}
         </select>
@@ -1186,6 +1203,20 @@
                             } else {
                                 dependentSelect.innerHTML = '<option value="-1">لا توجد خيارات متاحة</option>';
                             }
+
+
+                            // ✅ تحديث select2 بعد تغيير الخيارات
+                            if (window.jQuery && jQuery.fn.select2 && dependentSelect.classList.contains('js-select2')) {
+                                const parentModal = dependentSelect.closest('.sf-modal') || document.body;
+
+                                $(dependentSelect).select2('destroy');
+                                $(dependentSelect).select2({
+                                    width: '100%',
+                                    dir: 'rtl',
+                                    dropdownParent: $(parentModal)
+                                });
+                            }
+
                             
                         } catch (error) {
                             console.error('Error loading dependent options:', error);
@@ -1576,3 +1607,13 @@
         document.addEventListener("alpine:init", register);
     }
 })();
+
+function initModalSelect2(modalEl) {
+    if (!window.jQuery || !jQuery.fn.select2) return;
+
+    $(modalEl).find('select.js-select2').select2({
+        width: '100%',
+        dir: 'rtl',
+        dropdownParent: $(modalEl)
+    });
+}

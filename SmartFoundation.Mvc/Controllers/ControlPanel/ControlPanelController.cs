@@ -567,9 +567,9 @@ namespace SmartFoundation.Mvc.Controllers.ControlPanel
                     DependsOn = "p01",          
                     DependsUrl = "/crud/DDLFiltered?FK=distributorID_FK&textcol=permissionTypeName_A&ValueCol=distributorPermissionTypeID&PageName=Permission&TableIndex=4"
                 },
-                new FieldConfig { Name = "p03", Label = "تاريخ بداية الصلاحية", Type = "date", ColCss = "3", Required = false },
-                new FieldConfig { Name = "p04", Label = "تاريخ نهاية الصلاحية", Type = "date", ColCss = "3", Required = false },
-                new FieldConfig { Name = "p05", Label = "ملاحظات", Type = "text", ColCss = "3", Required = false },
+                new FieldConfig { Name = "p03", Label = "تاريخ بداية الصلاحية", Type = "date", ColCss = "3", Required = false, Icon = "fa fa-calendar" },
+                new FieldConfig { Name = "p04", Label = "تاريخ نهاية الصلاحية", Type = "date", ColCss = "3", Required = false, Icon = "fa fa-calendar" },
+                new FieldConfig { Name = "p05", Label = "ملاحظات", Type = "textarea", ColCss = "6", Required = false },
 
                   new FieldConfig { Name = "p06",Value=Q1, Type = "hidden" },
             };
@@ -610,9 +610,9 @@ namespace SmartFoundation.Mvc.Controllers.ControlPanel
                     Required = true
                 },
 
-                new FieldConfig { Name = "p02", Label = "تاريخ بداية الصلاحية", Type = "date", ColCss = "3", Required = false },
-                new FieldConfig { Name = "p03", Label = "تاريخ نهاية الصلاحية", Type = "date", ColCss = "3", Required = false },
-                new FieldConfig { Name = "p04", Label = "ملاحظات", Type = "text", ColCss = "3", Required = false },
+                new FieldConfig { Name = "p02", Label = "تاريخ بداية الصلاحية", Type = "date", ColCss = "3", Required = false,Icon = "fa fa-calendar" },
+                new FieldConfig { Name = "p03", Label = "تاريخ نهاية الصلاحية", Type = "date", ColCss = "3", Required = false,Icon = "fa fa-calendar" },
+                new FieldConfig { Name = "p04", Label = "ملاحظات", Type = "textarea", ColCss = "6", Required = false },
 
                   new FieldConfig { Name = "p05",Value=Q1, Type = "hidden" },
             };
@@ -652,9 +652,9 @@ namespace SmartFoundation.Mvc.Controllers.ControlPanel
                 new FieldConfig { Name = "p01", Label = "المعرف",             Type = "hidden", Readonly = true, ColCss = "3" },
                 new FieldConfig { Name = "p02", Label = "اسم الصفحة",         Type = "text", Required = true,  ColCss = "3" },
                 new FieldConfig { Name = "p03", Label = "الصلاحية", Type = "text",   ColCss = "3", TextMode = "arabic" },
-                new FieldConfig { Name = "p04", Label = "تاريخ بداية الصلاحية", Type = "date", Required = true, ColCss = "3" },
-                 new FieldConfig { Name = "p05", Label = "تاريخ نهاية الصلاحية", Type = "date", Required = true, ColCss = "3" },
-                new FieldConfig { Name = "p06", Label = "ملاحظات",            Type = "text",   ColCss = "6" }
+                new FieldConfig { Name = "p04", Label = "تاريخ بداية الصلاحية", Type = "date", Required = true, ColCss = "3",Icon = "fa fa-calendar" },
+                 new FieldConfig { Name = "p05", Label = "تاريخ نهاية الصلاحية", Type = "date", Required = true, ColCss = "3",Icon = "fa fa-calendar" },
+                new FieldConfig { Name = "p06", Label = "ملاحظات",            Type = "textarea",   ColCss = "6" }
             };
 
 
@@ -718,7 +718,7 @@ namespace SmartFoundation.Mvc.Controllers.ControlPanel
                         Icon = "fa fa-plus",
                         Color = "success",
                         OpenModal = true,
-                        ModalTitle = "إضافة صلاحية جديد",
+                        ModalTitle = "إضافة صلاحية جديدة",
                         OpenForm = new FormConfig
                         {
                             FormId = "InsertForm",
