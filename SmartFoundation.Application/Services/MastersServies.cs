@@ -291,7 +291,7 @@ namespace SmartFoundation.Application.Services
             AddIfHasValue(dict, "hostname", hostName);
 
             // parameter_01 .. parameter_10 حسب ما تم تمريره فقط
-            int take = Math.Min(extraParams.Length, 10);
+            int take = Math.Min(extraParams.Length, 20);
             for (int i = 1; i <= take; i++)
             {
                 var val = extraParams[i - 1];

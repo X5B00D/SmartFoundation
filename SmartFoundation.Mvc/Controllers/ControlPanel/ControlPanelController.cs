@@ -98,7 +98,7 @@ namespace SmartFoundation.Mvc.Controllers.ControlPanel
              ControllerName = nameof(ControlPanelController);
              PageName = nameof(Permission);
 
-            var spParameters = new object?[] { "Permission", IdaraID, userID, HostName, UserID_};
+            var spParameters = new object?[] { "Permission", IdaraID, userID, HostName,SearchID_, UserID_,distributorID_,RoleID_,Idara_};
 
             //var spParameters = new object?[] { "Permission", IdaraID, userID, HostName, SearchID_, UserID_, distributorID_, RoleID_, Idara_, Dept_, Section_, Divison_ };
 
@@ -178,6 +178,7 @@ namespace SmartFoundation.Mvc.Controllers.ControlPanel
             List<OptionItem> DeptOptions = new();
             List<OptionItem> secOptions = new();
             List<OptionItem> divOptions = new();
+            List<OptionItem> RoleOptions = new();
 
 
             FormConfig form = new();
@@ -268,6 +269,15 @@ namespace SmartFoundation.Mvc.Controllers.ControlPanel
                 json = JsonSerializer.Serialize(result!.Value);
 
                 divOptions = JsonSerializer.Deserialize<List<OptionItem>>(json)!;
+
+                // ---------------------- Role ----------------------
+                result = await _CrudController.GetDDLValues(
+                    "roleName_A", "roleID", "9", nameof(Permission), userID, IdaraID, HostName
+                ) as JsonResult;
+
+                json = JsonSerializer.Serialize(result!.Value);
+
+                RoleOptions = JsonSerializer.Deserialize<List<OptionItem>>(json)!;
 
 
 
@@ -394,6 +404,7 @@ namespace SmartFoundation.Mvc.Controllers.ControlPanel
                          ColCss = "6",
                          Placeholder = "اختر الموزع",
                          Icon = "fa fa-user",
+                         Value =distributorID_,
                          IsHidden = !showDistributors,
                          OnChangeJs = @"
                                        var distributorID_ = value.trim();
@@ -412,10 +423,11 @@ namespace SmartFoundation.Mvc.Controllers.ControlPanel
 
                         Name = "Roles",
                          Type = "select",
-                         Options = UsersOptions,
+                         Options = RoleOptions,
                          ColCss = "6",
                          Placeholder = "اختر الدور",
                          Icon = "fa fa-user",
+                         Value=RoleID_,
                           IsHidden = !showRoles,
                     },
                           new FieldConfig
@@ -842,7 +854,8 @@ namespace SmartFoundation.Mvc.Controllers.ControlPanel
 
             //bool hasRows = dt1 is not null && dt1.Rows.Count > 0 && rowsList.Count > 0;
 
-            ViewBag.HideTable = string.IsNullOrWhiteSpace(UserID_);
+            ViewBag.HideTable = false;
+                //string.IsNullOrWhiteSpace(UserID_);
 
             // then create dsModel (snippet shows toolbar parts that use the dynamic lists)
             var dsModel = new SmartTableDsModel
