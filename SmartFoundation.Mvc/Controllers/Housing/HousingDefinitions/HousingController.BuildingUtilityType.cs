@@ -188,7 +188,7 @@ namespace SmartFoundation.Mvc.Controllers.Housing
 
                 new FieldConfig { Name = "p01", Label = "نوع المرفق بالعربي", Type = "text", ColCss = "6",Placeholder = "حقل عربي فقط", Required = true,MaxLength = 50,TextMode = "arabic" },
                 new FieldConfig { Name = "p02", Label = "اسم نوع المرفق بالانجليزي", Type = "text", Required = true,Placeholder = "حقل انجليزي فقط",Icon = "fa-solid fa-user",ColCss = "6",MaxLength = 50,TextMode = "english",},
-                new FieldConfig { Name = "p04", Label = "بداية المرفق", Type = "date", ColCss = "3", Required = true, Icon = "fa fa-calendar" },
+                new FieldConfig { Name = "p04", Label = "بداية المرفق", Type = "date", ColCss = "3", Required = true, Icon = "fa fa-calendar", HelpText = "يجب اختيار التاريخ" },
                 new FieldConfig { Name = "p05", Label = "نهاية المرفق", Type = "date", ColCss = "3", Required = false,Icon = "fa fa-calendar" },
                 new FieldConfig { Name = "p06", Label = "يتطلب ايجار", Type = "select",Options=IsRentOptions, ColCss = "3", Required = true },
                  new FieldConfig { Name = "p03", Label = "ملاحظات", Type = "textarea", ColCss = "6" },
@@ -249,7 +249,7 @@ namespace SmartFoundation.Mvc.Controllers.Housing
 
             var dsModel = new SmartTableDsModel
             {
-                PageTitle = "انواع المباني",
+                PageTitle = "أنواع المرافق",
                 Columns = dynamicColumns,
                 Rows = rowsList,
                 RowIdField = rowIdField,
@@ -258,7 +258,7 @@ namespace SmartFoundation.Mvc.Controllers.Housing
                 QuickSearchFields = dynamicColumns.Select(c => c.Field).Take(4).ToList(),
                 Searchable = true,
                 AllowExport = true,
-                PanelTitle = "عرض ",
+                PanelTitle = "أنواع المرافق ",
                 Toolbar = new TableToolbarConfig
                 {
                     ShowRefresh = false,

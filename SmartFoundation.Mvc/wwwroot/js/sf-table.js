@@ -996,16 +996,26 @@
 
                     case "select":
                         let options = "";
-                        if (!field.required) {
-                            options += `<option value="">${field.placeholder || 'اختر...'}</option>`;
-                        }
+                        //if (!field.required) {
+                        //    options += `<option value="">${field.placeholder || 'اختر...'}</option>`;
+                        //}
+                        //(field.options || []).forEach(opt => {
+                        //    const optValue = opt.value ?? opt.Value ?? "";
+                        //    const optText = opt.text ?? opt.Text ?? "";
+                        //    const optDisabled = (opt.disabled ?? opt.Disabled) ? "disabled" : "";
+                        //    const selected = String(value) === String(optValue) ? "selected" : "";
+
+                        //    options += `<option value="${this.escapeHtml(optValue)}" ${selected} ${optDisabled}>${this.escapeHtml(optText)}</option>`;
+                        //});
+
+                        // إضافة خيار فارغ افتراضي ويكون selected إذا لم توجد قيمة
+                        options += `<option value="" disabled ${!value ? "selected" : ""}>${field.placeholder || 'الرجاء الاختيار'}</option>`;
+
                         (field.options || []).forEach(opt => {
                             const optValue = opt.value ?? opt.Value ?? "";
                             const optText = opt.text ?? opt.Text ?? "";
-                            const optDisabled = (opt.disabled ?? opt.Disabled) ? "disabled" : "";
                             const selected = String(value) === String(optValue) ? "selected" : "";
-
-                            options += `<option value="${this.escapeHtml(optValue)}" ${selected} ${optDisabled}>${this.escapeHtml(optText)}</option>`;
+                            options += `<option value="${this.escapeHtml(optValue)}" ${selected}>${this.escapeHtml(optText)}</option>`;
                         });
 
                         let onChangeHandler = field.onChangeJs || "";
@@ -1674,3 +1684,14 @@ function initModalSelect2(modalEl) {
         dropdownParent: $(modalEl)
     });
 }
+document.addEventListener("DOMContentLoaded", () => {
+
+    document.body.addEventListener("invalid", function (e) {
+        e.target.setCustomValidity("يرجى ملء هذا الحقل");
+    }, true);
+
+    document.body.addEventListener("input", function (e) {
+        e.target.setCustomValidity("");
+    }, true);
+
+});
