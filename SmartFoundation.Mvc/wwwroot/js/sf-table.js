@@ -6,18 +6,18 @@
             endpoint: cfg.endpoint || "/smart/execute",
             spName: cfg.spName || "",
             operation: cfg.operation || "select",
-            
+
             // Pagination
             pageSize: cfg.pageSize || 10,
             pageSizes: cfg.pageSizes || [10, 25, 50, 100],
-            
+
             // Search
             searchable: !!cfg.searchable,
             searchPlaceholder: cfg.searchPlaceholder || "بحث…",
             quickSearchFields: cfg.quickSearchFields || [],
             searchDelay: 300,
             searchTimer: null,
-            
+
             // Display Options
             showHeader: cfg.showHeader !== false,
             showFooter: cfg.showFooter !== false,
@@ -34,7 +34,7 @@
             // Client-side mode support (new)
             clientSideMode: !!cfg.clientSideMode,
             initialRows: Array.isArray(cfg.rows) ? cfg.rows : [],
-            
+
             // Selection
             selectable: !!cfg.selectable,
             rowIdField: cfg.rowIdField || "Id",
@@ -98,7 +98,7 @@
             // Grouping & Storage
             groupBy: cfg.groupBy || null,
             storageKey: cfg.storageKey || null,
-            
+
             // Toolbar
             toolbar: cfg.toolbar || {},
 
@@ -113,11 +113,11 @@
             sort: { field: null, dir: "asc" },
             loading: false,
             error: null,
-            
+
             // Selection State
             selectedKeys: new Set(),
             selectAll: false,
-            
+
             // Modal State
             //modal: {
             //    open: false,
@@ -250,7 +250,7 @@
                         dependentSelect.disabled = true;
 
                         try {
-                           // const url = `${dependsUrl}&${encodeURIComponent(parentName)}=${encodeURIComponent(parentValue)}`;
+                            // const url = `${dependsUrl}&${encodeURIComponent(parentName)}=${encodeURIComponent(parentValue)}`;
                             //const url = `${dependsUrl}&${encodeURIComponent(parentName)}=${encodeURIComponent(parentValue)}`;
                             const url = `${dependsUrl}${dependsUrl.includes('?') ? '&' : '?'}DDLValues=${encodeURIComponent(parentValue)}`;
 
@@ -337,44 +337,44 @@
 
             applyFiltersAndSort() {
                 let filtered = [...this.allRows];
-                
+
                 // Apply search filter
                 if (this.q && this.quickSearchFields.length > 0) {
                     const qLower = this.q.toLowerCase();
-                    filtered = filtered.filter(row => 
-                        this.quickSearchFields.some(field => 
+                    filtered = filtered.filter(row =>
+                        this.quickSearchFields.some(field =>
                             String(row[field] || "").toLowerCase().includes(qLower)
                         )
                     );
                 }
-                
+
                 // Apply sorting
                 if (this.sort.field) {
                     filtered.sort((a, b) => {
                         let valA = a[this.sort.field];
                         let valB = b[this.sort.field];
-                        
+
                         // Handle nulls
                         if (valA == null && valB == null) return 0;
                         if (valA == null) return 1;
                         if (valB == null) return -1;
-                        
+
                         // Handle numbers
                         if (typeof valA === 'number' && typeof valB === 'number') {
                             return this.sort.dir === 'asc' ? valA - valB : valB - valA;
                         }
-                        
+
                         // Handle dates
                         const dateA = new Date(valA);
                         const dateB = new Date(valB);
                         if (!isNaN(dateA) && !isNaN(dateB)) {
                             return this.sort.dir === 'asc' ? dateA - dateB : dateB - dateA;
                         }
-                        
+
                         // Handle strings
                         valA = String(valA).toLowerCase();
                         valB = String(valB).toLowerCase();
-                        
+
                         if (this.sort.dir === 'asc') {
                             return valA < valB ? -1 : valA > valB ? 1 : 0;
                         } else {
@@ -382,16 +382,16 @@
                         }
                     });
                 }
-                
+
                 this.filteredRows = filtered;
                 this.total = filtered.length;
                 this.pages = Math.max(1, Math.ceil(this.total / this.pageSize));
                 this.page = Math.min(this.page, this.pages);
-                
+
                 // Apply pagination
                 const startIdx = (this.page - 1) * this.pageSize;
                 this.rows = filtered.slice(startIdx, startIdx + this.pageSize);
-                
+
                 this.savePreferences();
                 this.updateSelectAllState();
             },
@@ -422,14 +422,14 @@
 
             toggleSort(col) {
                 if (!col.sortable) return;
-                
+
                 if (this.sort.field === col.field) {
                     this.sort.dir = this.sort.dir === "asc" ? "desc" : "asc";
                 } else {
                     this.sort.field = col.field;
                     this.sort.dir = "asc";
                 }
-                
+
                 this.applyFiltersAndSort();
             },
 
@@ -508,17 +508,17 @@
             // ===== Export Functions =====
             exportData(type, scope = 'page') {
                 if (!this.allowExport) return;
-                
+
                 try {
                     const dataToExport = scope === 'filtered' ? this.filteredRows : this.rows;
                     const visibleCols = this.visibleColumns().filter(col => col.showInExport !== false);
-                    
+
                     let content = "\uFEFF"; // UTF-8 BOM
-                    
+
                     // Headers
                     const headers = visibleCols.map(col => `"${col.label || col.field}"`).join(",");
                     content += headers + "\r\n";
-                    
+
                     // Rows
                     dataToExport.forEach(row => {
                         const rowData = visibleCols.map(col => {
@@ -534,12 +534,12 @@
                         }).join(",");
                         content += rowData + "\r\n";
                     });
-                    
+
                     const mimeType = type === "excel" ? "application/vnd.ms-excel" : "text/csv;charset=utf-8";
                     const extension = type === "excel" ? "xls" : "csv";
-                    
+
                     this.downloadFile(content, `export_${new Date().toISOString().slice(0, 10)}.${extension}`, mimeType);
-                    
+
                 } catch (e) {
                     console.error("Export error:", e);
                     this.showToast("فشل في التصدير: " + e.message, 'error');
@@ -549,7 +549,7 @@
             formatCellForExport(row, col) {
                 let value = row[col.field];
                 if (value == null) return "";
-                
+
                 switch (col.type) {
                     case "date":
                         return new Date(value).toLocaleDateString('ar-SA');
@@ -559,10 +559,10 @@
                         return value ? "نعم" : "لا";
                     case "money":
                         try {
-                            return new Intl.NumberFormat('ar-SA', { 
-                                style: 'currency', 
-                                currency: 'SAR' 
-                        }).format(value);
+                            return new Intl.NumberFormat('ar-SA', {
+                                style: 'currency',
+                                currency: 'SAR'
+                            }).format(value);
                         } catch {
                             return value;
                         }
@@ -587,7 +587,7 @@
             // ===== Actions Management =====
             async doAction(action, row) {
                 if (!action) return;
-                
+
                 try {
                     // Check selection requirements
                     if (action.requireSelection) {
@@ -601,18 +601,18 @@
                             return;
                         }
                     }
-                    
+
                     // Confirm if needed
                     if (action.confirmText && !confirm(action.confirmText)) {
                         return;
                     }
-                    
+
                     // Open modal
                     if (action.openModal) {
                         await this.openModal(action, row);
                         return;
                     }
-                    
+
                     // Execute stored procedure
                     if (action.saveSp) {
                         const success = await this.executeSp(action.saveSp, action.saveOp || "execute", row);
@@ -622,7 +622,7 @@
                         }
                         return;
                     }
-                    
+
                 } catch (e) {
                     console.error("Action error:", e);
                     this.showToast("فشل في تنفيذ الإجراء: " + e.message, 'error');
@@ -634,11 +634,11 @@
                     this.showToast("لم يتم اختيار أي عناصر للحذف", 'error');
                     return;
                 }
-                
+
                 if (!confirm(`هل تريد حقاً حذف ${this.selectedKeys.size} عنصر؟`)) {
                     return;
                 }
-                
+
                 try {
                     const body = {
                         Component: "Table",
@@ -646,12 +646,12 @@
                         Operation: "bulk_delete",
                         Params: { ids: Array.from(this.selectedKeys) }
                     };
-                    
+
                     await this.postJson(this.endpoint, body);
                     this.showToast(`تم حذف ${this.selectedKeys.size} عنصر بنجاح`, 'success');
                     this.clearSelection();
                     await this.refresh();
-                    
+
                 } catch (e) {
                     console.error("Bulk delete error:", e);
                     this.showToast("فشل في الحذف: " + e.message, 'error');
@@ -667,17 +667,17 @@
                 this.modal.loading = true;
                 this.modal.error = null;
                 this.modal.html = "";
-                
+
                 try {
                     if (action.formUrl) {
                         const url = this.fillUrl(action.formUrl, row);
                         const resp = await fetch(url);
                         if (!resp.ok) throw new Error(`Failed to load form: ${resp.status}`);
                         this.modal.html = await resp.text();
-                        
+
                     } else if (action.openForm) {
                         this.modal.html = this.generateFormHtml(action.openForm, row);
-                        
+
                     } else if (action.modalSp) {
                         const body = {
                             Component: "Table",
@@ -688,8 +688,8 @@
                         const json = await this.postJson(this.endpoint, body);
                         this.modal.html = this.formatDetailView(json.data, action.modalColumns);
                     }
-                    
-                    
+
+
                     this.$nextTick(() => {
                         this.initModalScripts();
 
@@ -699,7 +699,7 @@
                     });
 
 
-                    
+
                 } catch (e) {
                     console.error("Modal error:", e);
                     this.modal.error = e.message;
@@ -721,14 +721,16 @@
             // ===== Form Generation =====
             generateFormHtml(formConfig, rowData) {
                 if (!formConfig) return "";
-                
+
                 const formId = formConfig.formId || "modalForm";
                 const method = formConfig.method || "POST";
                 const action = formConfig.actionUrl || "#";
-                
+
                 let html = `<form id="${formId}" method="${method}" action="${action}" class="sf-modal-form">`;
-                html += `<div class="grid grid-cols-12 gap-4">`;
                 
+
+                html += `<div class="grid grid-cols-12 gap-4">`;
+
                 // Generate fields
                 (formConfig.fields || []).forEach(field => {
                     if (field.isHidden || field.type === "hidden") {
@@ -780,13 +782,31 @@
                 }
 
 
-                
+
                 html += `</div></form>`;
                 return html;
             },
 
 
-            
+
+
+            //initDatePickers(rootEl) {
+            //    if (typeof flatpickr === "undefined") return;
+
+            //    (rootEl || document)
+            //        .querySelectorAll("input.js-date")
+            //        .forEach(el => {
+            //            if (el._flatpickr) return;
+
+            //            flatpickr(el, {
+            //                locale: flatpickr.l10ns.ar,
+            //                dateFormat: el.dataset.dateFormat || "Y-m-d",
+            //                defaultDate: null,
+            //                allowInput: true,
+            //                disableMobile: true
+            //            });
+            //        });
+            //},
 
             initDatePickers(rootEl) {
                 if (typeof flatpickr === "undefined") return;
@@ -798,7 +818,10 @@
 
                         flatpickr(el, {
                             locale: flatpickr.l10ns.ar,
-                            dateFormat: el.dataset.dateFormat || "Y-m-d",
+                            dateFormat: "Y-m-d",
+                            altInput: false,       // ← هذا يمنع الصيغة الطويلة
+                            defaultDate: null,
+                            allowInput: true,
                             disableMobile: true
                         });
                     });
@@ -952,10 +975,10 @@
                                 : ''}
             </div>`;
                         break;
-                
 
-                
-                        
+
+
+
                     case "textarea":
                         const rows = field.rows || 3;
                         fieldHtml = `
@@ -970,7 +993,7 @@
                             ${field.helpText ? `<p class="mt-1 text-xs text-gray-500">${this.escapeHtml(field.helpText)}</p>` : ''}
                         </div>`;
                         break;
-                        
+
                     case "select":
                         let options = "";
                         if (!field.required) {
@@ -1013,7 +1036,7 @@
     </div>`;
                         break;
 
-                        
+
                     case "checkbox":
                         const checked = value === true || value === "true" || value === "1" || value === 1 ? "checked" : "";
                         fieldHtml = `
@@ -1045,15 +1068,19 @@
                        name="${this.escapeHtml(field.name)}"
                        value="${this.escapeHtml(value)}"
                        class="sf-modal-input js-date ${hasIcon ? "pr-10" : ""}"
+                       data-default-date=""
+                       data-alt-input="true"
                        data-date-format="Y-m-d"
+                       autocomplete="off"
                        ${required} ${disabled} ${readonly}
-                        />
+                       />
+
                        </div>
                        ${field.helpText
                                 ? `<p class="mt-1 text-xs text-gray-500">${this.escapeHtml(field.helpText)}</p>`
                                 : ''}
                        </div>`;
-                           break;
+                        break;
 
 
 
@@ -1075,7 +1102,7 @@
                             ${field.helpText ? `<p class="mt-1 text-xs text-gray-500">${this.escapeHtml(field.helpText)}</p>` : ''}
                         </div>`;
                         break;
-                        
+
                     case "phone":
                     case "tel":
                         fieldHtml = `
@@ -1091,7 +1118,7 @@
                             ${field.helpText ? `<p class="mt-1 text-xs text-gray-500">${this.escapeHtml(field.helpText)}</p>` : ''}
                         </div>`;
                         break;
-                        
+
                     case "iban":
                         fieldHtml = `
                         <div class="form-group ${colCss}">
@@ -1106,7 +1133,7 @@
                             ${field.helpText ? `<p class="mt-1 text-xs text-gray-500">${this.escapeHtml(field.helpText)}</p>` : ''}
                         </div>`;
                         break;
-                        
+
                     default:
                         // Fallback to text input
                         fieldHtml = `
@@ -1123,34 +1150,64 @@
                         </div>`;
                         break;
                 }
-                
+
                 return fieldHtml;
             },
 
             resolveColCss(colCss) {
                 if (!colCss) return "col-span-12 md:col-span-6";
-                
+
                 if (/^\d{1,2}$/.test(colCss)) {
                     const n = Math.max(1, Math.min(12, parseInt(colCss, 10)));
                     return `col-span-12 md:col-span-${n}`;
                 }
-                
+
                 return colCss.includes('col-span') ? colCss : `col-span-12 ${colCss}`;
             },
 
+            //initModalScripts() {
+            //    // Set up form submission
+            //    const form = this.$el.querySelector('.sf-modal form');
+            //    if (form) {
+            //        form.addEventListener('submit', (e) => {
+            //            e.preventDefault();
+            //            this.saveModalChanges();
+            //        });
+
+            //        // Set up dependent dropdowns
+            //        this.setupDependentDropdowns(form);
+            //    }
+            //},
+
             initModalScripts() {
-                // Set up form submission
                 const form = this.$el.querySelector('.sf-modal form');
                 if (form) {
+
+                    // ===== تخصيص رسالة required =====
+                    form.querySelectorAll("[required]").forEach(input => {
+
+                        // منع رسالة المتصفح الافتراضية
+                        input.addEventListener("invalid", function (e) {
+                            e.preventDefault();
+                            this.setCustomValidity("حقل إجباري");
+                        });
+
+                        // عند تعديل المدخلات، أعد التحقق
+                        input.addEventListener("input", function () {
+                            this.setCustomValidity("");
+                        });
+                    });
+                    // ===== نهاية تعديل required =====
+
                     form.addEventListener('submit', (e) => {
                         e.preventDefault();
                         this.saveModalChanges();
                     });
-                    
-                    // Set up dependent dropdowns
+
                     this.setupDependentDropdowns(form);
                 }
             },
+        
 
             setupDependentDropdowns(form) {
                 // Find all selects with data-depends-on attribute

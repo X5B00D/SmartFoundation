@@ -56,6 +56,7 @@ namespace SmartFoundation.UI.ViewModels.SmartTable
         public string? FormatString { get; set; }
         public string? FormatterJs { get; set; }
         public bool ShowInModal { get; set; } = true;
+        
         public bool ShowInExport { get; set; } = true;
         public bool Frozen { get; set; } = false;
         public string? FrozenSide { get; set; } = "left";
