@@ -69,11 +69,24 @@ namespace SmartFoundation.Mvc.Controllers.ControlPanel
             if (string.IsNullOrWhiteSpace(HttpContext.Session.GetString("userID")))
                 return RedirectToAction("Index", "Login", new { logout = 1 });
 
-            string? Q1 = Request.Query["Q1"].FirstOrDefault();
-            string? Q2 = Request.Query["Q2"].FirstOrDefault();
-            Q1 = string.IsNullOrWhiteSpace(Q1) ? null : Q1.Trim();
-            Q2 = string.IsNullOrWhiteSpace(Q2) ? null : Q2.Trim();
+            string? SearchID_ = Request.Query["S"].FirstOrDefault();
+            string? UserID_ = Request.Query["U"].FirstOrDefault();
+            string? distributorID_ = Request.Query["di"].FirstOrDefault();
+            string? RoleID_ = Request.Query["Ro"].FirstOrDefault();
+            string? Idara_ = Request.Query["Ida"].FirstOrDefault() ?? null;
+            string? Dept_ = Request.Query["Dep"].FirstOrDefault() ?? null;
+            string? Section_ = Request.Query["Sec"].FirstOrDefault() ?? null;
+            string? Divison_ = Request.Query["Div"].FirstOrDefault() ?? null;
+            UserID_ = string.IsNullOrWhiteSpace(UserID_) ? null : UserID_.Trim();
+            distributorID_ = string.IsNullOrWhiteSpace(distributorID_) ? null : distributorID_.Trim();
+            Idara_ = string.IsNullOrWhiteSpace(Idara_) ? null : Idara_.Trim();
+            Dept_ = string.IsNullOrWhiteSpace(Dept_) ? null : Dept_.Trim();
+            Section_ = string.IsNullOrWhiteSpace(Section_) ? null : Section_.Trim();
+            Divison_ = string.IsNullOrWhiteSpace(Divison_) ? null : Divison_.Trim();
 
+
+
+            // Sessions 
             userID = Convert.ToInt32(HttpContext.Session.GetString("userID"));
              fullName = HttpContext.Session.GetString("fullName");
              IdaraID = Convert.ToInt32(HttpContext.Session.GetString("IdaraID"));
@@ -85,7 +98,9 @@ namespace SmartFoundation.Mvc.Controllers.ControlPanel
              ControllerName = nameof(ControlPanelController);
              PageName = nameof(Permission);
 
-            var spParameters = new object?[] { "Permission", IdaraID, userID, HostName, Q1 };
+            var spParameters = new object?[] { "Permission", IdaraID, userID, HostName, UserID_};
+
+            //var spParameters = new object?[] { "Permission", IdaraID, userID, HostName, SearchID_, UserID_, distributorID_, RoleID_, Idara_, Dept_, Section_, Divison_ };
 
             DataSet ds;
 
@@ -159,6 +174,10 @@ namespace SmartFoundation.Mvc.Controllers.ControlPanel
             List<OptionItem> permissionsOptions = new();
             List<OptionItem> distributorOptions = new();
             List<OptionItem> UsersOptions = new();
+            List<OptionItem> idarasOptions = new();
+            List<OptionItem> DeptOptions = new();
+            List<OptionItem> secOptions = new();
+            List<OptionItem> divOptions = new();
 
 
             FormConfig form = new();
@@ -183,14 +202,13 @@ namespace SmartFoundation.Mvc.Controllers.ControlPanel
                     new OptionItem { Value = "3", Text = "دور" },
                     new OptionItem { Value = "4", Text = "ادارة" },
                     new OptionItem { Value = "5", Text = "قسم" },
-                    new OptionItem { Value = "6", Text = "فرع" },
-                    new OptionItem { Value = "7", Text = "شعبة" }
+
 
                 };
 
                 // ---------------------- Users ----------------------
                 result = await _CrudController.GetDDLValues(
-                    "FullName", "userID_", "2", nameof(Permission), userID, IdaraID, HostName
+                    "FullName", "userID_", "2", nameof(Permission),userID,IdaraID,HostName
                 ) as JsonResult;
 
                 json = JsonSerializer.Serialize(result!.Value);
@@ -199,27 +217,73 @@ namespace SmartFoundation.Mvc.Controllers.ControlPanel
 
                 // ---------------------- Distributors ----------------------
                 result = await _CrudController.GetDDLValues(
-                    "distributorName_A", "distributorID", "3", nameof(Permission), userID, IdaraID, HostName
+                    "distributorName_A", "distributorID", "3", nameof(Permission), userID, IdaraID, HostName, null,null
                 ) as JsonResult;
 
                 json = JsonSerializer.Serialize(result!.Value);
 
                 distributorOptions = JsonSerializer.Deserialize<List<OptionItem>>(json)!;
 
-                // ---------------------- Distributors ----------------------
+                // ---------------------- permissions ----------------------
                 result = await _CrudController.GetDDLValues(
-                    "permissionTypeName_A", "distributorPermissionTypeID", "4", nameof(Permission), userID, IdaraID, HostName
+                    "permissionTypeName_A", "distributorPermissionTypeID", "4", nameof(Permission), userID, IdaraID, HostName, null, null
                 ) as JsonResult;
 
                 json = JsonSerializer.Serialize(result!.Value);
 
                 permissionsOptions = JsonSerializer.Deserialize<List<OptionItem>>(json)!;
 
+                // ---------------------- idara ----------------------
+                result = await _CrudController.GetDDLValues(
+                    "idaraLongName_A", "idaraID", "5", nameof(Permission), userID, IdaraID, HostName, "idaraID", IdaraID.ToString()
+                ) as JsonResult;
+
+                json = JsonSerializer.Serialize(result!.Value);
+
+                idarasOptions = JsonSerializer.Deserialize<List<OptionItem>>(json)!;
+
+                // ---------------------- Depts ----------------------
+                result = await _CrudController.GetDDLValues(
+                    "deptName_A", "deptID", "6", nameof(Permission), userID, IdaraID, HostName, "idaraID_FK", IdaraID.ToString()
+                ) as JsonResult;
+
+                json = JsonSerializer.Serialize(result!.Value);
+
+                DeptOptions = JsonSerializer.Deserialize<List<OptionItem>>(json)!;
+
+                // ---------------------- Sections ----------------------
+                result = await _CrudController.GetDDLValues(
+                    "secName_A", "secID", "7", nameof(Permission), userID, IdaraID, HostName, "deptID", Dept_
+                ) as JsonResult;
+
+                json = JsonSerializer.Serialize(result!.Value);
+
+                secOptions = JsonSerializer.Deserialize<List<OptionItem>>(json)!;
+
+                // ---------------------- Divisons ----------------------
+                result = await _CrudController.GetDDLValues(
+                    "divName_A", "divID", "8", nameof(Permission), userID, IdaraID, HostName, "secID", Section_
+                ) as JsonResult;
+
+                json = JsonSerializer.Serialize(result!.Value);
+
+                divOptions = JsonSerializer.Deserialize<List<OptionItem>>(json)!;
+
+
+
+
                 // ----------------------END DDLValues ----------------------
 
 
 
 
+
+                // Determine which fields should be visible based on SearchID_
+                bool showUsers = SearchID_ == "1";
+                bool showDistributors = SearchID_ == "2";
+                bool showRoles = SearchID_ == "3";
+                bool showIdara = SearchID_ == "4";
+                bool showDeptFields = SearchID_ == "5";
 
                 form = new FormConfig
                 {
@@ -244,9 +308,10 @@ namespace SmartFoundation.Mvc.Controllers.ControlPanel
                          Type = "select",
                          Options = permissinTypeOptions,
                          ColCss = "3",
+                         Value = SearchID_,
                          Placeholder = "اختر نوع البحث",
                          Icon = "fa fa-user",
-                         OnChangeJs = @"
+                       OnChangeJs = @"
     // Remove 'active' class from all search fields
     document.querySelectorAll('.search-field-container').forEach(function(el) {
         el.classList.remove('active');
@@ -261,27 +326,37 @@ namespace SmartFoundation.Mvc.Controllers.ControlPanel
         }
     });
     
-    // Map selection to field name
+    // Map selection to field name(s) - value can be string or array
     var fieldMap = {
         '1': 'Users',
         '2': 'Distributors', 
         '3': 'Roles',
         '4': 'Idara',
-        '5': 'Dept',
-        '6': 'Section',
-        '7': 'Divison'
+        '5': ['Dept', 'Section', 'Divison']  // Show multiple fields for option 5
     };
     
-    var fieldToShow = fieldMap[value];
-    if (fieldToShow) {
-        var targetField = document.querySelector('input[name=""' + fieldToShow + '""]');
-        if (targetField) {
-            var container = targetField.closest('.form-group');
-            if (container) {
-                container.style.display = 'block';
-                container.classList.add('active');
+    var fieldsToShow = fieldMap[value];
+    
+    // Handle both single field (string) and multiple fields (array)
+    if (fieldsToShow) {
+        var fieldArray = Array.isArray(fieldsToShow) ? fieldsToShow : [fieldsToShow];
+        
+        fieldArray.forEach(function(fieldName) {
+            var targetField = document.querySelector('input[name=""' + fieldName + '""], select[name=""' + fieldName + '""]');
+            if (targetField) {
+                var container = targetField.closest('.form-group');
+                if (container) {
+                    container.style.display = 'block';
+                    container.classList.add('active');
+                }
             }
-        }
+        });
+    }
+    
+    // Navigate with the selected search type
+    if (value && value !== '-1') {
+        var url = '/ControlPanel/Permission?S=' + encodeURIComponent(value);
+        window.location.href = url;
     }
 "
                      },
@@ -294,19 +369,19 @@ namespace SmartFoundation.Mvc.Controllers.ControlPanel
                          ColCss = "6",
                          Placeholder = "اختر المستخدم",
                          Icon = "fa fa-user",
-                         Value = Q1,
-                         ExtraCss = "search-field hidden-field", // Add this class
+                         Value = UserID_,
+                         IsHidden = !showUsers,
                          OnChangeJs = @"
-        var userId = value.trim();
-        if (!userId) {
-            if (typeof toastr !== 'undefined') {
-                toastr.info('اختر مستخدم أولاً');
-            }
-            return;
-        }
-        var url = '/ControlPanel/Permission?Q1=' + encodeURIComponent(userId);
-        window.location.href = url;
-    "
+                                       var UserID_ = value.trim();
+                                       if (!UserID_) {
+                                           if (typeof toastr !== 'undefined') {
+                                               toastr.info('الرجاء الاختيار اولا');
+                                           }
+                                           return;
+                                       }
+                                       var url = '/ControlPanel/Permission?S=1&U=' + encodeURIComponent(UserID_);
+                                       window.location.href = url;
+                                   "
                      },
                    
 
@@ -319,7 +394,18 @@ namespace SmartFoundation.Mvc.Controllers.ControlPanel
                          ColCss = "6",
                          Placeholder = "اختر الموزع",
                          Icon = "fa fa-user",
-                         ExtraCss = "search-field hidden-field", // Add this
+                         IsHidden = !showDistributors,
+                         OnChangeJs = @"
+                                       var distributorID_ = value.trim();
+                                       if (!distributorID_) {
+                                           if (typeof toastr !== 'undefined') {
+                                               toastr.info('الرجاء الاختيار اولا');
+                                           }
+                                           return;
+                                       }
+                                       var url = '/ControlPanel/Permission?S=2&di=' + encodeURIComponent(distributorID_);
+                                       window.location.href = url;
+                                   "
                     },
                           new FieldConfig
                     {
@@ -330,55 +416,126 @@ namespace SmartFoundation.Mvc.Controllers.ControlPanel
                          ColCss = "6",
                          Placeholder = "اختر الدور",
                          Icon = "fa fa-user",
-                         ExtraCss = "search-field hidden-field" // Add this
+                          IsHidden = !showRoles,
                     },
                           new FieldConfig
                     {
 
                         Name = "Idara",
                          Type = "select",
-                         Options = UsersOptions,
+                         Options = idarasOptions,
                          ColCss = "6",
                          Placeholder = "اختر الادارة",
                          Icon = "fa fa-user",
-                         Value = Q1,
-                         ExtraCss = "hidden-field", // Add this
+                         Value = Idara_,
+                          IsHidden = !showIdara,
+                         OnChangeJs = @"
+                                       var Idara_ = value.trim();
+                                       if (!Idara_) {
+                                           if (typeof toastr !== 'undefined') {
+                                               toastr.info('الرجاء الاختيار اولا');
+                                           }
+                                           return;
+                                       }
+                                       var url = '/ControlPanel/Permission?S=4&Ida=' + encodeURIComponent(Idara_);
+                                       window.location.href = url;
+                                   "
                     },
                           new FieldConfig
                     {
 
                         Name = "Dept",
                          Type = "select",
-                         Options = UsersOptions,
-                         ColCss = "6",
+                         Options = DeptOptions,
+                         ColCss = "3",
                          Placeholder = "اختر القسم",
                          Icon = "fa fa-user",
-                         Value = Q1,
-                         ExtraCss = "hidden-field", // Add this
+                         Value = Dept_,
+                          IsHidden = !showDeptFields,
+
+                          OnChangeJs = @"
+                                       var Dept_ = value.trim();
+                                       if (!Dept_) {
+                                           if (typeof toastr !== 'undefined') {
+                                               toastr.info('الرجاء الاختيار اولا');
+                                           }
+                                           return;
+                                       }
+                                       var url = '/ControlPanel/Permission?S=5&Dep=' + encodeURIComponent(Dept_);
+                                       window.location.href = url;
+                                   "
                     },
                           new FieldConfig
                     {
 
                         Name = "Section",
                          Type = "select",
-                         Options = UsersOptions,
-                         ColCss = "6",
+                         Options = secOptions,
+                         ColCss = "3",
                          Placeholder = "اختر الفرع",
                          Icon = "fa fa-user",
-                         Value = Q1,
-                         ExtraCss = "hidden-field", // Add this
+                         Value = Section_,
+                          IsHidden = !showDeptFields,
+                         OnChangeJs = @"
+                                       var Section_ = value.trim();
+                                       if (!Section_) {
+                                           if (typeof toastr !== 'undefined') {
+                                               toastr.info('الرجاء الاختيار اولا');
+                                           }
+                                           return;
+                                       }
+                                       // Get Dept_ from URL
+                                       var urlParams = new URLSearchParams(window.location.search);
+                                       var Dept_ = urlParams.get('Dep') || '';
+                                       if (!Dept_ || Dept_ === '-1') {
+                                           if (typeof toastr !== 'undefined') {
+                                               toastr.info('الرجاء الاختيار اولا');
+                                           }
+                                           return;
+                                       }
+                                       var url = '/ControlPanel/Permission?S=5&Dep=' + encodeURIComponent(Dept_) + '&Sec=' + encodeURIComponent(Section_);
+                                       window.location.href = url;
+                                   "
                     },
                           new FieldConfig
                     {
 
                         Name = "Divison",
                          Type = "select",
-                         Options = UsersOptions,
-                         ColCss = "6",
+                         Options = divOptions,
+                         ColCss = "3",
                          Placeholder = "اختر الشعبة",
                          Icon = "fa fa-user",
-                         Value = Q1,
-                         ExtraCss = "hidden-field", // Add this
+                         Value = Divison_,
+                         IsHidden = !showDeptFields,
+                          OnChangeJs = @"
+                                       var Divison_ = value.trim();
+                                       if (!Divison_) {
+                                           if (typeof toastr !== 'undefined') {
+                                               toastr.info('الرجاء الاختيار اولا');
+                                           }
+                                           return;
+                                       }
+                                       // Get Dept_ from URL
+                                       var urlParams = new URLSearchParams(window.location.search);
+                                       var Dept_ = urlParams.get('Dep') || '';
+                                       if (!Dept_ || Dept_ === '-1') {
+                                           if (typeof toastr !== 'undefined') {
+                                               toastr.info('الرجاء اختيار القسم أولاً');
+                                           }
+                                           return;
+                                       }
+
+                                        var Section_ = urlParams.get('Sec') || '';
+                                        if (!Section_ || Section_ === '-1') {
+                                            if (typeof toastr !== 'undefined') {
+                                                toastr.info('الرجاء اختيار الفرع أولاً');
+                                            }
+                                            return;
+                                        }
+                                       var url = '/ControlPanel/Permission?S=5&Dep=' + encodeURIComponent(Dept_) + '&Sec=' + encodeURIComponent(Section_) + '&Div=' + encodeURIComponent(Divison_);
+                                       window.location.href = url;
+                                   "
                     },
 
                  
@@ -571,7 +728,7 @@ namespace SmartFoundation.Mvc.Controllers.ControlPanel
                 new FieldConfig { Name = "p04", Label = "تاريخ نهاية الصلاحية", Type = "date", ColCss = "3", Required = false, Icon = "fa fa-calendar" },
                 new FieldConfig { Name = "p05", Label = "ملاحظات", Type = "textarea", ColCss = "6", Required = false },
 
-                  new FieldConfig { Name = "p06",Value=Q1, Type = "hidden" },
+                  new FieldConfig { Name = "p06",Value=UserID_, Type = "hidden" },
             };
 
 
@@ -589,7 +746,7 @@ namespace SmartFoundation.Mvc.Controllers.ControlPanel
             // Optional: help the generic endpoint know where to go back
             addFields.Insert(0, new FieldConfig { Name = "redirectAction", Type = "hidden", Value = PageName });
             addFields.Insert(0, new FieldConfig { Name = "redirectController", Type = "hidden", Value = ControllerName });
-            addFields.Insert(0, new FieldConfig { Name = "Q1", Type = "hidden", Value = Q1 });
+            addFields.Insert(0, new FieldConfig { Name = "UserID_", Type = "hidden", Value = UserID_ });
 
 
 
@@ -614,7 +771,7 @@ namespace SmartFoundation.Mvc.Controllers.ControlPanel
                 new FieldConfig { Name = "p03", Label = "تاريخ نهاية الصلاحية", Type = "date", ColCss = "3", Required = false,Icon = "fa fa-calendar" },
                 new FieldConfig { Name = "p04", Label = "ملاحظات", Type = "textarea", ColCss = "6", Required = false },
 
-                  new FieldConfig { Name = "p05",Value=Q1, Type = "hidden" },
+                  new FieldConfig { Name = "p05",Value=UserID_, Type = "hidden" },
             };
 
 
@@ -632,7 +789,7 @@ namespace SmartFoundation.Mvc.Controllers.ControlPanel
             // Optional: help the generic endpoint know where to go back
             addFields1.Insert(0, new FieldConfig { Name = "redirectAction", Type = "hidden", Value = PageName });
             addFields1.Insert(0, new FieldConfig { Name = "redirectController", Type = "hidden", Value = ControllerName });
-            addFields1.Insert(0, new FieldConfig { Name = "Q1", Type = "hidden", Value = Q1 });
+            addFields1.Insert(0, new FieldConfig { Name = "UserID_", Type = "hidden", Value = UserID_ });
 
 
 
@@ -670,7 +827,7 @@ namespace SmartFoundation.Mvc.Controllers.ControlPanel
 
                                 new FieldConfig { Name = "redirectAction",     Type = "hidden", Value = PageName },
                 new FieldConfig { Name = "redirectController", Type = "hidden", Value = ControllerName },
-                new FieldConfig { Name = "Q1", Type = "hidden", Value = Q1 },
+                new FieldConfig { Name = "UserID_", Type = "hidden", Value = UserID_ },
 
 
                 new FieldConfig { Name = "__RequestVerificationToken", Type = "hidden", Value = (Request.Headers["RequestVerificationToken"].FirstOrDefault() ?? "") },
@@ -685,7 +842,7 @@ namespace SmartFoundation.Mvc.Controllers.ControlPanel
 
             //bool hasRows = dt1 is not null && dt1.Rows.Count > 0 && rowsList.Count > 0;
 
-            ViewBag.HideTable = string.IsNullOrWhiteSpace(Q1);
+            ViewBag.HideTable = string.IsNullOrWhiteSpace(UserID_);
 
             // then create dsModel (snippet shows toolbar parts that use the dynamic lists)
             var dsModel = new SmartTableDsModel

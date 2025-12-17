@@ -349,8 +349,21 @@ namespace SmartFoundation.Mvc.Controllers
 
 
         [HttpGet("GetDDLValues")]
-        public async Task<IActionResult> GetDDLValues(string? textcol, string? ValueCol, string? TableIndex, string? PageName, int userID, int IdaraID, string? HostName)
+        public async Task<IActionResult> GetDDLValues(
+            string? textcol, 
+            string? ValueCol, 
+            string? TableIndex, 
+            string? PageName,
+            int userID,
+            int IdaraID,
+            string? HostName,
+            string? FilterColumn = null,
+            string? FilterValue = null,
+             string? FirstOption = null)
         {
+
+
+
             int TableIndexInt = 0;
             if (!string.IsNullOrWhiteSpace(TableIndex))
                 int.TryParse(TableIndex, out TableIndexInt);
@@ -361,9 +374,26 @@ namespace SmartFoundation.Mvc.Controllers
             var items = new List<object>();
             if (table is not null && table.Rows.Count > 0)
             {
-                items.Add(new { Value = "-1", Text = "الرجاء الاختيار" });
+                if (!string.IsNullOrEmpty(FirstOption))
+                {
+                    items.Add(new { Value = "-1", Text = FirstOption });
+                }
+
+                // Check if filtering is needed
+                bool shouldFilter = !string.IsNullOrWhiteSpace(FilterColumn) 
+                                 && !string.IsNullOrWhiteSpace(FilterValue) 
+                                 && table.Columns.Contains(FilterColumn);
+
                 foreach (DataRow row in table.Rows)
                 {
+                    // Apply filter if specified
+                    if (shouldFilter)
+                    {
+                        var filterColumnValue = row[FilterColumn]?.ToString()?.Trim() ?? "";
+                        if (filterColumnValue != FilterValue?.Trim())
+                            continue; // Skip this row if it doesn't match the filter
+                    }
+
                     var value = row[ValueCol]?.ToString()?.Trim() ?? "";
                     var text = row[textcol]?.ToString()?.Trim() ?? "";
 
