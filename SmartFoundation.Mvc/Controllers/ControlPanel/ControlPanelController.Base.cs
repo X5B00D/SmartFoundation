@@ -1,21 +1,39 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
 using SmartFoundation.Application.Services;
+using SmartFoundation.DataEngine.Core.Models;
 using SmartFoundation.Mvc.Models;
 using SmartFoundation.UI.ViewModels.SmartForm;
 using SmartFoundation.UI.ViewModels.SmartPage;
 using SmartFoundation.UI.ViewModels.SmartTable;
 using System.Data;
 using System.Linq;
-using System.Text.Json;
-using System.Text.RegularExpressions;
 using System.Net;
 using System.Net.Sockets;
+using System.Text.Json;
+using System.Text.RegularExpressions;
+using static System.Net.Mime.MediaTypeNames;
 
-namespace SmartFoundation.Mvc.Controllers.Housing
+
+
+namespace SmartFoundation.Mvc.Controllers.ControlPanel
 {
-    public partial class HousingController : Controller
+    public partial class ControlPanelController : Controller
     {
+
+       // private readonly MastersDataLoadService _mastersDataLoadService;
         private readonly MastersServies _mastersServies;
+        private readonly CrudController _CrudController;
+
+
+
+        public ControlPanelController(MastersServies mastersServies, CrudController crudController)
+        {
+           // _mastersDataLoadService = mastersDataLoadService;
+            _mastersServies = mastersServies;
+            _CrudController = crudController;
+
+        }
 
         protected string? ControllerName;
         protected string? PageName;
@@ -53,20 +71,8 @@ namespace SmartFoundation.Mvc.Controllers.Housing
         protected DataTable? dt8;
         protected DataTable? dt9;
 
-        public HousingController(MastersServies mastersServies)
-        {
-            _mastersServies = mastersServies;
-        }
 
-        public IActionResult Index()
-        {
-            return View();
-        }
 
-        /// <summary>
-        /// يقرأ بيانات السيشن ويعبّي المتغيّرات المشتركة
-        /// يرجع false لو ما فيه user ويضبط redirect
-        /// </summary>
         protected bool InitPageContext(out IActionResult? redirectResult)
         {
             redirectResult = null;
@@ -77,11 +83,11 @@ namespace SmartFoundation.Mvc.Controllers.Housing
                 return false;
             }
 
-            usersId = HttpContext.Session.GetString("usersID");
+            usersId = HttpContext.Session.GetString("usersID") ?? "0";
             FullName = HttpContext.Session.GetString("fullName");
             OrganizationId = HttpContext.Session.GetString("OrganizationID");
             OrganizationName = HttpContext.Session.GetString("OrganizationName");
-            IdaraId = HttpContext.Session.GetString("IdaraID");
+            IdaraId = HttpContext.Session.GetString("IdaraID") ?? "0";
             IdaraName = HttpContext.Session.GetString("IdaraName");
             DepartmentId = HttpContext.Session.GetString("DepartmentID");
             DepartmentName = HttpContext.Session.GetString("DepartmentName");
@@ -101,9 +107,6 @@ namespace SmartFoundation.Mvc.Controllers.Housing
             return true;
         }
 
-        /// <summary>
-        /// تقسيم الـ DataSet إلى جداول dt1..dt9 + جدول الصلاحيات
-        /// </summary>
         protected void SplitDataSet(DataSet ds)
         {
             permissionTable = (ds?.Tables?.Count ?? 0) > 0 ? ds.Tables[0] : null;
@@ -117,5 +120,56 @@ namespace SmartFoundation.Mvc.Controllers.Housing
             dt8 = (ds?.Tables?.Count ?? 0) > 8 ? ds.Tables[8] : null;
             dt9 = (ds?.Tables?.Count ?? 0) > 9 ? ds.Tables[9] : null;
         }
+
+        public IActionResult Index()
+
+        {
+            return View();
+        }
+
+    
+
+        // Add an endpoint that returns permissions options filtered by distributorID_FK
+        //[HttpGet]
+        //public async Task<IActionResult> PermissionsByDistributor1(string p01) // Changed from int distributorId
+        //{
+
+
+        //    if (string.IsNullOrWhiteSpace(HttpContext.Session.GetString("userID")))
+        //        return Unauthorized();
+
+        //    if (!int.TryParse(p01, out int distributorId) || distributorId == -1)
+        //        return Json(new List<object> { new { value = "-1", text = "الرجاء الاختيار" } });
+
+        //    int userID = Convert.ToInt32(HttpContext.Session.GetString("userID"));
+        //    int IdaraID = Convert.ToInt32(HttpContext.Session.GetString("IdaraID"));
+        //    string HostName = HttpContext.Session.GetString("HostName");
+
+        //    var ds = await _mastersServies.GetDataLoadDataSetAsync("Permission", IdaraID, userID, HostName);
+        //    var table = (ds?.Tables?.Count ?? 0) > 4 ? ds.Tables[4] : null;
+
+        //    var items = new List<object>();
+        //    if (table is not null && table.Rows.Count > 0 && table.Columns.Contains("distributorID_FK"))
+        //    {
+        //        foreach (DataRow row in table.Rows)
+        //        {
+        //            var fk = row["distributorID_FK"]?.ToString()?.Trim();
+        //            if (fk == distributorId.ToString())
+        //            {
+        //                var value = row["distributorPermissionTypeID"]?.ToString()?.Trim() ?? "";
+        //                var text = row["permissionTypeName_A"]?.ToString()?.Trim() ?? "";
+        //                if (!string.IsNullOrEmpty(value))
+        //                    items.Add(new { value, text });
+        //            }
+        //        }
+        //    }
+
+        //    if (!items.Any())
+        //        items.Add(new { value = "-1", text = "لا توجد صلاحيات لهذا الموزع" });
+
+        //    return Json(items);
+        //}
+
+
     }
 }

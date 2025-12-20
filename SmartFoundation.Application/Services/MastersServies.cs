@@ -4,8 +4,10 @@ using SmartFoundation.Application.Services.Models;
 using SmartFoundation.DataEngine.Core.Interfaces;
 using SmartFoundation.DataEngine.Core.Models;
 using SmartFoundation.DataEngine.Core.Services;
+using System;
 using System.Data;
 using System.Text.Json;
+using static System.Collections.Specialized.BitVector32;
 
 namespace SmartFoundation.Application.Services
 {
@@ -18,11 +20,6 @@ namespace SmartFoundation.Application.Services
         {
         }
 
-        /// <summary>
-        /// Gets the user menu (flat list) using ProcedureMapper: menu:list.
-        /// </summary>
-        public async Task<string> GetUserMenu(Dictionary<string, object?> parameters)
-            => await ExecuteOperation("menu", "list", parameters);
 
         /// <summary>
         /// Gets the user menu tree using ProcedureMapper: menu:tree -> dbo.GetUserMenuTree.
@@ -374,35 +371,19 @@ namespace SmartFoundation.Application.Services
         /// <returns></returns>
 
 
-        public async Task<DataSet> GetLoginDataSetAsync(params object?[] args)
+        public async Task<DataSet> GetLoginsDataSetAsync(params object?[] args)
         {
-            string userId = args.Length > 0 ? args[0]?.ToString() ?? "" : "";
+            string NationalID = args.Length > 0 ? args[0]?.ToString() ?? "" : "";
             string? password = args.Length > 1 ? args[1]?.ToString() : null;
             string? hostName = args.Length > 2 ? args[2]?.ToString() : null;
 
-            var extraParams = args.Skip(3).ToArray();
-
-            void AddIfHasValue(IDictionary<string, object?> d, string key, object? val)
+            var dict = new Dictionary<string, object?>(StringComparer.OrdinalIgnoreCase)
             {
-                if (val == null || val == DBNull.Value) return;
-                d[key] = val;
-            }
-
-            var dict = new Dictionary<string, object?>(StringComparer.OrdinalIgnoreCase);
-
-            // Required/primary inputs
-            dict["UserID"] = userId;
-            AddIfHasValue(dict, "Password", password);
-            AddIfHasValue(dict, "hostname", hostName);
-
-            // parameter_01 .. parameter_10 (optional extras)
-            int take = Math.Min(extraParams.Length, 10);
-            for (int i = 1; i <= take; i++)
-            {
-                var val = extraParams[i - 1];
-                if (val == DBNull.Value) val = null;
-                AddIfHasValue(dict, $"parameter_{i:00}", val);
-            }
+                // ✅ Remove @ prefix - let DataEngine handle it
+                ["NationalID"] = NationalID,
+                ["Password"] = password,
+                ["hostName"] = hostName  // lowercase 'h' to match SP exactly
+            };
 
             return await GetLoginDataSetAsync(dict);
         }
@@ -410,17 +391,17 @@ namespace SmartFoundation.Application.Services
         /// <summary>
         /// Convenience overload to keep existing controller calls working.
         /// </summary>
-        public async Task<DataSet> GetLoginDataSetAsync(string userId, string? password, string? hostname, CancellationToken ct = default)
-        {
-            var parameters = new Dictionary<string, object?>(StringComparer.OrdinalIgnoreCase)
-            {
-                ["UserID"] = userId,
-                ["Password"] = password,
-                ["hostname"] = hostname
-            };
+        //public async Task<DataSet> GetLoginDataSetAsync(string NationalID, string? password, string? hostName, CancellationToken ct = default)
+        //{
+        //    var parameters = new Dictionary<string, object?>(StringComparer.OrdinalIgnoreCase)
+        //    {
+        //        ["NationalID"] = NationalID,
+        //        ["Password"] = password,
+        //        ["hostname"] = hostName
+        //    };
 
-            return await GetLoginDataSetAsync(parameters, ct);
-        }
+        //    return await GetLoginDataSetAsync(parameters, ct);
+        //}
 
         /// <summary>
         /// Executes the auth stored procedure using the same pattern as MastersDataLoadService:
@@ -431,9 +412,20 @@ namespace SmartFoundation.Application.Services
         /// </summary>
         public async Task<DataSet> GetLoginDataSetAsync(Dictionary<string, object?> parameters, CancellationToken ct = default)
         {
+            _logger.LogInformation("=== GetLoginDataSetAsync DEBUG START ===");
             _logger.LogInformation("GetLoginDataSetAsync called with parameters: {Params}", JsonSerializer.Serialize(parameters));
+            _logger.LogInformation("Parameter count: {Count}", parameters.Count);
+            
+            foreach (var param in parameters)
+            {
+                _logger.LogInformation("  Parameter: [{Key}] = [{Value}] (Type: {Type})", 
+                    param.Key, 
+                    param.Value ?? "NULL", 
+                    param.Value?.GetType().Name ?? "null");
+            }
 
             var spName = ProcedureMapper.GetProcedureName("auth", "sessions_");
+            _logger.LogInformation("Resolved SP name: {SpName}", spName);
 
             var request = new SmartRequest
             {
@@ -442,24 +434,34 @@ namespace SmartFoundation.Application.Services
                 Params = parameters ?? new Dictionary<string, object?>()
             };
 
+            _logger.LogInformation("SmartRequest created - Operation: {Op}, SpName: {Sp}, ParamCount: {Count}", 
+                request.Operation, request.SpName, request.Params?.Count ?? 0);
+
             SmartResponse response;
             try
             {
+                _logger.LogInformation("Calling _dataEngine.ExecuteAsync...");
                 response = await _dataEngine.ExecuteAsync(request, ct);
+                _logger.LogInformation("_dataEngine.ExecuteAsync completed - Success: {Success}", response.Success);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error executing stored procedure {SpName}", spName);
+                _logger.LogError(ex, "Error executing stored procedure {SpName} with params: {Params}", 
+                    spName, JsonSerializer.Serialize(parameters));
+                _logger.LogInformation("=== GetLoginDataSetAsync DEBUG END (ERROR) ===");
                 throw new InvalidOperationException($"Failed to execute stored procedure '{spName}': {ex.Message}", ex);
             }
 
+            // ✅ CHANGE: Don't throw if Success = false, just log and continue
+            // The SP might have returned valid data with a message
             if (!response.Success)
             {
                 var msg = response.Message ?? response.Error ?? "Stored procedure execution failed";
-                _logger.LogWarning("Stored procedure {SpName} returned failure: {Message}", spName, msg);
-                throw new InvalidOperationException(msg);
+                _logger.LogWarning("Stored procedure {SpName} returned Success=false with message: {Message}", spName, msg);
+                // Don't throw - just log and continue processing the DataSet
             }
 
+            _logger.LogInformation("=== GetLoginDataSetAsync DEBUG END (SUCCESS) ===");
             return ConvertResponseToDataSet(response);
         }
 
@@ -471,34 +473,48 @@ namespace SmartFoundation.Application.Services
             if (ds == null)
             {
                 _logger.LogWarning("ExtractAuth called with null DataSet.");
-                return new AuthInfo(0, "لم يتم العثور  null على بيانات.", null, null, null, null, null, null, null, null);
+                return new AuthInfo(0, "لم يتم العثور على بيانات.", null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null);
             }
 
             if (ds.Tables.Count == 0)
             {
                 _logger.LogWarning("ExtractAuth received DataSet with no tables.");
-                return new AuthInfo(0, "لم يتم  zero العثور على بيانات.", null, null, null, null, null, null, null, null);
+                return new AuthInfo(0, "لم يتم العثور على بيانات.", null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null);
             }
 
             var t = ds.Tables[0];
             if (t.Rows.Count == 0)
             {
                 _logger.LogInformation("ExtractAuth: first table has zero rows (likely invalid credentials).");
-                return new AuthInfo(0, "لايوجد حساب نشط لهذا المستخدم", null, null, null, null, null, null, null, null);
+                return new AuthInfo(0, "لايوجد حساب نشط لهذا المستخدم", null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null);
             }
 
             var r = t.Rows[0];
 
-            int useractive = ReadInt(r, new[] { "useractive", "IsSuccessful", "Success", "Result", "Code", "userActive" }, 0);
-            string? message = ReadString(r, new[] { "Message_", "Message", "SuccessMessage" });
-
-            string? userId = ReadString(r, new[] { "userID", "UserID" });
-            string? IdaraID = ReadString(r, new[] { "IdaraID", "daraID" });
+            int usersActive = ReadInt(r, new[] { "usersActive", "IsSuccessful", "Success", "Result", "Code", "userActive" }, 0);
+            string? Message_ = ReadString(r, new[] { "Message_", "Message", "SuccessMessage" });
+            
+            string? usersId = ReadString(r, new[] { "usersID", "UsersID", "userId", "UserID" });
+            string? nationalID = ReadString(r, new[] { "nationalID", "NationalID", "IDNumber", "IdNumber" });
             string? fullName = ReadString(r, new[] { "fullName", "FullName", "name", "Name" });
-            string? departmentName = ReadString(r, new[] { "DepartmentName" });
-            int? deptCode = ReadNullableInt(r, new[] { "DeptCode", "DepartmentID" });
-            string? IDNumber = ReadString(r, new[] { "IDNumber", "IdNumber" });
-            string? themeName = ReadString(r, new[] { "ThameNAme", "ThemeName", "Theme" });
+            
+            string? organizationID = ReadString(r, new[] { "OrganizationID", "organizationID" });
+            string? organizationName = ReadString(r, new[] { "OrganizationName", "organizationName" });
+            
+            string? idaraID = ReadString(r, new[] { "IdaraID", "idaraID" });
+            string? idaraName = ReadString(r, new[] { "IdaraName", "idaraName" });
+            
+            string? departmentID = ReadString(r, new[] { "DepartmentID", "departmentID" });
+            string? departmentName = ReadString(r, new[] { "DepartmentName", "departmentName" });
+            
+            string? sectionID = ReadString(r, new[] { "SectionID", "sectionID" });
+            string? sectionName = ReadString(r, new[] { "SectionName", "sectionName" });
+            
+            string? divisonID = ReadString(r, new[] { "DivisonID", "divisonID", "DivisionID" });
+            string? divisonName = ReadString(r, new[] { "DivisonName", "divisonName", "DivisionName" });
+
+            string? deptCode = ReadString(r, new[] { "DeptCode", "DepartmentCode" });
+            string? ThameName = ReadString(r, new[] { "ThameName", "ThemeName", "Theme" });
 
             string? photoBase64 = null;
             var photoObj = ReadObject(r, new[] { "Photo", "PhotoBase64" });
@@ -507,7 +523,26 @@ namespace SmartFoundation.Application.Services
             else if (photoObj is string s && !string.IsNullOrWhiteSpace(s))
                 photoBase64 = s;
 
-            return new AuthInfo(useractive, message, userId, IdaraID, fullName, departmentName, deptCode, IDNumber, photoBase64, themeName);
+            return new AuthInfo(
+         usersActive,          // 1
+         Message_,             // 2
+         usersId,             // 3
+         fullName,            // 4
+         organizationID,      // 5
+         organizationName,    // 6
+         idaraID,             // 7
+         idaraName,           // 8
+         departmentID,        // 9
+         departmentName,      // 10
+         sectionID,           // 11
+         sectionName,         // 12
+         divisonID,           // 13
+         divisonName,         // 14
+         photoBase64,         // 15 (Photo)
+         ThameName,           // 16
+         deptCode,            // 17
+         nationalID           // 18
+     );
         }
 
         private static DataSet ConvertResponseToDataSet(SmartResponse response)

@@ -19,7 +19,7 @@
     <script src="~/js/toastr.min.js"></script>
 
     // <script>
-    //     document.getElementById("txtUserID").addEventListener("input", function () {
+        //     document.getElementById("txtNationalID").addEventListener("input", function () {
     //         this.value = this.value.replace(/[^0-9]/g, ""); // يسمح بالأرقام فقط
     //     });
     // </script>
@@ -171,9 +171,9 @@
         document.addEventListener("DOMContentLoaded", function () {
 
             // أرقام فقط في الهوية
-            const userId = document.getElementById("txtUserID");
-            if (userId) {
-                userId.addEventListener("input", function () {
+            const NationalID = document.getElementById("txtNationalID");
+            if (NationalID) {
+                NationalID.addEventListener("input", function () {
                     this.value = this.value.replace(/[^0-9]/g, "");
                 });
             }
@@ -258,8 +258,8 @@
 
                             <div class="intro-x mt-8">
                                 <input type="text"
-                                       name="username"
-                                       id="txtUserID"
+                                       name="NationalID"
+                                       id="txtNationalID"
                                        value="@lastUser"
                                        placeholder="رقم الهوية الوطنية"
                                        maxlength="10"
@@ -348,7 +348,7 @@
     <!-- JS -->
 
     @* <script>
-        document.getElementById("txtUserID").addEventListener("input", function () {
+        document.getElementById("txtNationalID").addEventListener("input", function () {
             this.value = this.value.replace(/[^0-9]/g, ""); // يسمح بالأرقام فقط
         });
     </script> *@

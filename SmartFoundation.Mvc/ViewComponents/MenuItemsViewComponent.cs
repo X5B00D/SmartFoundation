@@ -21,11 +21,11 @@ namespace SmartFoundation.Mvc.ViewComponents
 
         public async Task<IViewComponentResult> InvokeAsync()
         {
-            var userId = HttpContext.Session.GetString("userID") ?? "60014016";
+            var usersID = HttpContext.Session.GetString("usersID") ?? "";
 
             var parameters = new Dictionary<string, object?>
             {
-                { "UserID", userId }
+                { "UsersID", usersID }
             };
 
             var jsonResult = await _mastersServies.GetUserMenuTree(parameters); // use public wrapper

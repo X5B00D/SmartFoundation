@@ -17,7 +17,7 @@ namespace SmartFoundation.Mvc.Middleware
 
         private static readonly string[] RequiredKeys = new[]
         {
-            "userID", "fullName", "IdaraID", "IDNumber"
+            "usersID", "fullName", "IdaraID", "nationalID"
         };
 
         private readonly RequestDelegate _next;
@@ -57,15 +57,19 @@ namespace SmartFoundation.Mvc.Middleware
             bool missing = false;
             foreach (var key in RequiredKeys)
             {
-                if (string.IsNullOrWhiteSpace(context.Session.GetString(key)))
+                var value = context.Session.GetString(key);
+                Console.WriteLine($"[SessionGuard] Checking key '{key}': '{value ?? "NULL"}'");
+                
+                if (string.IsNullOrWhiteSpace(value))
                 {
                     missing = true;
-                    break;
+                    Console.WriteLine($"[SessionGuard] MISSING key: '{key}'");
                 }
             }
 
             if (missing)
             {
+                Console.WriteLine($"[SessionGuard] Access DENIED - redirecting to login");
                 var isAjax = string.Equals(context.Request.Headers["X-Requested-With"], "XMLHttpRequest", StringComparison.OrdinalIgnoreCase);
                 var acceptsJson = context.Request.Headers["Accept"].ToString().Contains("application/json", StringComparison.OrdinalIgnoreCase);
 
@@ -78,6 +82,8 @@ namespace SmartFoundation.Mvc.Middleware
                 context.Response.Redirect("/Login/Index?logout=1");
                 return;
             }
+
+            Console.WriteLine($"[SessionGuard] Access GRANTED - continuing to {context.Request.Path}");
 
             await _next(context);
         }

@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using SmartFoundation.Application.Services;
+using SmartFoundation.Application.Services.Models; // ✅ ADD THIS LINE
 using System.Data;
 using System.Net;
 using System.Threading;
@@ -104,60 +105,108 @@ namespace SmartFoundation.Mvc.Controllers.Login
         [HttpPost]
         [AllowAnonymous]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> CheckLogin(string username, string password, CancellationToken ct)
+        public async Task<IActionResult> CheckLogin(string NationalID, string password, CancellationToken ct)
         {
-            if (string.IsNullOrWhiteSpace(username) || string.IsNullOrWhiteSpace(password))
+
+
+            if (string.IsNullOrWhiteSpace(NationalID) || string.IsNullOrWhiteSpace(password))
             {
                 TempData["Error"] = "الرجاء اكمال الحقول المطلوبة";
-                TempData["LastUser"] = username;
+                TempData["LastUser"] = NationalID;
                 return RedirectToAction(nameof(Index));
             }
 
             DataSet ds;
 
-            var spParameters = new object?[] { username.Trim(), password, Request.Host.Value };
+            var spParameters = new object?[] { NationalID.Trim(), password, Request.Host.Value };
             try
             {
-                //ds = await _auth.GetLoginDataSetAsync(username.Trim(), password, Request.Host.Value);
-                ds = await _mastersServies.GetLoginDataSetAsync(spParameters);
+                ds = await _mastersServies.GetLoginsDataSetAsync(spParameters);
             }
-            catch
+            catch (Exception ex)
             {
-                TempData["Error"] = "خطأ في الاتصال بالخادم.";
-                TempData["LastUser"] = username;
+                TempData["Error"] = "خطأ في الاتصال بالخادم." + ex.Message;
+                TempData["LastUser"] = NationalID;
                 return RedirectToAction(nameof(Index));
             }
 
             var auth = _mastersServies.ExtractAuth(ds);
 
-            if (auth.useractive == 0)
+
+            try
             {
-                TempData["Error"] = string.IsNullOrWhiteSpace(auth.Message_)
-                    ? "لايوجد حساب نشط لهذا المستخدم"
-                    : auth.Message_;
-                TempData["LastUser"] = username;
+                auth = _mastersServies.ExtractAuth(ds);
+            }
+            catch (Exception ex)
+            {
+                TempData["Error"] = "خطأ في معالجة بيانات الدخول: " + ex.Message;
+                TempData["LastUser"] = NationalID;
                 return RedirectToAction(nameof(Index));
             }
 
+
+
+            // ✅ Check 1: usersId validation
+            if (string.IsNullOrWhiteSpace(auth.usersId))
+            {
+                TempData["Error"] = "لايوجد ملف نشط لهذا المستخدم";
+                TempData["LastUser"] = NationalID;
+                return RedirectToAction(nameof(Index));
+            }
+
+
+            // ✅ Check 2: usersActive validation
+            if (auth.usersActive == 0)
+            {
+                TempData["Error"] = "لايوجد حساب نشط لهذا المستخدم";
+                TempData["LastUser"] = NationalID;
+                return RedirectToAction(nameof(Index));
+            }
+
+            //// ✅ Set session data with null-safe approach
+            //try
+            //{
             string clientHostName = ResolveClientHostName(HttpContext);
-            HttpContext.Session.SetString("userID", (auth.userId?.ToString() ?? username));
-            HttpContext.Session.SetString("fullName", auth.fullName!);
-            HttpContext.Session.SetString("IdaraID", auth.IdaraID!);
-            HttpContext.Session.SetString("DepartmentName", auth.DepartmentName!);
-            HttpContext.Session.SetString("ThameName", auth.ThameName!);
-            HttpContext.Session.SetString("DeptCode", auth.DeptCode?.ToString() ?? "");
-            HttpContext.Session.SetString("IDNumber", auth.IDNumber!);
+                
+                // Use ?? "" to prevent null reference exceptions
+            HttpContext.Session.SetString("usersID", auth.usersId ?? "");
+            HttpContext.Session.SetString("fullName", auth.fullName ?? "");
+            HttpContext.Session.SetString("OrganizationID", auth.OrganizationID ?? "");
+            HttpContext.Session.SetString("OrganizationName", auth.OrganizationName ?? "");
+            HttpContext.Session.SetString("IdaraID", auth.IdaraID ?? "");
+            HttpContext.Session.SetString("IdaraName", auth.IdaraName ?? "");
+            HttpContext.Session.SetString("DepartmentID", auth.DepartmentID ?? "");
+            HttpContext.Session.SetString("DepartmentName", auth.DepartmentName ?? "");
+            HttpContext.Session.SetString("SectionID", auth.SectionID ?? "");
+            HttpContext.Session.SetString("SectionName", auth.SectionName ?? "");
+            HttpContext.Session.SetString("DivisonID", auth.DivisonID ?? "");
+            HttpContext.Session.SetString("DivisonName", auth.DivisonName ?? "");
+            HttpContext.Session.SetString("photoBase64", auth.photoBase64 ?? "");  // ✅ FIXED: Changed from auth.Photo to auth.photoBase64
+            HttpContext.Session.SetString("ThameName", auth.ThameName ?? "");
+            HttpContext.Session.SetString("DeptCode", auth.DeptCode ?? "");
+            HttpContext.Session.SetString("nationalID", auth.nationalID ?? "");
+            HttpContext.Session.SetString("usersActive", auth.usersActive.ToString());
             HttpContext.Session.SetString("HostName", clientHostName ?? "");
             HttpContext.Session.SetString("LastActivityUtc", DateTime.UtcNow.ToString("O"));
-            HttpContext.Session.SetString("photoBase64", auth.PhotoBase64 ?? "");
 
-            switch (auth.useractive)
-            {
-                case 1: TempData["Success"] = auth.Message_ ?? "تم تسجيل الدخول بنجاح."; break;
-                case 2: TempData["Warning"] = auth.Message_ ?? "تم تسجيل الدخول مع تحذير."; break;
-                case 3: TempData["Info"] = auth.Message_ ?? "معلومة: تم الدخول."; break;
-                default: TempData["Success"] = auth.Message_ ?? "تم تسجيل الدخول."; break;
-            }
+
+            //}
+            //catch (Exception ex)
+            //{
+            //    TempData["Error"] = "خطأ في حفظ بيانات الجلسة: " + ex.Message;
+            //    TempData["LastUser"] = NationalID;
+            //    return RedirectToAction(nameof(Index));
+            //}
+
+            //// Set success message based on useractive
+            //switch (auth.useractive)
+            //{
+            //    case 1: TempData["Success"] = auth.Message_ ?? "تم تسجيل الدخول بنجاح."; break;
+            //    case 2: TempData["Warning"] = auth.Message_ ?? "تم تسجيل الدخول مع تحذير."; break;
+            //    case 3: TempData["Info"] = auth.Message_ ?? "معلومة: تم الدخول."; break;
+            //    default: TempData["Success"] = auth.Message_ ?? "تم تسجيل الدخول."; break;
+            //}
+
 
             return RedirectToAction("Index", "Home");
         }

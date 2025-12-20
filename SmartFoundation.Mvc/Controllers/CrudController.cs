@@ -102,11 +102,11 @@ namespace SmartFoundation.Mvc.Controllers
             {
                 var f = Request.Form;
 
-                string pageName   = f.TryGetValue("pageName_", out var pv) && !string.IsNullOrWhiteSpace(pv) ? pv.ToString() : "";
+                string pageName = f.TryGetValue("pageName_", out var pv) && !string.IsNullOrWhiteSpace(pv) ? pv.ToString() : "";
                 string actionType = f.TryGetValue("ActionType", out var av) && !string.IsNullOrWhiteSpace(av) ? av.ToString() : "";
-                int? idaraID      = f.TryGetValue("idaraID", out var idv) && int.TryParse(idv, out var idParsed) ? idParsed : 0;
-                int? entryData    = f.TryGetValue("entrydata", out var edv) && int.TryParse(edv, out var entryParsed) ? entryParsed : 0;
-                string hostName   = f.TryGetValue("hostname", out var hv) && !string.IsNullOrWhiteSpace(hv) ? hv.ToString() : "";
+                int? idaraID = f.TryGetValue("idaraID", out var idv) && int.TryParse(idv, out var idParsed) ? idParsed : 0;
+                int? entryData = f.TryGetValue("entrydata", out var edv) && int.TryParse(edv, out var entryParsed) ? entryParsed : 0;
+                string hostName = f.TryGetValue("hostname", out var hv) && !string.IsNullOrWhiteSpace(hv) ? hv.ToString() : "";
 
                 var parameters = new Dictionary<string, object?>(StringComparer.OrdinalIgnoreCase)
                 {
@@ -130,7 +130,14 @@ namespace SmartFoundation.Mvc.Controllers
 
                 var redirectAction = f.TryGetValue("redirectAction", out var ra) ? ra.ToString() : null;
                 var redirectController = f.TryGetValue("redirectController", out var rc) ? rc.ToString() : null;
+                var redirectUrl = f.TryGetValue("redirectUrl", out var ru) ? ru.ToString() : null;
 
+                if (!string.IsNullOrWhiteSpace(redirectUrl))
+                {
+                    return Redirect(redirectUrl);
+                }
+                else
+                { 
                 if (!string.IsNullOrWhiteSpace(redirectAction))
                 {
                     // 1) Base path using Url.Action (without query)
@@ -169,6 +176,7 @@ namespace SmartFoundation.Mvc.Controllers
                     var fullUrl = sb.Length > 0 ? $"{baseUrl}?{sb}" : baseUrl;
                     return Redirect(fullUrl);
                 }
+            }
 
                 var referer = Request.Headers["Referer"].ToString();
                 if (!string.IsNullOrWhiteSpace(referer)) return Redirect(referer);
@@ -190,11 +198,11 @@ namespace SmartFoundation.Mvc.Controllers
             {
                 var f = Request.Form;
 
-                string pageName   = f.TryGetValue("pageName_", out var pv) && !string.IsNullOrWhiteSpace(pv) ? pv.ToString() : "";
+                string pageName = f.TryGetValue("pageName_", out var pv) && !string.IsNullOrWhiteSpace(pv) ? pv.ToString() : "";
                 string actionType = f.TryGetValue("ActionType", out var av) && !string.IsNullOrWhiteSpace(av) ? av.ToString() : "UPDATE";
-                int? idaraID      = f.TryGetValue("idaraID", out var idv) && int.TryParse(idv, out var idParsed) ? idParsed : 1;
-                int? entryData    = f.TryGetValue("entrydata", out var edv) && int.TryParse(edv, out var entryParsed) ? entryParsed : 60014016;
-                string hostName   = f.TryGetValue("hostname", out var hv) && !string.IsNullOrWhiteSpace(hv) ? hv.ToString() : Request.Host.Value;
+                int? idaraID = f.TryGetValue("idaraID", out var idv) && int.TryParse(idv, out var idParsed) ? idParsed : 1;
+                int? entryData = f.TryGetValue("entrydata", out var edv) && int.TryParse(edv, out var entryParsed) ? entryParsed : 60014016;
+                string hostName = f.TryGetValue("hostname", out var hv) && !string.IsNullOrWhiteSpace(hv) ? hv.ToString() : Request.Host.Value;
 
                 var parameters = new Dictionary<string, object?>(StringComparer.OrdinalIgnoreCase)
                 {
@@ -218,20 +226,29 @@ namespace SmartFoundation.Mvc.Controllers
 
                 var redirectAction = f.TryGetValue("redirectAction", out var ra) ? ra.ToString() : null;
                 var redirectController = f.TryGetValue("redirectController", out var rc) ? rc.ToString() : null;
+                var redirectUrl = f.TryGetValue("redirectUrl", out var ru) ? ru.ToString() : null;
 
-                var routeValues = new Dictionary<string, object>();
-                if (f.TryGetValue("Q1", out var q1) && !string.IsNullOrWhiteSpace(q1)) routeValues["Q1"] = q1.ToString();
-
-                if (!string.IsNullOrWhiteSpace(redirectAction))
+                if (!string.IsNullOrWhiteSpace(redirectUrl))
                 {
-                    return routeValues.Count > 0
-                        ? RedirectToAction(redirectAction, redirectController, routeValues)
-                        : RedirectToAction(redirectAction, redirectController);
+                    return Redirect(redirectUrl);
                 }
+                else
+                {
 
-                var referer = Request.Headers["Referer"].ToString();
-                if (!string.IsNullOrWhiteSpace(referer)) return Redirect(referer);
-                return RedirectToAction("Index", "Home");
+                    var routeValues = new Dictionary<string, object>();
+                    if (f.TryGetValue("Q1", out var q1) && !string.IsNullOrWhiteSpace(q1)) routeValues["Q1"] = q1.ToString();
+
+                    if (!string.IsNullOrWhiteSpace(redirectAction))
+                    {
+                        return routeValues.Count > 0
+                            ? RedirectToAction(redirectAction, redirectController, routeValues)
+                            : RedirectToAction(redirectAction, redirectController);
+                    }
+
+                    var referer = Request.Headers["Referer"].ToString();
+                    if (!string.IsNullOrWhiteSpace(referer)) return Redirect(referer);
+                    return RedirectToAction("Index", "Home");
+                }
             }
             catch (Exception ex)
             {
@@ -249,11 +266,11 @@ namespace SmartFoundation.Mvc.Controllers
             {
                 var f = Request.Form;
 
-                string pageName   = f.TryGetValue("pageName_", out var pv) && !string.IsNullOrWhiteSpace(pv) ? pv.ToString() : "BuildingType";
+                string pageName = f.TryGetValue("pageName_", out var pv) && !string.IsNullOrWhiteSpace(pv) ? pv.ToString() : "BuildingType";
                 string actionType = f.TryGetValue("ActionType", out var av) && !string.IsNullOrWhiteSpace(av) ? av.ToString() : "DELETE";
-                int? idaraID      = f.TryGetValue("idaraID", out var idv) && int.TryParse(idv, out var idParsed) ? idParsed : 1;
-                int? entryData    = f.TryGetValue("entrydata", out var edv) && int.TryParse(edv, out var entryParsed) ? entryParsed : 60014016;
-                string hostName   = f.TryGetValue("hostname", out var hv) && !string.IsNullOrWhiteSpace(hv) ? hv.ToString() : Request.Host.Value;
+                int? idaraID = f.TryGetValue("idaraID", out var idv) && int.TryParse(idv, out var idParsed) ? idParsed : 1;
+                int? entryData = f.TryGetValue("entrydata", out var edv) && int.TryParse(edv, out var entryParsed) ? entryParsed : 60014016;
+                string hostName = f.TryGetValue("hostname", out var hv) && !string.IsNullOrWhiteSpace(hv) ? hv.ToString() : Request.Host.Value;
 
                 var parameters = new Dictionary<string, object?>(StringComparer.OrdinalIgnoreCase)
                 {
@@ -277,20 +294,28 @@ namespace SmartFoundation.Mvc.Controllers
 
                 var redirectAction = f.TryGetValue("redirectAction", out var ra) ? ra.ToString() : null;
                 var redirectController = f.TryGetValue("redirectController", out var rc) ? rc.ToString() : null;
+                var redirectUrl = f.TryGetValue("redirectUrl", out var ru) ? ru.ToString() : null;
 
-                var routeValues = new Dictionary<string, object>();
-                if (f.TryGetValue("Q1", out var q1) && !string.IsNullOrWhiteSpace(q1)) routeValues["Q1"] = q1.ToString();
-
-                if (!string.IsNullOrWhiteSpace(redirectAction))
+                if (!string.IsNullOrWhiteSpace(redirectUrl))
                 {
-                    return routeValues.Count > 0
-                        ? RedirectToAction(redirectAction, redirectController, routeValues)
-                        : RedirectToAction(redirectAction, redirectController);
+                    return Redirect(redirectUrl);
                 }
+                else
+                {
+                    var routeValues = new Dictionary<string, object>();
+                    if (f.TryGetValue("Q1", out var q1) && !string.IsNullOrWhiteSpace(q1)) routeValues["Q1"] = q1.ToString();
 
-                var referer = Request.Headers["Referer"].ToString();
-                if (!string.IsNullOrWhiteSpace(referer)) return Redirect(referer);
-                return RedirectToAction("Index", "Home");
+                    if (!string.IsNullOrWhiteSpace(redirectAction))
+                    {
+                        return routeValues.Count > 0
+                            ? RedirectToAction(redirectAction, redirectController, routeValues)
+                            : RedirectToAction(redirectAction, redirectController);
+                    }
+
+                    var referer = Request.Headers["Referer"].ToString();
+                    if (!string.IsNullOrWhiteSpace(referer)) return Redirect(referer);
+                    return RedirectToAction("Index", "Home");
+                }
             }
             catch (Exception ex)
             {
@@ -312,15 +337,15 @@ namespace SmartFoundation.Mvc.Controllers
             if (!string.IsNullOrWhiteSpace(TableIndex))
                 int.TryParse(TableIndex, out TableIndexInt);
 
-            if (string.IsNullOrWhiteSpace(HttpContext.Session.GetString("userID")))
+            if (string.IsNullOrWhiteSpace(HttpContext.Session.GetString("usersID")))
                 return Unauthorized();
 
             if (!int.TryParse(DDlValues, out int DDlValueID) || DDlValueID == -1)
                 return Json(new List<object> { new { value = "-1", text = "الرجاء الاختيار" } });
 
-            int userID = Convert.ToInt32(HttpContext.Session.GetString("userID"));
-            int IdaraID = Convert.ToInt32(HttpContext.Session.GetString("IdaraID"));
-            string HostName = HttpContext.Session.GetString("HostName");
+            int userID = Convert.ToInt32(HttpContext.Session.GetString("usersId"));
+            int IdaraID = Convert.ToInt32(HttpContext.Session.GetString("IdaraId"));
+            string HostName = HttpContext.Session.GetString("HostName") ?? string.Empty;
 
             var ds = await _mastersServies.GetDataLoadDataSetAsync(PageName, IdaraID, userID, HostName);
             var table = (ds?.Tables?.Count ?? 0) > TableIndexInt ? ds.Tables[TableIndexInt] : null;
@@ -354,8 +379,8 @@ namespace SmartFoundation.Mvc.Controllers
             string? ValueCol, 
             string? TableIndex, 
             string? PageName,
-            int userID,
-            int IdaraID,
+            string? usersId,
+            string? IdaraId,
             string? HostName,
             string? FilterColumn = null,
             string? FilterValue = null,
@@ -368,7 +393,7 @@ namespace SmartFoundation.Mvc.Controllers
             if (!string.IsNullOrWhiteSpace(TableIndex))
                 int.TryParse(TableIndex, out TableIndexInt);
 
-            var ds = await _mastersServies.GetDataLoadDataSetAsync(PageName, IdaraID, userID, HostName);
+            var ds = await _mastersServies.GetDataLoadDataSetAsync(PageName, IdaraId, usersId, HostName);
             var table = (ds?.Tables?.Count ?? 0) > TableIndexInt ? ds.Tables[TableIndexInt] : null;
 
             var items = new List<object>();

@@ -17,7 +17,7 @@ namespace SmartFoundation.Mvc.Controllers.Home
         public IActionResult Index()
         {
 
-            if (string.IsNullOrWhiteSpace(HttpContext.Session.GetString("userID")))
+            if (string.IsNullOrWhiteSpace(HttpContext.Session.GetString("usersID")))
             {
                 return  RedirectToAction("Index", "Login", new { logout = 1 });
             }

@@ -1,73 +1,24 @@
-﻿using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Mvc;
-using SmartFoundation.Application.Services;
-using SmartFoundation.DataEngine.Core.Models;
-using SmartFoundation.Mvc.Models;
+﻿using Microsoft.AspNetCore.Mvc;
 using SmartFoundation.UI.ViewModels.SmartForm;
 using SmartFoundation.UI.ViewModels.SmartPage;
 using SmartFoundation.UI.ViewModels.SmartTable;
 using System.Data;
-using System.Linq;
-using System.Net;
-using System.Net.Sockets;
 using System.Text.Json;
-using System.Text.RegularExpressions;
-using static System.Net.Mime.MediaTypeNames;
-
-
 
 namespace SmartFoundation.Mvc.Controllers.ControlPanel
 {
-    public class ControlPanelController : Controller
+    public partial class ControlPanelController : Controller
     {
-
-       // private readonly MastersDataLoadService _mastersDataLoadService;
-        private readonly MastersServies _mastersServies;
-        private readonly CrudController _CrudController;
-
-
-
-        public ControlPanelController(MastersServies mastersServies, CrudController crudController)
-        {
-           // _mastersDataLoadService = mastersDataLoadService;
-            _mastersServies = mastersServies;
-            _CrudController = crudController;
-
-        }
-
-        string? ControllerName;
-        string? PageName;
-        int userID;
-        string? fullName;
-        int IdaraID;
-        string? DepartmentName;
-        string? ThameName;
-        string? DeptCode;
-        string? IDNumber;
-        string? HostName;
-
-        
-        DataSet ds;
-
-        DataTable? permissionTable;
-        DataTable? dt1;
-        DataTable? dt2;
-        DataTable? dt3;
-        DataTable? dt4;
-        DataTable? dt5;
-        DataTable? dt6;
-        DataTable? dt7;
-        DataTable? dt8;
-        DataTable? dt9;
-
-
-
         public async Task<IActionResult> Permission()
         {
 
+            if (!InitPageContext(out IActionResult? redirectResult))
+                return redirectResult!;
 
-            if (string.IsNullOrWhiteSpace(HttpContext.Session.GetString("userID")))
-                return RedirectToAction("Index", "Login", new { logout = 1 });
+            if (string.IsNullOrWhiteSpace(usersId))
+            {
+                return RedirectToAction("Index", "Login", new { logout = 4 });
+            }
 
             string? SearchID_ = Request.Query["S"].FirstOrDefault();
             string? UserID_ = Request.Query["U"].FirstOrDefault();
@@ -87,18 +38,11 @@ namespace SmartFoundation.Mvc.Controllers.ControlPanel
 
 
             // Sessions 
-            userID = Convert.ToInt32(HttpContext.Session.GetString("userID"));
-             fullName = HttpContext.Session.GetString("fullName");
-             IdaraID = Convert.ToInt32(HttpContext.Session.GetString("IdaraID"));
-             DepartmentName = HttpContext.Session.GetString("DepartmentName");
-             ThameName = HttpContext.Session.GetString("ThameName");
-             DeptCode = HttpContext.Session.GetString("DeptCode");
-             IDNumber = HttpContext.Session.GetString("IDNumber");
-             HostName = HttpContext.Session.GetString("HostName");
-             ControllerName = nameof(ControlPanelController);
-             PageName = nameof(Permission);
 
-            var spParameters = new object?[] { "Permission", IdaraID, userID, HostName,SearchID_, UserID_,distributorID_,RoleID_,Idara_};
+            ControllerName = nameof(ControlPanel);
+            PageName = nameof(Permission);
+
+            var spParameters = new object?[] { "Permission", IdaraId, usersId, HostName, SearchID_, UserID_, distributorID_, RoleID_, Idara_ };
 
             //var spParameters = new object?[] { "Permission", IdaraID, userID, HostName, SearchID_, UserID_, distributorID_, RoleID_, Idara_, Dept_, Section_, Divison_ };
 
@@ -112,7 +56,7 @@ namespace SmartFoundation.Mvc.Controllers.ControlPanel
             ds = await _mastersServies.GetDataLoadDataSetAsync(spParameters);
 
 
-           
+
 
 
             DataTable? permissionTable = (ds?.Tables?.Count ?? 0) > 0 ? ds.Tables[0] : null;
@@ -160,7 +104,7 @@ namespace SmartFoundation.Mvc.Controllers.ControlPanel
             }
 
 
-           
+
 
 
             string rowIdField = "";
@@ -197,7 +141,7 @@ namespace SmartFoundation.Mvc.Controllers.ControlPanel
 
                 List<OptionItem> permissinTypeOptions = new()
                 {
-                    
+
                     new OptionItem { Value = "1", Text = "مستخدم" },
                     new OptionItem { Value = "2", Text = "موزع" },
                     new OptionItem { Value = "3", Text = "دور" },
@@ -209,8 +153,9 @@ namespace SmartFoundation.Mvc.Controllers.ControlPanel
 
                 // ---------------------- Users ----------------------
                 result = await _CrudController.GetDDLValues(
-                    "FullName", "userID_", "2", nameof(Permission),userID,IdaraID,HostName
+                    "FullName", "userID_", "2", nameof(Permission), usersId, IdaraId, HostName
                 ) as JsonResult;
+
 
                 json = JsonSerializer.Serialize(result!.Value);
 
@@ -218,7 +163,7 @@ namespace SmartFoundation.Mvc.Controllers.ControlPanel
 
                 // ---------------------- Distributors ----------------------
                 result = await _CrudController.GetDDLValues(
-                    "distributorName_A", "distributorID", "3", nameof(Permission), userID, IdaraID, HostName, null,null
+                    "distributorName_A", "distributorID", "3", nameof(Permission), usersId, IdaraId, HostName, null, null
                 ) as JsonResult;
 
                 json = JsonSerializer.Serialize(result!.Value);
@@ -227,7 +172,7 @@ namespace SmartFoundation.Mvc.Controllers.ControlPanel
 
                 // ---------------------- permissions ----------------------
                 result = await _CrudController.GetDDLValues(
-                    "permissionTypeName_A", "distributorPermissionTypeID", "4", nameof(Permission), userID, IdaraID, HostName, null, null
+                    "permissionTypeName_A", "distributorPermissionTypeID", "4", nameof(Permission), usersId, IdaraId, HostName, null, null
                 ) as JsonResult;
 
                 json = JsonSerializer.Serialize(result!.Value);
@@ -236,7 +181,7 @@ namespace SmartFoundation.Mvc.Controllers.ControlPanel
 
                 // ---------------------- idara ----------------------
                 result = await _CrudController.GetDDLValues(
-                    "idaraLongName_A", "idaraID", "5", nameof(Permission), userID, IdaraID, HostName, "idaraID", IdaraID.ToString()
+                    "idaraLongName_A", "idaraID", "5", nameof(Permission), usersId, IdaraId, HostName, "idaraID", IdaraId
                 ) as JsonResult;
 
                 json = JsonSerializer.Serialize(result!.Value);
@@ -245,7 +190,7 @@ namespace SmartFoundation.Mvc.Controllers.ControlPanel
 
                 // ---------------------- Depts ----------------------
                 result = await _CrudController.GetDDLValues(
-                    "deptName_A", "deptID", "6", nameof(Permission), userID, IdaraID, HostName, "idaraID_FK", IdaraID.ToString()
+                    "deptName_A", "deptID", "6", nameof(Permission), usersId, IdaraId, HostName, "idaraID", IdaraId
                 ) as JsonResult;
 
                 json = JsonSerializer.Serialize(result!.Value);
@@ -254,7 +199,7 @@ namespace SmartFoundation.Mvc.Controllers.ControlPanel
 
                 // ---------------------- Sections ----------------------
                 result = await _CrudController.GetDDLValues(
-                    "secName_A", "secID", "7", nameof(Permission), userID, IdaraID, HostName, "deptID", Dept_
+                    "secName_A", "secID", "7", nameof(Permission), usersId, IdaraId, HostName, "deptID", Dept_
                 ) as JsonResult;
 
                 json = JsonSerializer.Serialize(result!.Value);
@@ -263,7 +208,7 @@ namespace SmartFoundation.Mvc.Controllers.ControlPanel
 
                 // ---------------------- Divisons ----------------------
                 result = await _CrudController.GetDDLValues(
-                    "divName_A", "divID", "8", nameof(Permission), userID, IdaraID, HostName, "secID", Section_
+                    "divName_A", "divID", "8", nameof(Permission), usersId, IdaraId, HostName, "secID", Section_
                 ) as JsonResult;
 
                 json = JsonSerializer.Serialize(result!.Value);
@@ -272,7 +217,7 @@ namespace SmartFoundation.Mvc.Controllers.ControlPanel
 
                 // ---------------------- Role ----------------------
                 result = await _CrudController.GetDDLValues(
-                    "roleName_A", "roleID", "9", nameof(Permission), userID, IdaraID, HostName
+                    "roleName_A", "roleID", "9", nameof(Permission), usersId, IdaraId, HostName
                 ) as JsonResult;
 
                 json = JsonSerializer.Serialize(result!.Value);
@@ -301,7 +246,7 @@ namespace SmartFoundation.Mvc.Controllers.ControlPanel
                     Title = "نموذج الإدخال",
                     Method = "POST",
                     SubmitText = null,
-                    
+
 
                     StoredProcedureName = "sp_SaveDemoForm",
                     Operation = "insert",
@@ -370,9 +315,9 @@ namespace SmartFoundation.Mvc.Controllers.ControlPanel
     }
 "
                      },
-                   
+
                      new FieldConfig {
-                         
+
                          Name = "Users",
                          Type = "select",
                          Options = UsersOptions,
@@ -393,7 +338,7 @@ namespace SmartFoundation.Mvc.Controllers.ControlPanel
                                        window.location.href = url;
                                    "
                      },
-                   
+
 
                           new FieldConfig
                     {
@@ -550,33 +495,33 @@ namespace SmartFoundation.Mvc.Controllers.ControlPanel
                                    "
                     },
 
-                 
+
 
                         },
 
 
                     Buttons = new List<FormButtonConfig>
-                {
-              //           new FormButtonConfig
-              //  {
-              //      Text="بحث",
-              //      Icon="fa-solid fa-search",
-              //      Type="button",
-              //      Color="success",
-              //      // Replace the OnClickJs of the "تجربة" button with this:
-              //      OnClickJs = "(function(){"
-              //+ "var hidden=document.querySelector('input[name=Users]');"
-              //+ "if(!hidden){toastr.error('لا يوجد حقل مستخدم');return;}"
-              //+ "var userId = (hidden.value||'').trim();"
-              //+ "var anchor = hidden.parentElement.querySelector('.sf-select');"
-              //+ "var userName = anchor && anchor.querySelector('.truncate') ? anchor.querySelector('.truncate').textContent.trim() : '';"
-              //+ "if(!userId){toastr.info('اختر مستخدم أولاً');return;}"
-              //+ "var url = '/ControlPanel/Permission?Q1=' + encodeURIComponent(userId);"
-              //+ "window.location.href = url;"
-              //+ "})();"
-              //  },
-             
-              
+                    {
+                        //           new FormButtonConfig
+                        //  {
+                        //      Text="بحث",
+                        //      Icon="fa-solid fa-search",
+                        //      Type="button",
+                        //      Color="success",
+                        //      // Replace the OnClickJs of the "تجربة" button with this:
+                        //      OnClickJs = "(function(){"
+                        //+ "var hidden=document.querySelector('input[name=Users]');"
+                        //+ "if(!hidden){toastr.error('لا يوجد حقل مستخدم');return;}"
+                        //+ "var userId = (hidden.value||'').trim();"
+                        //+ "var anchor = hidden.parentElement.querySelector('.sf-select');"
+                        //+ "var userName = anchor && anchor.querySelector('.truncate') ? anchor.querySelector('.truncate').textContent.trim() : '';"
+                        //+ "if(!userId){toastr.info('اختر مستخدم أولاً');return;}"
+                        //+ "var url = '/ControlPanel/Permission?Q1=' + encodeURIComponent(userId);"
+                        //+ "window.location.href = url;"
+                        //+ "})();"
+                        //  },
+
+
 
                     }
                 };
@@ -724,7 +669,7 @@ namespace SmartFoundation.Mvc.Controllers.ControlPanel
                     ColCss = "3",
                     Required = true
                 },
-                
+
                 new FieldConfig
                 {
                     Name = "p02",
@@ -733,7 +678,7 @@ namespace SmartFoundation.Mvc.Controllers.ControlPanel
                     Options = new List<OptionItem> { new OptionItem { Value = "-1", Text = "اختر الموزع أولاً"     } }, //       Initial empty state
                     ColCss = "3",
                     Required = true,
-                    DependsOn = "p01",          
+                    DependsOn = "p01",
                     DependsUrl = "/crud/DDLFiltered?FK=distributorID_FK&textcol=permissionTypeName_A&ValueCol=distributorPermissionTypeID&PageName=Permission&TableIndex=4"
                 },
                 new FieldConfig { Name = "p03", Label = "تاريخ بداية الصلاحية", Type = "date", ColCss = "3", Required = false, Icon = "fa fa-calendar" },
@@ -748,14 +693,16 @@ namespace SmartFoundation.Mvc.Controllers.ControlPanel
             // Inject required hidden headers for the add (insert) form BEFORE building dsModel:
             addFields.Insert(0, new FieldConfig { Name = "__RequestVerificationToken", Type = "hidden", Value = (Request.Headers["RequestVerificationToken"].FirstOrDefault() ?? "") });
             addFields.Insert(0, new FieldConfig { Name = "hostname", Type = "hidden", Value = HostName });
-            addFields.Insert(0, new FieldConfig { Name = "entrydata", Type = "hidden", Value = userID.ToString() });
-            addFields.Insert(0, new FieldConfig { Name = "idaraID", Type = "hidden", Value = IdaraID.ToString() });
+            addFields.Insert(0, new FieldConfig { Name = "entrydata", Type = "hidden", Value = usersId });
+            addFields.Insert(0, new FieldConfig { Name = "idaraID", Type = "hidden", Value = IdaraId });
             addFields.Insert(0, new FieldConfig { Name = "ActionType", Type = "hidden", Value = "INSERT" }); // upper-case
             addFields.Insert(0, new FieldConfig { Name = "pageName_", Type = "hidden", Value = PageName });
 
 
 
             // Optional: help the generic endpoint know where to go back
+            var currentUrl = Request.Path + Request.QueryString;
+            addFields.Insert(0, new FieldConfig { Name = "redirectUrl", Type = "hidden", Value = currentUrl });
             addFields.Insert(0, new FieldConfig { Name = "redirectAction", Type = "hidden", Value = PageName });
             addFields.Insert(0, new FieldConfig { Name = "redirectController", Type = "hidden", Value = ControllerName });
             addFields.Insert(0, new FieldConfig { Name = "UserID_", Type = "hidden", Value = UserID_ });
@@ -791,8 +738,8 @@ namespace SmartFoundation.Mvc.Controllers.ControlPanel
             // Inject required hidden headers for the add (insert) form BEFORE building dsModel:
             addFields1.Insert(0, new FieldConfig { Name = "__RequestVerificationToken", Type = "hidden", Value = (Request.Headers["RequestVerificationToken"].FirstOrDefault() ?? "") });
             addFields1.Insert(0, new FieldConfig { Name = "hostname", Type = "hidden", Value = HostName });
-            addFields1.Insert(0, new FieldConfig { Name = "entrydata", Type = "hidden", Value = userID.ToString() });
-            addFields1.Insert(0, new FieldConfig { Name = "idaraID", Type = "hidden", Value = IdaraID.ToString() });
+            addFields1.Insert(0, new FieldConfig { Name = "entrydata", Type = "hidden", Value = usersId });
+            addFields1.Insert(0, new FieldConfig { Name = "idaraID", Type = "hidden", Value = IdaraId });
             addFields1.Insert(0, new FieldConfig { Name = "ActionType", Type = "hidden", Value = "INSERTFULLACCESS" }); // upper-case
             addFields1.Insert(0, new FieldConfig { Name = "pageName_", Type = "hidden", Value = PageName });
 
@@ -801,6 +748,7 @@ namespace SmartFoundation.Mvc.Controllers.ControlPanel
             // Optional: help the generic endpoint know where to go back
             addFields1.Insert(0, new FieldConfig { Name = "redirectAction", Type = "hidden", Value = PageName });
             addFields1.Insert(0, new FieldConfig { Name = "redirectController", Type = "hidden", Value = ControllerName });
+            addFields1.Insert(0, new FieldConfig { Name = "redirectUrl", Type = "hidden", Value = currentUrl });
             addFields1.Insert(0, new FieldConfig { Name = "UserID_", Type = "hidden", Value = UserID_ });
 
 
@@ -810,10 +758,11 @@ namespace SmartFoundation.Mvc.Controllers.ControlPanel
             {
                 new FieldConfig { Name = "redirectAction",      Type = "hidden", Value = PageName },
                 new FieldConfig { Name = "redirectController",  Type = "hidden", Value = ControllerName },
+                new FieldConfig { Name = "redirectCoredirectUrlntroller",  Type = "hidden", Value = currentUrl },
                 new FieldConfig { Name = "pageName_",           Type = "hidden", Value = PageName },
                 new FieldConfig { Name = "ActionType",          Type = "hidden", Value = "UPDATE" },
-                new FieldConfig { Name = "idaraID",             Type = "hidden", Value = IdaraID.ToString() },
-                new FieldConfig { Name = "entrydata",           Type = "hidden", Value = userID.ToString() },
+                new FieldConfig { Name = "idaraID",             Type = "hidden", Value = IdaraId },
+                new FieldConfig { Name = "entrydata",           Type = "hidden", Value = usersId },
                 new FieldConfig { Name = "hostname",            Type = "hidden", Value = HostName},
                 new FieldConfig { Name = "__RequestVerificationToken", Type = "hidden", Value = (Request.Headers["RequestVerificationToken"].FirstOrDefault() ?? "") },
                 new FieldConfig { Name = rowIdField,            Type = "hidden" },
@@ -833,11 +782,12 @@ namespace SmartFoundation.Mvc.Controllers.ControlPanel
 
                 new FieldConfig { Name = "pageName_",          Type = "hidden", Value = PageName },
                 new FieldConfig { Name = "ActionType",         Type = "hidden", Value = "DELETE" },
-                new FieldConfig { Name = "idaraID",            Type = "hidden", Value = IdaraID.ToString() },
-                new FieldConfig { Name = "entrydata",          Type = "hidden", Value = userID.ToString() },
+                new FieldConfig { Name = "idaraID",            Type = "hidden", Value = IdaraId },
+                new FieldConfig { Name = "entrydata",          Type = "hidden", Value = usersId },
                 new FieldConfig { Name = "hostname",           Type = "hidden", Value = HostName },
 
-                                new FieldConfig { Name = "redirectAction",     Type = "hidden", Value = PageName },
+                new FieldConfig { Name = "redirectUrl",     Type = "hidden", Value = currentUrl },
+                new FieldConfig { Name = "redirectAction",     Type = "hidden", Value = PageName },
                 new FieldConfig { Name = "redirectController", Type = "hidden", Value = ControllerName },
                 new FieldConfig { Name = "UserID_", Type = "hidden", Value = UserID_ },
 
@@ -855,7 +805,7 @@ namespace SmartFoundation.Mvc.Controllers.ControlPanel
             //bool hasRows = dt1 is not null && dt1.Rows.Count > 0 && rowsList.Count > 0;
 
             ViewBag.HideTable = false;
-                //string.IsNullOrWhiteSpace(UserID_);
+            //string.IsNullOrWhiteSpace(UserID_);
 
             // then create dsModel (snippet shows toolbar parts that use the dynamic lists)
             var dsModel = new SmartTableDsModel
@@ -900,7 +850,7 @@ namespace SmartFoundation.Mvc.Controllers.ControlPanel
                             {
                                 new FormButtonConfig { Text = "حفظ", Type = "submit", Color = "success" /*Icon = "fa fa-save"*/ },
                                 new FormButtonConfig { Text = "إلغاء", Type = "button", Color = "secondary", /*Icon = "fa fa-times",*/ OnClickJs = "this.closest('.sf-modal').__x.$data.closeModal();" },
-                               
+
                             }
                         }
                     },
@@ -994,64 +944,5 @@ namespace SmartFoundation.Mvc.Controllers.ControlPanel
             };
             return View("Permission", vm);
         }
-
-
-
-        public IActionResult Index()
-
-        {
-            return View();
-        }
-
-        public IActionResult ssss()
-
-        {
-            var baseUrl = Url.Action(PageName, ControllerName) ?? "/";
-            return Redirect(baseUrl);
-        }
-
-
-        // Add an endpoint that returns permissions options filtered by distributorID_FK
-        //[HttpGet]
-        //public async Task<IActionResult> PermissionsByDistributor1(string p01) // Changed from int distributorId
-        //{
-
-
-        //    if (string.IsNullOrWhiteSpace(HttpContext.Session.GetString("userID")))
-        //        return Unauthorized();
-
-        //    if (!int.TryParse(p01, out int distributorId) || distributorId == -1)
-        //        return Json(new List<object> { new { value = "-1", text = "الرجاء الاختيار" } });
-
-        //    int userID = Convert.ToInt32(HttpContext.Session.GetString("userID"));
-        //    int IdaraID = Convert.ToInt32(HttpContext.Session.GetString("IdaraID"));
-        //    string HostName = HttpContext.Session.GetString("HostName");
-
-        //    var ds = await _mastersServies.GetDataLoadDataSetAsync("Permission", IdaraID, userID, HostName);
-        //    var table = (ds?.Tables?.Count ?? 0) > 4 ? ds.Tables[4] : null;
-
-        //    var items = new List<object>();
-        //    if (table is not null && table.Rows.Count > 0 && table.Columns.Contains("distributorID_FK"))
-        //    {
-        //        foreach (DataRow row in table.Rows)
-        //        {
-        //            var fk = row["distributorID_FK"]?.ToString()?.Trim();
-        //            if (fk == distributorId.ToString())
-        //            {
-        //                var value = row["distributorPermissionTypeID"]?.ToString()?.Trim() ?? "";
-        //                var text = row["permissionTypeName_A"]?.ToString()?.Trim() ?? "";
-        //                if (!string.IsNullOrEmpty(value))
-        //                    items.Add(new { value, text });
-        //            }
-        //        }
-        //    }
-
-        //    if (!items.Any())
-        //        items.Add(new { value = "-1", text = "لا توجد صلاحيات لهذا الموزع" });
-
-        //    return Json(items);
-        //}
-
-
     }
 }
