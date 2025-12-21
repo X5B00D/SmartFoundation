@@ -11,9 +11,11 @@
 
 @{
     // غيّر "userID" إذا اسم السيشن عندك مختلف
-    var sessionUserId = Context.Session.GetString("userID");
+    var sessionUserId = Context.Session.GetString("usersID");
     var sessionfullname = Context.Session.GetString("fullName");
     var sessionUserPhoto = Context.Session.GetString("photoBase64");
+    var sessionGeneralNo = Context.Session.GetString("GeneralNo");
+    var sessionnationalID = Context.Session.GetString("nationalID");
 }
 
 
@@ -376,8 +378,13 @@
                         @(sessionfullname?.ToString() ?? "غير معروف")
                     </div>
 
+                    
                     <div class="text-base font-bold text-emerald-400 mt-0.5">
-                        @(sessionUserId?.ToString() ?? "غير معروف")
+                        @(sessionnationalID?.ToString() ?? "غير معروف")
+                    </div>
+
+                    <div class="text-base font-bold text-emerald-400 mt-0.5">
+                        @(sessionGeneralNo?.ToString() ?? "غير معروف")
                     </div>
                 </div>
 

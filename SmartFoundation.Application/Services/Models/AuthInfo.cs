@@ -26,6 +26,7 @@ public sealed record AuthInfo(
     string? photoBase64,
     string? ThameName,
     string? DeptCode,
-    string? nationalID
+    string? nationalID,
+    string? GeneralNo
 
     );

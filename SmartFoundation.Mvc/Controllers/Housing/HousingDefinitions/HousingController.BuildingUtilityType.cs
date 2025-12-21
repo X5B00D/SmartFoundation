@@ -4,6 +4,7 @@ using SmartFoundation.UI.ViewModels.SmartPage;
 using SmartFoundation.UI.ViewModels.SmartTable;
 using System.Data;
 using System.Linq;
+using System.Security;
 
 
 namespace SmartFoundation.Mvc.Controllers.Housing
@@ -15,9 +16,16 @@ namespace SmartFoundation.Mvc.Controllers.Housing
             //  قراءة السيشن والكونتكست
             if (!InitPageContext(out var redirect))
                 return redirect!;
+            ControllerName = nameof(ControlPanel);
+            PageName = string.IsNullOrWhiteSpace(PageName) ? "BuildingUtilityType" : PageName;
 
-            var spParameters = new object?[] { PageName, IdaraId, usersId, HostName };
-
+            var spParameters = new object?[]
+            {
+             PageName ?? "BuildingUtilityType",
+             IdaraId,
+             usersId,
+             HostName
+            };
             var rowsList = new List<Dictionary<string, object?>>();
             var dynamicColumns = new List<TableColumn>();
 

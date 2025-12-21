@@ -186,6 +186,7 @@ namespace SmartFoundation.Mvc.Controllers.Login
             HttpContext.Session.SetString("DeptCode", auth.DeptCode ?? "");
             HttpContext.Session.SetString("nationalID", auth.nationalID ?? "");
             HttpContext.Session.SetString("usersActive", auth.usersActive.ToString());
+            HttpContext.Session.SetString("GeneralNo", auth.GeneralNo);
             HttpContext.Session.SetString("HostName", clientHostName ?? "");
             HttpContext.Session.SetString("LastActivityUtc", DateTime.UtcNow.ToString("O"));
 

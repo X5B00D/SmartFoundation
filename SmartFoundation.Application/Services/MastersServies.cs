@@ -473,20 +473,20 @@ namespace SmartFoundation.Application.Services
             if (ds == null)
             {
                 _logger.LogWarning("ExtractAuth called with null DataSet.");
-                return new AuthInfo(0, "لم يتم العثور على بيانات.", null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null);
+                return new AuthInfo(0, "لم يتم العثور على بيانات.", null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null);
             }
 
             if (ds.Tables.Count == 0)
             {
                 _logger.LogWarning("ExtractAuth received DataSet with no tables.");
-                return new AuthInfo(0, "لم يتم العثور على بيانات.", null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null);
+                return new AuthInfo(0, "لم يتم العثور على بيانات.", null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null);
             }
 
             var t = ds.Tables[0];
             if (t.Rows.Count == 0)
             {
                 _logger.LogInformation("ExtractAuth: first table has zero rows (likely invalid credentials).");
-                return new AuthInfo(0, "لايوجد حساب نشط لهذا المستخدم", null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null);
+                return new AuthInfo(0, "لايوجد حساب نشط لهذا المستخدم", null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null);
             }
 
             var r = t.Rows[0];
@@ -515,6 +515,7 @@ namespace SmartFoundation.Application.Services
 
             string? deptCode = ReadString(r, new[] { "DeptCode", "DepartmentCode" });
             string? ThameName = ReadString(r, new[] { "ThameName", "ThemeName", "Theme" });
+            string? GeneralNo = ReadString(r, new[] { "GeneralNo", "generalNo", "GNo" });
 
             string? photoBase64 = null;
             var photoObj = ReadObject(r, new[] { "Photo", "PhotoBase64" });
@@ -541,7 +542,9 @@ namespace SmartFoundation.Application.Services
          photoBase64,         // 15 (Photo)
          ThameName,           // 16
          deptCode,            // 17
-         nationalID           // 18
+         nationalID,          // 18
+         GeneralNo           // 19
+
      );
         }
 

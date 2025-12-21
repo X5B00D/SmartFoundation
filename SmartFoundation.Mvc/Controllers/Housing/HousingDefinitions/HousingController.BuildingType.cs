@@ -16,7 +16,18 @@ namespace SmartFoundation.Mvc.Controllers.Housing
             if (!InitPageContext(out var redirect))
                 return redirect!;
 
-            var spParameters = new object?[] { PageName, IdaraId, usersId, HostName };
+            ControllerName = nameof(ControlPanel);
+            PageName = string.IsNullOrWhiteSpace(PageName) ? "BuildingType" : PageName;
+
+            var spParameters = new object?[]
+            {
+             PageName ?? "BuildingType",
+             IdaraId,
+             usersId,
+             HostName
+            };
+
+           
 
             var rowsList = new List<Dictionary<string, object?>>();
             var dynamicColumns = new List<TableColumn>();

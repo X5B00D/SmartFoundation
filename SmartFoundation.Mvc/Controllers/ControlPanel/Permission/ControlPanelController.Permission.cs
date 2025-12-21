@@ -686,6 +686,13 @@ namespace SmartFoundation.Mvc.Controllers.ControlPanel
                 new FieldConfig { Name = "p05", Label = "ملاحظات", Type = "textarea", ColCss = "6", Required = false },
 
                   new FieldConfig { Name = "p06",Value=UserID_, Type = "hidden" },
+                  new FieldConfig { Name = "p07",Value=RoleID_, Type = "hidden" },
+                  new FieldConfig { Name = "p08",Value=Idara_, Type = "hidden" },
+                  new FieldConfig { Name = "p09",Value=Dept_, Type = "hidden" },
+                  new FieldConfig { Name = "p10",Value=Section_, Type = "hidden" },
+                  new FieldConfig { Name = "p11",Value=Divison_, Type = "hidden" },
+                  new FieldConfig { Name = "p12",Value=distributorID_, Type = "hidden" },
+                  new FieldConfig { Name = "p13",Value=SearchID_, Type = "hidden" },
             };
 
 
@@ -942,7 +949,7 @@ namespace SmartFoundation.Mvc.Controllers.ControlPanel
                 PageTitle = dsModel.PageTitle,
                 PanelTitle = dsModel.PanelTitle
             };
-            return View("Permission", vm);
+            return View("Permission/Permission", vm);
         }
     }
 }
