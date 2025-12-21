@@ -42,7 +42,7 @@ namespace SmartFoundation.Mvc.Controllers.ControlPanel
             ControllerName = nameof(ControlPanel);
             PageName = nameof(Permission);
 
-            var spParameters = new object?[] { "Permission", IdaraId, usersId, HostName, SearchID_, UserID_, distributorID_, RoleID_, Idara_ };
+            var spParameters = new object?[] { "Permission", IdaraId, usersId, HostName, SearchID_, UserID_, distributorID_, RoleID_, Idara_,Dept_,Section_,Divison_ };
 
             //var spParameters = new object?[] { "Permission", IdaraID, userID, HostName, SearchID_, UserID_, distributorID_, RoleID_, Idara_, Dept_, Section_, Divison_ };
 
@@ -123,6 +123,7 @@ namespace SmartFoundation.Mvc.Controllers.ControlPanel
             List<OptionItem> secOptions = new();
             List<OptionItem> divOptions = new();
             List<OptionItem> RoleOptions = new();
+            List<OptionItem> distributorToGivepermissionOptions = new();
 
 
             FormConfig form = new();
@@ -225,7 +226,16 @@ namespace SmartFoundation.Mvc.Controllers.ControlPanel
                 RoleOptions = JsonSerializer.Deserialize<List<OptionItem>>(json)!;
 
 
+                // ---------------------- distributorToGivepermission ----------------------
+                result = await _CrudController.GetDDLValues(
+                    "distributorName_A", "distributorID", "10", nameof(Permission), usersId, IdaraId, HostName, null, null
+                ) as JsonResult;
 
+                json = JsonSerializer.Serialize(result!.Value);
+
+                distributorToGivepermissionOptions = JsonSerializer.Deserialize<List<OptionItem>>(json)!;
+
+              
 
                 // ----------------------END DDLValues ----------------------
 
@@ -345,7 +355,7 @@ namespace SmartFoundation.Mvc.Controllers.ControlPanel
 
                         Name = "Distributors",
                          Type = "select",
-                         Options = distributorOptions,
+                         Options = distributorToGivepermissionOptions,
                          ColCss = "6",
                          Placeholder = "اختر الموزع",
                          Icon = "fa fa-user",
@@ -596,6 +606,14 @@ namespace SmartFoundation.Mvc.Controllers.ControlPanel
                                 colType = "number";
 
                             bool isuserID = c.ColumnName.Equals("userID", StringComparison.OrdinalIgnoreCase);
+                            bool isPermissionID = c.ColumnName.Equals("PermissionID", StringComparison.OrdinalIgnoreCase);
+                            bool isdistributorID_FK = c.ColumnName.Equals("distributorID_FK", StringComparison.OrdinalIgnoreCase);
+                            bool isRoleID_FK = c.ColumnName.Equals("RoleID_FK", StringComparison.OrdinalIgnoreCase);
+                            bool isIdaraID_FK = c.ColumnName.Equals("IdaraID_FK", StringComparison.OrdinalIgnoreCase);
+                            bool isDSDID_FK = c.ColumnName.Equals("DSDID_FK", StringComparison.OrdinalIgnoreCase);
+                            bool isdeptID = c.ColumnName.Equals("deptID", StringComparison.OrdinalIgnoreCase);
+                            bool issecID = c.ColumnName.Equals("secID", StringComparison.OrdinalIgnoreCase);
+                            bool isdivID = c.ColumnName.Equals("divID", StringComparison.OrdinalIgnoreCase);
 
                             dynamicColumns.Add(new TableColumn
                             {
@@ -605,7 +623,7 @@ namespace SmartFoundation.Mvc.Controllers.ControlPanel
                                 Sortable = true
                                 //if u want to hide any column 
                                 ,
-                                Visible = !(isuserID)
+                                Visible = !(isuserID ||isPermissionID || isdistributorID_FK || isRoleID_FK || isIdaraID_FK || isDSDID_FK || isdeptID || issecID || isdivID) 
                             });
                         }
 
@@ -652,7 +670,7 @@ namespace SmartFoundation.Mvc.Controllers.ControlPanel
             catch (Exception ex)
             {
                 ViewBag.DataSetError = ex.Message;
-
+                //TempData["info"] = ex.Message;
             }
 
 
@@ -671,6 +689,8 @@ namespace SmartFoundation.Mvc.Controllers.ControlPanel
                 p08Value = IdaraId;
             }
 
+
+            var currentUrl = Request.Path + Request.QueryString;
 
             var addFields = new List<FieldConfig>
             {
@@ -728,7 +748,7 @@ namespace SmartFoundation.Mvc.Controllers.ControlPanel
 
 
             // Optional: help the generic endpoint know where to go back
-            var currentUrl = Request.Path + Request.QueryString;
+            
             addFields.Insert(0, new FieldConfig { Name = "redirectUrl", Type = "hidden", Value = currentUrl });
             addFields.Insert(0, new FieldConfig { Name = "redirectAction", Type = "hidden", Value = PageName });
             addFields.Insert(0, new FieldConfig { Name = "redirectController", Type = "hidden", Value = ControllerName });
@@ -758,6 +778,14 @@ namespace SmartFoundation.Mvc.Controllers.ControlPanel
                 new FieldConfig { Name = "p04", Label = "ملاحظات", Type = "textarea", ColCss = "6", Required = false },
 
                   new FieldConfig { Name = "p05",Value=UserID_, Type = "hidden" },
+                  new FieldConfig { Name = "p06",Value=RoleID_, Type = "hidden" },
+
+                  new FieldConfig { Name = "p07", Value = p08Value as string, Type = "hidden" },
+                  new FieldConfig { Name = "p08",Value=Dept_, Type = "hidden" },
+                  new FieldConfig { Name = "p09",Value=Section_, Type = "hidden" },
+                  new FieldConfig { Name = "p10",Value=Divison_, Type = "hidden" },
+                  new FieldConfig { Name = "p11",Value=distributorID_, Type = "hidden" },
+                  new FieldConfig { Name = "p12",Value=SearchID_, Type = "hidden" },
             };
 
 
@@ -771,7 +799,7 @@ namespace SmartFoundation.Mvc.Controllers.ControlPanel
             addFields1.Insert(0, new FieldConfig { Name = "pageName_", Type = "hidden", Value = PageName });
 
 
-
+           
             // Optional: help the generic endpoint know where to go back
             addFields1.Insert(0, new FieldConfig { Name = "redirectAction", Type = "hidden", Value = PageName });
             addFields1.Insert(0, new FieldConfig { Name = "redirectController", Type = "hidden", Value = ControllerName });
@@ -780,12 +808,14 @@ namespace SmartFoundation.Mvc.Controllers.ControlPanel
 
 
 
+            
 
             var updateFields = new List<FieldConfig>
             {
+
                 new FieldConfig { Name = "redirectAction",      Type = "hidden", Value = PageName },
                 new FieldConfig { Name = "redirectController",  Type = "hidden", Value = ControllerName },
-                new FieldConfig { Name = "redirectCoredirectUrlntroller",  Type = "hidden", Value = currentUrl },
+                new FieldConfig { Name = "redirectUrl",  Type = "hidden", Value = currentUrl },
                 new FieldConfig { Name = "pageName_",           Type = "hidden", Value = PageName },
                 new FieldConfig { Name = "ActionType",          Type = "hidden", Value = "UPDATE" },
                 new FieldConfig { Name = "idaraID",             Type = "hidden", Value = IdaraId },
@@ -795,10 +825,31 @@ namespace SmartFoundation.Mvc.Controllers.ControlPanel
                 new FieldConfig { Name = rowIdField,            Type = "hidden" },
 
                 new FieldConfig { Name = "p01", Label = "المعرف",             Type = "hidden", Readonly = true, ColCss = "3" },
-                new FieldConfig { Name = "p02", Label = "اسم الصفحة",         Type = "text", Required = true,  ColCss = "3" },
-                new FieldConfig { Name = "p03", Label = "الصلاحية", Type = "text",   ColCss = "3", TextMode = "arabic" },
-                new FieldConfig { Name = "p04", Label = "تاريخ بداية الصلاحية", Type = "date", Required = true, ColCss = "3",Icon = "fa fa-calendar" },
-                 new FieldConfig { Name = "p05", Label = "تاريخ نهاية الصلاحية", Type = "date", Required = true, ColCss = "3",Icon = "fa fa-calendar" },
+                new FieldConfig { Name = "p02", Label = "اسم الصفحة",         Type = "hidden", Required = true,  ColCss = "3" },
+                new FieldConfig { Name = "p03", Label = "الصلاحية", Type = "hidden",   ColCss = "3", TextMode = "arabic" },
+                // new FieldConfig
+                //{
+                //    Name = "p02",
+                //    Label = "الموزع",
+                //    Type = "select",
+                //    Options = distributorOptions,
+                //    ColCss = "3",
+                //    Required = true,
+                //},
+
+                //new FieldConfig
+                //{
+                //    Name = "p03",
+                //    Label = "الصلاحية",
+                //    Type = "select",
+                //    Options = new List<OptionItem> { new OptionItem { Value = "-1", Text = "اختر الموزع أولاً"     } }, //       Initial empty state
+                //    ColCss = "3",
+                //    Required = true,
+                //    DependsOn = "p02",
+                //    DependsUrl = "/crud/DDLFiltered?FK=distributorID_FK&textcol=permissionTypeName_A&ValueCol=distributorPermissionTypeID&PageName=Permission&TableIndex=4"
+                //},
+                new FieldConfig { Name = "p04", Label = "تاريخ بداية الصلاحية", Type = "date", Required = false, ColCss = "3",Icon = "fa fa-calendar" },
+                 new FieldConfig { Name = "p05", Label = "تاريخ نهاية الصلاحية", Type = "date", Required = false, ColCss = "3",Icon = "fa fa-calendar" },
                 new FieldConfig { Name = "p06", Label = "ملاحظات",            Type = "textarea",   ColCss = "6" }
             };
 

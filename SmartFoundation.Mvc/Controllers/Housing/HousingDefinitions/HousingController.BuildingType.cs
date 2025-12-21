@@ -16,7 +16,7 @@ namespace SmartFoundation.Mvc.Controllers.Housing
             if (!InitPageContext(out var redirect))
                 return redirect!;
 
-            ControllerName = nameof(ControlPanel);
+            ControllerName = nameof(Housing);
             PageName = string.IsNullOrWhiteSpace(PageName) ? "BuildingType" : PageName;
 
             var spParameters = new object?[]

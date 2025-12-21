@@ -16,7 +16,7 @@ namespace SmartFoundation.Mvc.Controllers.Housing
             //  قراءة السيشن والكونتكست
             if (!InitPageContext(out var redirect))
                 return redirect!;
-            ControllerName = nameof(ControlPanel);
+            ControllerName = nameof(Housing);
             PageName = string.IsNullOrWhiteSpace(PageName) ? "BuildingUtilityType" : PageName;
 
             var spParameters = new object?[]

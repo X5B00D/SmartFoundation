@@ -135,13 +135,13 @@ namespace SmartFoundation.Mvc.Controllers.ControlPanel
         //{
 
 
-        //    if (string.IsNullOrWhiteSpace(HttpContext.Session.GetString("userID")))
+        //    if (string.IsNullOrWhiteSpace(HttpContext.Session.GetString("usersID")))
         //        return Unauthorized();
 
         //    if (!int.TryParse(p01, out int distributorId) || distributorId == -1)
         //        return Json(new List<object> { new { value = "-1", text = "الرجاء الاختيار" } });
 
-        //    int userID = Convert.ToInt32(HttpContext.Session.GetString("userID"));
+        //    int userID = Convert.ToInt32(HttpContext.Session.GetString("usersID"));
         //    int IdaraID = Convert.ToInt32(HttpContext.Session.GetString("IdaraID"));
         //    string HostName = HttpContext.Session.GetString("HostName");
 

@@ -22,7 +22,7 @@ namespace SmartFoundation.Mvc.Controllers
                 return BadRequest(new { success = false, message = "Invalid request" });
             }
 
-            var userId = HttpContext.Session.GetString("userID") ?? "";
+            var userId = HttpContext.Session.GetString("usersID") ?? "";
             
             if (string.IsNullOrEmpty(userId))
             {
@@ -37,7 +37,7 @@ namespace SmartFoundation.Mvc.Controllers
         [HttpPost("mark-all-read")]
         public async Task<IActionResult> MarkAllRead()
         {
-            var userId = HttpContext.Session.GetString("userID") ?? "";
+            var userId = HttpContext.Session.GetString("usersID") ?? "";
             
             if (string.IsNullOrEmpty(userId))
             {
@@ -52,7 +52,7 @@ namespace SmartFoundation.Mvc.Controllers
         [HttpPost("mark-all-clicked")]
         public async Task<IActionResult> MarkAllClicked()
         {
-            var userId = HttpContext.Session.GetString("userID") ?? "";
+            var userId = HttpContext.Session.GetString("usersID") ?? "";
             
             if (string.IsNullOrEmpty(userId))
             {
@@ -73,7 +73,7 @@ namespace SmartFoundation.Mvc.Controllers
                 return BadRequest(new { success = false, message = "Invalid request" });
             }
 
-            var userId = HttpContext.Session.GetString("userID") ?? "";
+            var userId = HttpContext.Session.GetString("usersID") ?? "";
             
             if (string.IsNullOrEmpty(userId))
             {
@@ -88,7 +88,7 @@ namespace SmartFoundation.Mvc.Controllers
         [HttpGet("get-latest")]
         public async Task<IActionResult> GetLatest()
         {
-            var userId = HttpContext.Session.GetString("userID") ?? "";
+            var userId = HttpContext.Session.GetString("usersID") ?? "";
             
             if (string.IsNullOrEmpty(userId))
             {

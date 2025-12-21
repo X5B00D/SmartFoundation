@@ -505,13 +505,13 @@ new FieldConfig
         [HttpGet("Table")]
         public async Task<IActionResult> Table()
         {
-            if (string.IsNullOrWhiteSpace(HttpContext.Session.GetString("userID")))
+            if (string.IsNullOrWhiteSpace(HttpContext.Session.GetString("usersID")))
                 return RedirectToAction("Index", "Login", new { logout = 1 });
 
 
             ControllerName = ControllerContext.ActionDescriptor.ControllerName;
             PageName = ControllerContext.ActionDescriptor.ActionName;
-            userID = Convert.ToInt32(HttpContext.Session.GetString("userID"));
+            userID = Convert.ToInt32(HttpContext.Session.GetString("usersID"));
             fullName = HttpContext.Session.GetString("fullName");
             IdaraID = Convert.ToInt32(HttpContext.Session.GetString("IdaraID"));
             DepartmentName = HttpContext.Session.GetString("DepartmentName");
@@ -867,12 +867,12 @@ new FieldConfig
         {
 
 
-            if (string.IsNullOrWhiteSpace(HttpContext.Session.GetString("userID")))
+            if (string.IsNullOrWhiteSpace(HttpContext.Session.GetString("usersID")))
                 return RedirectToAction("Index", "Login", new { logout = 1 });
 
 
 
-             userID = Convert.ToInt32(HttpContext.Session.GetString("userID"));
+             userID = Convert.ToInt32(HttpContext.Session.GetString("usersID"));
              fullName = HttpContext.Session.GetString("fullName");
              IdaraID = Convert.ToInt32(HttpContext.Session.GetString("IdaraID"));
              DepartmentName = HttpContext.Session.GetString("DepartmentName");

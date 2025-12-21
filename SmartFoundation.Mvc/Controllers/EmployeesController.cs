@@ -52,12 +52,12 @@ namespace SmartFoundation.Mvc.Controllers
         public async Task<IActionResult> Sami()
         {
 
-            if (string.IsNullOrWhiteSpace(HttpContext.Session.GetString("userID")))
+            if (string.IsNullOrWhiteSpace(HttpContext.Session.GetString("usersID")))
                 return RedirectToAction("Index", "Login", new { logout = 1 });
 
 
 
-            int userID = Convert.ToInt32(HttpContext.Session.GetString("userID"));
+            int userID = Convert.ToInt32(HttpContext.Session.GetString("usersID"));
             string fullName = HttpContext.Session.GetString("fullName");
             int IdaraID = Convert.ToInt32(HttpContext.Session.GetString("IdaraID"));
             string DepartmentName = HttpContext.Session.GetString("DepartmentName");

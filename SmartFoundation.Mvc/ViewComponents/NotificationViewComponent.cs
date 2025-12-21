@@ -15,7 +15,7 @@ namespace SmartFoundation.Mvc.ViewComponents
 
         public async Task<IViewComponentResult> InvokeAsync()
         {
-            var userId = HttpContext.Session.GetString("userID") ?? "";
+            var userId = HttpContext.Session.GetString("usersID") ?? "";
             
             var count = await _mastersServies.GetUserNotificationCount(userId);
             var items = await _mastersServies.GetUserNotifications(userId);
