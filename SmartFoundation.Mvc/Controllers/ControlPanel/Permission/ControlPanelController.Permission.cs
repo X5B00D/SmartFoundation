@@ -374,6 +374,17 @@ namespace SmartFoundation.Mvc.Controllers.ControlPanel
                          Icon = "fa fa-user",
                          Value=RoleID_,
                           IsHidden = !showRoles,
+                           OnChangeJs = @"
+                                       var RoleID_ = value.trim();
+                                       if (!RoleID_) {
+                                           if (typeof toastr !== 'undefined') {
+                                               toastr.info('الرجاء الاختيار اولا');
+                                           }
+                                           return;
+                                       }
+                                       var url = '/ControlPanel/Permission?S=3&Ro=' + encodeURIComponent(RoleID_);
+                                       window.location.href = url;
+                                   "
                     },
                           new FieldConfig
                     {
@@ -654,8 +665,16 @@ namespace SmartFoundation.Mvc.Controllers.ControlPanel
             // REPLACE Add form fields: hide dataset textboxes and use your own custom inputs
 
             //ADD
+            object? p08Value = Idara_;
+            if (SearchID_ == "5")
+            {
+                p08Value = IdaraId;
+            }
+
+
             var addFields = new List<FieldConfig>
             {
+
                 // keep id hidden first so row id can flow when needed
                 new FieldConfig { Name = rowIdField, Type = "hidden" },
 
@@ -687,7 +706,8 @@ namespace SmartFoundation.Mvc.Controllers.ControlPanel
 
                   new FieldConfig { Name = "p06",Value=UserID_, Type = "hidden" },
                   new FieldConfig { Name = "p07",Value=RoleID_, Type = "hidden" },
-                  new FieldConfig { Name = "p08",Value=Idara_, Type = "hidden" },
+                  
+                  new FieldConfig { Name = "p08", Value = p08Value as string, Type = "hidden" },
                   new FieldConfig { Name = "p09",Value=Dept_, Type = "hidden" },
                   new FieldConfig { Name = "p10",Value=Section_, Type = "hidden" },
                   new FieldConfig { Name = "p11",Value=Divison_, Type = "hidden" },
