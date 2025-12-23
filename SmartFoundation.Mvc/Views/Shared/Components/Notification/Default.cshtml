@@ -32,10 +32,12 @@
 </style>
 
 <div class="relative">
-    <button type="button"
+    @* <button type="button"
             id="notification-bell-btn"
             data-dropdown-toggle="notification-dropdown"
-            class="relative p-1 rounded-lg text-slate-300 hover:text-slate-50 hover:bg-slate-700"
+            
+            class="relative p-3 rounded-lg text-slate-300 hover:text-slate-50 hover:bg-slate-700 hover:shadow-md transition
+       focus:ring-1 focus:ring-slate-400"
             aria-haspopup="true" aria-expanded="false">
         <span class="sr-only">عرض الإشعارات</span>
         
@@ -55,7 +57,40 @@
                 @(Model.Count > 99 ? "99+" : Model.Count.ToString())
             </span>
         }
+    </button> *@
+
+    <button type="button"
+            id="notification-bell-btn"
+            data-dropdown-toggle="notification-dropdown"
+            class="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm text-slate-200 rounded-md
+               hover:text-slate-50 hover:bg-slate-700 hover:shadow-md transition
+               focus:ring-1 focus:ring-slate-400"
+            aria-haspopup="true" aria-expanded="false">
+        <span class="sr-only">عرض الإشعارات</span>
+
+        <span class="relative inline-flex">
+            <svg class="w-6 h-7" fill="currentColor" viewBox="0 0 20 20">
+                <path d="M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6zM10 18a3 3 0 01-3-3h6a3 3 0 01-3 3z"></path>
+            </svg>
+
+            @if (Model.Count > 0)
+            {
+                <span id="notification-badge"
+                      class="absolute -top-1 -right-1
+                             min-w-[15px] h-[17px]
+                             px-1.5 rounded-full
+                             bg-red-600 text-white text-[10px]
+                             flex items-center justify-center
+                             font-bold ring-1 ring-slate-800"
+                      data-initial-count="@Model.Count">
+                    @(Model.Count > 99 ? "99+" : Model.Count.ToString())
+                </span>
+            }
+        </span>
+
+        <span>الإشعارات</span>
     </button>
+
 
     <div id="notification-dropdown"
          class="absolute right-0 top-full z-50 hidden mt-2 overflow-hidden rounded-lg shadow-lg w-80 bg-slate-800 ring-1 ring-slate-700">
@@ -355,9 +390,14 @@ document.addEventListener('DOMContentLoaded', function() {
                         if (!badge) {
                             const newBadge = document.createElement('span');
                             newBadge.id = 'notification-badge';
-                            newBadge.className = 'absolute -top-0.5 -right-0.5 min-w-[15px] h-[17px] px-1.5 rounded-full bg-red-600 text-white text-[10px] flex items-center justify-center font-bold ring-1 ring-slate-800';
+                            // newBadge.className = 'absolute -top-0.5 -right-0.5 min-w-[15px] h-[17px] px-1.5 rounded-full bg-red-600 text-white text-[10px] flex items-center justify-center font-bold ring-1 ring-slate-800';
+                                newBadge.className = 'absolute -top-1 -right-1 min-w-[15px] h-[17px] px-1.5 rounded-full bg-red-600 text-white text-[10px] flex items-center justify-center font-bold ring-1 ring-slate-800';
+
                             newBadge.textContent = data.count > 99 ? '99+' : data.count.toString();
-                            bellBtn.appendChild(newBadge);
+                            // bellBtn.appendChild(newBadge);
+                                const iconWrap = bellBtn.querySelector('.relative.inline-flex');
+                                (iconWrap || bellBtn).appendChild(newBadge);
+
                         } else {
                             badge.textContent = data.count > 99 ? '99+' : data.count.toString();
                             badge.classList.remove('hidden');

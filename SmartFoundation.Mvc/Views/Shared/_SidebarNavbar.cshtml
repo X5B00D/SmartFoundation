@@ -20,7 +20,8 @@
 
 
 
-<nav class="fixed z-50 w-full border-bottom" style="background:#1f2937; color:#e2e8f0; border-color:#334155">
+
+    <nav class="fixed z-50 w-full border-bottom" style="background:#064E3B; color:#fff; border-color:#334155">
     <div class="px-3 py-3 lg:px-5 lg:pe-3">
         <div class="flex items-center justify-between">
             <div class="flex items-center justify-start">
@@ -54,8 +55,11 @@
                             </svg>
                         </div>
                         <input id="topbar-search" type="text"
-                               class="block w-full rounded-md border border-slate-600 bg-slate-700 p-2.5 ps-10 text-sm text-slate-100 placeholder-slate-300 focus:border-slate-500 focus:ring-slate-500"
+                               class="block w-full rounded-md border p-2.5 ps-10 text-sm
+              bg-slate-100 text-slate-900 placeholder-slate-500
+              border-emerald-300 focus:border-emerald-500 focus:ring-emerald-400"
                                placeholder="بحث..">
+
                     </div>
                 </form>
             </div>
@@ -64,48 +68,20 @@
             <div class="flex items-center gap-0">
                 <!-- روابط سريعة -->
                 <nav class="flex items-center gap-0.5 me-4 flex-none" dir="rtl" aria-label="روابط سريعة">
-                    <a href="/Home" class="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm text-slate-200 rounded-md hover:bg-slate-700">
+                    <a href="/Home" class="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm text-slate-200 rounded-md">
                         <i class="fa-solid fa-house text-[16px]"></i>
                         <span>الصفحة الرئيسية</span>
                     </a>
-                 @*    <a href="/Account/ChangePassword" class="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm text-slate-200 rounded-md hover:bg-slate-700">
-                        <i class="fa-solid fa-key text-[16px]"></i>
-                        <span>تغيير كلمة المرور</span>
-                    </a> *@
+                
                 </nav>
 
                 <!-- الإشعارات -->
                 <!-- الإشعارات -->
                 @await Component.InvokeAsync("Notification")
 
-               @*  <button type="button"
-                        data-dropdown-toggle="notification-dropdown"
-                        class="relative p-1 rounded-lg text-slate-300 hover:text-slate-50 hover:bg-slate-700"
-                        aria-haspopup="true" aria-expanded="false">
+          
 
-
-                    <span class="sr-only">عرض الإشعارات</span>
-
-                    <!-- أيقونة الجرس -->
-                    <svg class="w-6 h-7" fill="currentColor" viewBox="0 0 20 20">
-                        <path d="M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6zM10 18a3 3 0 01-3-3h6a3 3 0 01-3 3z"></path>
-                    </svg>
-
-                    <!-- Badge عدد الإشعارات -->
-                    <span id="notif-count"
-                          class="absolute -top-0.5 -right-0.5 
-             min-w-[15px] h-[17px]
-             px-1.5 rounded-full
-             bg-red-600 text-white text-[10px]
-             flex items-center justify-center
-             font-bold ring-1 ring-slate-800 hidden">
-                         
-                    </span>
-
-                </button>
- *@
-
-                <div id="notification-dropdown" class="z-50 hidden my-2 overflow-hidden rounded-lg shadow-lg w-80 bg-slate-800 ring-1 ring-slate-700">
+                @* <div id="notification-dropdown" class="z-50 hidden my-2 overflow-hidden rounded-lg shadow-lg w-80 bg-slate-800 ring-1 ring-slate-700">
                     <div class="px-4 py-2 text-base font-medium text-center text-slate-200">الإشعارات</div>
                     <div>
                         <a href="/Housing/Index" class="flex px-4 py-3 border-t border-slate-700 hover:bg-slate-700/60">
@@ -116,44 +92,37 @@
                         </a>
                     </div>
                     <a href="#" class="block py-2 text-base text-center bg-slate-700 text-slate-100 hover:bg-slate-600">عرض الكل</a>
-                </div>
+                </div> *@
 
                 <!-- المستخدم -->
                 <div class="flex items-center ms-3">
                     <div>
-                        <button type="button"
+                        @* <button type="button"
                                 class="p-3 rounded-lg text-slate-300 hover:text-slate-50 hover:bg-slate-700 hover:shadow-md transition
                                 focus:ring-1 focus:ring-slate-400"
                                 id="user-menu-button" aria-expanded="false" data-dropdown-toggle="user-dropdown">
 
                             <span class="sr-only">فتح قائمة المستخدم</span>
 
-                           @*  @if (!string.IsNullOrEmpty(sessionUserPhoto))
-                            {
-                                <img class="w-8 h-8 rounded-full"
-                                     src="data:image/png;base64,@sessionUserPhoto"
-                                     alt="user photo">
-                            }
-                            else
-                            {
-                                <img class="w-8 h-8 rounded-full"
-                                     src="~/img/user_.png"
-                                     alt="user photo">
-                            } *@
-                            @* <img class="w-8 h-8" src="~/img/user_.png" alt="user photo"> *@
+                           
+                          
                             <i class="fa-solid fa-gear text-[16px] text-slate-300"></i>
+                        </button> *@
+
+                        <button type="button"
+                                class="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm text-slate-200 rounded-md"
+                                id="user-menu-button" aria-expanded="false" data-dropdown-toggle="user-dropdown">
+                            <i class="fa-solid fa-gear text-[16px]"></i>
+                            <span>الإعدادات</span>
                         </button>
+
                     </div>
 
                     <!-- User dropdown -->
                     <div id="user-dropdown"
                          class="z-50 hidden w-55 my-2 overflow-hidden rounded-sm shadow-sm bg-slate-800 ring-1 ring-slate-700">
                          
-                       @*  <div class="px-4 py-3">
-                            <p class="text-sm font-medium text-slate-200">@(sessionfullname?.ToString() ?? "غير معروف")</p>
-                            <p class="mt-0.5 text-xs text-slate-400 truncate">@(sessionUserId?.ToString() ?? "غير معروف")</p>
-                            
-                        </div> *@
+                       
                         
                         <ul class="py-1">
                             <li>
@@ -185,30 +154,170 @@
 
 
 <aside id="logo-sidebar"
-       class="fixed top-0 right-0 z-40 w-64 h-screen translate-x-full border-l pt-25 sm:translate-x-0 bg-slate-800 text-slate-200 border-slate-700"
+       class="fixed top-0 right-0 z-40 w-64 h-screen translate-x-full border-l pt-24 sm:translate-x-0 bg-slate-800 text-slate-200 border-slate-700"
        aria-label="Sidebar">
 
-@* <aside id="logo-sidebar"
-       class="fixed top-16 right-0 z-40 w-64 h-[calc(100vh-4rem)]
-              translate-x-full sm:translate-x-0
-              border-l bg-slate-800 text-slate-200 border-slate-700
-              transition-transform duration-200"
-       aria-label="Sidebar"> *@
 
-
-
-    <div class="relative flex flex-col flex-1 h-full min-h-0 pt-0 bg-transparent">
+    <div class="relative flex flex-col flex-1 h-full min-h-0 pt-3 bg-transparent">
         <div class="flex flex-col flex-1 pt-5 pb-4 overflow-y-auto"
              style="scrollbar-width: none; -ms-overflow-style: none;">
             <style>
+
+                
+                /* ===========================
+                   Header Hover (Unified)
+                   =========================== */
+
+                /* 1)  الروابط في الهيدر */
+                nav[aria-label="روابط سريعة"] a:hover {
+                    background: #0b6b52 !important;
+                    color: #fff !important;
+                }
+
+                /*  */
+                #notification-bell-btn:hover,
+                #notification-bell-btn:focus,
+                #notification-bell-btn:focus-visible,
+                button[data-dropdown-toggle="notification-dropdown"]:hover,
+                button[data-dropdown-toggle="notification-dropdown"]:focus,
+                button[data-dropdown-toggle="notification-dropdown"]:focus-visible {
+                    background: #0b6b52 !important;
+                    color: #fff !important;
+                    box-shadow: none !important;
+                    outline: none !important;
+                }
+
+                /* 3) زر المستخدم/الإعدادات (عندك id واضح) */
+                #user-menu-button:hover,
+                #user-menu-button:focus,
+                #user-menu-button:focus-visible {
+                    background: #0b6b52 !important;
+                    color: #fff !important;
+                    box-shadow: none !important;
+                    outline: none !important;
+                }
+
+                    /* 4) الأيقونات داخل الأزرار تتحول أبيض وقت الهوفر */
+                    #user-menu-button:hover i,
+                    #notification-bell-btn:hover i,
+                    #notification-bell-btn:hover svg,
+                    button[data-dropdown-toggle="notification-dropdown"]:hover i {
+                        color: #fff !important;
+                    }
+
                 /* إخفاء شريط التمرير */
                 #logo-sidebar .overflow-y-auto::-webkit-scrollbar {
                     display: none;
                 }
 
+                /*  تدوير سهم القوائم عند الفتح/الإغلاق */
+                #logo-sidebar button .menu-chevron {
+                    transform: rotate(0deg);
+                    transition: transform 0.2s ease;
+                }
+
+                #logo-sidebar button[aria-expanded="true"] .menu-chevron {
+                    transform: rotate(180deg);
+                }
+
+
+                /* ===== Notifications dropdown ===== */
+                #notification-dropdown {
+                    background: #0b6b52 !important; 
+                    border: 1px solid rgba(255,255,255,.25) !important;
+                    box-shadow: 0 12px 24px rgba(0,0,0,.3) !important;
+                    color: #fff !important;
+                }
+
+                    /* العنوان */
+                    #notification-dropdown .px-4.py-2 {
+                        background: rgba(0,0,0,.25) !important;
+                        font-weight: 900;
+                    }
+
+                    /* المحتوى */
+                    #notification-dropdown * {
+                        color: #fff !important;
+                        opacity: 1 !important;
+                    }
+
+                    /* زر عرض الكل */
+                    #notification-dropdown a.block {
+                        background: rgba(0,0,0,.25) !important;
+                    }
+
+                        #notification-dropdown a.block:hover {
+                            background: rgba(0,0,0,.35) !important;
+                        }
+
+                /* ===== Bell icon (no fade) ===== */
+                button[data-dropdown-toggle="notification-dropdown"],
+                button[data-dropdown-toggle="notification-dropdown"] i,
+                button[data-dropdown-toggle="notification-dropdown"] svg {
+                    color: #fff !important;
+                    fill: #fff !important;
+                    opacity: 1 !important;
+                }
+
+
+                /*     Dropdown الإعدادات */
+                #user-dropdown {
+                    background: #0b6b52 !important;
+                    border: 1px solid rgba(255,255,255,.25) !important;
+                    box-shadow: 0 12px 24px rgba(0,0,0,.3) !important;
+                    color: #fff !important;
+                }
+
+                    /* عنوان/خط فاصل + عناصر القائمة */
+                    #user-dropdown hr {
+                        border-color: rgba(255,255,255,.20) !important;
+                    }
+
+                    #user-dropdown a {
+                        color: #fff !important;
+                    }
+
+                        #user-dropdown a:hover {
+                            background: rgba(0,0,0,.25) !important;
+                        }
+
+                    /* أيقونات داخل القائمة + أيقونة زر الإعدادات */
+                    #user-menu-button, #user-menu-button i,
+                    #user-dropdown i {
+                        color: #fff !important;
+                        opacity: 1 !important;
+                    }
+
+
+
+                /* ===== Search box FIX ===== */
+                #topbar-search {
+                    background: #e5e7eb !important; 
+                    color: #111827 !important;
+                    
+                }
+
+                    #topbar-search::placeholder {
+                        color: #6b7280 !important;
+                    }
+
+                    /* hover */
+                    #topbar-search:hover {
+                        background: #d1d5db !important; 
+                    }
+
+                    /* focus */
+                    #topbar-search:focus {
+                        background: #e5e7eb !important;
+                        border-color: #047857 !important; /* أخضر غامق */
+                        box-shadow: 0 0 0 2px rgba(5,150,105,.35) !important;
+                    }
+
+
                 /* خلفية وألوان */
                 #logo-sidebar {
-                    background: #1f2937;
+                    /* background: #1f2937; */ 
+                    background: #064E3B; /*لون السايد بار*/
                     border-top: 0 !important;
                 }
 
@@ -227,7 +336,8 @@
                     /* روابط وأزرار */
                     #logo-sidebar a,
                     #logo-sidebar button {
-                        color: #f8fafc;
+                        
+                        color: #fff;
                         display: flex;
                         align-items: center;
                         gap: 0rem;
@@ -245,7 +355,7 @@
                         #logo-sidebar a:hover,
                         #logo-sidebar button:hover,
                         #logo-sidebar .hover\:bg-white:hover {
-                            background: #334155 !important;
+                            background: #0b6b52 !important; /*تحديد الماوس*/
                             color: #f8fafc !important;
                         }
 
@@ -287,22 +397,23 @@
                         transition: background-color 0.18s ease, color 0.18s ease, box-shadow 0.18s ease, transform 0.14s ease, opacity 0.18s ease;
                     }
 
-                        /* hover */
                         #logo-sidebar ul > li > ul > li > a:hover,
                         #logo-sidebar ul > li > ul > li > button:hover {
-                            background: #334155 !important; 
-                            color: #f9fafb !important;
+                            background: #0b6b52 !important;          
+                            color: #f0fdf4 !important;               
                             opacity: 1;
-                            transform: translateX(-4px); 
-                            box-shadow: 0 4px 10px rgba(15, 23, 42, 0.45);
+                            transform: translateX(-4px);
+                            box-shadow: none !important; 
+                              
                         }
+
 
                         
                         #logo-sidebar ul > li > ul > li > a.bg-slate-700,
                         #logo-sidebar ul > li > ul > li > button.bg-slate-700 {
-                            background: #334155 !important;
+                            background: #0b6b52 !important;
                             color: #f9fafb !important;
-                            box-shadow: 0 0 0 1px #1e293b, 0 6px 14px rgba(15, 23, 42, 0.55);
+                            box-shadow: none !important;
                             opacity: 1;
                             transform: translateX(-2px);
                         }
@@ -340,14 +451,15 @@
                             opacity: 1;
                         }
 
+                        /*الخط الفاصل بين القوائم*/
+                    #logo-sidebar hr {
+                        border: 0 !important;
+                        border-top: 1px solid rgba(255,255,255,0.25) !important;
+                        margin: 4px 0 !important;
+                    }
+
             </style>
 
-
-            @* <div class="flex-1 px-2.5 space-y-1 divide-y">
-                <ul class="pb-2 space-y-2">
-                    <li id="menu-container"></li>
-                </ul>
-            </div> *@
 
 
             <div class="flex-1 px-4 space-y-1">
@@ -389,7 +501,9 @@
                 </div>
 
                 <!-- قائمة المنيو -->
-                <ul class="pt-2 pb-2 space-y-2" style="margin-top:-6px;">
+                @* <ul class="pt-2 pb-2 space-y-2" style="margin-top:-6px;"> *@
+                <ul class="pt-2 pb-2 space-y-0" style="margin-top:-6px;">
+
                     <li id="menu-container"></li>
                 </ul>
             </div>
@@ -412,7 +526,7 @@
         const menuData = @Html.Raw(JsonSerializer.Serialize(
                                                 Model ?? new List<MenuItem>(),
                                                 new JsonSerializerOptions { Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping }
-                                ));
+                                ))
 
         console.log("Menu data:", menuData);
 
@@ -540,41 +654,43 @@
 
             let html = "";
 
-                if (hasChildren) {
+
+        if (hasChildren) {
         const collapseId = `dropdown-${item.MPID}`;
 
-        
         const shouldBeOpen = hasActiveChildRecursive(item);
-        const childListClasses = shouldBeOpen ? "py-2 space-y-2" : "hidden py-2 space-y-2";
+        const childListClasses = shouldBeOpen ? "py-2 space-y-0" : "hidden py-2 space-y-0";
         const expandedAttr = shouldBeOpen ? 'aria-expanded="true"' : 'aria-expanded="false"';
 
         html += `
-        <button type="button"
-                class="${linkClasses}${activeClass}"
-                data-collapse-toggle="${collapseId}"
-                aria-controls="${collapseId}"
-                ${expandedAttr}>
-          ${iconHtml}
-        <span class="flex-1 text-right whitespace-normal break-words leading-snug">
-            ${menuName}
-        </span>
-              <svg class="w-4 h-4 text-slate-400 group-hover:text-slate-50"
-               fill="currentColor" viewBox="0 0 20 20">
-            <path fill-rule="evenodd"
-                  d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
-                  clip-rule="evenodd"></path>
-          </svg>
-        </button>
-        <ul id="${collapseId}" class="${childListClasses}">
+            <button type="button"
+                    class="${linkClasses}${activeClass}"
+                    data-collapse-toggle="${collapseId}"
+                    aria-controls="${collapseId}"
+                    ${expandedAttr}>
+                ${iconHtml}
+                <span class="flex-1 text-right whitespace-normal break-words leading-snug">
+                    ${menuName}
+                </span>
+
+                <!-- ✅ السهم -->
+                <svg class="menu-chevron w-4 h-4 text-slate-400 group-hover:text-slate-50 transition-transform duration-200"
+                     fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd"
+                          d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+                          clip-rule="evenodd"></path>
+                </svg>
+            </button>
+
+            <ul id="${collapseId}" class="${childListClasses}">
         `;
+
         item.Children.forEach(child => {
             html += `<li><hr class="my-1 border-slate-700">${buildMenuItem(child, level + 1)}</li>`;
         });
+
         html += `</ul>`;
     }
-
-
-
 
         else if (isClickableLink) {
         html += `
@@ -622,7 +738,7 @@
 
             let html = "";
             rootItems.forEach(item => {
-                html += `<li><hr class="my-1 border-slate-700">${buildMenuItem(item, 1)}</li>`;
+                html += `<li><hr class="my-2 border-white/30">${buildMenuItem(item, 1)}</li>`; /*الخط الفاصل بين القوائم */
             });
 
             return html;
@@ -657,46 +773,75 @@
 
         fetch(url, { headers: { "X-Requested-With": "XMLHttpRequest" } })
             .then(function (response) { return response.text(); })
-            .then(function (html) {
-                const parser = new DOMParser();
-                const doc = parser.parseFromString(html, "text/html");
+    //         .then(function (html) {
+    //             const parser = new DOMParser();
+    //             const doc = parser.parseFromString(html, "text/html");
 
-                const newMain = doc.getElementById("main-content");
+    //             const newMain = doc.getElementById("main-content");
                 
-                    if (!newMain) {
+    //                 if (!newMain) {
+    //     hideMainLoading();
+    //     window.location.href = url;
+    //     return;
+    // }
+
+                
+    //             main.innerHTML = newMain.innerHTML;
+
+                
+    //             window.history.pushState({}, "", url);
+
+                
+    //             const titleEl = doc.querySelector("title");
+    //             if (titleEl && titleEl.textContent) {
+    //                 document.title = titleEl.textContent;
+    //             }
+
+                
+    //             setActiveSidebar(url);
+    //             hideMainLoading();
+    //         })
+    //             .catch(function (err) {
+    //     console.error("Error loading page", err);
+    //     hideMainLoading();
+    //     window.location.href = url;
+    // });
+
+        .then(function (html) {
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(html, "text/html");
+
+        const newMain = doc.getElementById("main-content");
+        if (!newMain) {
+            hideMainLoading();
+            document.body.style.pointerEvents = "auto"; // ✅ هنا
+            window.location.href = url;
+            return;
+        }
+
+        main.innerHTML = newMain.innerHTML;
+        window.history.pushState({}, "", url);
+
+        const titleEl = doc.querySelector("title");
+        if (titleEl && titleEl.textContent) document.title = titleEl.textContent;
+
+        setActiveSidebar(url);
         hideMainLoading();
-        window.location.href = url;
-        return;
-    }
-
-                
-                main.innerHTML = newMain.innerHTML;
-
-                
-                window.history.pushState({}, "", url);
-
-                
-                const titleEl = doc.querySelector("title");
-                if (titleEl && titleEl.textContent) {
-                    document.title = titleEl.textContent;
-                }
-
-                
-                setActiveSidebar(url);
-                hideMainLoading();
-            })
-                .catch(function (err) {
+        document.body.style.pointerEvents = "auto"; // ✅ وهنا
+    })
+    .catch(function (err) {
         console.error("Error loading page", err);
         hideMainLoading();
+        document.body.style.pointerEvents = "auto"; // ✅ وهنا
         window.location.href = url;
     });
 
+
     }
 
 
 
-
-                document.addEventListener("DOMContentLoaded", () => {
+        document.addEventListener("DOMContentLoaded", () => {
         const container = document.getElementById("menu-container");
         if (container && Array.isArray(menuData)) {
             const uniqueMenuData = removeDuplicateMenuItems(menuData);
@@ -705,9 +850,26 @@
             console.error("Menu container not found or menuData invalid");
         }
 
-       
+        // تفعيل العنصر الحالي
         setActiveSidebar(window.location.pathname + window.location.search);
 
+        // ✅ (هنا بالضبط) تحديث aria-expanded للسهم فقط
+        document.body.addEventListener("click", function (e) {
+            const btn = e.target.closest('button[data-collapse-toggle]');
+            if (!btn) return;
+
+            const id = btn.getAttribute("data-collapse-toggle");
+            const target = document.getElementById(id);
+            if (!target) return;
+
+            // بعد ما Flowbite يفتح/يقفل القائمة
+            requestAnimationFrame(() => {
+                const isOpenNow = !target.classList.contains("hidden");
+                btn.setAttribute("aria-expanded", isOpenNow ? "true" : "false");
+            });
+        });
+
+        // كود الضغط على روابط القائمة (AJAX)
         document.body.addEventListener("click", function (e) {
             const link = e.target.closest("a.sidebar-link");
             if (!link) return;
@@ -716,23 +878,17 @@
                 return;
             }
 
-            
-                e.preventDefault();
+            e.preventDefault();
 
-    const url = link.getAttribute("data-url");
-    if (!url) return;
+            const url = link.getAttribute("data-url");
+            if (!url) return;
 
-    //Overlay
-        showMainLoading();
-        document.body.style.pointerEvents = "none";
+            showMainLoading();
+            document.body.style.pointerEvents = "none";
 
-    setTimeout(() => {
-        loadPageIntoMainContent(url);
-    }, 1000);
-    // loadPageIntoMainContent(url);
-
-
-
+            setTimeout(() => {
+                loadPageIntoMainContent(url);
+            }, 1000);
         });
 
         window.addEventListener("popstate", function () {
@@ -741,34 +897,4 @@
     });
 
 
-
-      
 </script>
-
-
-@* // NotificationCount
-<script>
-    document.addEventListener("DOMContentLoaded", () => {
-
-        function setNotificationCount(count) {
-            const badge = document.getElementById("notif-count");
-            if (!badge) return;
-
-            if (count > 0) {
-                badge.textContent = count > 99 ? "99+" : String(count);
-                badge.classList.remove("hidden");
-            } else {
-                badge.classList.add("hidden");
-            }
-        }
-
-        // مثال للتجربة
-        setNotificationCount(1);
-
-    });
-</script> *@
-
-
-
-
-
