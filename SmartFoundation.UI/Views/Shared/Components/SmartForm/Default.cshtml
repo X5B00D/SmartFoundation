@@ -135,25 +135,25 @@ else
         <!-- Dropdown panel -->
         <template x-teleport="body">
             <div x-show="open" x-transition x-cloak
-                 x-on:click.outside="open=false"
+                 x-on:click.outside="open=false";
                  x-bind:style="panelStyle"
                  class="sf-select-panel fixed z-[9999] animate-fade-in">
 
                 <!-- شريط علوي -->
-                <div class="flex justify-end p-2 pb-0">
-                    <button type="button" class="text-xs text-gray-600 hover:text-gray-700" x-on:click="clear()">مسح</button>
+                <div class="flex justify-end p-3 pb-1">
+                    <button type="button" class="text-xs text-gray-800 hover:text-gray-800" x-on:click="clear()">مسح</button>
                 </div>
 
                 <!-- البحث -->
                 <div class="p-2">
                     <input type="text" x-model.trim="q" placeholder="بحث..." dir="rtl"
-                           class="w-full px-3 py-2 text-sm border border-gray-200 rounded-md focus:outline-none focus:ring-1 focus:ring-emerald-600" />
+                           class="w-full px-3 py-2 text-sm border border-gray-300 rounded-sm focus:outline-none focus:ring-1 focus:ring-emerald-600" />
                 </div>
 
                 <!-- العناصر -->
                 <ul class="py-1 overflow-y-auto max-h-60">
                     <template x-for="opt in filtered()" :key="opt.value">
-                        <li class="px-3 py-2 cursor-pointer select-none hover:bg-gray-50"
+                        <li class="px-3 py-1.5 cursor-pointer select-none hover:bg-gray-200"
                             :class="opt.disabled ? 'opacity-50 cursor-not-allowed' : ''"
                             x-on:click.stop="toggle(opt)">
                             <div class="flex items-center gap-3">
@@ -550,11 +550,22 @@ else
     @:</fieldset>
 }
 
+
+
+@{
+    var hasSubmit = !string.IsNullOrWhiteSpace(Model.SubmitText);
+    var hasReset  = Model.ShowReset && !string.IsNullOrWhiteSpace(Model.ResetText);
+    var hasCustom = Model.Buttons?.Any(b => b.Show) == true;
+
+    var hasActionsBar = hasSubmit || hasReset || hasCustom;
+}
+
+
             <!-- شريط الأزرار -->
 
 
 
-    <div class="col-span-12 px-4 pt-4 mt-5 mb-6 actions-bar">
+    @* <div class="col-span-12 px-4 pt-4 mt-5 mb-6 actions-bar">
     <div class="flex flex-wrap items-center justify-end gap-3 actions-inner">
 
         @if (!string.IsNullOrWhiteSpace(Model.SubmitText))
@@ -605,6 +616,62 @@ else
             }
         }
     </div>
-</div>
+</div> *@
+
+@if (hasActionsBar)
+{
+    <div class="col-span-12 px-4 pt-4 mt-5 mb-6 actions-bar">
+        <div class="flex flex-wrap items-center justify-end gap-3 actions-inner">
+
+            @if (!string.IsNullOrWhiteSpace(Model.SubmitText))
+            {
+                <button type="submit"
+                        class="border btn btn-success border-emerald-600 focus:ring-offset-2">
+                    <i class="fa fa-save text-[14px]"></i>
+                    <span>@Model.SubmitText</span>
+                </button>
+            }
+
+            @if (Model.ShowReset && !string.IsNullOrWhiteSpace(Model.ResetText))
+            {
+                <button type="reset"
+                        class="btn btn-secondary focus:ring-offset-2">
+                    <i class="fa fa-eraser text-[14px]"></i>
+                    <span>@Model.ResetText</span>
+                </button>
+            }
+
+            @if (Model.Buttons?.Any(b => b.Show) == true)
+            {
+                @foreach (var b in Model.Buttons.Where(b => b.Show))
+                {
+                    var btnType = string.IsNullOrWhiteSpace(b.Type) ? "button" : b.Type;
+                    var iconHtml = string.IsNullOrWhiteSpace(b.Icon) ? "" : $"<i class=\"{b.Icon} text-[14px]\"></i>";
+
+                    var variant = (b.Color ?? "").Trim().ToLowerInvariant() switch
+                    {
+                        "success"   => "btn-success",
+                        "info"      => "btn-info",
+                        "danger"    => "btn-danger",
+                        "warning"   => "btn-warning",
+                        "secondary" => "btn-secondary",
+                        _           => "btn"
+                    };
+
+                    <button type="@btnType"
+                            class="btn @variant @(b.CssClass)"
+                            x-on:click="@(b.OnClickJs ?? "")"
+                            data-op="@b.Operation"
+                            data-sp="@b.StoredProcedureName">
+                        @Html.Raw(iconHtml)
+                        <span>@b.Text</span>
+                    </button>
+                }
+            }
+
+        </div>
+    </div>
+}
+
 
 </form>  

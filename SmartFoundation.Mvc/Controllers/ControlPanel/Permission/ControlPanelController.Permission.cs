@@ -35,6 +35,14 @@ namespace SmartFoundation.Mvc.Controllers.ControlPanel
             Section_ = string.IsNullOrWhiteSpace(Section_) ? null : Section_.Trim();
             Divison_ = string.IsNullOrWhiteSpace(Divison_) ? null : Divison_.Trim();
 
+            
+            bool ready =
+            SearchID_ == "1" ? !string.IsNullOrWhiteSpace(UserID_) :
+            SearchID_ == "2" ? !string.IsNullOrWhiteSpace(distributorID_) :
+            SearchID_ == "3" ? !string.IsNullOrWhiteSpace(RoleID_) :
+            SearchID_ == "4" ? !string.IsNullOrWhiteSpace(Idara_) :
+            SearchID_ == "5" ? !string.IsNullOrWhiteSpace(Dept_) : false;
+
 
 
             // Sessions 
@@ -127,6 +135,8 @@ namespace SmartFoundation.Mvc.Controllers.ControlPanel
 
 
             FormConfig form = new();
+
+            
             try
             {
 
@@ -276,54 +286,54 @@ namespace SmartFoundation.Mvc.Controllers.ControlPanel
                          Value = SearchID_,
                          Placeholder = "اختر نوع البحث",
                          Icon = "fa fa-user",
-                       OnChangeJs = @"
-    // Remove 'active' class from all search fields
-    document.querySelectorAll('.search-field-container').forEach(function(el) {
-        el.classList.remove('active');
-    });
+                         OnChangeJs = @"
+                        // Remove 'active' class from all search fields
+                        document.querySelectorAll('.search-field-container').forEach(function(el) {
+                            el.classList.remove('active');
+                        });
     
-    // Hide all search fields
-    document.querySelectorAll('.search-field, .hidden-field').forEach(function(field) {
-        var container = field.closest('.form-group');
-        if (container) {
-            container.style.display = 'none';
-            container.classList.remove('active');
-        }
-    });
+                        // Hide all search fields
+                        document.querySelectorAll('.search-field, .hidden-field').forEach(function(field) {
+                            var container = field.closest('.form-group');
+                            if (container) {
+                                container.style.display = 'none';
+                                container.classList.remove('active');
+                            }
+                        });
     
-    // Map selection to field name(s) - value can be string or array
-    var fieldMap = {
-        '1': 'Users',
-        '2': 'Distributors', 
-        '3': 'Roles',
-        '4': 'Idara',
-        '5': ['Dept', 'Section', 'Divison']  // Show multiple fields for option 5
-    };
+                        // Map selection to field name(s) - value can be string or array
+                        var fieldMap = {
+                            '1': 'Users',
+                            '2': 'Distributors', 
+                            '3': 'Roles',
+                            '4': 'Idara',
+                            '5': ['Dept', 'Section', 'Divison']  // Show multiple fields for option 5
+                        };
     
-    var fieldsToShow = fieldMap[value];
+                        var fieldsToShow = fieldMap[value];
     
-    // Handle both single field (string) and multiple fields (array)
-    if (fieldsToShow) {
-        var fieldArray = Array.isArray(fieldsToShow) ? fieldsToShow : [fieldsToShow];
+                        // Handle both single field (string) and multiple fields (array)
+                        if (fieldsToShow) {
+                            var fieldArray = Array.isArray(fieldsToShow) ? fieldsToShow : [fieldsToShow];
         
-        fieldArray.forEach(function(fieldName) {
-            var targetField = document.querySelector('input[name=""' + fieldName + '""], select[name=""' + fieldName + '""]');
-            if (targetField) {
-                var container = targetField.closest('.form-group');
-                if (container) {
-                    container.style.display = 'block';
-                    container.classList.add('active');
-                }
-            }
-        });
-    }
+                            fieldArray.forEach(function(fieldName) {
+                                var targetField = document.querySelector('input[name=""' + fieldName + '""], select[name=""' + fieldName + '""]');
+                                if (targetField) {
+                                    var container = targetField.closest('.form-group');
+                                    if (container) {
+                                        container.style.display = 'block';
+                                        container.classList.add('active');
+                                    }
+                                }
+                            });
+                        }
     
-    // Navigate with the selected search type
-    if (value && value !== '-1') {
-        var url = '/ControlPanel/Permission?S=' + encodeURIComponent(value);
-        window.location.href = url;
-    }
-"
+                        // Navigate with the selected search type
+                        if (value && value !== '-1') {
+                            var url = '/ControlPanel/Permission?S=' + encodeURIComponent(value);
+                            window.location.href = url;
+                        }
+                    "
                      },
 
                      new FieldConfig {
@@ -331,7 +341,7 @@ namespace SmartFoundation.Mvc.Controllers.ControlPanel
                          Name = "Users",
                          Type = "select",
                          Options = UsersOptions,
-                         ColCss = "6",
+                         ColCss = "3",
                          Placeholder = "اختر المستخدم",
                          Icon = "fa fa-user",
                          Value = UserID_,
@@ -356,7 +366,7 @@ namespace SmartFoundation.Mvc.Controllers.ControlPanel
                         Name = "Distributors",
                          Type = "select",
                          Options = distributorToGivepermissionOptions,
-                         ColCss = "6",
+                         ColCss = "3",
                          Placeholder = "اختر الموزع",
                          Icon = "fa fa-user",
                          Value =distributorID_,
@@ -379,7 +389,7 @@ namespace SmartFoundation.Mvc.Controllers.ControlPanel
                         Name = "Roles",
                          Type = "select",
                          Options = RoleOptions,
-                         ColCss = "6",
+                         ColCss = "3",
                          Placeholder = "اختر الدور",
                          Icon = "fa fa-user",
                          Value=RoleID_,
@@ -402,22 +412,22 @@ namespace SmartFoundation.Mvc.Controllers.ControlPanel
                         Name = "Idara",
                          Type = "select",
                          Options = idarasOptions,
-                         ColCss = "6",
+                         ColCss = "3",
                          Placeholder = "اختر الادارة",
                          Icon = "fa fa-user",
                          Value = Idara_,
                           IsHidden = !showIdara,
                          OnChangeJs = @"
-                                       var Idara_ = value.trim();
-                                       if (!Idara_) {
-                                           if (typeof toastr !== 'undefined') {
-                                               toastr.info('الرجاء الاختيار اولا');
-                                           }
-                                           return;
-                                       }
-                                       var url = '/ControlPanel/Permission?S=4&Ida=' + encodeURIComponent(Idara_);
-                                       window.location.href = url;
-                                   "
+                            var Idara_ = value.trim();
+                            if (!Idara_) {
+                                if (typeof toastr !== 'undefined') {
+                                    toastr.info('الرجاء الاختيار اولا');
+                                }
+                                return;
+                            }
+                            var url = '/ControlPanel/Permission?S=4&Ida=' + encodeURIComponent(Idara_);
+                            window.location.href = url;
+                        "
                     },
                           new FieldConfig
                     {
@@ -429,94 +439,82 @@ namespace SmartFoundation.Mvc.Controllers.ControlPanel
                          Placeholder = "اختر القسم",
                          Icon = "fa fa-user",
                          Value = Dept_,
-                          IsHidden = !showDeptFields,
-
-                          OnChangeJs = @"
-                                       var Dept_ = value.trim();
-                                       if (!Dept_) {
-                                           if (typeof toastr !== 'undefined') {
-                                               toastr.info('الرجاء الاختيار اولا');
-                                           }
-                                           return;
-                                       }
-                                       var url = '/ControlPanel/Permission?S=5&Dep=' + encodeURIComponent(Dept_);
-                                       window.location.href = url;
-                                   "
-                    },
-                          new FieldConfig
-                    {
-
-                        Name = "Section",
-                         Type = "select",
-                         Options = secOptions,
-                         ColCss = "3",
-                         Placeholder = "اختر الفرع",
-                         Icon = "fa fa-user",
-                         Value = Section_,
-                          IsHidden = !showDeptFields,
-                         OnChangeJs = @"
-                                       var Section_ = value.trim();
-                                       if (!Section_) {
-                                           if (typeof toastr !== 'undefined') {
-                                               toastr.info('الرجاء الاختيار اولا');
-                                           }
-                                           return;
-                                       }
-                                       // Get Dept_ from URL
-                                       var urlParams = new URLSearchParams(window.location.search);
-                                       var Dept_ = urlParams.get('Dep') || '';
-                                       if (!Dept_ || Dept_ === '-1') {
-                                           if (typeof toastr !== 'undefined') {
-                                               toastr.info('الرجاء الاختيار اولا');
-                                           }
-                                           return;
-                                       }
-                                       var url = '/ControlPanel/Permission?S=5&Dep=' + encodeURIComponent(Dept_) + '&Sec=' + encodeURIComponent(Section_);
-                                       window.location.href = url;
-                                   "
-                    },
-                          new FieldConfig
-                    {
-
-                        Name = "Divison",
-                         Type = "select",
-                         Options = divOptions,
-                         ColCss = "3",
-                         Placeholder = "اختر الشعبة",
-                         Icon = "fa fa-user",
-                         Value = Divison_,
                          IsHidden = !showDeptFields,
-                          OnChangeJs = @"
-                                       var Divison_ = value.trim();
-                                       if (!Divison_) {
-                                           if (typeof toastr !== 'undefined') {
-                                               toastr.info('الرجاء الاختيار اولا');
-                                           }
-                                           return;
-                                       }
-                                       // Get Dept_ from URL
-                                       var urlParams = new URLSearchParams(window.location.search);
-                                       var Dept_ = urlParams.get('Dep') || '';
-                                       if (!Dept_ || Dept_ === '-1') {
-                                           if (typeof toastr !== 'undefined') {
-                                               toastr.info('الرجاء اختيار القسم أولاً');
-                                           }
-                                           return;
-                                       }
 
-                                        var Section_ = urlParams.get('Sec') || '';
-                                        if (!Section_ || Section_ === '-1') {
-                                            if (typeof toastr !== 'undefined') {
-                                                toastr.info('الرجاء اختيار الفرع أولاً');
-                                            }
-                                            return;
-                                        }
-                                       var url = '/ControlPanel/Permission?S=5&Dep=' + encodeURIComponent(Dept_) + '&Sec=' + encodeURIComponent(Section_) + '&Div=' + encodeURIComponent(Divison_);
-                                       window.location.href = url;
-                                   "
+                         OnChangeJs = @"
+                        var Dept_ = value.trim();
+                        if (!Dept_) {
+                            if (typeof toastr !== 'undefined') {
+                                toastr.info('الرجاء الاختيار اولا');
+                            }
+                            return;
+                        }
+                        var url = '/ControlPanel/Permission?S=5&Dep=' + encodeURIComponent(Dept_);
+                        window.location.href = url;
+                    "
                     },
 
 
+
+                          new FieldConfig
+                        {
+                            Name = "Section",
+                            Type = "select",
+                            Options = secOptions, 
+                            ColCss = "3",
+                            Placeholder = "اختر الفرع",
+                            Icon = "fa fa-user",
+                            Value = Section_,
+                            IsHidden = !showDeptFields,
+                            DependsOn = "Dept",
+                            DependsUrl = "/crud/DDLFiltered?FK=deptID_FK&textcol=secName_A&ValueCol=secID&PageName=Permission&TableIndex=7",
+                            OnChangeJs = @"
+                            var sec = (value||'').trim();
+                            if(!sec){ toastr?.info('اختر الفرع'); return; }
+
+                            var depEl = document.querySelector('[name=""Dept""]');
+                            var dep = (depEl?.value||'').trim();
+                            if(!dep){ toastr?.info('اختر القسم أولاً'); return; }
+
+                            var url = '/ControlPanel/Permission?S=5&Dep=' + encodeURIComponent(dep)
+                                    + '&Sec=' + encodeURIComponent(sec);
+                            window.location.href = url;
+                        "
+                        },
+
+                          new FieldConfig
+                        {
+                            Name = "Divison",
+                            Type = "select",
+                            Options = divOptions, 
+                            ColCss = "3",
+                            Placeholder = "اختر الشعبة",
+                            Icon = "fa fa-user",
+                            Value = Divison_,
+                            IsHidden = !showDeptFields,
+                            DependsOn = "Section",
+                            DependsUrl = "/crud/DDLFiltered?FK=secID_FK&textcol=divName_A&ValueCol=divID&PageName=Permission&TableIndex=8",
+                            OnChangeJs = @"
+                            var div = (value||'').trim();
+                            if(!div){ toastr?.info('اختر الشعبة'); return; }
+
+                            var depEl = document.querySelector('[name=""Dept""]');
+                            var secEl = document.querySelector('[name=""Section""]');
+
+                            var dep = (depEl?.value||'').trim();
+                            var sec = (secEl?.value||'').trim();
+
+                            if(!dep || !sec){
+                                toastr?.info('اختر القسم ثم الفرع أولاً');
+                                return;
+                            }
+
+                            var url = '/ControlPanel/Permission?S=5&Dep=' + encodeURIComponent(dep)
+                                    + '&Sec=' + encodeURIComponent(sec)
+                                    + '&Div=' + encodeURIComponent(div);
+                            window.location.href = url;
+                        "
+                        },
 
                         },
 
@@ -623,7 +621,7 @@ namespace SmartFoundation.Mvc.Controllers.ControlPanel
                                 Sortable = true
                                 //if u want to hide any column 
                                 ,
-                                Visible = !(isuserID ||isPermissionID || isdistributorID_FK || isRoleID_FK || isIdaraID_FK || isDSDID_FK || isdeptID || issecID || isdivID) 
+                                Visible = !(isuserID  || isdistributorID_FK || isRoleID_FK || isIdaraID_FK || isDSDID_FK || isdeptID || issecID || isdivID) 
                             });
                         }
 
@@ -897,7 +895,8 @@ namespace SmartFoundation.Mvc.Controllers.ControlPanel
                 Searchable = true,
                 AllowExport = true,
                 PageTitle = "إدارة الصلاحيات",
-                PanelTitle = "عرض ",
+                PanelTitle = "إدارة الصلاحيات ",
+                
                 Toolbar = new TableToolbarConfig
                 {
                     ShowRefresh = false,
@@ -1013,13 +1012,25 @@ namespace SmartFoundation.Mvc.Controllers.ControlPanel
                 }
             };
 
-            var vm = new FormTableViewModel
+            //var vm = new FormTableViewModel
+            //{
+            //    Form = form,
+            //    Table = dsModel,
+            //    PageTitle = dsModel.PageTitle,
+            //    PanelTitle = dsModel.PanelTitle
+            //};
+            //return View("Permission/Permission", vm);
+            var vm = new SmartPageViewModel
             {
-                Form = form,
-                Table = dsModel,
                 PageTitle = dsModel.PageTitle,
-                PanelTitle = dsModel.PanelTitle
+                PanelTitle = dsModel.PanelTitle,
+                PanelIcon = "fa-user-shield",
+                Form = form,
+                //TableDS = dsModel
+                TableDS = ready ? dsModel : null
+
             };
+
             return View("Permission/Permission", vm);
         }
     }

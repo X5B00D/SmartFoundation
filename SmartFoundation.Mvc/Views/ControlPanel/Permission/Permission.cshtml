@@ -1,11 +1,11 @@
-﻿@model SmartFoundation.UI.ViewModels.SmartPage.FormTableViewModel
+﻿@* @model SmartFoundation.UI.ViewModels.SmartPage.FormTableViewModel
 
 @{
     ViewData["Title"] = Model.PageTitle ?? "النموذج";
 }
 
 <div class="container mx-auto py-4">
-    <h1 class="text-xl font-bold mb-4">@ViewData["Title"]</h1>
+    <h1 class="text-2xl font-bold mb-4">@ViewData["Title"]</h1>
 </div>
 
 @if (Model.Form is not null)
@@ -16,7 +16,7 @@
 @if (Model.Table is not null)
 {
 
-    @* @await Component.InvokeAsync("SmartTableDS", new { model = Model.Table }) *@
+    
 
     @if (!(ViewBag.HideTable as bool? ?? false))
     {
@@ -29,3 +29,19 @@
 
 }
 
+ *@
+
+@model SmartFoundation.UI.ViewModels.SmartPage.SmartPageViewModel
+@{
+    ViewData["Title"] = Model.PageTitle;
+}
+@await Component.InvokeAsync("SmartRenderer", new { model = Model })
+
+<script>
+    (function () {
+      
+      if (location.search && location.search.length > 1) {
+        history.replaceState(null, "", location.pathname + location.hash);
+      }
+    })();
+</script>

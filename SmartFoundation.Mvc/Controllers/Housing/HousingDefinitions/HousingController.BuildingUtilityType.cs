@@ -231,7 +231,7 @@ namespace SmartFoundation.Mvc.Controllers.Housing
                 new FieldConfig { Name = "p02", Label = "نوع المرفق بالعربي",Type = "text", Required = true, TextMode = "arabic", ColCss = "6" },
                 new FieldConfig { Name = "p03", Label = "نوع المرفق بالانجليزي", Type ="text",ColCss = "6", Required = true, TextMode = "english" },
                 new FieldConfig { Name = "p06", Label = "بداية المرفق", Type = "date", Required = true, ColCss = "3" },
-                new FieldConfig { Name = "p07", Label = "نهاية المرفق", Type = "date", Required = true, ColCss = "3" },
+                new FieldConfig { Name = "p07", Label = "نهاية المرفق", Type = "date", Required = false, ColCss = "3" },
                 new FieldConfig { Name = "p08", Label = "يتطلب ايجار", Type = "select",Options=IsRentOptions, Required = true, ColCss = "3" },
                 new FieldConfig { Name = "p04", Label = "ملاحظات", Type = "textarea",   ColCss = "6" },
                 new FieldConfig { Name = "p05", Label = "buildingUtilityTypeActive",Type = "hidden",ColCss = "6" },

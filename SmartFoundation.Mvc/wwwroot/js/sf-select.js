@@ -7,7 +7,8 @@
             multiple: !!cfg.multiple,
             disabled: !!cfg.disabled,
             readonly: !!cfg.readonly,
-            onchangeJs: cfg.onchangeJs || '', // ✅ Store OnChangeJs globally
+            onchangeJs: cfg.onchangeJs || '', //  Store OnChangeJs globally
+            lockedByDependency: false,
             open: false,
             q: '',
             options: [],
@@ -35,6 +36,61 @@
                 }
                 this.syncHidden();
 
+
+
+                // ✅ ربط القوائم المعتمدة (DependsOn / DependsUrl)
+                const dependsOn = this.$el.dataset.dependson;
+                const dependsUrl = this.$el.dataset.dependsurl;
+
+                if (dependsOn && dependsUrl) {
+                    // الأب: input hidden الخاص بـ sfSelect يحمل name=DependsOn
+                    const parentHidden = document.querySelector(`input[name="${dependsOn}"]`);
+
+                    if (parentHidden) {
+                        parentHidden.addEventListener("change", async () => {
+                            const parentVal = (parentHidden.value || "").trim();
+
+                            // إذا ما فيه قيمة: فضّي خيارات الابن
+                            if (!parentVal || parentVal === "-1") {
+                                this.options = [];
+                                this.selected = [];
+                                this.syncHidden();
+                                return;
+                            }
+
+                            // جهز الرابط وأضف قيمة الأب
+                            let url = dependsUrl;
+                            url += (url.includes("?") ? "&" : "?") + "value=" + encodeURIComponent(parentVal);
+                            /*url += (url.includes("?") ? "&" : "?") + "id=" + encodeURIComponent(parentVal);*/
+
+
+                            try {
+                                const res = await fetch(url, {
+                                    headers: { "X-Requested-With": "XMLHttpRequest" }
+                                });
+
+                                const data = await res.json();
+
+                                // توقع JSON مثل: [{value:'1', text:'..'}] أو [{Value:'1',Text:'..'}]
+                                this.options = (data || []).map(o => ({
+                                    value: String(o.Value ?? o.value ?? ''),
+                                    text: String(o.Text ?? o.text ?? ''),
+                                    disabled: !!(o.Disabled ?? o.disabled),
+                                    selected: false
+                                }));
+
+                                // صفّر اختيار الابن بعد التحديث
+                                this.selected = [];
+                                this.syncHidden();
+                                this.q = '';
+                            } catch (e) {
+                                console.error("Depends load error:", e, "URL:", url);
+                            }
+                        });
+                    }
+                }
+
+
                 // نسخة مربوطة من reposition حتى لا نفقد this داخل event listeners
                 this._repositionBound = this.reposition.bind(this);
 
@@ -45,6 +101,8 @@
             // فتح/إغلاق مع إدارة المستمعات
             togglePanel() {
                 if (this.disabled || this.readonly) return;
+                /*if (this.disabled || this.readonly || this.lockedByDependency) return;*/
+
                 this.open = !this.open;
                 if (this.open) {
                     this.$nextTick(() => {
@@ -108,6 +166,8 @@
 
             toggle(opt) {
                 if (opt.disabled || this.disabled || this.readonly) return;
+                /*if (opt.disabled || this.disabled || this.readonly || this.lockedByDependency) return;*/
+
                 if (this.multiple) {
                     this.isSelected(opt)
                         ? this.selected = this.selected.filter(s => s.value !== opt.value)
@@ -123,6 +183,8 @@
 
             clear() {
                 if (this.disabled || this.readonly) return;
+                /*if (this.disabled || this.readonly || this.lockedByDependency) return;*/
+
                 this.selected = [];
                 this.syncHidden();
                 this.emitChange();
