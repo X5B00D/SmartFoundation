@@ -21,7 +21,9 @@
 
 
 
-    <nav class="fixed z-50 w-full border-bottom" style="background:#064E3B; color:#fff; border-color:#334155">
+@* <nav class="fixed z-50 w-full border-bottom" style="background:#064E3B; color:#fff; border-color:#064E3B"> *@
+<nav id="top-header" class="fixed z-50 w-full">
+
     <div class="px-3 py-3 lg:px-5 lg:pe-3">
         <div class="flex items-center justify-between">
             <div class="flex items-center justify-start">
@@ -44,24 +46,26 @@
                 </a>
 
                 <!-- البحث -->
-                <form action="#" method="GET" class="block lg:ps-3.5">
+                <form action="#" method="GET" class="block lg:ps-3.5" autocomplete="off">
                     <label for="topbar-search" class="sr-only">بحث</label>
                     <div class="relative mt-1 lg:w-96" dir="rtl">
                         <div class="absolute inset-y-0 left-0 flex items-center pointer-events-none ps-3">
-                            <svg class="w-10 h-5 text-slate-300" fill="currentColor" viewBox="0 0 20 20">
+                            <svg class="w-10 h-5 text-slate-400" fill="currentColor" viewBox="0 0 20 20">
                                 <path fill-rule="evenodd"
                                       d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z"
                                       clip-rule="evenodd"></path>
                             </svg>
                         </div>
-                        <input id="topbar-search" type="text"
-                               class="block w-full rounded-md border p-2.5 ps-10 text-sm
-              bg-slate-100 text-slate-900 placeholder-slate-500
-              border-emerald-300 focus:border-emerald-500 focus:ring-emerald-400"
-                               placeholder="بحث..">
 
+                        <input id="topbar-search" type="text"
+                               autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false"
+                               class="block w-full rounded-md border p-2.5 ps-10 text-sm
+                                bg-slate-100 text-slate-900 placeholder-slate-500
+                                border-emerald-300 focus:border-emerald-500 focus:ring-emerald-400"
+                               placeholder="بحث..">
                     </div>
                 </form>
+
             </div>
 
             <!-- جهة اليمين -->
@@ -79,35 +83,11 @@
                 <!-- الإشعارات -->
                 @await Component.InvokeAsync("Notification")
 
-          
-
-                @* <div id="notification-dropdown" class="z-50 hidden my-2 overflow-hidden rounded-lg shadow-lg w-80 bg-slate-800 ring-1 ring-slate-700">
-                    <div class="px-4 py-2 text-base font-medium text-center text-slate-200">الإشعارات</div>
-                    <div>
-                        <a href="/Housing/Index" class="flex px-4 py-3 border-t border-slate-700 hover:bg-slate-700/60">
-                            <div class="w-full">
-                                <div class="mb-1.5 text-sm text-slate-200">رسالة جديدة من المستخدم</div>
-                                <div class="text-xs font-medium text-emerald-400">قبل دقائق</div>
-                            </div>
-                        </a>
-                    </div>
-                    <a href="#" class="block py-2 text-base text-center bg-slate-700 text-slate-100 hover:bg-slate-600">عرض الكل</a>
-                </div> *@
 
                 <!-- المستخدم -->
                 <div class="flex items-center ms-3">
                     <div>
-                        @* <button type="button"
-                                class="p-3 rounded-lg text-slate-300 hover:text-slate-50 hover:bg-slate-700 hover:shadow-md transition
-                                focus:ring-1 focus:ring-slate-400"
-                                id="user-menu-button" aria-expanded="false" data-dropdown-toggle="user-dropdown">
-
-                            <span class="sr-only">فتح قائمة المستخدم</span>
-
-                           
-                          
-                            <i class="fa-solid fa-gear text-[16px] text-slate-300"></i>
-                        </button> *@
+                       
 
                         <button type="button"
                                 class="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm text-slate-200 rounded-md"
@@ -126,7 +106,6 @@
                         
                         <ul class="py-1">
                             <li>
-                                <hr class="my-1 border-slate-700">
                                 <a href="/Dashboard" class="flex items-center gap-2 px-4 py-2 text-sm text-slate-200 hover:bg-slate-700">
                                     <i class="fa-solid fa-gauge text-[13px] text-slate-300"></i> لوحة التحكم
                                 </a>
@@ -154,7 +133,7 @@
 
 
 <aside id="logo-sidebar"
-       class="fixed top-0 right-0 z-40 w-64 h-screen translate-x-full border-l pt-24 sm:translate-x-0 bg-slate-800 text-slate-200 border-slate-700"
+       class="fixed top-0 right-0 z-40 w-64 h-screen translate-x-full border-l pt-24 sm:translate-x-0 bg-slate-800 text-slate-200 border-emerald-900"
        aria-label="Sidebar">
 
 
@@ -163,7 +142,18 @@
              style="scrollbar-width: none; -ms-overflow-style: none;">
             <style>
 
+
+
+                /* ================= Header (Top Navbar) ================= */
+                #top-header{
+                    background-color: #064E3B;                 
+                    color: #ffffff;                            
+                    border-bottom: 0px solid rgba(255,255,255,.25); 
+                    box-shadow: 0 0px 10px rgba(0,0,0,.30);
+                    
+                }
                 
+              
                 /* ===========================
                    Header Hover (Unified)
                    =========================== */
@@ -210,6 +200,7 @@
                     display: none;
                 }
 
+
                 /*  تدوير سهم القوائم عند الفتح/الإغلاق */
                 #logo-sidebar button .menu-chevron {
                     transform: rotate(0deg);
@@ -217,7 +208,7 @@
                 }
 
                 #logo-sidebar button[aria-expanded="true"] .menu-chevron {
-                    transform: rotate(180deg);
+                    transform: rotate(90deg);
                 }
 
 
@@ -258,6 +249,28 @@
                     fill: #fff !important;
                     opacity: 1 !important;
                 }
+
+                /* خط تحت عنوان الإشعارات */
+                #notification-dropdown .px-4.py-2 {
+                    border-bottom: 1px solid rgba(255,255,255,.12) !important;
+                    font-weight: 700; 
+                }
+
+                /* خط فوق "عرض الكل" */
+                #notification-dropdown a.block {
+                    border-top: 1px solid rgba(255,255,255,.12) !important;
+                }
+
+                /* نفس هوفر الإعدادات على الإشعارات */
+                #notification-dropdown a.notification-item:hover {
+                    background: rgba(0,0,0,.25) !important;
+                }
+
+                /* فواصل أنحف بصريًا بين الإشعارات */
+                #notification-scroll-container .notification-item + .notification-item {
+                    border-top: 1px solid rgba(255,255,255,.10) !important; /* غيّر .10 حسب اللي يعجبك */
+                }
+
 
 
                 /*     Dropdown الإعدادات */
@@ -309,7 +322,7 @@
                     /* focus */
                     #topbar-search:focus {
                         background: #e5e7eb !important;
-                        border-color: #047857 !important; /* أخضر غامق */
+                        border-color: #047857 !important; 
                         box-shadow: 0 0 0 2px rgba(5,150,105,.35) !important;
                     }
 
@@ -319,6 +332,7 @@
                     /* background: #1f2937; */ 
                     background: #064E3B; /*لون السايد بار*/
                     border-top: 0 !important;
+                    border-left-color: #1a4129 
                 }
 
                     #logo-sidebar .bg-white {
@@ -332,6 +346,19 @@
                     #logo-sidebar .divide-y > :not([hidden]) ~ :not([hidden]) {
                         border-color: #334155 !important;
                     }
+
+                    #logo-sidebar .menu-sep {
+                        height: 0.5px; 
+                        margin: 8px 0;
+                        background: rgba(255,255,255,.14);
+
+                    }
+
+                        #logo-sidebar .menu-sep.sm {
+                            margin: 4px 0;
+                        }
+
+
 
                     /* روابط وأزرار */
                     #logo-sidebar a,
@@ -437,9 +464,9 @@
                         #logo-sidebar ul > li > ul > li > button:hover::before,
                         #logo-sidebar ul > li > ul > li > a.bg-slate-700::before,
                         #logo-sidebar ul > li > ul > li > button.bg-slate-700::before {
-                            background: #15803d; 
-                            height: 18px; 
-                            transform: translateY(-50%) scaleX(1.02);
+                            background: #3c6; 
+                            height: 26px; 
+                            transform: translateY(-50%) scaleX(1.2);
                         }
 
                         
@@ -452,28 +479,59 @@
                         }
 
                         /*الخط الفاصل بين القوائم*/
-                    #logo-sidebar hr {
-                        border: 0 !important;
-                        border-top: 1px solid rgba(255,255,255,0.25) !important;
-                        margin: 4px 0 !important;
-                    }
+                        #logo-sidebar hr {
+                            border: 0 !important;
+                            border-top: 1px solid rgba(255,255,255,0.25) !important;
+                            margin: 4px 0 !important;
+                        }
 
+                       /* ================= User Card ================= */
+                        #logo-sidebar .user-card{
+                          border: none !important;
+
+                          box-shadow:
+                            0 0 0 0.5px rgba(255,255,255,.18),
+                            0 0px 1px rgba(0,0,0,.18);
+
+                          background: #064E3B !important;
+                          backdrop-filter: blur(6px);
+                          -webkit-backdrop-filter: blur(6px);
+
+                          margin-bottom: 2.25rem;
+                          padding: 0.80rem;
+                          text-align: center;
+                          border-radius: 0.375rem;
+                        }
+
+                        /* لون النصوص داخل الكارد */
+                        #logo-sidebar .user-card,
+                        #logo-sidebar .user-card *{
+                            color: #dcdcdc !important; 
+                        }
+
+
+
+                        
             </style>
 
 
 
             <div class="flex-1 px-4 space-y-1">
 
-                <!-- بطاقة المستخدم -->
-                <div class="py-1 flex flex-col items-center text-center">
+               
+                <!-- بطاقة المستخدم (Card) -->
+               
+                <div class="user-card backdrop-blur-sm">
+
 
                     @{
                         var photo = sessionUserPhoto;
                         var hasPhoto = !string.IsNullOrWhiteSpace(photo);
                     }
 
-                    <div class="w-16 h-16 rounded-full overflow-hidden bg-slate-700/60
-                    flex items-center justify-center mb-3 shadow-md ring-1 ring-slate-600">
+                    <div class="w-16 h-16 rounded-full overflow-hidden bg-white/10
+                flex items-center justify-center mb-3 mx-auto
+                ring-1 ring-white/20">
                         @if (hasPhoto)
                         {
                             <img src="data:image/jpeg;base64,@photo"
@@ -482,26 +540,25 @@
                         }
                         else
                         {
-                            <i class="fa-regular fa-user text-2xl text-slate-300"></i>
+                            <i class="fa-regular fa-user text-2xl text-white/80"></i>
                         }
                     </div>
 
-                    <div class="text-sm font-medium text-slate-200 leading-tight">
+                    <div class="text-sm font-medium text-white/90 leading-tight">
                         @(sessionfullname?.ToString() ?? "غير معروف")
                     </div>
 
-                    
-                    <div class="text-base font-bold text-emerald-400 mt-0.5">
+                    <div class="text-base font-semibold text-emerald-300 mt-1">
                         @(sessionnationalID?.ToString() ?? "غير معروف")
                     </div>
 
-                    <div class="text-base font-bold text-emerald-400 mt-0.5">
+                    <div class="text-base font-semibold text-emerald-300 mt-0.5">
                         @(sessionGeneralNo?.ToString() ?? "غير معروف")
                     </div>
                 </div>
 
                 <!-- قائمة المنيو -->
-                @* <ul class="pt-2 pb-2 space-y-2" style="margin-top:-6px;"> *@
+               
                 <ul class="pt-2 pb-2 space-y-0" style="margin-top:-6px;">
 
                     <li id="menu-container"></li>
@@ -603,10 +660,6 @@
 
 
 
-
-
-
-
         // ------------------------------------------------------------
         // 🔹 بناء عنصر واحد (recursive) بالاعتماد على Children من JSON
         // ------------------------------------------------------------
@@ -673,7 +726,7 @@
                     ${menuName}
                 </span>
 
-                <!-- ✅ السهم -->
+                <!--  السهم -->
                 <svg class="menu-chevron w-4 h-4 text-slate-400 group-hover:text-slate-50 transition-transform duration-200"
                      fill="currentColor" viewBox="0 0 20 20">
                     <path fill-rule="evenodd"
@@ -685,9 +738,13 @@
             <ul id="${collapseId}" class="${childListClasses}">
         `;
 
-        item.Children.forEach(child => {
-            html += `<li><hr class="my-1 border-slate-700">${buildMenuItem(child, level + 1)}</li>`;
-        });
+        
+            item.Children.forEach((child, idx) => {
+                // الخط الفاصل بين القوائم الفرعية 
+                   html += `<li>${idx === 0 ? "" : '<div class="menu-sep sm"></div>'}${buildMenuItem(child, level + 1)}</li>`;
+
+           });
+
 
         html += `</ul>`;
     }
@@ -738,13 +795,15 @@
 
             let html = "";
             rootItems.forEach(item => {
-                html += `<li><hr class="my-2 border-white/30">${buildMenuItem(item, 1)}</li>`; /*الخط الفاصل بين القوائم */
+                /* html += `<li><hr class="my-2 border-white/30">${buildMenuItem(item, 1)}</li>`; */ /*الخط الفاصل بين القوائم */
+                html += `<li><div class="menu-sep"></div>${buildMenuItem(item, 1)}</li>`;
+
             });
 
             return html;
         }
 
-
+            
             function setActiveSidebar(url) {
         const path = (url || "").split("?")[0].toLowerCase();
 
@@ -773,39 +832,7 @@
 
         fetch(url, { headers: { "X-Requested-With": "XMLHttpRequest" } })
             .then(function (response) { return response.text(); })
-    //         .then(function (html) {
-    //             const parser = new DOMParser();
-    //             const doc = parser.parseFromString(html, "text/html");
 
-    //             const newMain = doc.getElementById("main-content");
-                
-    //                 if (!newMain) {
-    //     hideMainLoading();
-    //     window.location.href = url;
-    //     return;
-    // }
-
-                
-    //             main.innerHTML = newMain.innerHTML;
-
-                
-    //             window.history.pushState({}, "", url);
-
-                
-    //             const titleEl = doc.querySelector("title");
-    //             if (titleEl && titleEl.textContent) {
-    //                 document.title = titleEl.textContent;
-    //             }
-
-                
-    //             setActiveSidebar(url);
-    //             hideMainLoading();
-    //         })
-    //             .catch(function (err) {
-    //     console.error("Error loading page", err);
-    //     hideMainLoading();
-    //     window.location.href = url;
-    // });
 
         .then(function (html) {
         const parser = new DOMParser();
@@ -814,7 +841,7 @@
         const newMain = doc.getElementById("main-content");
         if (!newMain) {
             hideMainLoading();
-            document.body.style.pointerEvents = "auto"; // ✅ هنا
+            document.body.style.pointerEvents = "auto"; 
             window.location.href = url;
             return;
         }
@@ -827,12 +854,12 @@
 
         setActiveSidebar(url);
         hideMainLoading();
-        document.body.style.pointerEvents = "auto"; // ✅ وهنا
+        document.body.style.pointerEvents = "auto"; 
     })
     .catch(function (err) {
         console.error("Error loading page", err);
         hideMainLoading();
-        document.body.style.pointerEvents = "auto"; // ✅ وهنا
+        document.body.style.pointerEvents = "auto"; 
         window.location.href = url;
     });
 
@@ -853,7 +880,7 @@
         // تفعيل العنصر الحالي
         setActiveSidebar(window.location.pathname + window.location.search);
 
-        // ✅ (هنا بالضبط) تحديث aria-expanded للسهم فقط
+        // (هنا بالضبط) تحديث aria-expanded للسهم فقط
         document.body.addEventListener("click", function (e) {
             const btn = e.target.closest('button[data-collapse-toggle]');
             if (!btn) return;
@@ -898,3 +925,5 @@
 
 
 </script>
+
+

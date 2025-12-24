@@ -495,31 +495,44 @@ textarea[readonly] {
     @apply min-h-[4rem]; /* فصل  */
 }
 
-.sf-modal-title {
+/*.sf-modal-title {
     @apply text-2xl font-semibold tracking-normal text-gray-700;
+    color: #fff;
+}*/
+.sf-modal-title {
+    @apply text-2xl font-semibold tracking-normal;
+    color: #fff;
 }
+
 
 
 .sf-modal-close {
     @apply absolute -translate-y-1/2 right-4 top-1/2;
     @apply flex items-center justify-center w-8 h-8 rounded-full;
-    @apply text-gray-400 hover:text-gray-600 hover:bg-gray-200;
+    /*@apply text-gray-400 hover:text-gray-600 hover:bg-gray-200;*/
     @apply transition-colors cursor-pointer;
 }
 
 .dark .sf-modal-close {
-    @apply text-gray-400 hover:text-gray-200 hover:bg-gray-700;
+    @apply text-gray-400 hover:text-gray-200 ;
 }
 
 /* =========================
    Dark Mode
    ========================= */
-.dark .sf-modal-header {
+/*.dark .sf-modal-header {
     @apply bg-slate-700 font-bold border-gray-100 text-white;
+}*/
+
+.sf-modal-header {
+    @apply relative flex items-center justify-center px-5 py-3 border-b;
+    background-color: #064E3B; 
 }
 
+
 .dark .sf-modal-title {
-    @apply text-gray-100 ;
+    @apply text-gray-100;
+    color: #fff;
 }
 
 .dark .sf-modal-close {
@@ -686,11 +699,11 @@ textarea[readonly] {
         .sf-modal-select option:hover,
         .sf-modal-select option:focus {
             background-color: #e2e8f0 !important; /* slate-200 */
-            color: #0f172a;
+            color: #064E3B;
         }
 
         .sf-modal-select option:checked {
-            background-color: #334a62; /* teal-600 */
+            background-color: #064E3B; 
             color: #ffffff;
         }
 
@@ -880,5 +893,16 @@ textarea[readonly] {
 .form-group.active {
     display: block !important;
 }
+
+.sf-modal-header {
+    color: #fff !important; /*  نص داخل الهيدر أبيض */
+}
+
+    .sf-modal-header .sf-modal-title,
+    .sf-modal-header h1,
+    .sf-modal-header h2,
+    .sf-modal-header h3 {
+        color: #fff !important; 
+    }
 
 
