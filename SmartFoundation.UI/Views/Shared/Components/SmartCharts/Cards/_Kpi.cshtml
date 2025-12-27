@@ -1,0 +1,58 @@
+﻿@model SmartFoundation.UI.ViewModels.SmartCharts.ChartCardConfig
+@using SmartFoundation.UI.ViewModels.SmartCharts
+@using System.Text.Json
+@using System.Text.Encodings.Web
+
+@{
+    var hostId = $"kpi_{Model.Id}";
+    var cfgId = $"{hostId}_cfg";
+
+    var cfg = new
+    {
+        id = hostId,
+        dir = (Model.Dir ?? "rtl").ToLower(),
+        bigValue = Model.BigValue ?? "",
+        note = Model.Note ?? "",
+        secondaryLabel = Model.SecondaryLabel ?? "",
+        secondaryValue = Model.SecondaryValue ?? "",
+        secondaryIsPositive = Model.SecondaryIsPositive, // true/false/null
+        tone = Model.Tone.ToString().ToLower()
+    };
+
+    var json = JsonSerializer.Serialize(cfg, new JsonSerializerOptions
+    {
+        Encoder = JavaScriptEncoder.Default,
+        PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+    });
+}
+
+<div id="@hostId" class="smart-kpi" data-config-id="@cfgId">
+    <div class="smart-kpi__main">
+        <div class="smart-kpi__value" dir="ltr">@Model.BigValue</div>
+
+        @if (!string.IsNullOrWhiteSpace(Model.Note))
+        {
+            <div class="smart-kpi__note">@Model.Note</div>
+        }
+    </div>
+
+    @if (!string.IsNullOrWhiteSpace(Model.SecondaryValue))
+    {
+        <div class="smart-kpi__side">
+            @if (!string.IsNullOrWhiteSpace(Model.SecondaryLabel))
+            {
+                <div class="smart-kpi__side-label">@Model.SecondaryLabel</div>
+            }
+
+            <div class="smart-kpi__delta" dir="ltr"
+                 data-positive="@(Model.SecondaryIsPositive.HasValue ? (Model.SecondaryIsPositive.Value ? "true" : "false") : "null")">
+                <span class="smart-kpi__arrow" aria-hidden="true"></span>
+                <span class="smart-kpi__delta-val">@Model.SecondaryValue</span>
+            </div>
+        </div>
+    }
+</div>
+
+<script type="application/json" id="@cfgId">
+    @Html.Raw(json)
+</script>

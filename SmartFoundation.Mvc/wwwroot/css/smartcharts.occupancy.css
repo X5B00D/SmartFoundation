@@ -1,0 +1,41 @@
+﻿.smart-occupancy__list {
+    display: grid;
+    gap: 14px;
+}
+
+.smart-occupancy__row {
+    display: grid;
+    grid-template-columns: 1.4fr 4fr auto;
+    gap: 14px;
+    align-items: center;
+}
+
+.smart-occupancy__label {
+    font-size: 14px;
+    font-weight: 800;
+    color: #0f172a;
+}
+
+.smart-occupancy__track {
+    height: 12px;
+    background: #f1f5f9;
+    border-radius: 999px;
+    overflow: hidden;
+}
+
+.smart-occupancy__fill {
+    height: 100%;
+    width: 0%;
+    border-radius: 999px;
+    transition: width 700ms cubic-bezier(.2,.8,.2,1);
+}
+
+.smart-occupancy__value {
+    font-size: 13px;
+    font-weight: 800;
+    color: #334155;
+}
+
+.smart-occupancy__click {
+    cursor: pointer;
+}

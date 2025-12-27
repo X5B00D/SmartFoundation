@@ -1,0 +1,42 @@
+@model SmartFoundation.UI.ViewModels.SmartCharts.ChartCardConfig
+@using SmartFoundation.UI.ViewModels.SmartCharts
+@using System.Text.Json
+@using System.Text.Encodings.Web
+
+@{
+    var hostId = $"gauge_{Model.Id}";
+    var cfgId = $"{hostId}_cfg";
+
+    var cfg = new
+    {
+        id = hostId,
+        dir = (Model.Dir ?? "rtl").ToLower(),
+        tone = Model.Tone.ToString().ToLower(),
+
+        value = (double)Model.GaugeValue,
+        min = (double)Model.GaugeMin,
+        max = (double)Model.GaugeMax,
+
+        label = Model.GaugeLabel ?? "",
+        unit = Model.GaugeUnit ?? "%",
+
+        valueText = Model.GaugeValueText, // optional
+        valueFormat = string.IsNullOrWhiteSpace(Model.GaugeValueFormat) ? "0" : Model.GaugeValueFormat,
+
+        goodFrom = (double)Model.GaugeGoodFrom,
+        warnFrom = (double)Model.GaugeWarnFrom,
+        showThresholds = Model.GaugeShowThresholds
+    };
+
+    var json = JsonSerializer.Serialize(cfg, new JsonSerializerOptions
+    {
+        Encoder = JavaScriptEncoder.Default,
+        PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+    });
+}
+
+<div id="@hostId" class="smart-gauge" data-config-id="@cfgId"></div>
+
+<script type="application/json" id="@cfgId">
+    @Html.Raw(json)
+</script>

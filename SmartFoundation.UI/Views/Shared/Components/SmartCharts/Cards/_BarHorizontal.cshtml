@@ -1,0 +1,34 @@
+@model SmartFoundation.UI.ViewModels.SmartCharts.ChartCardConfig
+@using SmartFoundation.UI.ViewModels.SmartCharts
+@using System.Text.Json
+@using System.Text.Encodings.Web
+
+@{
+    var hostId = $"barh_{Model.Id}";
+    var cfgId = $"{hostId}_cfg";
+
+    var series = (Model.Series ?? new List<ChartSeries>()).FirstOrDefault();
+    var cfg = new
+    {
+        id = hostId,
+        dir = (Model.Dir ?? "rtl").ToLower(),
+        tone = Model.Tone.ToString().ToLower(),
+        showValues = Model.ShowValues,
+        valueFormat = string.IsNullOrWhiteSpace(Model.ValueFormat) ? "0" : Model.ValueFormat,
+        labelMaxChars = Model.LabelMaxChars <= 0 ? 22 : Model.LabelMaxChars,
+        labels = (Model.Labels ?? new List<string>()),
+        values = (series?.Data ?? new List<decimal>()).Select(v => (double)v).ToList()
+    };
+
+    var json = JsonSerializer.Serialize(cfg, new JsonSerializerOptions
+    {
+        Encoder = JavaScriptEncoder.Default,
+        PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+    });
+}
+
+<div id="@hostId" class="smart-barh" data-config-id="@cfgId"></div>
+
+<script type="application/json" id="@cfgId">
+    @Html.Raw(json)
+</script>

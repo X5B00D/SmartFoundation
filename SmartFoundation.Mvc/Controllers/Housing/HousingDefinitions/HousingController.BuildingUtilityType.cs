@@ -200,6 +200,7 @@ namespace SmartFoundation.Mvc.Controllers.Housing
                 new FieldConfig { Name = "p05", Label = "نهاية المرفق", Type = "date", ColCss = "3", Required = false,Icon = "fa fa-calendar" },
                 new FieldConfig { Name = "p06", Label = "يتطلب ايجار", Type = "select",Options=IsRentOptions, ColCss = "3", Required = true },
                  new FieldConfig { Name = "p03", Label = "ملاحظات", Type = "textarea", ColCss = "6" },
+                 new FieldConfig { Name = "p03", Label = "ملاحظات", Type = "textarea", ColCss = "3" },
             };
 
             // hidden fields

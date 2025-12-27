@@ -1,0 +1,101 @@
+﻿.smart-gauge {
+    position: relative;
+}
+
+.smart-gauge__wrap {
+    display: grid;
+    grid-template-columns: 220px 1fr;
+    gap: 18px;
+    align-items: center;
+}
+
+@media (max-width: 767px) {
+    .smart-gauge__wrap {
+        grid-template-columns: 1fr;
+    }
+}
+
+.smart-gauge__chart {
+    position: relative;
+    width: 220px;
+    max-width: 100%;
+}
+
+.smart-gauge__svg {
+    width: 100%;
+    height: auto;
+    display: block;
+}
+
+.smart-gauge__center {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-content: center;
+    text-align: center;
+    pointer-events: none;
+}
+
+.smart-gauge__value {
+    font-weight: 900;
+    font-size: 34px;
+    letter-spacing: -0.02em;
+    color: #0f172a;
+    line-height: 1;
+}
+
+.smart-gauge__label {
+    margin-top: 8px;
+    font-size: 13px;
+    color: #64748b;
+}
+
+.smart-gauge__info {
+    min-width: 0;
+}
+
+.smart-gauge__headline {
+    font-size: 14px;
+    font-weight: 900;
+    color: #0f172a;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.smart-gauge__sub {
+    margin-top: 8px;
+    font-size: 13px;
+    color: #475569;
+    line-height: 1.4;
+}
+
+.smart-gauge__thresholds {
+    margin-top: 14px;
+    display: grid;
+    gap: 10px;
+}
+
+.smart-gauge__pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 12px;
+    font-weight: 800;
+    color: #334155;
+}
+
+.smart-gauge__dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 999px;
+}
+
+.smart-gauge__empty {
+    border: 1px solid #e2e8f0;
+    background: #f8fafc;
+    border-radius: 12px;
+    padding: 14px;
+    color: #64748b;
+    font-size: 13px;
+}

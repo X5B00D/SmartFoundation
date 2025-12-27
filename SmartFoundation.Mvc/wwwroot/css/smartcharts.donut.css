@@ -1,0 +1,134 @@
+﻿.smart-donut {
+    position: relative;
+}
+
+.smart-donut__wrap {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 14px;
+}
+
+@media (min-width: 768px) {
+    .smart-donut__wrap {
+        grid-template-columns: 240px 1fr;
+        align-items: center;
+    }
+}
+
+.smart-donut__chart {
+    position: relative;
+    width: 240px;
+    max-width: 100%;
+}
+
+.smart-donut__svg {
+    width: 100%;
+    height: auto;
+    display: block;
+}
+
+.smart-donut__slice {
+    cursor: pointer;
+    transition: transform 180ms ease, filter 180ms ease;
+    transform-origin: 50% 50%;
+}
+
+    .smart-donut__slice:hover {
+        transform: scale(1.02);
+        filter: brightness(0.98);
+    }
+
+.smart-donut__center {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-content: center;
+    text-align: center;
+    pointer-events: none;
+}
+
+.smart-donut__center-total {
+    font-weight: 800;
+    font-size: 22px;
+    line-height: 1;
+    color: #0f172a;
+}
+
+.smart-donut__center-label {
+    margin-top: 6px;
+    font-size: 15px;
+    color: #64748b;
+}
+
+.smart-donut__legend {
+    display: grid;
+    gap: 10px;
+}
+
+.smart-donut__legend-row {
+    display: grid;
+    grid-template-columns: 14px 1fr auto;
+    align-items: center;
+    gap: 10px;
+    font-size: 15px;
+    color: #334155;
+}
+
+.smart-donut__dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 999px;
+}
+
+.smart-donut__legend-label {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.smart-donut__legend-meta {
+    font-size: 15px;
+    color: #64748b;
+}
+
+.smart-donut__tooltip {
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 30;
+    pointer-events: none;
+    opacity: 0;
+    transform: translate(-9999px, -9999px);
+    transition: opacity 120ms ease;
+    background: rgba(15, 23, 42, 0.92);
+    color: #fff;
+    padding: 10px 10px;
+    border-radius: 12px;
+    min-width: 160px;
+    box-shadow: 0 10px 30px rgba(2, 6, 23, 0.25);
+}
+
+    .smart-donut__tooltip.is-show {
+        opacity: 1;
+    }
+
+.smart-donut__tooltip-title {
+    font-size: 12px;
+    opacity: 0.9;
+}
+
+.smart-donut__tooltip-val {
+    margin-top: 6px;
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.smart-donut__empty {
+    border: 1px solid #e2e8f0;
+    background: #f8fafc;
+    border-radius: 12px;
+    padding: 14px;
+    color: #64748b;
+    font-size: 13px;
+}

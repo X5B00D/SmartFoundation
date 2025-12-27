@@ -1,0 +1,88 @@
+﻿.smart-line {
+    position: relative;
+}
+
+.smart-line__wrap {
+    width: 100%;
+}
+
+.smart-line__svg {
+    width: 100%;
+    height: auto;
+    display: block;
+}
+
+.smart-line__grid {
+    stroke: #e2e8f0;
+    stroke-width: 1;
+}
+
+.smart-line__ytext {
+    fill: #64748b;
+    font-size: 11px;
+}
+
+.smart-line__xtext {
+    fill: #64748b;
+    font-size: 11px;
+}
+
+.smart-line__area {
+    fill: rgba(2, 132, 199, 0.12);
+}
+
+.smart-line__path {
+    fill: none;
+    stroke: #0284c7;
+    stroke-width: 2.2;
+}
+
+.smart-line__dot {
+    fill: #0284c7;
+}
+
+.smart-line__hit {
+    fill: transparent;
+    cursor: crosshair;
+}
+
+.smart-line__tooltip {
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 30;
+    pointer-events: none;
+    opacity: 0;
+    transform: translate(-9999px, -9999px);
+    transition: opacity 120ms ease;
+    background: rgba(15, 23, 42, 0.92);
+    color: #fff;
+    padding: 10px 10px;
+    border-radius: 12px;
+    min-width: 140px;
+    box-shadow: 0 10px 30px rgba(2, 6, 23, 0.25);
+}
+
+    .smart-line__tooltip.is-show {
+        opacity: 1;
+    }
+
+.smart-line__tt-title {
+    font-size: 12px;
+    opacity: 0.9;
+}
+
+.smart-line__tt-val {
+    margin-top: 6px;
+    font-size: 13px;
+    font-weight: 800;
+}
+
+.smart-line__empty {
+    border: 1px solid #e2e8f0;
+    background: #f8fafc;
+    border-radius: 12px;
+    padding: 14px;
+    color: #64748b;
+    font-size: 13px;
+}

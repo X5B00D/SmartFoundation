@@ -1,0 +1,338 @@
+﻿using System.Text.RegularExpressions;
+
+namespace SmartFoundation.UI.ViewModels.SmartCharts
+{
+    public enum ChartCardType
+    {
+        Kpi,
+        BarHorizontal,
+        Donut,
+        Line,
+        Heatmap,
+        Funnel,
+        Gauge,
+        Occupancy,
+        ColumnPro,
+        RadialRings,
+        Bullet,
+        Treemap
+    }
+
+    public enum ChartTone { Neutral, Success, Warning, Danger, Info }
+    public enum ChartCardSize { Sm, Md, Lg }
+    public enum ChartCardVariant { Soft, Outline, Solid }
+
+
+
+    public class TreemapNode
+    {
+        public string Id { get; set; } = Guid.NewGuid().ToString("N");
+        public string Label { get; set; } = "";
+        public decimal Value { get; set; } = 0m;       // يستخدم فقط لو Leaf
+        public string? Color { get; set; }             // اختياري
+        public string? Href { get; set; }              // اختياري Drilldown
+
+        public List<TreemapNode> Children { get; set; } = new();
+    }
+
+    public class BulletItem
+    {
+        public string Key { get; set; } = "";
+        public string Label { get; set; } = "";      // اسم المؤشر
+        public decimal Actual { get; set; } = 0m;    // الحالي
+        public decimal Target { get; set; } = 0m;    // الهدف
+        public decimal Max { get; set; } = 100m;     // الحد الأعلى للمقياس
+
+        // نطاقات الأداء (اختياري): Poor <= okFrom < goodFrom <= Max
+        public decimal OkFrom { get; set; } = 60m;
+        public decimal GoodFrom { get; set; } = 85m;
+
+        public string? Color { get; set; }           // لون الـ actual (اختياري)
+        public string? Unit { get; set; }            // "%" أو "يوم" أو "ساعة"
+        public string? Href { get; set; }            // Drilldown (اختياري)
+    }
+
+    public class RadialRingItem
+    {
+        public string Key { get; set; } = "";
+        public string Label { get; set; } = "";       // مثل "جاهزية الوحدات"
+        public decimal Value { get; set; } = 0m;      // القيمة الحالية
+        public decimal Max { get; set; } = 100m;      // الحد الأعلى (افتراضي 100)
+
+        public string? Color { get; set; }            // اختياري
+        public string? ValueText { get; set; }        // اختياري: "92%"
+        public string? Href { get; set; }             // اختياري drilldown
+    }
+
+    public class ChartSeries
+    {
+        public string Name { get; set; } = "Series";
+        public List<decimal> Data { get; set; } = new();
+    }
+
+
+    public class OccupancyStatus
+    {
+        public string Key { get; set; } = "";     // occupied, vacant, maintenance...
+        public string Label { get; set; } = "";
+        public decimal Units { get; set; } = 0m;
+
+        public string? Color { get; set; }         // لون الحالة
+        public string? Href { get; set; }          // Drilldown
+    }
+
+    public class FunnelStage
+    {
+        public string Key { get; set; } = "";      // مثلا "new", "in_progress"
+        public string Label { get; set; } = "";    // مثلا "جديد"
+        public decimal Value { get; set; } = 0m;   // العدد
+
+        // اختياري: لون ثابت
+        public string? Color { get; set; }
+
+        // اختياري: drilldown
+        public string? Href { get; set; }
+        public string? OnClickJs { get; set; }
+    }
+
+    public class DonutSlice
+    {
+        public string Label { get; set; } = "";
+        public decimal Value { get; set; } = 0m;
+
+        // اختياري: لون ثابت (مثل "#0ea5e9")، إذا تركته فارغ JS يعطي Palette تلقائي
+        public string? Color { get; set; }
+
+        // اختياري: نص يظهر بدل القيمة (مثل "45%")
+        public string? DisplayValue { get; set; }
+    }
+
+
+    public class ChartAction
+    {
+        public string Id { get; set; } = Guid.NewGuid().ToString("N");
+        public string Text { get; set; } = "";
+        public string? Icon { get; set; }          // FontAwesome class
+        public string? Href { get; set; }          // رابط
+        public string? OnClickJs { get; set; }     // JS snippet
+        public string? CssClass { get; set; }      // تخصيص مظهر
+        public bool Show { get; set; } = true;
+        public string? Title { get; set; }         // tooltip
+        public bool OpenNewTab { get; set; } = false;
+    }
+
+    public class ChartCardConfig
+    {
+        // Identity / layout
+        public string Id { get; set; } = Guid.NewGuid().ToString("N");
+        public ChartCardType Type { get; set; }
+        public string? ColCss { get; set; }           // نفس نظامك
+        public string? ExtraCss { get; set; }
+        public string Dir { get; set; } = "rtl";      // rtl/ltr
+
+        // Shell (مشترك لكل الشارتات)
+        public bool ShowHeader { get; set; } = true;
+        public string Title { get; set; } = "";
+        public string? Subtitle { get; set; }
+        public string? Icon { get; set; }             // FontAwesome
+        public ChartTone Tone { get; set; } = ChartTone.Neutral;
+        public ChartCardSize Size { get; set; } = ChartCardSize.Md;
+        public ChartCardVariant Variant { get; set; } = ChartCardVariant.Outline;
+
+        // States
+        public bool IsLoading { get; set; } = false;
+        public bool IsEmpty { get; set; } = false;
+        public string? EmptyMessage { get; set; } = "لا توجد بيانات";
+        public string? ErrorMessage { get; set; }     // لو موجود => Error state
+
+        // Footer / meta
+        public bool ShowFooter { get; set; } = false;
+        public string? FooterText { get; set; }       // مثل "آخر تحديث..."
+        public string? LastUpdatedText { get; set; }
+
+        // Drilldown (تضغط الكيس)
+        public string? Href { get; set; }
+        public string? OnClickJs { get; set; }
+        public bool OpenNewTab { get; set; } = false;
+
+        // Actions (أزرار أعلى الكيس)
+        public List<ChartAction> Actions { get; set; } = new();
+
+        // -------- KPI (example type payload) --------
+        public string? BigValue { get; set; }
+        public string? Note { get; set; }
+        public string? SecondaryLabel { get; set; }
+        public string? SecondaryValue { get; set; }
+        public bool? SecondaryIsPositive { get; set; } // null = محايد
+
+        // -------- BarHorizontal (example type payload) --------
+        public List<string> Labels { get; set; } = new();
+        public List<ChartSeries> Series { get; set; } = new();
+        public bool ShowValues { get; set; } = true;
+        public string ValueFormat { get; set; } = "0";    // "0", "0.0", "0.##"
+        public int LabelMaxChars { get; set; } = 22;
+
+        // -------- Donut/Pie --------
+        public List<DonutSlice> Slices { get; set; } = new();
+        public bool DonutShowLegend { get; set; } = true;
+        public bool DonutShowCenterText { get; set; } = true;
+
+        // “donut” أو “pie”
+        public string DonutMode { get; set; } = "donut";
+
+        // سماكة الحلقة (للـ donut) كنسبة 0..1 (مثال 0.28)
+        public decimal DonutThickness { get; set; } = 0.28m;
+
+        // صيغة عرض القيمة (إذا ما استخدمت DisplayValue)
+        public string DonutValueFormat { get; set; } = "0";
+
+        // -------- Line/Area --------
+        public List<string> XLabels { get; set; } = new();           // محور X
+        public List<ChartSeries> LineSeries { get; set; } = new();   // نفس ChartSeries لكن هنا مخصص للـ line
+        public bool LineShowDots { get; set; } = true;
+        public bool LineShowGrid { get; set; } = true;
+        public bool LineFillArea { get; set; } = true;               // Area تحت الخط
+        public string LineValueFormat { get; set; } = "0";           // "0", "0.0", "0.##"
+        public int LineMaxXTicks { get; set; } = 6;                  // تقليل النصوص على X
+
+
+        // -------- Funnel / Pipeline --------
+        public List<FunnelStage> FunnelStages { get; set; } = new();
+        public bool FunnelShowPercent { get; set; } = true;     // نسبة من الإجمالي
+        public bool FunnelShowDelta { get; set; } = true;       // فرق عن المرحلة السابقة
+        public string FunnelValueFormat { get; set; } = "0";
+        public bool FunnelClickable { get; set; } = true;
+
+        // -------- SLA Gauge (Radial) --------
+        public decimal GaugeValue { get; set; } = 0m;          // القيمة الحالية
+        public decimal GaugeMin { get; set; } = 0m;
+        public decimal GaugeMax { get; set; } = 100m;
+
+        public string? GaugeLabel { get; set; }                // مثل: "الالتزام بالـ SLA"
+        public string? GaugeValueText { get; set; }            // مثل: "92%"
+        public string GaugeValueFormat { get; set; } = "0";    // لو ما حطيت GaugeValueText
+
+        public decimal GaugeGoodFrom { get; set; } = 90m;      // >= good
+        public decimal GaugeWarnFrom { get; set; } = 75m;      // >= warn, أقل = danger
+
+        public string GaugeUnit { get; set; } = "%";           // "%" أو "h" ... إلخ
+        public bool GaugeShowThresholds { get; set; } = true;  // عرض حدود الألوان أسفل
+
+        // -------- Housing Occupancy --------
+        public List<OccupancyStatus> OccupancyStatuses { get; set; } = new();
+        public bool OccupancyShowPercent { get; set; } = true;
+        public string OccupancyValueFormat { get; set; } = "0";
+
+
+        // -------- ColumnPro --------
+        public List<string> ColumnProLabels { get; set; } = new();
+        public List<ChartSeries> ColumnProSeries { get; set; } = new(); // أول Series فقط
+        public string ColumnProValueFormat { get; set; } = "0";
+        public int ColumnProMinBarWidth { get; set; } = 44;     // عرض العمود بالبيكسل
+        public int ColumnProHeight { get; set; } = 260;         // ارتفاع منطقة الرسم
+        public bool ColumnProShowValues { get; set; } = true;
+        public List<string>? ColumnProHrefs { get; set; }       // اختياري: رابط لكل عمود
+
+
+        // -------- Radial Rings --------
+        public List<RadialRingItem> RadialRings { get; set; } = new();
+        public int RadialRingSize { get; set; } = 260;           // قطر الرسم
+        public int RadialRingThickness { get; set; } = 10;       // سماكة كل حلقة
+        public int RadialRingGap { get; set; } = 8;              // مسافة بين الحلقات
+        public bool RadialRingShowLegend { get; set; } = true;
+        public string RadialRingValueFormat { get; set; } = "0";
+
+
+        // -------- Bullet --------
+        public List<BulletItem> Bullets { get; set; } = new();
+        public string BulletValueFormat { get; set; } = "0";
+        public bool BulletShowLegend { get; set; } = true;
+
+        // -------- Treemap --------
+        public TreemapNode? TreemapRoot { get; set; }               // جذر الشجرة
+        public int TreemapHeight { get; set; } = 320;               // ارتفاع الرسم
+        public int TreemapMinTile { get; set; } = 18;               // أقل حجم بلاطة لعرض النص
+        public bool TreemapShowLegend { get; set; } = false;        // اختياري لاحقًا
+        public string TreemapValueFormat { get; set; } = "0";
+
+
+
+
+        // Grid helper
+        public string GetResolvedColCss()
+        {
+            var raw = (ColCss ?? "").Trim();
+            if (string.IsNullOrWhiteSpace(raw))
+                return "col-span-12 md:col-span-6";
+
+            var tokens = Regex.Split(raw, @"\s+")
+                              .Where(t => !string.IsNullOrWhiteSpace(t))
+                              .ToList();
+
+            var outTokens = new List<string>();
+            var hasBase = false;
+
+            foreach (var t in tokens)
+            {
+                var mBpNum = Regex.Match(t, @"^(sm|md|lg|xl|2xl):(\d{1,2})$");
+                if (mBpNum.Success)
+                {
+                    var bp = mBpNum.Groups[1].Value;
+                    var val = Clamp(int.Parse(mBpNum.Groups[2].Value), 1, 12);
+                    outTokens.Add($"{bp}:col-span-{val}");
+                    continue;
+                }
+
+                var mBase = Regex.Match(t, @"^col-span-(\d{1,2})$");
+                if (mBase.Success)
+                {
+                    var val = Clamp(int.Parse(mBase.Groups[1].Value), 1, 12);
+                    outTokens.Add($"col-span-{val}");
+                    hasBase = true;
+                    continue;
+                }
+
+                var mBpCol = Regex.Match(t, @"^(sm|md|lg|xl|2xl):col-span-(\d{1,2})$");
+                if (mBpCol.Success)
+                {
+                    var bp = mBpCol.Groups[1].Value;
+                    var val = Clamp(int.Parse(mBpCol.Groups[2].Value), 1, 12);
+                    outTokens.Add($"{bp}:col-span-{val}");
+                    continue;
+                }
+
+                var mNum = Regex.Match(t, @"^0*(\d{1,2})$");
+                if (mNum.Success)
+                {
+                    var val = Clamp(int.Parse(mNum.Groups[1].Value), 1, 12);
+                    outTokens.Add("col-span-12");
+                    outTokens.Add($"md:col-span-{val}");
+                    hasBase = true;
+                    continue;
+                }
+
+                outTokens.Add(t);
+            }
+
+            if (!hasBase)
+                outTokens.Insert(0, "col-span-12");
+
+            var result = string.Join(" ", outTokens.Distinct());
+            return Regex.Replace(result, @"\s+", " ").Trim();
+        }
+
+        private static int Clamp(int v, int min, int max) => v < min ? min : (v > max ? max : v);
+    }
+
+    public class SmartChartsConfig
+    {
+        public string ChartsId { get; set; } = "smartCharts";
+        public string? Title { get; set; }
+        public string Dir { get; set; } = "rtl";
+
+        // لو تبغى عنوان/أكشن للداش ككل
+        public List<ChartAction> Actions { get; set; } = new();
+
+        public List<ChartCardConfig> Cards { get; set; } = new();
+    }
+}

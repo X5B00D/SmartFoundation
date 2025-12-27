@@ -1,0 +1,153 @@
+﻿.smart-funnel {
+    position: relative;
+}
+
+.smart-funnel__wrap {
+    display: grid;
+    gap: 12px;
+}
+
+.smart-funnel__stage {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 14px;
+    align-items: center;
+}
+
+.smart-funnel__left {
+    min-width: 0;
+}
+
+.smart-funnel__topline {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 10px;
+}
+
+.smart-funnel__label {
+    font-size: 14px;
+    font-weight: 800;
+    color: #0f172a;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.smart-funnel__meta {
+    display: inline-flex;
+    gap: 10px;
+    align-items: baseline;
+    color: #64748b;
+    font-size: 12px;
+    white-space: nowrap;
+}
+
+.smart-funnel__bar {
+    margin-top: 8px;
+    height: 12px;
+    border-radius: 999px;
+    background: #f1f5f9;
+    overflow: hidden;
+    position: relative;
+}
+
+.smart-funnel__fill {
+    height: 100%;
+    width: 0%;
+    border-radius: 999px;
+    background: #334155;
+    transition: width 750ms cubic-bezier(.2,.8,.2,1);
+}
+
+.smart-funnel__right {
+    text-align: left;
+}
+
+.smart-funnel[dir="rtl"] .smart-funnel__right {
+    text-align: right;
+}
+
+.smart-funnel__value {
+    font-size: 18px;
+    font-weight: 900;
+    color: #0f172a;
+    line-height: 1;
+}
+
+.smart-funnel__delta {
+    margin-top: 6px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    font-weight: 800;
+    padding: 6px 10px;
+    border-radius: 999px;
+    border: 1px solid #e2e8f0;
+    background: #ffffff;
+    color: #334155;
+}
+
+    .smart-funnel__delta[data-dir="down"] {
+        border-color: rgba(239, 68, 68, 0.25);
+        background: rgba(239, 68, 68, 0.08);
+        color: #b91c1c;
+    }
+
+    .smart-funnel__delta[data-dir="up"] {
+        border-color: rgba(34, 197, 94, 0.25);
+        background: rgba(34, 197, 94, 0.08);
+        color: #15803d;
+    }
+
+    .smart-funnel__delta[data-dir="flat"] {
+        border-color: rgba(100, 116, 139, 0.25);
+        background: rgba(100, 116, 139, 0.08);
+        color: #334155;
+    }
+
+.smart-funnel__click {
+    cursor: pointer;
+}
+
+.smart-funnel__tooltip {
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 30;
+    pointer-events: none;
+    opacity: 0;
+    transform: translate(-9999px, -9999px);
+    transition: opacity 120ms ease;
+    background: rgba(15, 23, 42, 0.92);
+    color: #fff;
+    padding: 10px 10px;
+    border-radius: 12px;
+    min-width: 190px;
+    box-shadow: 0 10px 30px rgba(2, 6, 23, 0.25);
+}
+
+    .smart-funnel__tooltip.is-show {
+        opacity: 1;
+    }
+
+.smart-funnel__tt-title {
+    font-size: 12px;
+    opacity: 0.9;
+}
+
+.smart-funnel__tt-val {
+    margin-top: 6px;
+    font-size: 13px;
+    font-weight: 900;
+}
+
+.smart-funnel__empty {
+    border: 1px solid #e2e8f0;
+    background: #f8fafc;
+    border-radius: 12px;
+    padding: 14px;
+    color: #64748b;
+    font-size: 13px;
+}

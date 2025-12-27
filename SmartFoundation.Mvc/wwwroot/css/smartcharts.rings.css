@@ -1,0 +1,155 @@
+﻿.smart-rings {
+    position: relative;
+}
+
+.smart-rings__wrap {
+    display: grid;
+    grid-template-columns: 1fr 1.2fr;
+    gap: 18px;
+    align-items: center;
+}
+
+@media (max-width: 900px) {
+    .smart-rings__wrap {
+        grid-template-columns: 1fr;
+    }
+}
+
+.smart-rings__chart {
+    position: relative;
+    width: var(--rings-size, 260px);
+    max-width: 100%;
+}
+
+.smart-rings__svg {
+    width: 100%;
+    height: auto;
+    display: block;
+}
+
+.smart-rings__center {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-content: center;
+    text-align: center;
+    pointer-events: none;
+}
+
+.smart-rings__center-title {
+    font-size: 12px;
+    color: #64748b;
+    font-weight: 800;
+}
+
+.smart-rings__center-big {
+    margin-top: 6px;
+    font-size: 26px;
+    font-weight: 950;
+    color: #0f172a;
+    letter-spacing: -0.02em;
+}
+
+.smart-rings__legend {
+    display: grid;
+    gap: 12px;
+}
+
+.smart-rings__item {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 10px 12px;
+    border: 1px solid #e2e8f0;
+    border-radius: 14px;
+    background: #fff;
+}
+
+    .smart-rings__item.is-click {
+        cursor: pointer;
+    }
+
+    .smart-rings__item:hover {
+        border-color: #cbd5e1;
+    }
+
+.smart-rings__left {
+    min-width: 0;
+}
+
+.smart-rings__name {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 13px;
+    font-weight: 900;
+    color: #0f172a;
+}
+
+.smart-rings__dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 999px;
+    margin-top: 3px;
+    flex: 0 0 auto;
+}
+
+.smart-rings__sub {
+    margin-top: 6px;
+    font-size: 12px;
+    color: #64748b;
+}
+
+.smart-rings__right {
+    text-align: left;
+    font-weight: 950;
+    color: #0f172a;
+    font-size: 13px;
+    white-space: nowrap;
+}
+
+.smart-rings[dir="rtl"] .smart-rings__right {
+    text-align: right;
+}
+
+.smart-rings__tooltip {
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 30;
+    pointer-events: none;
+    opacity: 0;
+    transform: translate(-9999px,-9999px);
+    transition: opacity 120ms ease;
+    background: rgba(15,23,42,0.92);
+    color: #fff;
+    padding: 10px 10px;
+    border-radius: 12px;
+    min-width: 190px;
+    box-shadow: 0 10px 30px rgba(2,6,23,0.25);
+}
+
+    .smart-rings__tooltip.is-show {
+        opacity: 1;
+    }
+
+.smart-rings__tt-title {
+    font-size: 12px;
+    opacity: .9;
+}
+
+.smart-rings__tt-val {
+    margin-top: 6px;
+    font-size: 13px;
+    font-weight: 900;
+}
+
+.smart-rings__empty {
+    border: 1px solid #e2e8f0;
+    background: #f8fafc;
+    border-radius: 12px;
+    padding: 14px;
+    color: #64748b;
+    font-size: 13px;
+}

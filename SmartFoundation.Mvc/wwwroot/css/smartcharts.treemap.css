@@ -1,0 +1,121 @@
+﻿.smart-treemap {
+    position: relative;
+}
+
+.smart-treemap__wrap {
+    position: relative;
+    width: 100%;
+    border-radius: 16px;
+    overflow: hidden;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+}
+
+.smart-treemap__tile {
+    position: absolute;
+    border-radius: 14px;
+    overflow: hidden;
+    border: 1px solid rgba(255,255,255,0.65);
+    box-shadow: 0 1px 2px rgba(2,6,23,0.06);
+    cursor: default;
+}
+
+    .smart-treemap__tile.is-click {
+        cursor: pointer;
+    }
+
+    .smart-treemap__tile:hover {
+        outline: 2px solid rgba(15,23,42,0.15);
+        outline-offset: -2px;
+    }
+
+.smart-treemap__label {
+    position: absolute;
+    inset: 0;
+    padding: 10px 10px;
+    display: grid;
+    align-content: start;
+    gap: 6px;
+    color: rgba(255,255,255,0.92);
+    text-shadow: 0 1px 2px rgba(2,6,23,0.25);
+}
+
+.smart-treemap__name {
+    font-size: 12px;
+    font-weight: 950;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.smart-treemap__value {
+    font-size: 12px;
+    font-weight: 900;
+    opacity: .95;
+}
+
+.smart-treemap__crumbs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 10px;
+}
+
+.smart-treemap__crumb {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 10px;
+    border-radius: 999px;
+    border: 1px solid #e2e8f0;
+    background: #fff;
+    font-size: 12px;
+    font-weight: 900;
+    color: #0f172a;
+    cursor: pointer;
+}
+
+    .smart-treemap__crumb:hover {
+        border-color: #cbd5e1;
+    }
+
+.smart-treemap__tooltip {
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 30;
+    pointer-events: none;
+    opacity: 0;
+    transform: translate(-9999px,-9999px);
+    transition: opacity 120ms ease;
+    background: rgba(15,23,42,0.92);
+    color: #fff;
+    padding: 10px 10px;
+    border-radius: 12px;
+    min-width: 210px;
+    box-shadow: 0 10px 30px rgba(2,6,23,0.25);
+}
+
+    .smart-treemap__tooltip.is-show {
+        opacity: 1;
+    }
+
+.smart-treemap__tt-title {
+    font-size: 12px;
+    opacity: .9;
+}
+
+.smart-treemap__tt-val {
+    margin-top: 6px;
+    font-size: 13px;
+    font-weight: 900;
+}
+
+.smart-treemap__empty {
+    border: 1px solid #e2e8f0;
+    background: #f8fafc;
+    border-radius: 12px;
+    padding: 14px;
+    color: #64748b;
+    font-size: 13px;
+}
