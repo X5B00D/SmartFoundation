@@ -1,0 +1,61 @@
+﻿.smart-colpro {
+    position: relative;
+}
+
+.smart-colpro__scroller {
+    overflow-x: auto;
+    padding-bottom: 6px;
+}
+
+.smart-colpro__canvas {
+    position: relative;
+    min-width: 520px;
+    user-select: none;
+}
+
+.smart-colpro__svg {
+    width: 100%;
+    height: auto;
+    display: block;
+}
+
+.smart-colpro__tooltip {
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 30;
+    pointer-events: none;
+    opacity: 0;
+    transform: translate(-9999px,-9999px);
+    transition: opacity 120ms ease;
+    background: rgba(15,23,42,0.92);
+    color: #fff;
+    padding: 10px 10px;
+    border-radius: 12px;
+    min-width: 180px;
+    box-shadow: 0 10px 30px rgba(2,6,23,0.25);
+}
+
+    .smart-colpro__tooltip.is-show {
+        opacity: 1;
+    }
+
+.smart-colpro__tt-title {
+    font-size: 12px;
+    opacity: .9;
+}
+
+.smart-colpro__tt-val {
+    margin-top: 6px;
+    font-size: 13px;
+    font-weight: 900;
+}
+
+.smart-colpro__empty {
+    border: 1px solid #e2e8f0;
+    background: #f8fafc;
+    border-radius: 12px;
+    padding: 14px;
+    color: #64748b;
+    font-size: 13px;
+}

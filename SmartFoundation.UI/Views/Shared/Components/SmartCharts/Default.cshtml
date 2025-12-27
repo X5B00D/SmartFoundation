@@ -1,0 +1,261 @@
+@model SmartFoundation.UI.ViewModels.SmartCharts.SmartChartsConfig
+@using SmartFoundation.UI.ViewModels.SmartCharts
+@using Microsoft.AspNetCore.Html
+@using System.Text
+
+<div id="@Model.ChartsId" class="w-full rounded-3xl bg-slate-50/70 p-6" dir="@Model.Dir">
+
+    @* Header for whole charts block *@
+    @if (!string.IsNullOrWhiteSpace(Model.Title) || (Model.Actions?.Any(a => a.Show) == true))
+    {
+        <div class="mb-4 flex items-start justify-between">
+            <div class="min-w-0">
+                @if (!string.IsNullOrWhiteSpace(Model.Title))
+                {
+                    <div class="truncate text-lg font-semibold text-gray-800">@Model.Title</div>
+                }
+            </div>
+
+            @if (Model.Actions?.Any(a => a.Show) == true)
+            {
+                <div class="flex items-center gap-2">
+                    @foreach (var a in Model.Actions.Where(x => x.Show))
+                    {
+                        @RenderAction(a)
+                    }
+                </div>
+            }
+        </div>
+    }
+
+    <div class="grid grid-cols-12 gap-6">
+        @foreach (var card in Model.Cards ?? new List<ChartCardConfig>())
+        {
+            var colCss = card.GetResolvedColCss();
+            var shellCss = CardShellClass(card);
+            var clickable = !string.IsNullOrWhiteSpace(card.Href) || !string.IsNullOrWhiteSpace(card.OnClickJs);
+
+            <div class="@colCss" dir="@card.Dir">
+                <div class="@(card.ExtraCss ?? "") @shellCss"
+                     role="group"
+                     data-card-id="@card.Id">
+
+                    @* Make whole card clickable (optional) *@
+                    @if (clickable)
+                    {
+                        <a class="absolute inset-0 rounded-2xl focus:outline-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-300/50"
+                           href="@(string.IsNullOrWhiteSpace(card.Href) ? "#" : card.Href)"
+                           target="@(card.OpenNewTab ? "_blank" : null)"
+                           rel="@(card.OpenNewTab ? "noopener" : null)"
+                           onclick="@(string.IsNullOrWhiteSpace(card.OnClickJs) ? null : card.OnClickJs)">
+                        </a>
+                    }
+
+                    @* Header *@
+                    @if (card.ShowHeader)
+                    {
+                        <div class="relative mb-4 flex items-start justify-between gap-3">
+                            <div class="min-w-0">
+                                <div class="flex items-center gap-2">
+                                    @if (!string.IsNullOrWhiteSpace(card.Icon))
+                                    {
+                                        <i class="@card.Icon text-sm text-gray-700"></i>
+                                    }
+                                    <div class="truncate font-semibold text-gray-900">@card.Title</div>
+                                </div>
+
+                                @if (!string.IsNullOrWhiteSpace(card.Subtitle))
+                                {
+                                    <div class="mt-1 truncate text-xs text-gray-500">@card.Subtitle</div>
+                                }
+                            </div>
+
+                            <div class="shrink-0 flex items-center gap-2">
+                                <span class="@TonePillClass(card.Tone)"></span>
+
+                                @if (card.Actions?.Any(a => a.Show) == true)
+                                {
+                                    <div class="flex items-center gap-1">
+                                        @foreach (var a in card.Actions.Where(x => x.Show))
+                                        {
+                                            @RenderAction(a)
+                                        }
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    }
+
+                    @* Body states: Error > Loading > Empty > Content *@
+                    <div class="relative">
+                        @if (!string.IsNullOrWhiteSpace(card.ErrorMessage))
+                        {
+                            <div class="rounded-xl border border-red-200 bg-red-50 p-4">
+                                <div class="text-sm font-semibold text-red-700">ÕœÀ Œÿ√</div>
+                                <div class="mt-1 break-words text-xs text-red-600">@card.ErrorMessage</div>
+                            </div>
+                        }
+                        else if (card.IsLoading)
+                        {
+                            @Skeleton(card.Size)
+                        }
+                        else if (card.IsEmpty)
+                        {
+                            <div class="rounded-xl border border-gray-200 bg-gray-50 p-4">
+                                <div class="text-sm font-semibold text-gray-700">·«  ÊÃœ »Ì«‰« </div>
+                                <div class="mt-1 text-xs text-gray-500">@((card.EmptyMessage ?? "·«  ÊÃœ »Ì«‰« "))</div>
+                            </div>
+                        }
+                        else
+                        {
+                            @switch (card.Type)
+                            {
+                                case ChartCardType.Kpi:
+                                    @await Html.PartialAsync("~/Views/Shared/Components/SmartCharts/Cards/_Kpi.cshtml", card)
+                                    break;
+
+                                case ChartCardType.BarHorizontal:
+                                    @await Html.PartialAsync("~/Views/Shared/Components/SmartCharts/Cards/_BarHorizontal.cshtml", card)
+                                    break;
+
+                                case ChartCardType.Donut:
+                                    @await Html.PartialAsync("~/Views/Shared/Components/SmartCharts/Cards/_Donut.cshtml", card)
+                                    break;
+                                
+                                case ChartCardType.Line:
+                                    @await Html.PartialAsync("~/Views/Shared/Components/SmartCharts/Cards/_Line.cshtml", card)
+                                    break;
+
+                                case ChartCardType.Funnel:
+                                    @await Html.PartialAsync("~/Views/Shared/Components/SmartCharts/Cards/_Funnel.cshtml", card)
+                                    break;
+
+                                case ChartCardType.Gauge:
+                                    @await Html.PartialAsync("~/Views/Shared/Components/SmartCharts/Cards/_Gauge.cshtml", card)
+                                    break;
+
+                                case ChartCardType.Occupancy:
+                                    @await Html.PartialAsync("~/Views/Shared/Components/SmartCharts/Cards/_Occupancy.cshtml", card)
+                                    break;
+
+                                case ChartCardType.ColumnPro:
+                                    @await Html.PartialAsync("~/Views/Shared/Components/SmartCharts/Cards/_ColumnPro.cshtml", card)
+                                    break;
+
+                                case ChartCardType.RadialRings:
+                                    @await Html.PartialAsync("~/Views/Shared/Components/SmartCharts/Cards/_RadialRings.cshtml", card)
+                                    break;
+
+                                case ChartCardType.Bullet:
+                                    @await Html.PartialAsync("~/Views/Shared/Components/SmartCharts/Cards/_Bullet.cshtml", card)
+                                    break;
+
+                                case ChartCardType.Treemap:
+                                    @await Html.PartialAsync("~/Views/Shared/Components/SmartCharts/Cards/_Treemap.cshtml", card)
+                                    break;
+
+                                default:
+                                    <div class="rounded-xl border border-gray-200 bg-gray-50 p-4">
+                                        <div class="text-sm font-semibold text-gray-700">‰Ê⁄ €Ì— „œ⁄Ê„</div>
+                                        <div class="mt-1 text-xs text-gray-500">ChartCardType: @card.Type</div>
+                                    </div>
+                                    break;
+                            }
+                        }
+                    </div>
+
+                    @* Footer *@
+                    @if (card.ShowFooter || !string.IsNullOrWhiteSpace(card.FooterText) || !string.IsNullOrWhiteSpace(card.LastUpdatedText))
+                    {
+                        <div class="relative mt-4 flex items-center justify-between gap-3 border-t border-gray-100 pt-3 text-xs text-gray-500">
+                            <div class="truncate">@((card.FooterText ?? ""))</div>
+                            <div class="truncate">@((card.LastUpdatedText ?? ""))</div>
+                        </div>
+                    }
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+@functions {
+
+    string CardShellClass(ChartCardConfig c)
+    {
+        var size = c.Size switch
+        {
+            ChartCardSize.Sm => "p-4",
+            ChartCardSize.Lg => "p-6",
+            _ => "p-5"
+        };
+
+        // Border —„«œÌ ›« Õ "Ÿ«Â—" + Ÿ· Œ›Ì› (»œÊ‰ ! Õ Ï ·«  Œ ›Ì „⁄ ≈⁄œ«œ«  Tailwind)
+        var baseLook =
+            "bg-white " +
+            "border border-gray-300 " +
+            "shadow-[0_1px_2px_rgba(15,23,42,0.04)] " +
+            "hover:shadow-[0_8px_22px_rgba(15,23,42,0.06)] " +
+            "hover:-translate-y-[20px]";
+
+        // 
+        var softLook =
+            "bg-white/95 " +
+            "border border-slate-200/60 " +
+            "shadow-[0_1px_2px_rgba(15,23,42,0.035)] " +
+            "hover:shadow-[0_7px_20px_rgba(15,23,42,0.055)] " +
+            "hover:-translate-y-[8px]";
+
+        var variant = c.Variant switch
+        {
+            ChartCardVariant.Soft => softLook,
+            _ => baseLook
+        };
+
+        return $"relative rounded-2xl transition-all duration-300 ease-out {size} {variant}";
+    }
+
+    string TonePillClass(ChartTone tone)
+    {
+        return tone switch
+        {
+            ChartTone.Success => "w-2.5 h-2.5 rounded-full bg-emerald-500 mt-1",
+            ChartTone.Warning => "w-2.5 h-2.5 rounded-full bg-amber-500 mt-1",
+            ChartTone.Danger => "w-2.5 h-2.5 rounded-full bg-red-500 mt-1",
+            ChartTone.Info => "w-2.5 h-2.5 rounded-full bg-sky-500 mt-1",
+            _ => "w-2.5 h-2.5 rounded-full bg-gray-300 mt-1"
+        };
+    }
+
+    IHtmlContent Skeleton(ChartCardSize size)
+    {
+        var rows = size == ChartCardSize.Sm ? 3 : 4;
+
+        var sb = new StringBuilder();
+        sb.AppendLine("<div class='animate-pulse space-y-3'>");
+        sb.AppendLine("<div class='h-4 bg-gray-200 rounded w-2/3'></div>");
+        for (int i = 0; i < rows; i++)
+            sb.AppendLine("<div class='h-3 bg-gray-100 rounded'></div>");
+        sb.AppendLine("</div>");
+
+        return new HtmlString(sb.ToString());
+    }
+
+    IHtmlContent RenderAction(ChartAction a)
+    {
+        var icon = string.IsNullOrWhiteSpace(a.Icon) ? "" : $"<i class='{a.Icon} text-xs'></i>";
+        var text = string.IsNullOrWhiteSpace(a.Text) ? "" : $"<span class='text-xs'>{a.Text}</span>";
+
+        var cls = string.IsNullOrWhiteSpace(a.CssClass)
+            ? "inline-flex items-center gap-1 px-2 py-1 rounded-lg border border-gray-200 text-gray-600 hover:text-gray-800 hover:border-gray-300 bg-white"
+            : a.CssClass;
+
+        if (!string.IsNullOrWhiteSpace(a.Href))
+        {
+            var target = a.OpenNewTab ? " target=\"_blank\" rel=\"noopener\"" : "";
+            return new HtmlString($"<a class=\"{cls}\" href=\"{a.Href}\" title=\"{a.Title ?? ""}\"{target}>{icon}{text}</a>");
+        }
+
+        var onclick = string.IsNullOrWhiteSpace(a.OnClickJs) ? "" : $" onclick=\"{a.OnClickJs}\"";
+        return new HtmlString($"<button type=\"button\" class=\"{cls}\" title=\"{a.Title ?? ""}\"{onclick}>{icon}{text}</button>");
+    }
+}

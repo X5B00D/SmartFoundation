@@ -1,0 +1,41 @@
+@model SmartFoundation.UI.ViewModels.SmartCharts.ChartCardConfig
+@using SmartFoundation.UI.ViewModels.SmartCharts
+@using System.Text.Json
+@using System.Text.Encodings.Web
+
+@{
+    var hostId = $"funnel_{Model.Id}";
+    var cfgId = $"{hostId}_cfg";
+
+    var cfg = new
+    {
+        id = hostId,
+        dir = (Model.Dir ?? "rtl").ToLower(),
+        tone = Model.Tone.ToString().ToLower(),
+        valueFormat = string.IsNullOrWhiteSpace(Model.FunnelValueFormat) ? "0" : Model.FunnelValueFormat,
+        showPercent = Model.FunnelShowPercent,
+        showDelta = Model.FunnelShowDelta,
+        clickable = Model.FunnelClickable,
+        stages = (Model.FunnelStages ?? new List<FunnelStage>()).Select(s => new
+        {
+            key = s.Key ?? "",
+            label = s.Label ?? "",
+            value = (double)s.Value,
+            color = s.Color,
+            href = s.Href,
+            onClickJs = s.OnClickJs
+        }).ToList()
+    };
+
+    var json = JsonSerializer.Serialize(cfg, new JsonSerializerOptions
+    {
+        Encoder = JavaScriptEncoder.Default,
+        PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+    });
+}
+
+<div id="@hostId" class="smart-funnel" data-config-id="@cfgId"></div>
+
+<script type="application/json" id="@cfgId">
+    @Html.Raw(json)
+</script>

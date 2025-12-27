@@ -1,0 +1,41 @@
+@model SmartFoundation.UI.ViewModels.SmartCharts.ChartCardConfig
+@using SmartFoundation.UI.ViewModels.SmartCharts
+@using System.Text.Json
+@using System.Text.Encodings.Web
+
+@{
+    var hostId = $"treemap_{Model.Id}";
+    var cfgId = $"{hostId}_cfg";
+
+    object MapNode(TreemapNode n) => new
+    {
+        id = n.Id,
+        label = n.Label,
+        value = (double)n.Value,
+        color = n.Color,
+        href = n.Href,
+        children = (n.Children ?? new List<TreemapNode>()).Select(MapNode).ToList()
+    };
+
+    var cfg = new
+    {
+        id = hostId,
+        dir = (Model.Dir ?? "rtl").ToLower(),
+        height = Model.TreemapHeight <= 160 ? 320 : Model.TreemapHeight,
+        minTile = Model.TreemapMinTile <= 10 ? 18 : Model.TreemapMinTile,
+        valueFormat = string.IsNullOrWhiteSpace(Model.TreemapValueFormat) ? "0" : Model.TreemapValueFormat,
+        root = (Model.TreemapRoot == null ? null : MapNode(Model.TreemapRoot))
+    };
+
+    var json = JsonSerializer.Serialize(cfg, new JsonSerializerOptions
+    {
+        Encoder = JavaScriptEncoder.Default,
+        PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+    });
+}
+
+<div id="@hostId" class="smart-treemap" data-config-id="@cfgId"></div>
+
+<script type="application/json" id="@cfgId">
+    @Html.Raw(json)
+</script>

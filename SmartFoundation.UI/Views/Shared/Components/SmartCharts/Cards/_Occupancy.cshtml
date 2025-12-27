@@ -1,0 +1,36 @@
+@model SmartFoundation.UI.ViewModels.SmartCharts.ChartCardConfig
+@using System.Text.Json
+@using System.Text.Encodings.Web
+
+@{
+    var hostId = $"occ_{Model.Id}";
+    var cfgId = $"{hostId}_cfg";
+
+    var cfg = new
+    {
+        id = hostId,
+        dir = (Model.Dir ?? "rtl").ToLower(),
+        showPercent = Model.OccupancyShowPercent,
+        valueFormat = Model.OccupancyValueFormat,
+        statuses = Model.OccupancyStatuses.Select(s => new
+        {
+            key = s.Key,
+            label = s.Label,
+            units = (double)s.Units,
+            color = s.Color,
+            href = s.Href
+        }).ToList()
+    };
+
+    var json = JsonSerializer.Serialize(cfg, new JsonSerializerOptions
+    {
+        Encoder = JavaScriptEncoder.Default,
+        PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+    });
+}
+
+<div id="@hostId" class="smart-occupancy" data-config-id="@cfgId"></div>
+
+<script type="application/json" id="@cfgId">
+    @Html.Raw(json)
+</script>

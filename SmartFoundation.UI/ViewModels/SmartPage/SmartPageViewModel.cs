@@ -1,6 +1,7 @@
-﻿using SmartFoundation.UI.ViewModels.SmartForm;
-using SmartFoundation.UI.ViewModels.SmartTable;
+﻿using SmartFoundation.UI.ViewModels.SmartCharts;
 using SmartFoundation.UI.ViewModels.SmartDatePicker;
+using SmartFoundation.UI.ViewModels.SmartForm;
+using SmartFoundation.UI.ViewModels.SmartTable;
 
 namespace SmartFoundation.UI.ViewModels.SmartPage
 {
@@ -17,8 +18,9 @@ namespace SmartFoundation.UI.ViewModels.SmartPage
         public FormConfig? Form { get; set; }
         public TableConfig? Table { get; set; }
 
-        public SmartTableDsModel? TableDS { get; set; } //جديد
+        public SmartTableDsModel? TableDS { get; set; } 
         public DatepickerViewModel? DatePicker { get; set; }
+        public SmartChartsConfig? Charts { get; set; }
 
     }
 }

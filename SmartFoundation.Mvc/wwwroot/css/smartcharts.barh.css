@@ -1,0 +1,123 @@
+﻿.smart-barh {
+    position: relative;
+}
+
+.smart-barh__list {
+    display: grid;
+    gap: 12px;
+}
+
+.smart-barh__row {
+    display: grid;
+    grid-template-columns: minmax(140px, 1.2fr) 3fr minmax(70px, 0.9fr);
+    gap: 14px;
+    align-items: center;
+}
+
+@media (min-width: 768px) {
+    .smart-barh__row {
+        grid-template-columns: minmax(180px, 1.2fr) 4fr minmax(90px, 0.9fr);
+    }
+}
+
+.smart-barh[dir="rtl"] .smart-barh__row {
+    direction: rtl;
+}
+
+.smart-barh__label {
+    font-size: 14px;
+    color: #475569;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.smart-barh__track {
+    height: 10px;
+    border-radius: 999px;
+    background: #f1f5f9;
+    overflow: hidden;
+    position: relative;
+}
+
+.smart-barh__bar {
+    height: 100%;
+    width: 0%;
+    border-radius: 999px;
+    background: #334155;
+    transition: width 700ms cubic-bezier(.2,.8,.2,1);
+}
+
+.smart-barh__value {
+    font-size: 12px;
+    font-weight: 800;
+    color: #334155;
+    text-align: left;
+}
+
+.smart-barh[dir="rtl"] .smart-barh__value {
+    text-align: right;
+}
+
+/* Tooltip */
+.smart-barh__tooltip {
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 30;
+    pointer-events: none;
+    opacity: 0;
+    transform: translate(-9999px, -9999px);
+    transition: opacity 120ms ease;
+    background: rgba(15, 23, 42, 0.92);
+    color: #fff;
+    padding: 10px 10px;
+    border-radius: 12px;
+    min-width: 160px;
+    box-shadow: 0 10px 30px rgba(2, 6, 23, 0.25);
+}
+
+    .smart-barh__tooltip.is-show {
+        opacity: 1;
+    }
+
+.smart-barh__tt-title {
+    font-size: 12px;
+    opacity: 0.9;
+}
+
+.smart-barh__tt-val {
+    margin-top: 6px;
+    font-size: 13px;
+    font-weight: 800;
+}
+
+/* Tone colors (يمكن تغيّرها بسهولة) */
+.smart-barh[data-tone="success"] .smart-barh__bar {
+    background: #16a34a;
+}
+
+.smart-barh[data-tone="warning"] .smart-barh__bar {
+    background: #f59e0b;
+}
+
+.smart-barh[data-tone="danger"] .smart-barh__bar {
+    background: #ef4444;
+}
+
+.smart-barh[data-tone="info"] .smart-barh__bar {
+    background: #0ea5e9;
+}
+
+.smart-barh[data-tone="neutral"] .smart-barh__bar {
+    background: #334155;
+}
+
+.smart-barh__empty {
+    border: 1px solid #e2e8f0;
+    background: #f8fafc;
+    border-radius: 12px;
+    padding: 14px;
+    color: #64748b;
+    font-size: 13px;
+}

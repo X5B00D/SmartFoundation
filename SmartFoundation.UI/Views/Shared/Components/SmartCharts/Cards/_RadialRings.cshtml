@@ -1,0 +1,42 @@
+@model SmartFoundation.UI.ViewModels.SmartCharts.ChartCardConfig
+@using SmartFoundation.UI.ViewModels.SmartCharts
+@using System.Text.Json
+@using System.Text.Encodings.Web
+
+@{
+    var hostId = $"rings_{Model.Id}";
+    var cfgId = $"{hostId}_cfg";
+
+    var cfg = new
+    {
+        id = hostId,
+        dir = (Model.Dir ?? "rtl").ToLower(),
+        size = Model.RadialRingSize <= 140 ? 260 : Model.RadialRingSize,
+        thickness = Model.RadialRingThickness <= 6 ? 10 : Model.RadialRingThickness,
+        gap = Model.RadialRingGap < 0 ? 8 : Model.RadialRingGap,
+        showLegend = Model.RadialRingShowLegend,
+        valueFormat = string.IsNullOrWhiteSpace(Model.RadialRingValueFormat) ? "0" : Model.RadialRingValueFormat,
+        rings = (Model.RadialRings ?? new List<RadialRingItem>()).Select(r => new
+        {
+            key = r.Key,
+            label = r.Label,
+            value = (double)r.Value,
+            max = (double)(r.Max <= 0 ? 100 : r.Max),
+            color = r.Color,
+            valueText = r.ValueText,
+            href = r.Href
+        }).ToList()
+    };
+
+    var json = JsonSerializer.Serialize(cfg, new JsonSerializerOptions
+    {
+        Encoder = JavaScriptEncoder.Default,
+        PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+    });
+}
+
+<div id="@hostId" class="smart-rings" data-config-id="@cfgId"></div>
+
+<script type="application/json" id="@cfgId">
+    @Html.Raw(json)
+</script>

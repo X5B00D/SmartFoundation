@@ -1,0 +1,38 @@
+@model SmartFoundation.UI.ViewModels.SmartCharts.ChartCardConfig
+@using SmartFoundation.UI.ViewModels.SmartCharts
+@using System.Text.Json
+@using System.Text.Encodings.Web
+
+@{
+    var hostId = $"line_{Model.Id}";
+    var cfgId = $"{hostId}_cfg";
+
+    var cfg = new
+    {
+        id = hostId,
+        dir = (Model.Dir ?? "rtl").ToLower(),
+        showDots = Model.LineShowDots,
+        showGrid = Model.LineShowGrid,
+        fillArea = Model.LineFillArea,
+        valueFormat = string.IsNullOrWhiteSpace(Model.LineValueFormat) ? "0" : Model.LineValueFormat,
+        maxXTicks = Model.LineMaxXTicks <= 0 ? 6 : Model.LineMaxXTicks,
+        xLabels = (Model.XLabels ?? new List<string>()),
+        series = (Model.LineSeries ?? new List<ChartSeries>()).Select(s => new
+        {
+            name = s.Name ?? "Series",
+            data = (s.Data ?? new List<decimal>()).Select(v => (double)v).ToList()
+        }).ToList()
+    };
+
+    var json = JsonSerializer.Serialize(cfg, new JsonSerializerOptions
+    {
+        Encoder = JavaScriptEncoder.Default,
+        PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+    });
+}
+
+<div id="@hostId" class="smart-line" data-config-id="@cfgId"></div>
+
+<script type="application/json" id="@cfgId">
+    @Html.Raw(json)
+</script>
