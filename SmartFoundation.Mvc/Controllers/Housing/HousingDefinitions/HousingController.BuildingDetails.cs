@@ -25,8 +25,10 @@ namespace SmartFoundation.Mvc.Controllers.Housing
             string? UtilityTypeID_ = Request.Query["U"].FirstOrDefault();
 
             UtilityTypeID_ = string.IsNullOrWhiteSpace(UtilityTypeID_) ? null : UtilityTypeID_.Trim();
-           
 
+            bool ready = false;
+
+            ready = !string.IsNullOrWhiteSpace(UtilityTypeID_);
 
 
 
@@ -36,7 +38,7 @@ namespace SmartFoundation.Mvc.Controllers.Housing
             ControllerName = nameof(ControlPanel);
             PageName = nameof(BuildingDetails);
 
-            var spParameters = new object?[] { "BuildingDetails", IdaraId, usersId, HostName, UtilityTypeID_};
+            var spParameters = new object?[] { "BuildingDetails", IdaraId, usersId, HostName, UtilityTypeID_ };
 
             //var spParameters = new object?[] { "Permission", IdaraID, userID, HostName, SearchID_, UserID_, distributorID_, RoleID_, Idara_, Dept_, Section_, Divison_ };
 
@@ -54,8 +56,6 @@ namespace SmartFoundation.Mvc.Controllers.Housing
 
 
             DataTable? permissionTable = (ds?.Tables?.Count ?? 0) > 0 ? ds.Tables[0] : null;
-
-           
 
             dt1 = (ds?.Tables?.Count ?? 0) > 1 ? ds.Tables[1] : null;
             dt2 = (ds?.Tables?.Count ?? 0) > 2 ? ds.Tables[2] : null;
@@ -86,7 +86,10 @@ namespace SmartFoundation.Mvc.Controllers.Housing
 
             List<OptionItem> UtilityTypeOptions = new();
             List<OptionItem> BuildingRentTypeOptions = new();
-           
+            List<OptionItem> BuildingTypeOptions = new();
+            List<OptionItem> MilitaryLocationOptions = new();
+            List<OptionItem> BuildingClassOptions = new();
+
 
 
             FormConfig form = new();
@@ -104,7 +107,7 @@ namespace SmartFoundation.Mvc.Controllers.Housing
                 string json;
 
 
-               
+
 
                 //// ---------------------- BuildingUtilityType ----------------------
                 result = await _CrudController.GetDDLValues(
@@ -125,6 +128,36 @@ namespace SmartFoundation.Mvc.Controllers.Housing
                 json = JsonSerializer.Serialize(result!.Value);
 
                 BuildingRentTypeOptions = JsonSerializer.Deserialize<List<OptionItem>>(json)!;
+
+                // ---------------------- BuildingType ----------------------
+                result = await _CrudController.GetDDLValues(
+                    "buildingTypeName_A", "buildingTypeID", "4", nameof(BuildingDetails), usersId, IdaraId, HostName
+                ) as JsonResult;
+
+
+                json = JsonSerializer.Serialize(result!.Value);
+
+                BuildingTypeOptions = JsonSerializer.Deserialize<List<OptionItem>>(json)!;
+
+                // ---------------------- MilitaryLocation ----------------------
+                result = await _CrudController.GetDDLValues(
+                    "militaryLocationName_A", "militaryLocationID", "5", nameof(BuildingDetails), usersId, IdaraId, HostName
+                ) as JsonResult;
+
+
+                json = JsonSerializer.Serialize(result!.Value);
+
+                MilitaryLocationOptions = JsonSerializer.Deserialize<List<OptionItem>>(json)!;
+
+                // ---------------------- BuildingClass ----------------------
+                result = await _CrudController.GetDDLValues(
+                    "buildingClassName_A", "buildingClassID", "6", nameof(BuildingDetails), usersId, IdaraId, HostName
+                ) as JsonResult;
+
+
+                json = JsonSerializer.Serialize(result!.Value);
+
+                BuildingClassOptions = JsonSerializer.Deserialize<List<OptionItem>>(json)!;
 
 
 
@@ -154,7 +187,7 @@ namespace SmartFoundation.Mvc.Controllers.Housing
 
 
                      new FieldConfig {
-
+                         SectionTitle = "اختيار المرفق",
                          Name = "UtilityType",
                          Type = "select",
                          Options = UtilityTypeOptions,
@@ -163,26 +196,49 @@ namespace SmartFoundation.Mvc.Controllers.Housing
                          Icon = "fa fa-user",
                          Value = UtilityTypeID_,
                          OnChangeJs = @"
-                                       var UserID_ = value.trim();
-                                       if (!UserID_) {
+                                       var UtilityTypeID_ = value.trim();
+                                       if (!UtilityTypeID_) {
                                            if (typeof toastr !== 'undefined') {
                                                toastr.info('الرجاء الاختيار اولا');
                                            }
                                            return;
                                        }
-                                       var url = '/Housing/BuildingDetails?S=1&U=' + encodeURIComponent(UtilityTypeID_);
-                                       window.location.href = url;
+                                         if (value && value !== '-1') {
+                             var url = '/Housing/BuildingDetails?S=1&U=' + encodeURIComponent(UtilityTypeID_);
+                            window.location.href = url;
+                        }
+
                                    "
-                     }
+                     },
 
 
                  },
-
-
                     Buttons = new List<FormButtonConfig>
                     {
+                        //           new FormButtonConfig
+                        //  {
+                        //      Text="بحث",
+                        //      Icon="fa-solid fa-search",
+                        //      Type="button",
+                        //      Color="success",
+                        //      // Replace the OnClickJs of the "تجربة" button with this:
+                        //      OnClickJs = "(function(){"
+                        //+ "var hidden=document.querySelector('input[name=Users]');"
+                        //+ "if(!hidden){toastr.error('لا يوجد حقل مستخدم');return;}"
+                        //+ "var userId = (hidden.value||'').trim();"
+                        //+ "var anchor = hidden.parentElement.querySelector('.sf-select');"
+                        //+ "var userName = anchor && anchor.querySelector('.truncate') ? anchor.querySelector('.truncate').textContent.trim() : '';"
+                        //+ "if(!userId){toastr.info('اختر مستخدم أولاً');return;}"
+                        //+ "var url = '/ControlPanel/Permission?Q1=' + encodeURIComponent(userId);"
+                        //+ "window.location.href = url;"
+                        //+ "})();"
+                        //  },
+
+
 
                     }
+
+
                 };
 
                 if (ds != null && ds.Tables.Count > 0 && ds.Tables[0].Rows.Count > 0)
@@ -260,6 +316,7 @@ namespace SmartFoundation.Mvc.Controllers.Housing
                             bool isIdaraId_FK = c.ColumnName.Equals("IdaraId_FK", StringComparison.OrdinalIgnoreCase);
                             bool isbuildingDetailsTel_1 = c.ColumnName.Equals("buildingDetailsTel_1", StringComparison.OrdinalIgnoreCase);
                             bool isbuildingDetailsTel_2 = c.ColumnName.Equals("buildingDetailsTel_2", StringComparison.OrdinalIgnoreCase);
+                            bool isbuildingRentTypeID = c.ColumnName.Equals("buildingRentTypeID", StringComparison.OrdinalIgnoreCase);
 
                             dynamicColumns.Add(new TableColumn
                             {
@@ -271,7 +328,7 @@ namespace SmartFoundation.Mvc.Controllers.Housing
                                 ,
                                 Visible = !(isbuildingDetailsID || isbuildingTypeID_FK || isbuildingUtilityTypeID_FK || ismilitaryLocationID_FK
                                 || isbuildingClassID_FK || isbuildingDetailsStartDate || isbuildingDetailsEndDate || isbuildingDetailsActive
-                                || isbuildingRentStartDate || isbuildingRentEndDate || isIdaraId_FK || isbuildingDetailsTel_1 || isbuildingDetailsTel_2)
+                                || isbuildingRentStartDate || isbuildingRentEndDate || isIdaraId_FK || isbuildingDetailsTel_1 || isbuildingDetailsTel_2 || isbuildingRentTypeID)
                             });
                         }
 
@@ -308,23 +365,16 @@ namespace SmartFoundation.Mvc.Controllers.Housing
                             dict["p05"] = Get("buildingDetailsArea");
                             dict["p06"] = Get("buildingDetailsCoordinates");
                             dict["p07"] = Get("buildingTypeID_FK");
-                            dict["p08"] = Get("buildingTypeName_A");
-                            dict["p09"] = Get("buildingUtilityTypeID_FK");
-                            dict["p10"] = Get("buildingUtilityTypeName_A");
-                            dict["p11"] = Get("militaryLocationID_FK");
-                            dict["p12"] = Get("militaryLocationName_A");
-                            dict["p13"] = Get("buildingClassID_FK");
-                            dict["p14"] = Get("buildingClassName_A");
-                            dict["p15"] = Get("buildingDetailsTel_1");
-                            dict["p16"] = Get("buildingDetailsTel_2");
-                            dict["p17"] = Get("buildingRentTypeName_A");
-                            dict["p18"] = Get("buildingDetailsRemark");
-                            dict["p19"] = Get("buildingDetailsStartDate");
-                            dict["p20"] = Get("buildingDetailsEndDate");
-                            dict["p21"] = Get("buildingDetailsActive");
-                            dict["p22"] = Get("buildingRentStartDate");
-                            dict["p23"] = Get("buildingRentEndDate");
-                            dict["p24"] = Get("IdaraId_FK");
+                            dict["p08"] = Get("buildingUtilityTypeID_FK");
+                            dict["p09"] = Get("militaryLocationID_FK");
+                            dict["p10"] = Get("buildingClassID_FK");
+                            dict["p11"] = Get("buildingDetailsTel_1");
+                            dict["p12"] = Get("buildingDetailsTel_2");
+                            dict["p13"] = Get("buildingRentTypeID");
+                            dict["p14"] = Get("buildingRentAmount");
+                            dict["p15"] = Get("buildingDetailsStartDate");
+                            dict["p16"] = Get("buildingDetailsRemark");
+                            dict["p17"] = Get("IdaraId_FK");
 
                             rowsList.Add(dict);
                         }
@@ -349,200 +399,165 @@ namespace SmartFoundation.Mvc.Controllers.Housing
             // REPLACE Add form fields: hide dataset textboxes and use your own custom inputs
 
             //ADD
-           
+
 
 
             var currentUrl = Request.Path + Request.QueryString;
 
-            //var addFields = new List<FieldConfig>
-            //{
-
-            //    // keep id hidden first so row id can flow when needed
-            //    new FieldConfig { Name = rowIdField, Type = "hidden" },
-
-            //    // your custom textboxes
-            //    new FieldConfig
-            //    {
-            //        Name = "p01",
-            //        Label = "الموزع",
-            //        Type = "select",
-            //        Options = distributorOptions,
-            //        ColCss = "3",
-            //        Required = true
-            //    },
-
-            //    new FieldConfig
-            //    {
-            //        Name = "p02",
-            //        Label = "الصلاحية",
-            //        Type = "select",
-            //        Options = new List<OptionItem> { new OptionItem { Value = "-1", Text = "اختر الموزع أولاً"     } }, //       Initial empty state
-            //        ColCss = "3",
-            //        Required = true,
-            //        DependsOn = "p01",
-            //        DependsUrl = "/crud/DDLFiltered?FK=distributorID_FK&textcol=permissionTypeName_A&ValueCol=distributorPermissionTypeID&PageName=Permission&TableIndex=4"
-            //    },
-            //    new FieldConfig { Name = "p03", Label = "تاريخ بداية الصلاحية", Type = "date", ColCss = "3", Required = false, Icon = "fa fa-calendar" },
-            //    new FieldConfig { Name = "p04", Label = "تاريخ نهاية الصلاحية", Type = "date", ColCss = "3", Required = false, Icon = "fa fa-calendar" },
-            //    new FieldConfig { Name = "p05", Label = "ملاحظات", Type = "textarea", ColCss = "6", Required = false },
-
-            //      new FieldConfig { Name = "p06",Value=UserID_, Type = "hidden" },
-            //      new FieldConfig { Name = "p07",Value=RoleID_, Type = "hidden" },
-
-            //      new FieldConfig { Name = "p08", Value = p08Value as string, Type = "hidden" },
-            //      new FieldConfig { Name = "p09",Value=Dept_, Type = "hidden" },
-            //      new FieldConfig { Name = "p10",Value=Section_, Type = "hidden" },
-            //      new FieldConfig { Name = "p11",Value=Divison_, Type = "hidden" },
-            //      new FieldConfig { Name = "p12",Value=distributorID_, Type = "hidden" },
-            //      new FieldConfig { Name = "p13",Value=SearchID_, Type = "hidden" },
-            //};
 
 
 
-            //// Inject required hidden headers for the add (insert) form BEFORE building dsModel:
-            //addFields.Insert(0, new FieldConfig { Name = "__RequestVerificationToken", Type = "hidden", Value = (Request.Headers["RequestVerificationToken"].FirstOrDefault() ?? "") });
-            //addFields.Insert(0, new FieldConfig { Name = "hostname", Type = "hidden", Value = HostName });
-            //addFields.Insert(0, new FieldConfig { Name = "entrydata", Type = "hidden", Value = usersId });
-            //addFields.Insert(0, new FieldConfig { Name = "idaraID", Type = "hidden", Value = IdaraId });
-            //addFields.Insert(0, new FieldConfig { Name = "ActionType", Type = "hidden", Value = "INSERT" }); // upper-case
-            //addFields.Insert(0, new FieldConfig { Name = "pageName_", Type = "hidden", Value = PageName });
+            // Check in dt2 for buildingUtilityIsRent == "1"
+            bool buildingUtilityIsRent = false;
+            string buildingUtilityIsRentValue = "0";
+
+            if (dt2 != null && dt2.Columns.Contains("buildingUtilityIsRent"))
+            {
+                var row = dt2.AsEnumerable()
+                    .FirstOrDefault(r => r["buildingUtilityTypeID"]?.ToString() == UtilityTypeID_);
+
+                if (row != null)
+                {
+                    buildingUtilityIsRentValue = row["buildingUtilityIsRent"]?.ToString()?.Trim() ?? "0";
+                    buildingUtilityIsRent = (buildingUtilityIsRentValue == "True");
+                }
+            }
+
+
+            var addFields = new List<FieldConfig>
+{
+    // keep id hidden first so row id can flow when needed
+    new FieldConfig { Name = rowIdField, Type = "hidden" },
+
+    new FieldConfig { Name = "p01", Label = "اسم المبنى", Type = "text",   ColCss = "3", Required = true},
+    new FieldConfig { Name = "p02", Label = "عدد الغرف", Type = "number", ColCss = "3", Required = true },
+    new FieldConfig { Name = "p03", Label = "عدد الطوابق", Type = "number", ColCss = "3", Required = true },
+    new FieldConfig { Name = "p04", Label = "مساحة المبنى", Type = "number", ColCss = "3", Required = true },
+    new FieldConfig { Name = "p05", Label = "احداثيات المبنى", Type = "text", ColCss = "3", Required = true },
+    new FieldConfig { Name = "p06", Label = "نوع المبنى", Type = "select", ColCss = "3", Required = true, Options = BuildingTypeOptions },
+    new FieldConfig { Name = "p07", Label = "موقع المبنى", Type = "select", ColCss = "3", Required = true, Options = MilitaryLocationOptions },
+    new FieldConfig { Name = "p08", Label = "فئة المبنى", Type = "select", ColCss = "3", Required = true, Options = BuildingClassOptions },
+    new FieldConfig { Name = "p09", Label = "تيلفون المبنى 1", Type = "number", ColCss = "3", Required = false },
+    new FieldConfig { Name = "p10", Label = "تيلفون المبنى 2", Type = "number", ColCss = "3", Required = false },
+
+    new FieldConfig { Name = "p13", Label = "تاريخ بداية المبنى", Type = "date", ColCss = "3", Required = true },
+    new FieldConfig { Name = "p14", Label = "ملاحظات", Type = "text", ColCss = "3", Required = true },
+    new FieldConfig { Name = "p15", Label = "UtilityTypeID_", Type = "hidden", ColCss = "3", Required = false,Value =UtilityTypeID_ },
+};
+
+            // ✅ إذا فيه إيجار: أضف p12/p13 بمكانها الصحيح قبل p14
+            if (buildingUtilityIsRent)
+            {
+                // حطهم بعد p10 مباشرة (بدون أرقام Insert ثابتة)
+                var idxAfterP10 = addFields.FindIndex(f => f.Name == "p10");
+                if (idxAfterP10 < 0) idxAfterP10 = addFields.Count - 1;
+
+                addFields.Insert(idxAfterP10 + 1, new FieldConfig { Name = "p11", Label = "نوع الايجار", Type = "select", ColCss = "3", Required = true, Options = BuildingRentTypeOptions });
+                addFields.Insert(idxAfterP10 + 2, new FieldConfig { Name = "p12", Label = "مبلغ الايجار", Type = "text", ColCss = "3", Required = true });
+            }
+
+            // ✅ Inject required hidden headers (مرة واحدة فقط)
+            addFields.Insert(0, new FieldConfig { Name = "__RequestVerificationToken", Type = "hidden", Value = (Request.Headers["RequestVerificationToken"].FirstOrDefault() ?? "") });
+            addFields.Insert(0, new FieldConfig { Name = "hostname", Type = "hidden", Value = HostName });
+            addFields.Insert(0, new FieldConfig { Name = "entrydata", Type = "hidden", Value = usersId });
+            addFields.Insert(0, new FieldConfig { Name = "idaraID", Type = "hidden", Value = IdaraId });
+            addFields.Insert(0, new FieldConfig { Name = "ActionType", Type = "hidden", Value = "INSERT" });
+            addFields.Insert(0, new FieldConfig { Name = "pageName_", Type = "hidden", Value = PageName });
+
+            addFields.Insert(0, new FieldConfig { Name = "redirectUrl", Type = "hidden", Value = currentUrl });
+            addFields.Insert(0, new FieldConfig { Name = "redirectAction", Type = "hidden", Value = PageName });
+            addFields.Insert(0, new FieldConfig { Name = "redirectController", Type = "hidden", Value = ControllerName });
+
+
+          
+
+            var updateFields = new List<FieldConfig>
+            {
+
+                new FieldConfig { Name = "redirectAction",      Type = "hidden", Value = PageName },
+                new FieldConfig { Name = "redirectController",  Type = "hidden", Value = ControllerName },
+                new FieldConfig { Name = "redirectUrl",  Type = "hidden", Value = currentUrl },
+                new FieldConfig { Name = "pageName_",           Type = "hidden", Value = PageName },
+                new FieldConfig { Name = "ActionType",          Type = "hidden", Value = "UPDATE" },
+                new FieldConfig { Name = "idaraID",             Type = "hidden", Value = IdaraId },
+                new FieldConfig { Name = "entrydata",           Type = "hidden", Value = usersId },
+                new FieldConfig { Name = "hostname",            Type = "hidden", Value = HostName},
+                new FieldConfig { Name = "__RequestVerificationToken", Type = "hidden", Value = (Request.Headers["RequestVerificationToken"].FirstOrDefault() ?? "") },
+                new FieldConfig { Name = rowIdField,            Type = "hidden" },
+
+                new FieldConfig { Name = "p01", Label = "المعرف",   Type = "hidden", Readonly = true, ColCss = "3" },
+                new FieldConfig { Name = "p02", Label = "اسم المبنى", Type = "text",   ColCss = "3", Required = true ,Value =buildingUtilityIsRent.ToString()},
+                new FieldConfig { Name = "p03", Label = "عدد الغرف", Type = "number", ColCss = "3", Required = true },
+                new FieldConfig { Name = "p04", Label = "عدد الطوابق", Type = "number", ColCss = "3", Required = true },
+                new FieldConfig { Name = "p05", Label = "مساحة المبنى", Type = "number", ColCss = "3", Required = true },
+                new FieldConfig { Name = "p06", Label = "احداثيات المبنى", Type = "number", ColCss = "3", Required = true },
+                new FieldConfig { Name = "p07", Label = "نوع المبنى", Type = "select", ColCss = "3", Required = true,   Options =         BuildingTypeOptions },
+                new FieldConfig { Name = "p08", Label = "نوع المرفق", Type = "hidden", ColCss = "3", Required = true,   Value=UtilityTypeID_ },
+                new FieldConfig { Name = "p09", Label = "موقع المبنى", Type = "select", ColCss = "3", Required = true,  Options =        MilitaryLocationOptions },
+                new FieldConfig { Name = "p10", Label = "فئة المبنى", Type = "select", ColCss = "3", Required = true,   Options =         BuildingClassOptions },
+                new FieldConfig { Name = "p11", Label = "تيلفون المبنى 1", Type = "number", ColCss = "3", Required = false },
+                new FieldConfig { Name = "p12", Label = "تيلفون المبنى 2", Type = "number", ColCss = "3", Required = false },
+
+                new FieldConfig { Name = "p15", Label = "تاريخ بداية المبنى", Type = "date", ColCss = "3", Required = true },
+                new FieldConfig { Name = "p16", Label = "ملاحظات", Type = "text", ColCss = "3", Required = true },
+                new FieldConfig { Name = "p17", Label = "UtilityTypeID_", Type = "hidden", ColCss = "3", Required = false,Value =UtilityTypeID_ },
+            };
+
+            if (buildingUtilityIsRent)
+            {
+                // Find the index after the last phone field (e.g., after "p12" or "p11" depending on your field names)
+                var idxAfterPhone = updateFields.FindIndex(f => f.Name == "p12");
+                if (idxAfterPhone < 0) idxAfterPhone = updateFields.Count - 1;
+
+                updateFields.Insert(idxAfterPhone + 1, new FieldConfig
+                {
+                    Name = "p13",
+                    Label = "نوع الايجار",
+                    Type = "select",
+                    ColCss = "3",
+                    Required = true,
+                    Options = BuildingRentTypeOptions
+                });
+                updateFields.Insert(idxAfterPhone + 2, new FieldConfig
+                {
+                    Name = "p14",
+                    Label = "مبلغ الايجار",
+                    Type = "number",
+                    ColCss = "3",
+                    Required = true
+                });
+            }
 
 
 
-            //// Optional: help the generic endpoint know where to go back
+            //Delete fields: show confirmation as a label(not textbox) and show ID as label while still posting p01
 
-            //addFields.Insert(0, new FieldConfig { Name = "redirectUrl", Type = "hidden", Value = currentUrl });
-            //addFields.Insert(0, new FieldConfig { Name = "redirectAction", Type = "hidden", Value = PageName });
-            //addFields.Insert(0, new FieldConfig { Name = "redirectController", Type = "hidden", Value = ControllerName });
-            //addFields.Insert(0, new FieldConfig { Name = "UserID_", Type = "hidden", Value = UserID_ });
+            var deleteFields = new List<FieldConfig>
+            {
 
+                new FieldConfig { Name = "pageName_",          Type = "hidden", Value = PageName },
+                new FieldConfig { Name = "ActionType",         Type = "hidden", Value = "DELETE" },
+                new FieldConfig { Name = "idaraID",            Type = "hidden", Value = IdaraId },
+                new FieldConfig { Name = "entrydata",          Type = "hidden", Value = usersId },
+                new FieldConfig { Name = "hostname",           Type = "hidden", Value = HostName },
 
-
-
-            //var addFields1 = new List<FieldConfig>
-            //{
-            //    // keep id hidden first so row id can flow when needed
-            //    new FieldConfig { Name = rowIdField, Type = "hidden" },
-
-            //    // your custom textboxes
-            //    new FieldConfig
-            //    {
-            //        Name = "p01",
-            //        Label = "الموزع",
-            //        Type = "select",
-            //        Options = distributorOptions,
-            //        ColCss = "3",
-            //        Required = true
-            //    },
-
-            //    new FieldConfig { Name = "p02", Label = "تاريخ بداية الصلاحية", Type = "date", ColCss = "3", Required = false,Icon = "fa fa-calendar" },
-            //    new FieldConfig { Name = "p03", Label = "تاريخ نهاية الصلاحية", Type = "date", ColCss = "3", Required = false,Icon = "fa fa-calendar" },
-            //    new FieldConfig { Name = "p04", Label = "ملاحظات", Type = "textarea", ColCss = "6", Required = false },
-
-            //      new FieldConfig { Name = "p05",Value=UserID_, Type = "hidden" },
-            //      new FieldConfig { Name = "p06",Value=RoleID_, Type = "hidden" },
-
-            //      new FieldConfig { Name = "p07", Value = p08Value as string, Type = "hidden" },
-            //      new FieldConfig { Name = "p08",Value=Dept_, Type = "hidden" },
-            //      new FieldConfig { Name = "p09",Value=Section_, Type = "hidden" },
-            //      new FieldConfig { Name = "p10",Value=Divison_, Type = "hidden" },
-            //      new FieldConfig { Name = "p11",Value=distributorID_, Type = "hidden" },
-            //      new FieldConfig { Name = "p12",Value=SearchID_, Type = "hidden" },
-            //};
+                new FieldConfig { Name = "redirectUrl",     Type = "hidden", Value = currentUrl },
+                new FieldConfig { Name = "redirectAction",     Type = "hidden", Value = PageName },
+                new FieldConfig { Name = "redirectController", Type = "hidden", Value = ControllerName },
+                new FieldConfig { Name = "UtilityTypeID_", Type = "hidden", Value = UtilityTypeID_ },
 
 
+                new FieldConfig { Name = "__RequestVerificationToken", Type = "hidden", Value = (Request.Headers["RequestVerificationToken"].FirstOrDefault() ?? "") },
 
-            //// Inject required hidden headers for the add (insert) form BEFORE building dsModel:
-            //addFields1.Insert(0, new FieldConfig { Name = "__RequestVerificationToken", Type = "hidden", Value = (Request.Headers["RequestVerificationToken"].FirstOrDefault() ?? "") });
-            //addFields1.Insert(0, new FieldConfig { Name = "hostname", Type = "hidden", Value = HostName });
-            //addFields1.Insert(0, new FieldConfig { Name = "entrydata", Type = "hidden", Value = usersId });
-            //addFields1.Insert(0, new FieldConfig { Name = "idaraID", Type = "hidden", Value = IdaraId });
-            //addFields1.Insert(0, new FieldConfig { Name = "ActionType", Type = "hidden", Value = "INSERTFULLACCESS" }); // upper-case
-            //addFields1.Insert(0, new FieldConfig { Name = "pageName_", Type = "hidden", Value = PageName });
+                // selection context
+                new FieldConfig { Name = rowIdField, Type = "hidden" },
 
-
-
-            //// Optional: help the generic endpoint know where to go back
-            //addFields1.Insert(0, new FieldConfig { Name = "redirectAction", Type = "hidden", Value = PageName });
-            //addFields1.Insert(0, new FieldConfig { Name = "redirectController", Type = "hidden", Value = ControllerName });
-            //addFields1.Insert(0, new FieldConfig { Name = "redirectUrl", Type = "hidden", Value = currentUrl });
-            //addFields1.Insert(0, new FieldConfig { Name = "UserID_", Type = "hidden", Value = UserID_ });
+                // hidden p01 actually posted to SP
+                new FieldConfig { Name = "p01", Type = "hidden", MirrorName = "UtilityTypeID_" }
+            };
 
 
-
-
-
-            //var updateFields = new List<FieldConfig>
-            //{
-
-            //    new FieldConfig { Name = "redirectAction",      Type = "hidden", Value = PageName },
-            //    new FieldConfig { Name = "redirectController",  Type = "hidden", Value = ControllerName },
-            //    new FieldConfig { Name = "redirectUrl",  Type = "hidden", Value = currentUrl },
-            //    new FieldConfig { Name = "pageName_",           Type = "hidden", Value = PageName },
-            //    new FieldConfig { Name = "ActionType",          Type = "hidden", Value = "UPDATE" },
-            //    new FieldConfig { Name = "idaraID",             Type = "hidden", Value = IdaraId },
-            //    new FieldConfig { Name = "entrydata",           Type = "hidden", Value = usersId },
-            //    new FieldConfig { Name = "hostname",            Type = "hidden", Value = HostName},
-            //    new FieldConfig { Name = "__RequestVerificationToken", Type = "hidden", Value = (Request.Headers["RequestVerificationToken"].FirstOrDefault() ?? "") },
-            //    new FieldConfig { Name = rowIdField,            Type = "hidden" },
-
-            //    new FieldConfig { Name = "p01", Label = "المعرف",             Type = "hidden", Readonly = true, ColCss = "3" },
-            //    new FieldConfig { Name = "p02", Label = "اسم الصفحة",         Type = "hidden", Required = true,  ColCss = "3" },
-            //    new FieldConfig { Name = "p03", Label = "الصلاحية", Type = "hidden",   ColCss = "3", TextMode = "arabic" },
-            //    // new FieldConfig
-            //    //{
-            //    //    Name = "p02",
-            //    //    Label = "الموزع",
-            //    //    Type = "select",
-            //    //    Options = distributorOptions,
-            //    //    ColCss = "3",
-            //    //    Required = true,
-            //    //},
-
-            //    //new FieldConfig
-            //    //{
-            //    //    Name = "p03",
-            //    //    Label = "الصلاحية",
-            //    //    Type = "select",
-            //    //    Options = new List<OptionItem> { new OptionItem { Value = "-1", Text = "اختر الموزع أولاً"     } }, //       Initial empty state
-            //    //    ColCss = "3",
-            //    //    Required = true,
-            //    //    DependsOn = "p02",
-            //    //    DependsUrl = "/crud/DDLFiltered?FK=distributorID_FK&textcol=permissionTypeName_A&ValueCol=distributorPermissionTypeID&PageName=Permission&TableIndex=4"
-            //    //},
-            //    new FieldConfig { Name = "p04", Label = "تاريخ بداية الصلاحية", Type = "date", Required = false, ColCss = "3",Icon = "fa fa-calendar" },
-            //     new FieldConfig { Name = "p05", Label = "تاريخ نهاية الصلاحية", Type = "date", Required = false, ColCss = "3",Icon = "fa fa-calendar" },
-            //    new FieldConfig { Name = "p06", Label = "ملاحظات",            Type = "textarea",   ColCss = "6" }
-            //};
-
-
-            //// Delete fields: show confirmation as a label (not textbox) and show ID as label while still posting p01
-            //var deleteFields = new List<FieldConfig>
-            //{
-
-            //    new FieldConfig { Name = "pageName_",          Type = "hidden", Value = PageName },
-            //    new FieldConfig { Name = "ActionType",         Type = "hidden", Value = "DELETE" },
-            //    new FieldConfig { Name = "idaraID",            Type = "hidden", Value = IdaraId },
-            //    new FieldConfig { Name = "entrydata",          Type = "hidden", Value = usersId },
-            //    new FieldConfig { Name = "hostname",           Type = "hidden", Value = HostName },
-
-            //    new FieldConfig { Name = "redirectUrl",     Type = "hidden", Value = currentUrl },
-            //    new FieldConfig { Name = "redirectAction",     Type = "hidden", Value = PageName },
-            //    new FieldConfig { Name = "redirectController", Type = "hidden", Value = ControllerName },
-            //    new FieldConfig { Name = "UserID_", Type = "hidden", Value = UserID_ },
-
-
-            //    new FieldConfig { Name = "__RequestVerificationToken", Type = "hidden", Value = (Request.Headers["RequestVerificationToken"].FirstOrDefault() ?? "") },
-
-            //    // selection context
-            //    new FieldConfig { Name = rowIdField, Type = "hidden" },
-
-            //    // hidden p01 actually posted to SP
-            //    new FieldConfig { Name = "p01", Type = "hidden", MirrorName = "permissionID" }
-            //};
-
-
-            ////bool hasRows = dt1 is not null && dt1.Rows.Count > 0 && rowsList.Count > 0;
+            //bool hasRows = dt1 is not null && dt1.Rows.Count > 0 && rowsList.Count > 0;
 
             //ViewBag.HideTable = false;
             //string.IsNullOrWhiteSpace(UserID_);
@@ -558,8 +573,8 @@ namespace SmartFoundation.Mvc.Controllers.Housing
                 QuickSearchFields = dynamicColumns.Select(c => c.Field).Take(4).ToList(),
                 Searchable = true,
                 AllowExport = true,
-                PageTitle = "إدارة الصلاحيات",
-                PanelTitle = "إدارة الصلاحيات ",
+                PageTitle = "المباني",
+                PanelTitle = "المباني ",
 
                 Toolbar = new TableToolbarConfig
                 {
@@ -574,18 +589,18 @@ namespace SmartFoundation.Mvc.Controllers.Housing
 
                     Add = new TableAction
                     {
-                        Label = "إضافة صلاحية",
+                        Label = "إضافة مبنى",
                         Icon = "fa fa-plus",
                         Color = "success",
                         OpenModal = true,
-                        ModalTitle = "إضافة صلاحية جديدة",
+                        ModalTitle = "إضافة مبنى جديد",
                         OpenForm = new FormConfig
                         {
                             FormId = "InsertForm",
-                            Title = "بيانات الموظف الجديد",
+                            Title = "بيانات المبنى الجديد",
                             Method = "post",
                             ActionUrl = "/crud/insert",
-                            Fields = null,
+                            Fields = addFields,
                             Buttons = new List<FormButtonConfig>
                             {
                                 new FormButtonConfig { Text = "حفظ", Type = "submit", Color = "success" /*Icon = "fa fa-save"*/ },
@@ -595,48 +610,27 @@ namespace SmartFoundation.Mvc.Controllers.Housing
                         }
                     },
 
-                    Add1 = new TableAction
-                    {
-                        Label = "إضافة وصول كامل",
-                        Icon = "fa fa-plus",
-                        Color = "success",
-                        OpenModal = true,
-                        ModalTitle = "إضافة وصول كامل",
-                        OpenForm = new FormConfig
-                        {
-                            FormId = "InsertBackageForm",
-                            Title = "إضافة وصول كامل",
-                            Method = "post",
-                            ActionUrl = "/crud/insert",
-                            Fields = null,
-                            Buttons = new List<FormButtonConfig>
-                            {
-                                new FormButtonConfig { Text = "حفظ", Type = "submit", Color = "success" /*Icon = "fa fa-save"*/ },
-                                new FormButtonConfig { Text = "إلغاء", Type = "button", Color = "secondary", /*Icon = "fa fa-times",*/ OnClickJs = "this.closest('.sf-modal').__x.$data.closeModal();" },
-
-                            }
-                        }
-                    },
+                   
 
                     // Edit: opens populated form for single selection and saves via SP
                     Edit = new TableAction
                     {
-                        Label = "تعديل صلاحية",
+                        Label = "تعديل مبنى",
                         Icon = "fa fa-pen-to-square",
                         Color = "info",
                         IsEdit = true,
                         OpenModal = true,
-                        ModalTitle = "تعديل بيانات الموظف",
+                        ModalTitle = "تعديل بيانات المبنى",
                         //ModalMessage = "بسم الله الرحمن الرحيم",
                         OpenForm = new FormConfig
                         {
                             FormId = "employeeEditForm",
-                            Title = "تعديل بيانات الموظف",
+                            Title = "تعديل بيانات المبنى",
                             Method = "post",
                             ActionUrl = "/crud/update",
                             SubmitText = "حفظ التعديلات",
                             CancelText = "إلغاء",
-                            Fields = null
+                            Fields = updateFields
                         },
                         RequireSelection = true,
                         MinSelection = 1,
@@ -647,18 +641,18 @@ namespace SmartFoundation.Mvc.Controllers.Housing
 
                     Delete = new TableAction
                     {
-                        Label = "ايقاف صلاحية",
+                        Label = "حذف مبنى",
                         Icon = "fa fa-trash",
                         Color = "danger",
                         IsEdit = true,
                         OpenModal = true,
                         //ModalTitle = "رسالة تحذيرية",
                         ModalTitle = "<i class='fa fa-exclamation-triangle text-red-600 text-xl mr-2'></i> تحذير",
-                        ModalMessage = "هل أنت متأكد من حذف هذا السجل؟",
+                        ModalMessage = "هل أنت متأكد من حذف هذا المبنى؟",
                         OpenForm = new FormConfig
                         {
                             FormId = "employeeDeleteForm",
-                            Title = "تأكيد حذف السجل",
+                            Title = "تأكيد حذف المبنى",
                             Method = "post",
                             ActionUrl = "/crud/delete",
                             Buttons = new List<FormButtonConfig>
@@ -666,7 +660,7 @@ namespace SmartFoundation.Mvc.Controllers.Housing
                                 new FormButtonConfig { Text = "حذف", Type = "submit", Color = "danger", Icon = "fa fa-save" },
                                 new FormButtonConfig { Text = "إلغاء", Type = "button", Color = "secondary", Icon = "fa fa-times", OnClickJs = "this.closest('.sf-modal').__x.$data.closeModal();" }
                             },
-                            Fields = null
+                            Fields = deleteFields
                         },
                         RequireSelection = true,
                         MinSelection = 1,
@@ -687,10 +681,10 @@ namespace SmartFoundation.Mvc.Controllers.Housing
             {
                 PageTitle = dsModel.PageTitle,
                 PanelTitle = dsModel.PanelTitle,
-                PanelIcon = "fa-user-shield",
+                PanelIcon = "fa-home",
                 Form = form,
-                TableDS = dsModel
-                //TableDS = ready ? dsModel : null
+                //TableDS = dsModel
+                TableDS = ready ? dsModel : null
 
             };
 
