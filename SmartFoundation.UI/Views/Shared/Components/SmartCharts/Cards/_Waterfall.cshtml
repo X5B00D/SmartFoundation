@@ -1,0 +1,43 @@
+@model SmartFoundation.UI.ViewModels.SmartCharts.ChartCardConfig
+@using SmartFoundation.UI.ViewModels.SmartCharts
+@using System.Text.Json
+@using System.Text.Encodings.Web
+
+@{
+    var hostId = $"wf_{Model.Id}";
+    var cfgId = $"{hostId}_cfg";
+
+    var steps = (Model.WaterfallSteps ?? new List<WaterfallStep>()).Select(s => new
+    {
+        key = s.Key ?? "",
+        label = s.Label ?? "",
+        value = (double)s.Value,
+        isTotal = s.IsTotal,
+        color = s.Color,
+        href = s.Href
+    }).ToList();
+
+    var cfg = new
+    {
+        id = hostId,
+        dir = (Model.Dir ?? "rtl").ToLower(),
+        tone = Model.Tone.ToString().ToLower(),
+        valueFormat = string.IsNullOrWhiteSpace(Model.WaterfallValueFormat) ? "0" : Model.WaterfallValueFormat,
+        height = Model.WaterfallHeight <= 160 ? 280 : Model.WaterfallHeight,
+        minBarWidth = Model.WaterfallMinBarWidth < 56 ? 72 : Model.WaterfallMinBarWidth,
+        showValues = Model.WaterfallShowValues,
+        steps = steps
+    };
+
+    var json = JsonSerializer.Serialize(cfg, new JsonSerializerOptions
+    {
+        Encoder = JavaScriptEncoder.Default,
+        PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+    });
+}
+
+<div id="@hostId" class="smart-wf" dir="@Model.Dir" data-config-id="@cfgId"></div>
+
+<script type="application/json" id="@cfgId">
+    @Html.Raw(json)
+</script>

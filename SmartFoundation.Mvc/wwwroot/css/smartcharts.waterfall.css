@@ -1,25 +1,25 @@
-﻿.smart-colpro {
+﻿.smart-wf {
     position: relative;
 }
 
-.smart-colpro__scroller {
+.smart-wf__scroller {
     overflow-x: auto;
-    padding-bottom: 10px;
-    scrollbar-gutter: stable;
+    padding-bottom: 6px;
 }
 
-.smart-colpro__canvas {
+.smart-wf__canvas {
     position: relative;
+    min-width: 560px;
     user-select: none;
 }
 
-.smart-colpro__svg {
+.smart-wf__svg {
     width: 100%;
     height: auto;
     display: block;
 }
 
-.smart-colpro__tooltip {
+.smart-wf__tooltip {
     position: absolute;
     top: 0;
     left: 0;
@@ -32,37 +32,27 @@
     color: #fff;
     padding: 10px 12px;
     border-radius: 14px;
-    min-width: 190px;
+    min-width: 220px;
     box-shadow: 0 14px 38px rgba(2,6,23,0.28);
 }
 
-    .smart-colpro__tooltip.is-show {
+    .smart-wf__tooltip.is-show {
         opacity: 1;
     }
 
-.smart-colpro__tt-title {
+.smart-wf__tt-title {
     font-size: 12px;
     opacity: .9;
 }
 
-.smart-colpro__tt-val {
+.smart-wf__tt-val {
     margin-top: 6px;
     font-size: 13px;
-    font-weight: 900;
+    font-weight: 950;
 }
 
-.smart-colpro__tt-lines {
-    margin-top: 8px;
+.smart-wf__tt-sub {
+    margin-top: 4px;
     font-size: 12px;
-    opacity: .95;
-    line-height: 1.4;
-}
-
-.smart-colpro__empty {
-    border: 1px solid #e2e8f0;
-    background: #f8fafc;
-    border-radius: 14px;
-    padding: 14px;
-    color: #64748b;
-    font-size: 13px;
+    opacity: .9;
 }

@@ -6,25 +6,38 @@
 <div id="@Model.ChartsId" class="w-full rounded-3xl bg-slate-50/70 p-6" dir="@Model.Dir">
 
     @* Header for whole charts block *@
+    
+
     @if (!string.IsNullOrWhiteSpace(Model.Title) || (Model.Actions?.Any(a => a.Show) == true))
     {
-        <div class="mb-4 flex items-start justify-between">
-            <div class="min-w-0">
-                @if (!string.IsNullOrWhiteSpace(Model.Title))
+        <div class="mb-4 grid grid-cols-3 items-start gap-2">
+            <!-- Actions -->
+            <div class="flex justify-start">
+                @if (Model.Actions?.Any(a => a.Show) == true)
                 {
-                    <div class="truncate text-lg font-semibold text-gray-800">@Model.Title</div>
+                    <div class="flex items-center gap-2">
+                        @foreach (var a in Model.Actions.Where(x => x.Show))
+                        {
+                            @RenderAction(a)
+                        }
+                    </div>
                 }
             </div>
 
-            @if (Model.Actions?.Any(a => a.Show) == true)
-            {
-                <div class="flex items-center gap-2">
-                    @foreach (var a in Model.Actions.Where(x => x.Show))
-                    {
-                        @RenderAction(a)
-                    }
-                </div>
-            }
+           
+            <!-- Center title -->
+            <div class="min-w-0 text-center">
+                @if (!string.IsNullOrWhiteSpace(Model.Title))
+                {
+                    <div class="mx-auto max-w-[1100px] text-lg font-semibold text-gray-800 mb-3">
+                        @Model.Title
+                    </div>
+                }
+            </div>
+
+
+            <!-- Spacer -->
+            <div></div>
         </div>
     }
 
@@ -153,6 +166,19 @@
                                 case ChartCardType.Treemap:
                                     @await Html.PartialAsync("~/Views/Shared/Components/SmartCharts/Cards/_Treemap.cshtml", card)
                                     break;
+                                
+                                case ChartCardType.StatusStack:
+                                    @await Html.PartialAsync("~/Views/Shared/Components/SmartCharts/Cards/_StatusStack.cshtml", card)
+                                    break;
+
+                                case ChartCardType.Waterfall:
+                                    @await Html.PartialAsync("~/Views/Shared/Components/SmartCharts/Cards/_Waterfall.cshtml", card)
+                                    break;
+
+                                case ChartCardType.StatsGrid:
+                                    @await Html.PartialAsync("~/Views/Shared/Components/SmartCharts/Cards/_StatsGrid.cshtml", card)
+                                    break;
+
 
                                 default:
                                     <div class="rounded-xl border border-gray-200 bg-gray-50 p-4">

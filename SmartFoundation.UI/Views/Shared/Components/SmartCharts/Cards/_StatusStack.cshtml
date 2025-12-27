@@ -4,22 +4,27 @@
 @using System.Text.Encodings.Web
 
 @{
-    var hostId = $"barh_{Model.Id}";
+    var hostId = $"sst_{Model.Id}";
     var cfgId = $"{hostId}_cfg";
 
-    var s0 = (Model.Series ?? new List<ChartSeries>()).FirstOrDefault();
+    var items = (Model.StatusStackItems ?? new List<StatusStackItem>())
+        .Select(x => new
+        {
+            key = x.Key ?? "",
+            label = x.Label ?? "",
+            value = (double)x.Value,
+            color = x.Color,
+            href = x.Href
+        }).ToList();
 
     var cfg = new
     {
         id = hostId,
         dir = (Model.Dir ?? "rtl").ToLower(),
         tone = Model.Tone.ToString().ToLower(),
-        showValues = Model.ShowValues,
-        valueFormat = string.IsNullOrWhiteSpace(Model.ValueFormat) ? "0" : Model.ValueFormat,
-        labelMaxChars = Model.LabelMaxChars <= 0 ? 22 : Model.LabelMaxChars,
-
-        labels = (Model.Labels ?? new List<string>()),
-        values = (s0?.Data ?? new List<decimal>()).Select(v => (double)v).ToList()
+        valueFormat = string.IsNullOrWhiteSpace(Model.StatusStackValueFormat) ? "0" : Model.StatusStackValueFormat,
+        showLegend = Model.StatusStackShowLegend,
+        items = items
     };
 
     var json = JsonSerializer.Serialize(cfg, new JsonSerializerOptions
@@ -29,7 +34,7 @@
     });
 }
 
-<div id="@hostId" class="smart-barh2" dir="@Model.Dir" data-config-id="@cfgId"></div>
+<div id="@hostId" class="smart-sst" dir="@Model.Dir" data-config-id="@cfgId"></div>
 
 <script type="application/json" id="@cfgId">
     @Html.Raw(json)

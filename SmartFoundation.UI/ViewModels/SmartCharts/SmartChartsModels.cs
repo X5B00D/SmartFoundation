@@ -15,12 +15,61 @@ namespace SmartFoundation.UI.ViewModels.SmartCharts
         ColumnPro,
         RadialRings,
         Bullet,
-        Treemap
+        Treemap,
+        StatusStack,
+        Waterfall,
+        StatsGrid
     }
 
     public enum ChartTone { Neutral, Success, Warning, Danger, Info }
     public enum ChartCardSize { Sm, Md, Lg }
     public enum ChartCardVariant { Soft, Outline, Solid }
+
+
+    public class StatsGridGroup
+    {
+        public string Key { get; set; } = Guid.NewGuid().ToString("N");
+        public string Title { get; set; } = "";
+        public string? Subtitle { get; set; }
+        public string? Badge { get; set; }
+        public List<StatsGridItem> Items { get; set; } = new();
+    }
+
+    public class StatsGridItem
+    {
+        public string Key { get; set; } = Guid.NewGuid().ToString("N");
+        public string Label { get; set; } = "";
+        public string Value { get; set; } = "";
+        public string? Unit { get; set; }
+        public string? Icon { get; set; }
+        public string? Hint { get; set; }
+        public string? Delta { get; set; }
+        public bool? DeltaPositive { get; set; }
+        public string? Href { get; set; }
+    }
+
+
+
+
+    public class WaterfallStep
+    {
+        public string Key { get; set; } = "";
+        public string Label { get; set; } = "";
+        public decimal Value { get; set; } = 0m;   // delta (+/-) أو total إذا IsTotal
+        public bool IsTotal { get; set; } = false; // خطوة إجمالي
+        public string? Color { get; set; }         // اختياري
+        public string? Href { get; set; }          // drilldown
+    }
+
+    public class StatusStackItem
+    {
+        public string Key { get; set; } = "";
+        public string Label { get; set; } = "";
+        public decimal Value { get; set; } = 0m;
+
+        public string? Color { get; set; } // optional
+        public string? Href { get; set; }  // drilldown
+    }
 
 
 
@@ -254,6 +303,23 @@ namespace SmartFoundation.UI.ViewModels.SmartCharts
         public int TreemapMinTile { get; set; } = 18;               // أقل حجم بلاطة لعرض النص
         public bool TreemapShowLegend { get; set; } = false;        // اختياري لاحقًا
         public string TreemapValueFormat { get; set; } = "0";
+
+
+        // -------- StatusStack (NEW) --------
+        public string StatusStackValueFormat { get; set; } = "0";
+        public bool StatusStackShowLegend { get; set; } = true;
+        public List<StatusStackItem> StatusStackItems { get; set; } = new();
+
+        // -------- Waterfall --------
+        public List<WaterfallStep> WaterfallSteps { get; set; } = new();
+        public string WaterfallValueFormat { get; set; } = "0";
+        public int WaterfallHeight { get; set; } = 280;
+        public int WaterfallMinBarWidth { get; set; } = 72;
+        public bool WaterfallShowValues { get; set; } = true;
+
+        // -------- StatsGrid --------
+        public List<StatsGridGroup> StatsGridGroups { get; set; } = new();
+        public bool StatsGridAnimate { get; set; } = true;
 
 
 

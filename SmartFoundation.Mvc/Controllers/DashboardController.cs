@@ -8,15 +8,118 @@ namespace SmartFoundation.Mvc.Controllers
     {
         public IActionResult Index()
         {
-           
-          
-
             var charts = new SmartChartsConfig
             {
                 Title = "لوحة مؤشرات الإسكان والمباني والصيانة والساكنين ( شاشة تجريبية قيد التطوير لعرض المكونات )",
                 Dir = "rtl",
                 Cards = new List<ChartCardConfig>
                 {
+
+
+                    // ================== 9) StatsGrid ==================
+                    new ChartCardConfig
+                    {
+                        Type = ChartCardType.StatsGrid,
+                        Title = "إحصائيات وأرقام تنفيذية",
+                        Subtitle = "ملخص قرار سريع: إشغال / شواغر / صيانة / تكاليف",
+                        Icon = "fa-solid fa-chart-simple",
+                        Tone = ChartTone.Info,
+                        ColCss = "6 md:6",
+                        Dir = "rtl",
+
+                        StatsGridAnimate = true,
+                        StatsGridGroups = new List<StatsGridGroup>
+                        {
+                            new StatsGridGroup
+                            {
+                                Title = "الوحدات المشغولة",
+                                Subtitle = "الحالة الحالية",
+                                Badge = "Today",
+                                Items = new List<StatsGridItem>
+                                {
+                                    new StatsGridItem
+                                    {
+                                        Label = "عدد الوحدات المشغولة",
+                                        Value = "8,580",
+                                        Unit = "وحدة",
+                                        Icon = "fa-solid fa-house-circle-check",
+                                        Hint = "إجمالي الوحدات المستفيدة حالياً",
+                                        Delta = "+1.9%",
+                                        DeltaPositive = true,
+                                        Href = "/Housing/Occupancy?status=occupied"
+                                    },
+                                    new StatsGridItem
+                                    {
+                                        Label = "نسبة الإشغال",
+                                        Value = "91.6",
+                                        Unit = "%",
+                                        Icon = "fa-solid fa-percent",
+                                        Hint = "إشغال = مشغولة ÷ إجمالي الوحدات",
+                                        Delta = "+0.8%",
+                                        DeltaPositive = true,
+                                        Href = "/Housing/Occupancy"
+                                    }
+                                }
+                            },
+                            new StatsGridGroup
+                            {
+                                Title = "الشواغر والصيانة",
+                                Subtitle = "نقاط قرار سريعة",
+                                Badge = "This Month",
+                                Items = new List<StatsGridItem>
+                                {
+                                    new StatsGridItem
+                                    {
+                                        Label = "وحدات شاغرة قابلة للتأجير",
+                                        Value = "410",
+                                        Unit = "وحدة",
+                                        Icon = "fa-solid fa-house-circle-xmark",
+                                        Hint = "متاحة للترشيح/التخصيص",
+                                        Delta = "-6.2%",
+                                        DeltaPositive = false,
+                                        Href = "/Housing/Vacancy?type=available"
+                                    },
+                                    new StatsGridItem
+                                    {
+                                        Label = "وحدات تحت الصيانة",
+                                        Value = "190",
+                                        Unit = "وحدة",
+                                        Icon = "fa-solid fa-screwdriver-wrench",
+                                        Hint = "تحتاج تسريع الإغلاق لتقليل الفاقد",
+                                        Delta = "+3.1%",
+                                        DeltaPositive = false,
+                                        Href = "/Maintenance?status=in_progress"
+                                    }
+                                }
+                            }
+                        }
+                    },
+
+                    // ================== 2) لوحة تشغيل: مؤشرات متعددة (Radial Rings) ==================
+                    new ChartCardConfig
+                    {
+                        Type = ChartCardType.RadialRings,
+                        Title = "مؤشرات التشغيل",
+                        Subtitle = "إشغال • جاهزية • SLA • شواغر",
+                        Icon = "fa-solid fa-circle-nodes",
+                        Tone = ChartTone.Info,
+                        ColCss = "6 md:6",
+                        Dir = "rtl",
+
+                        RadialRingSize = 280,
+                        RadialRingThickness = 10,
+                        RadialRingGap = 8,
+                        RadialRingShowLegend = true,
+                        RadialRingValueFormat = "0",
+
+                        RadialRings = new List<RadialRingItem>
+                        {
+                            new RadialRingItem { Key="occupancy", Label="الإشغال",         Value=92,  Max=100, ValueText="92%",  Href="/Residents/Occupancy" },
+                            new RadialRingItem { Key="readiness", Label="جاهزية الوحدات",  Value=86,  Max=100, ValueText="86%",  Href="/Housing/Readiness" },
+                            new RadialRingItem { Key="sla",       Label="صيانة ضمن SLA",   Value=78,  Max=100, ValueText="78%",  Href="/Maintenance/Sla" },
+                            new RadialRingItem { Key="vacancy",   Label="الشواغر الجاهزة", Value=410, Max=800, ValueText="410",  Href="/Housing/Vacant" },
+                        }
+                    },
                     // ================== 1) الإسكان: توزيع أنواع الوحدات ==================
                     new ChartCardConfig
                     {
@@ -25,7 +128,7 @@ namespace SmartFoundation.Mvc.Controllers
                         Subtitle = "حسب نوع العقار",
                         Icon = "fa-solid fa-chart-pie",
                         Tone = ChartTone.Info,
-                        ColCss = "3 md:6",
+                        ColCss = "6 md:6",
                         Dir = "rtl",
 
                         DonutMode = "donut",
@@ -43,33 +146,97 @@ namespace SmartFoundation.Mvc.Controllers
                         }
                     },
 
-                    // ================== 2) لوحة تشغيل: مؤشرات متعددة (Radial Rings) ==================
+                    
+
+                    // ================== 3) Gauge ==================
                     new ChartCardConfig
                     {
-                        Type = ChartCardType.RadialRings,
-                        Title = "مؤشرات التشغيل",
-                        Subtitle = "إشغال • جاهزية • SLA • شواغر",
-                        Icon = "fa-solid fa-circle-nodes",
+                        Type = ChartCardType.Gauge,
+                        Title = "التزام الإسكان بزمن معالجة الطلبات",
+                        Subtitle = "طلبات الإسكان خلال 48 ساعة",
+                        Icon = "fa-solid fa-file-signature",
                         Tone = ChartTone.Info,
-                        ColCss = "4 md:6",
+                        ColCss = "6 md:3",
                         Dir = "rtl",
 
-                        RadialRingSize = 280,
-                        RadialRingThickness = 10,
-                        RadialRingGap = 8,
-                        RadialRingShowLegend = true,
-                        RadialRingValueFormat = "0",
+                        GaugeLabel = "طلبات ضمن 48 ساعة",
+                        GaugeMin = 0,
+                        GaugeMax = 100,
+                        GaugeValue = 87,
+                        GaugeUnit = "%",
 
-                        RadialRings = new List<RadialRingItem>
+                        GaugeWarnFrom = 80,
+                        GaugeGoodFrom = 92,
+                        GaugeValueText = "87%",
+                        GaugeShowThresholds = true
+                    },
+
+                    // ================== 4) ColumnPro: الوحدات حسب الحي ==================
+                    new ChartCardConfig
+                    {
+                        Type = ChartCardType.ColumnPro,
+                        Title = "الوحدات حسب الحي",
+                        Subtitle = "مقارنة عدد الوحدات بين الأحياء",
+                        Icon = "fa-solid fa-city",
+                        Tone = ChartTone.Info,
+                        ColCss = "6 md:6",
+                        Dir = "rtl",
+
+                        ColumnProLabels = new List<string>
                         {
-                            new RadialRingItem { Key="occupancy", Label="الإشغال",         Value=92,  Max=100, ValueText="92%", Href="/Residents/Occupancy" },
-                            new RadialRingItem { Key="readiness", Label="جاهزية الوحدات",  Value=86,  Max=100, ValueText="86%", Href="/Housing/Readiness" },
-                            new RadialRingItem { Key="sla",       Label="صيانة ضمن SLA",   Value=78,  Max=100, ValueText="78%", Href="/Maintenance/Sla" },
-                            new RadialRingItem { Key="vacancy",   Label="الشواغر الجاهزة", Value=410, Max=800, ValueText="410", Href="/Housing/Vacant" },
+                            "النرجس","الياسمين","الملقا","العارض","القيروان","حطين","الندى","الواحة"
+                        },
+                        ColumnProSeries = new List<ChartSeries>
+                        {
+                            new ChartSeries
+                            {
+                                Name = "الوحدات",
+                                Data = new List<decimal> { 1240, 980, 760, 540, 410, 390, 360, 200 }
+                            }
+                        },
+
+                        ColumnProShowValues = true,
+                        ColumnProValueFormat = "0",
+                        ColumnProMinBarWidth = 56,
+
+                        //مهم: لازم عدد الروابط يساوي عدد ColumnProLabels
+                        ColumnProHrefs = new List<string>
+                        {
+                            "/Housing?district=nargis",
+                            "/Housing?district=yasmin",
+                            "/Housing?district=malqa",
+                            "/Housing?district=aredh",
+                            "/Housing?district=qirawan",
+                            "/Housing?district=hittin",
+                            "/Housing?district=nada",
+                            "/Housing?district=wahah"
                         }
                     },
 
-                    // ================== 3) الأداء: Actual vs Target (Bullet) ==================
+                    // ================== 5) StatusStack ==================
+                    new ChartCardConfig
+                    {
+                        Type = ChartCardType.StatusStack,
+                        Title = "توزيع حالة الوحدات",
+                        Subtitle = "شاغرة / مشغولة / صيانة / موقوفة",
+                        Icon = "fa-solid fa-house-signal",
+                        Tone = ChartTone.Info,
+                        ColCss = "6 md:6",
+                        Dir = "rtl",
+
+                        StatusStackValueFormat = "0",
+                        StatusStackShowLegend = true,
+
+                        StatusStackItems = new List<StatusStackItem>
+                        {
+                            new StatusStackItem { Key="occupied",    Label="مشغولة",      Value=8450, Href="/Housing?status=occupied" },
+                            new StatusStackItem { Key="vacant",      Label="شاغرة جاهزة", Value=2150, Href="/Housing?status=vacant" },
+                            new StatusStackItem { Key="maintenance", Label="تحت صيانة",   Value=980,  Href="/Housing?status=maintenance" },
+                            new StatusStackItem { Key="blocked",     Label="موقوفة",      Value=420,  Href="/Housing?status=blocked" },
+                        }
+                    },
+
+                    // ================== 6) Bullet ==================
                     new ChartCardConfig
                     {
                         Type = ChartCardType.Bullet,
@@ -92,7 +259,7 @@ namespace SmartFoundation.Mvc.Controllers
                         }
                     },
 
-                    // ================== 4) الصيانة: سير البلاغات (Funnel) ==================
+                    // ================== 7) Funnel ==================
                     new ChartCardConfig
                     {
                         Type = ChartCardType.Funnel,
@@ -118,7 +285,40 @@ namespace SmartFoundation.Mvc.Controllers
                         }
                     },
 
-                    // ================== 5) الإسكان: حالة الوحدات (Occupancy Matrix) ==================
+                    // ================== 8) Waterfall ==================
+                    new ChartCardConfig
+                    {
+                        Type = ChartCardType.Waterfall,
+                        Title = "جسر تغيّر الإشغال الشهري",
+                        Subtitle = "تفصيل الزيادة/النقصان المؤثر على إشغال الوحدات (بداية ⇢ نهاية الشهر)",
+                        Icon = "fa-solid fa-bridge-water",
+                        Tone = ChartTone.Info,
+                        ColCss = "6 md:6",
+                        Dir = "rtl",
+
+                        WaterfallValueFormat = "0",
+                        WaterfallHeight = 320,
+                        WaterfallMinBarWidth = 92,
+                        WaterfallShowValues = true,
+
+                        WaterfallSteps = new List<WaterfallStep>
+                        {
+                            new WaterfallStep { Key="start", Label="إشغال بداية الشهر", IsTotal=true, Value=8120, Href="/Housing/Occupancy?point=start" },
+
+                            new WaterfallStep { Key="new_allocations",       Label="تخصيص وحدات جديدة",  Value=+640, Href="/Housing/Allocations?period=month" },
+                            new WaterfallStep { Key="contract_renewals",     Label="تجديد عقود",         Value=+310, Href="/Housing/Renewals?period=month" },
+                            new WaterfallStep { Key="back_from_maintenance", Label="عودة وحدات من الصيانة", Value=+220, Href="/Maintenance/Completed?period=month" },
+
+                            new WaterfallStep { Key="vacated_units",        Label="إخلاءات",              Value=-520, Href="/Housing/Vacations?period=month" },
+                            new WaterfallStep { Key="sent_to_maintenance",  Label="تحويل وحدات للصيانة",  Value=-190, Href="/Maintenance/Inbound?period=month" },
+
+                            new WaterfallStep { Key="end", Label="إشغال نهاية الشهر", IsTotal=true, Value=8580, Href="/Housing/Occupancy?point=end" },
+                        }
+                    },
+
+                    
+
+                    // ================== 10) Occupancy Matrix ==================
                     new ChartCardConfig
                     {
                         Type = ChartCardType.Occupancy,
@@ -130,7 +330,6 @@ namespace SmartFoundation.Mvc.Controllers
                         Dir = "rtl",
 
                         OccupancyShowPercent = true,
-
                         OccupancyStatuses = new List<OccupancyStatus>
                         {
                             new OccupancyStatus { Key="occupied",    Label="مأهولة",      Units=8120, Color="#22c55e", Href="/Housing?status=occupied" },
@@ -141,7 +340,7 @@ namespace SmartFoundation.Mvc.Controllers
                         }
                     },
 
-                    // ================== 6) الإسكان: اتجاه الطلب (Line) ==================
+                    // ================== 11) Line ==================
                     new ChartCardConfig
                     {
                         Type = ChartCardType.Line,
@@ -172,110 +371,43 @@ namespace SmartFoundation.Mvc.Controllers
                         LineMaxXTicks = 6
                     },
 
-                    // ================== 7) الإسكان/الأصول: الوحدات حسب الحي (ColumnPro) ==================
-                    new ChartCardConfig
-                    {
-                        Type = ChartCardType.ColumnPro,
-                        Title = "الوحدات حسب الحي",
-                        Subtitle = "مقارنة عدد الوحدات بين الأحياء",
-                        Icon = "fa-solid fa-city",
-                        Tone = ChartTone.Info,
-                        ColCss = "6 md:6",
-                        Dir = "rtl",
+                    // ================== 12) KPI ==================
+                    //new ChartCardConfig
+                    //{
+                    //    Type = ChartCardType.Kpi,
+                    //    Title = "إجمالي الساكنين",
+                    //    Subtitle = "النشطون حالياً",
+                    //    Icon = "fa-solid fa-users",
+                    //    BigValue = "21K",
+                    //    Note = "عدد الساكنين المسجلين بالنظام",
+                    //    SecondaryLabel = "التغير الشهري",
+                    //    SecondaryValue = "↑ 3.4%",
+                    //    SecondaryIsPositive = true,
+                    //    Tone = ChartTone.Success,
+                    //    ColCss = "6 md:3",
+                    //    Dir = "rtl"
+                    //},
 
-                        ColumnProLabels = new List<string>
-                        {
-                            "النرجس","الياسمين","الملقا","العارض","القيروان","حطين","الندى"
-                        },
-                        ColumnProSeries = new List<ChartSeries>
-                        {
-                            new ChartSeries { Name="الوحدات", Data = new List<decimal> { 1240, 980, 760, 540, 410, 390, 360 } }
-                        },
-                        ColumnProShowValues = true,
-                        ColumnProValueFormat = "0",
-                        ColumnProMinBarWidth = 56,
-                        ColumnProHrefs = new List<string>
-                        {
-                            "/Housing?district=nargis",
-                            "/Housing?district=yasmin",
-                            "/Housing?district=malqa",
-                            "/Housing?district=aredh",
-                            "/Housing?district=qirawan",
-                            "/Housing?district=hittin",
-                            "/Housing?district=nada"
-                        }
-                    },
+                     //================== 13) BarHorizontal ==================
+                    //new ChartCardConfig
+                    //{
+                    //    Type = ChartCardType.BarHorizontal,
+                    //    Title = "توزيع الوحدات حسب غرف النوم",
+                    //    Subtitle = "ملخص سريع لطرازات الوحدات",
+                    //    Icon = "fa-solid fa-bed",
+                    //    Tone = ChartTone.Warning,
+                    //    ColCss = "6 md:6",
+                    //    Dir = "rtl",
 
-                    // ================== 8) الشريط السفلي: مؤشرات سريعة + توزيع غرف ==================
-                    new ChartCardConfig
-                        {
-                            Type = ChartCardType.Gauge,
-                            Title = "التزام الإسكان بزمن معالجة الطلبات",
-                            Subtitle = "طلبات الإسكان خلال 48 ساعة",
-                            Icon = "fa-solid fa-file-signature",
-                            Tone = ChartTone.Info,
-                            ColCss = "6 md:3",
-                            Dir = "rtl",
-
-                            // KPI الفعلي: نسبة الطلبات التي تم التعامل معها خلال المدة المستهدفة
-                            GaugeLabel = "طلبات ضمن 48 ساعة",
-                            GaugeMin = 0,
-                            GaugeMax = 100,
-                            GaugeValue = 87,          // مثال: 87% من الطلبات أُنجزت/عولجت خلال 48 ساعة
-                            GaugeUnit = "%",
-
-                            // حدود الأداء
-                            GaugeWarnFrom = 80,       // أقل من 80% يعتبر مقلق
-                            GaugeGoodFrom = 92,       // 92%+ ممتاز
-                            GaugeValueText = "87%",
-                            GaugeShowThresholds = true
-                        },
-
-
-                    new ChartCardConfig
-                    {
-                        Type = ChartCardType.Kpi,
-                        Title = "إجمالي الساكنين",
-                        Subtitle = "النشطون حالياً",
-                        Icon = "fa-solid fa-users",
-                        BigValue = "21K",
-                        Note = "عدد الساكنين المسجلين بالنظام",
-                        SecondaryLabel = "التغير الشهري",
-                        SecondaryValue = "↑ 3.4%",
-                        SecondaryIsPositive = true,
-                        Tone = ChartTone.Success,
-                        ColCss = "6 md:3",
-                        Dir = "rtl"
-                    },
-
-                    new ChartCardConfig
-                    {
-                        Type = ChartCardType.BarHorizontal,
-                        Title = "توزيع الوحدات حسب غرف النوم",
-                        Subtitle = "ملخص سريع لطرازات الوحدات",
-                        Icon = "fa-solid fa-bed",
-                        Tone = ChartTone.Warning,
-                        ColCss = "6 md:6",
-                        Dir = "rtl",
-
-                        Labels = new List<string>
-                        {
-                            "غرفة واحدة","غرفتان","٣ غرف","٤ غرف","٥ غرف","٦ غرف فأكثر"
-                        },
-                        Series = new List<ChartSeries>
-                        {
-                            new ChartSeries
-                            {
-                                Name = "عدد الوحدات",
-                                Data = new List<decimal> { 274, 2760, 9824, 6882, 1601, 272 }
-                            }
-                        },
-                        ShowValues = true,
-                        ValueFormat = "0",
-                        LabelMaxChars = 22
-                    },
-
-                    
+                    //    Labels = new List<string> { "غرفة واحدة","غرفتان","٣ غرف","٤ غرف","٥ غرف","٦ غرف فأكثر" },
+                    //    Series = new List<ChartSeries>
+                    //    {
+                    //        new ChartSeries { Name = "عدد الوحدات", Data = new List<decimal> { 274, 2760, 9824, 6882, 1601, 272 } }
+                    //    },
+                    //    ShowValues = true,
+                    //    ValueFormat = "0",
+                    //    LabelMaxChars = 22
+                    //}
                 }
             };
 

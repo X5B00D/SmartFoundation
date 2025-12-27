@@ -1,4 +1,4 @@
-@model SmartFoundation.UI.ViewModels.SmartCharts.ChartCardConfig
+﻿@model SmartFoundation.UI.ViewModels.SmartCharts.ChartCardConfig
 @using SmartFoundation.UI.ViewModels.SmartCharts
 @using System.Text.Json
 @using System.Text.Encodings.Web
@@ -7,20 +7,33 @@
     var hostId = $"colpro_{Model.Id}";
     var cfgId = $"{hostId}_cfg";
 
-    var s0 = (Model.ColumnProSeries ?? new List<ChartSeries>()).FirstOrDefault();
+    var series = (Model.ColumnProSeries ?? new List<ChartSeries>())
+        .Select(s => new
+        {
+            name = s.Name ?? "Series",
+            data = (s.Data ?? new List<decimal>()).Select(v => (double)v).ToList()
+        })
+        .ToList();
+
+    // Backward safety: لو ما وصل ولا Series
+    if (series.Count == 0)
+    {
+        series.Add(new { name = "Series", data = new List<double>() });
+    }
+
     var cfg = new
     {
         id = hostId,
         dir = (Model.Dir ?? "rtl").ToLower(),
         tone = Model.Tone.ToString().ToLower(),
         valueFormat = string.IsNullOrWhiteSpace(Model.ColumnProValueFormat) ? "0" : Model.ColumnProValueFormat,
-        minBarWidth = Model.ColumnProMinBarWidth <= 20 ? 44 : Model.ColumnProMinBarWidth,
-        height = Model.ColumnProHeight <= 120 ? 260 : Model.ColumnProHeight,
+        minBarWidth = Model.ColumnProMinBarWidth <= 20 ? 56 : Model.ColumnProMinBarWidth,
+        height = Model.ColumnProHeight <= 120 ? 280 : Model.ColumnProHeight,
         showValues = Model.ColumnProShowValues,
 
         labels = (Model.ColumnProLabels ?? new List<string>()),
-        values = (s0?.Data ?? new List<decimal>()).Select(v => (double)v).ToList(),
-        hrefs = (Model.ColumnProHrefs ?? new List<string>())
+        series = series, // ✅ multiple series
+        hrefs = (Model.ColumnProHrefs ?? new List<string>()), // per category (label)
     };
 
     var json = JsonSerializer.Serialize(cfg, new JsonSerializerOptions

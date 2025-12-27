@@ -1,123 +1,151 @@
-﻿.smart-barh {
+﻿.smart-barh2 {
     position: relative;
 }
 
-.smart-barh__list {
-    display: grid;
+.smart-barh2__wrap {
+    display: flex;
+    flex-direction: column;
     gap: 12px;
 }
 
-.smart-barh__row {
+/* Header صغير داخل البودي (اختياري) */
+.smart-barh2__meta {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    margin-bottom: 2px;
+}
+
+.smart-barh2__hint {
+    font-size: 12px;
+    color: #64748b;
+    font-weight: 700;
+}
+
+/* Row = Label | Bar | Value */
+.smart-barh2__row {
     display: grid;
-    grid-template-columns: minmax(140px, 1.2fr) 3fr minmax(70px, 0.9fr);
-    gap: 14px;
+    grid-template-columns: minmax(140px, 220px) 1fr minmax(84px, 110px);
+    gap: 12px;
     align-items: center;
 }
 
-@media (min-width: 768px) {
-    .smart-barh__row {
-        grid-template-columns: minmax(180px, 1.2fr) 4fr minmax(90px, 0.9fr);
-    }
+.smart-barh2[dir="rtl"] .smart-barh2__row {
+    grid-template-columns: minmax(84px,110px) 1fr minmax(140px,220px);
 }
 
-.smart-barh[dir="rtl"] .smart-barh__row {
-    direction: rtl;
-}
-
-.smart-barh__label {
-    font-size: 14px;
-    color: #475569;
+/* Label */
+.smart-barh2__label {
+    font-size: 13px;
+    font-weight: 900;
+    color: #0f172a;
+    white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+}
+
+/* Value column */
+.smart-barh2__val {
+    text-align: right;
+    font-size: 13px;
+    font-weight: 950;
+    color: #0f172a;
     white-space: nowrap;
 }
 
-.smart-barh__track {
-    height: 10px;
-    border-radius: 999px;
-    background: #f1f5f9;
-    overflow: hidden;
-    position: relative;
-}
-
-.smart-barh__bar {
-    height: 100%;
-    width: 0%;
-    border-radius: 999px;
-    background: #334155;
-    transition: width 700ms cubic-bezier(.2,.8,.2,1);
-}
-
-.smart-barh__value {
-    font-size: 12px;
-    font-weight: 800;
-    color: #334155;
+.smart-barh2[dir="rtl"] .smart-barh2__val {
     text-align: left;
 }
 
-.smart-barh[dir="rtl"] .smart-barh__value {
-    text-align: right;
+.smart-barh2__sub {
+    margin-top: 2px;
+    font-size: 11px;
+    color: #64748b;
+    font-weight: 800;
+}
+
+/* Bar track */
+.smart-barh2__track {
+    position: relative;
+    height: 14px;
+    border-radius: 999px;
+    background: #f1f5f9;
+    border: 1px solid rgba(226,232,240,0.95);
+    overflow: hidden;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.85);
+}
+
+/* Bar fill */
+.smart-barh2__fill {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    width: 0%;
+    border-radius: 999px;
+    transform: translateZ(0);
+}
+
+/* RTL: fill from right */
+.smart-barh2[dir="rtl"] .smart-barh2__fill {
+    left: auto;
+    right: 0;
+}
+
+/* Glow end cap (احترافي) */
+.smart-barh2__cap {
+    position: absolute;
+    top: -6px;
+    width: 18px;
+    height: 26px;
+    border-radius: 999px;
+    filter: blur(6px);
+    opacity: .55;
+    pointer-events: none;
 }
 
 /* Tooltip */
-.smart-barh__tooltip {
+.smart-barh2__tooltip {
     position: absolute;
     top: 0;
     left: 0;
     z-index: 30;
     pointer-events: none;
     opacity: 0;
-    transform: translate(-9999px, -9999px);
+    transform: translate(-9999px,-9999px);
     transition: opacity 120ms ease;
-    background: rgba(15, 23, 42, 0.92);
+    background: rgba(15,23,42,0.92);
     color: #fff;
-    padding: 10px 10px;
-    border-radius: 12px;
-    min-width: 160px;
-    box-shadow: 0 10px 30px rgba(2, 6, 23, 0.25);
+    padding: 10px 12px;
+    border-radius: 14px;
+    min-width: 210px;
+    box-shadow: 0 14px 38px rgba(2,6,23,0.28);
 }
 
-    .smart-barh__tooltip.is-show {
+    .smart-barh2__tooltip.is-show {
         opacity: 1;
     }
 
-.smart-barh__tt-title {
+.smart-barh2__tt-title {
     font-size: 12px;
-    opacity: 0.9;
+    opacity: .9;
 }
 
-.smart-barh__tt-val {
+.smart-barh2__tt-val {
     margin-top: 6px;
     font-size: 13px;
-    font-weight: 800;
+    font-weight: 950;
 }
 
-/* Tone colors (يمكن تغيّرها بسهولة) */
-.smart-barh[data-tone="success"] .smart-barh__bar {
-    background: #16a34a;
-}
+/* Responsive */
+@media (max-width: 640px) {
+    .smart-barh2__row {
+        grid-template-columns: 1fr;
+        gap: 8px;
+    }
 
-.smart-barh[data-tone="warning"] .smart-barh__bar {
-    background: #f59e0b;
-}
-
-.smart-barh[data-tone="danger"] .smart-barh__bar {
-    background: #ef4444;
-}
-
-.smart-barh[data-tone="info"] .smart-barh__bar {
-    background: #0ea5e9;
-}
-
-.smart-barh[data-tone="neutral"] .smart-barh__bar {
-    background: #334155;
-}
-
-.smart-barh__empty {
-    border: 1px solid #e2e8f0;
-    background: #f8fafc;
-    border-radius: 12px;
-    padding: 14px;
-    color: #64748b;
-    font-size: 13px;
+    .smart-barh2__val {
+        text-align: start !important;
+    }
 }

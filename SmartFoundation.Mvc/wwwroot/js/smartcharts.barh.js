@@ -1,29 +1,41 @@
-﻿(function () {
+﻿// wwwroot/js/smartcharts.barh.js
+(function () {
     function clamp(n, min, max) { return Math.max(min, Math.min(max, n)); }
 
-    function clip(text, maxChars) {
-        const s = (text ?? "").toString();
-        if (!maxChars || maxChars <= 0) return s;
-        return s.length <= maxChars ? s : s.slice(0, maxChars - 1) + "…";
-    }
-
     function fmtNumber(value, pattern) {
-        if (!pattern) return String(value);
+        if (value == null) return "";
+        const v = Number(value) || 0;
+        if (!pattern) return String(Math.round(v));
         const dot = pattern.indexOf(".");
-        if (dot === -1) return String(Math.round(value));
+        if (dot === -1) return String(Math.round(v));
         const decimals = pattern.length - dot - 1;
         const hasHash = pattern.includes("#");
-        const fixed = Number(value).toFixed(decimals);
+        const fixed = v.toFixed(decimals);
         return hasHash ? fixed.replace(/\.?0+$/, "") : fixed;
     }
 
+    function ellipsize(s, maxChars) {
+        const t = String(s ?? "");
+        if (!maxChars || t.length <= maxChars) return t;
+        return t.slice(0, Math.max(0, maxChars - 1)) + "…";
+    }
+
+    function toneColor(tone) {
+        switch ((tone || "").toLowerCase()) {
+            case "success": return "#22c55e";
+            case "warning": return "#f59e0b";
+            case "danger": return "#ef4444";
+            case "info": return "#0ea5e9";
+            default: return "#334155";
+        }
+    }
+
     function ensureTooltip(host) {
-        let tip = host.querySelector(".smart-barh__tooltip");
+        let tip = host.querySelector(".smart-barh2__tooltip");
         if (tip) return tip;
         tip = document.createElement("div");
-        tip.className = "smart-barh__tooltip";
-        tip.innerHTML = `<div class="smart-barh__tt-title"></div>
-                     <div class="smart-barh__tt-val"></div>`;
+        tip.className = "smart-barh2__tooltip";
+        tip.innerHTML = `<div class="smart-barh2__tt-title"></div><div class="smart-barh2__tt-val"></div>`;
         host.appendChild(tip);
         return tip;
     }
@@ -36,95 +48,110 @@
         let cfg;
         try { cfg = JSON.parse(cfgNode.textContent || "{}"); } catch { return; }
 
-        const labels = Array.isArray(cfg.labels) ? cfg.labels : [];
-        const values = Array.isArray(cfg.values) ? cfg.values : [];
         const dir = (cfg.dir || "rtl").toLowerCase();
         const tone = (cfg.tone || "neutral").toLowerCase();
         const showValues = !!cfg.showValues;
         const valueFormat = cfg.valueFormat || "0";
-        const labelMaxChars = clamp(Number(cfg.labelMaxChars ?? 22), 8, 60);
+        const labelMaxChars = Number(cfg.labelMaxChars || 22);
+
+        const labels = Array.isArray(cfg.labels) ? cfg.labels : [];
+        const values = Array.isArray(cfg.values) ? cfg.values : [];
 
         host.innerHTML = "";
         host.setAttribute("dir", dir);
-        host.setAttribute("data-tone", tone);
 
         const n = Math.min(labels.length, values.length);
         if (n <= 0) {
-            const empty = document.createElement("div");
-            empty.className = "smart-barh__empty";
-            empty.textContent = "لا توجد بيانات";
-            host.appendChild(empty);
+            host.innerHTML = `<div class="smart-barh2__hint">لا توجد بيانات</div>`;
             return;
         }
 
-        const max = Math.max(...values.slice(0, n).map(v => Number(v) || 0));
+        // Build items (keep original order) + totals
+        const items = [];
+        let total = 0;
+        for (let i = 0; i < n; i++) {
+            const v = Number(values[i]) || 0;
+            total += v;
+            items.push({ label: String(labels[i] ?? ""), value: v });
+        }
+        const max = Math.max(...items.map(x => x.value), 0) || 1;
+        const safeTotal = total > 0 ? total : 1;
+
+        const base = toneColor(tone);
+
+        const wrap = document.createElement("div");
+        wrap.className = "smart-barh2__wrap";
+        host.appendChild(wrap);
+
+        const meta = document.createElement("div");
+        meta.className = "smart-barh2__meta";
+        meta.innerHTML = `<div class="smart-barh2__hint">الإجمالي: ${fmtNumber(total, valueFormat)}</div>`;
+        wrap.appendChild(meta);
+
         const tip = ensureTooltip(host);
 
-        const list = document.createElement("div");
-        list.className = "smart-barh__list";
-        host.appendChild(list);
-
-        for (let i = 0; i < n; i++) {
-            const labelFull = (labels[i] ?? "").toString();
-            const label = clip(labelFull, labelMaxChars);
-            const v = Number(values[i]) || 0;
-            const pct = max > 0 ? (v / max) * 100 : 0;
+        items.forEach((it) => {
+            const pct = clamp((it.value / max) * 100, 0, 100);
+            const share = (it.value / safeTotal) * 100;
 
             const row = document.createElement("div");
-            row.className = "smart-barh__row";
+            row.className = "smart-barh2__row";
 
-            const lab = document.createElement("div");
-            lab.className = "smart-barh__label";
-            lab.textContent = label;
+            const label = document.createElement("div");
+            label.className = "smart-barh2__label";
+            label.textContent = ellipsize(it.label, labelMaxChars);
+            label.title = it.label;
 
             const track = document.createElement("div");
-            track.className = "smart-barh__track";
+            track.className = "smart-barh2__track";
 
-            const bar = document.createElement("div");
-            bar.className = "smart-barh__bar";
-            // نخليها 0 ثم نحط النسبة عشان animation
-            bar.style.width = "0%";
-            track.appendChild(bar);
+            const fill = document.createElement("div");
+            fill.className = "smart-barh2__fill";
+            fill.style.background = base; // ✅ لون ثابت بدون أي ظل/هالة
+
+            track.appendChild(fill);
 
             const val = document.createElement("div");
-            val.className = "smart-barh__value";
-            if (showValues) val.textContent = fmtNumber(v, valueFormat);
-            else val.textContent = "";
+            val.className = "smart-barh2__val";
+            if (showValues) {
+                val.innerHTML = `${fmtNumber(it.value, valueFormat)}<div class="smart-barh2__sub">${share.toFixed(1)}%</div>`;
+            } else {
+                val.innerHTML = `<div class="smart-barh2__sub">${share.toFixed(1)}%</div>`;
+            }
 
-            // tooltip
+            // Tooltip
             track.addEventListener("mousemove", (e) => {
-                tip.querySelector(".smart-barh__tt-title").textContent = labelFull;
-                tip.querySelector(".smart-barh__tt-val").textContent = fmtNumber(v, valueFormat);
+                tip.querySelector(".smart-barh2__tt-title").textContent = it.label;
+                tip.querySelector(".smart-barh2__tt-val").textContent =
+                    `${fmtNumber(it.value, valueFormat)} — ${share.toFixed(1)}%`;
 
                 const rect = host.getBoundingClientRect();
-                tip.style.transform = `translate(${(e.clientX - rect.left) + 10}px, ${(e.clientY - rect.top) + 10}px)`;
+                tip.style.transform = `translate(${(e.clientX - rect.left) + 12}px, ${(e.clientY - rect.top) + 12}px)`;
                 tip.classList.add("is-show");
             });
             track.addEventListener("mouseleave", () => tip.classList.remove("is-show"));
 
-            row.appendChild(lab);
+            row.appendChild(label);
             row.appendChild(track);
             row.appendChild(val);
 
-            list.appendChild(row);
+            wrap.appendChild(row);
 
-            // trigger animation بعد الإضافة
+            // Animate
             requestAnimationFrame(() => {
-                bar.style.width = `${pct.toFixed(2)}%`;
+                fill.style.transition = "width 900ms cubic-bezier(.2,.8,.2,1)";
+                fill.style.width = pct + "%";
             });
-        }
+        });
     }
 
     function renderAll() {
-        document.querySelectorAll(".smart-barh[data-config-id]").forEach(renderOne);
+        document.querySelectorAll(".smart-barh2[data-config-id]").forEach(renderOne);
     }
 
-    if (document.readyState === "loading") {
-        document.addEventListener("DOMContentLoaded", renderAll);
-    } else {
-        renderAll();
-    }
+    if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", renderAll);
+    else renderAll();
 
     window.SmartCharts = window.SmartCharts || {};
-    window.SmartCharts.renderBarH = renderAll;
+    window.SmartCharts.renderBarHorizontal = renderAll;
 })();

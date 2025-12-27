@@ -1,0 +1,50 @@
+@model SmartFoundation.UI.ViewModels.SmartCharts.ChartCardConfig
+@using SmartFoundation.UI.ViewModels.SmartCharts
+@using System.Text.Json
+@using System.Text.Encodings.Web
+
+@{
+    var hostId = $"sg_{Model.Id}";
+    var cfgId = $"{hostId}_cfg";
+
+    var groups = (Model.StatsGridGroups ?? new List<StatsGridGroup>())
+        .Select(g => new
+        {
+            key = g.Key,
+            title = g.Title ?? "",
+            subtitle = g.Subtitle ?? "",
+            badge = g.Badge ?? "",
+            items = (g.Items ?? new List<StatsGridItem>()).Select(i => new
+            {
+                key = i.Key,
+                label = i.Label ?? "",
+                value = i.Value ?? "",
+                unit = i.Unit ?? "",
+                icon = i.Icon ?? "",
+                hint = i.Hint ?? "",
+                delta = i.Delta ?? "",
+                deltaPositive = i.DeltaPositive,
+                href = i.Href ?? ""
+            }).ToList()
+        }).ToList();
+
+    var cfg = new
+    {
+        id = hostId,
+        dir = (Model.Dir ?? "rtl").ToLower(),
+        animate = Model.StatsGridAnimate,
+        groups = groups
+    };
+
+    var json = JsonSerializer.Serialize(cfg, new JsonSerializerOptions
+    {
+        Encoder = JavaScriptEncoder.Default,
+        PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+    });
+}
+
+<div id="@hostId" class="smart-statsgrid" dir="@Model.Dir" data-config-id="@cfgId"></div>
+
+<script type="application/json" id="@cfgId">
+    @Html.Raw(json)
+</script>

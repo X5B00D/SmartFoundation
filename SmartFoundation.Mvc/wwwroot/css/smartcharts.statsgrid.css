@@ -1,0 +1,185 @@
+﻿.smart-statsgrid {
+    position: relative;
+}
+
+.smart-statsgrid__wrap {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 16px;
+}
+
+@media (min-width: 900px) {
+    .smart-statsgrid__wrap {
+        grid-template-columns: 1fr 1fr;
+        gap: 18px;
+    }
+}
+
+.smart-statsgrid__group {
+    border: 1px solid rgba(226,232,240,.9);
+    background: linear-gradient(180deg, rgba(248,250,252,.85), rgba(255,255,255,1));
+    border-radius: 18px;
+    padding: 16px 16px 12px;
+    position: relative;
+    overflow: hidden;
+}
+
+    .smart-statsgrid__group::before {
+        content: "";
+        position: absolute;
+        inset: -40px -60px auto auto;
+        width: 180px;
+        height: 180px;
+        background: radial-gradient(circle, rgba(2,132,199,.14), transparent 60%);
+        filter: blur(2px);
+        pointer-events: none;
+    }
+
+.smart-statsgrid__ghead {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 10px;
+    margin-bottom: 12px;
+}
+
+.smart-statsgrid__gtitle {
+    font-weight: 900;
+    font-size: 14px;
+    color: #0f172a;
+    letter-spacing: -.01em;
+}
+
+.smart-statsgrid__gsub {
+    margin-top: 3px;
+    font-size: 12px;
+    color: #64748b;
+}
+
+.smart-statsgrid__badge {
+    flex-shrink: 0;
+    font-size: 11px;
+    font-weight: 900;
+    padding: 6px 10px;
+    border-radius: 999px;
+    border: 1px solid rgba(226,232,240,.9);
+    background: rgba(255,255,255,.9);
+    color: #334155;
+}
+
+.smart-statsgrid__items {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 10px;
+}
+
+.smart-statsgrid__item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 12px 12px;
+    border-radius: 14px;
+    border: 1px solid rgba(226,232,240,.8);
+    background: rgba(255,255,255,.92);
+    transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease;
+    position: relative;
+}
+
+    .smart-statsgrid__item:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 26px rgba(2,6,23,.08);
+        border-color: rgba(203,213,225,1);
+    }
+
+.smart-statsgrid__left {
+    min-width: 0;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.smart-statsgrid__icon {
+    width: 38px;
+    height: 38px;
+    border-radius: 14px;
+    border: 1px solid rgba(226,232,240,.9);
+    background: linear-gradient(180deg, rgba(248,250,252,1), rgba(255,255,255,1));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #64748b;
+}
+
+.smart-statsgrid__meta {
+    min-width: 0;
+}
+
+.smart-statsgrid__label {
+    font-weight: 900;
+    font-size: 12px;
+    color: #334155;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 340px;
+}
+
+.smart-statsgrid__hint {
+    margin-top: 3px;
+    font-size: 12px;
+    color: #94a3b8;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 340px;
+}
+
+.smart-statsgrid__right {
+    flex-shrink: 0;
+    text-align: end;
+}
+
+.smart-statsgrid__value {
+    font-weight: 950;
+    font-size: 20px;
+    color: #0f172a;
+    letter-spacing: -.02em;
+    line-height: 1.05;
+}
+
+.smart-statsgrid__unit {
+    margin-top: 4px;
+    font-size: 12px;
+    color: #64748b;
+}
+
+.smart-statsgrid__delta {
+    margin-top: 8px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 10px;
+    border-radius: 999px;
+    border: 1px solid rgba(226,232,240,.9);
+    background: rgba(255,255,255,.9);
+    font-size: 12px;
+    font-weight: 950;
+    color: #334155;
+}
+
+    .smart-statsgrid__delta[data-positive="true"] {
+        border-color: rgba(34,197,94,.25);
+        background: rgba(34,197,94,.08);
+        color: #15803d;
+    }
+
+    .smart-statsgrid__delta[data-positive="false"] {
+        border-color: rgba(239,68,68,.25);
+        background: rgba(239,68,68,.08);
+        color: #b91c1c;
+    }
+
+    .smart-statsgrid__delta[data-positive="null"] {
+        opacity: .85;
+    }
