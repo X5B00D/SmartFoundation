@@ -18,13 +18,131 @@ namespace SmartFoundation.UI.ViewModels.SmartCharts
         Treemap,
         StatusStack,
         Waterfall,
-        StatsGrid
+        StatsGrid,
+        Pie3D,
+        OpsBoard,
+        ExecWatch
     }
 
     public enum ChartTone { Neutral, Success, Warning, Danger, Info }
     public enum ChartCardSize { Sm, Md, Lg }
     public enum ChartCardVariant { Soft, Outline, Solid }
 
+
+
+    public class ExecWatchKpi
+    {
+        public string Key { get; set; } = Guid.NewGuid().ToString("N");
+        public string Label { get; set; } = "";
+        public string Value { get; set; } = "";
+        public string? Unit { get; set; }
+        public string? Icon { get; set; }
+        public string? Hint { get; set; }
+        public string? Delta { get; set; }
+        public bool? DeltaPositive { get; set; }
+
+        public string? Tone { get; set; } // neutral|info|success|warning|danger
+        public string? Href { get; set; }
+    }
+
+    public class ExecWatchStage
+    {
+        public string Key { get; set; } = Guid.NewGuid().ToString("N");
+        public string Label { get; set; } = "";
+
+        public decimal Count { get; set; } = 0m;
+        public decimal Percent { get; set; } = 0m;     // 0..100
+        public decimal AvgHours { get; set; } = 0m;    // متوسط زمن المرحلة
+        public decimal Overdue { get; set; } = 0m;     // المتأخر
+
+        public string? Tone { get; set; } // neutral|info|success|warning|danger
+        public string? Href { get; set; }
+    }
+
+    public class ExecWatchWorkshop
+    {
+        public string Key { get; set; } = Guid.NewGuid().ToString("N");
+        public string Name { get; set; } = "";
+        public string? Icon { get; set; }
+
+        public decimal Capacity { get; set; } = 0m;      // طاقة/عدد فنيين/خطوط
+        public decimal Load { get; set; } = 0m;          // 0..100
+        public decimal Productivity { get; set; } = 0m;  // 0..100
+        public decimal Backlog { get; set; } = 0m;       // عدد أعمال متراكمة
+        public decimal Delayed { get; set; } = 0m;       // متأخر
+
+        public string? Tone { get; set; } // neutral|info|success|warning|danger
+        public string? Href { get; set; }
+    }
+
+    public class ExecWatchRisk
+    {
+        public string Key { get; set; } = Guid.NewGuid().ToString("N");
+        public string Title { get; set; } = "";
+        public string? Desc { get; set; }
+        public string? Tone { get; set; } // danger|warning|info|success
+        public string? Time { get; set; }
+        public string? Href { get; set; }
+    }
+
+
+    public class OpsBoardSection
+    {
+        public string Key { get; set; } = Guid.NewGuid().ToString("N");
+        public string Title { get; set; } = "";
+        public string? Subtitle { get; set; }
+        public string? Icon { get; set; }          // FontAwesome
+        public string? Badge { get; set; }         // مثل "اليوم" / "آخر 24 ساعة"
+        public string? Href { get; set; }          // Drilldown للقسم
+
+        public List<OpsBoardKpi> Kpis { get; set; } = new();
+        public List<OpsBoardEvent> Events { get; set; } = new();
+    }
+
+    public class OpsBoardKpi
+    {
+        public string Key { get; set; } = Guid.NewGuid().ToString("N");
+        public string Label { get; set; } = "";
+        public string Value { get; set; } = "";
+        public string? Unit { get; set; }
+        public string? Icon { get; set; }
+        public string? Hint { get; set; }
+        public string? Delta { get; set; }
+        public bool? DeltaPositive { get; set; }
+
+        public decimal? Progress { get; set; }     // 0..100 (اختياري)
+        public string? Href { get; set; }          // Drilldown للـ KPI
+    }
+
+    public class OpsBoardEvent
+    {
+        public string Key { get; set; } = Guid.NewGuid().ToString("N");
+        public string Title { get; set; } = "";
+        public string? Subtitle { get; set; }
+        public string? Icon { get; set; }
+
+        public string? Time { get; set; }          // "منذ 12 دقيقة" / "اليوم 02:10"
+        public string? Status { get; set; }        // "قيد التنفيذ" / "مغلق"...
+        public string? StatusTone { get; set; }    // neutral|info|success|warning|danger
+
+        public string? Priority { get; set; }      // "عالية" / "حرجة"
+        public string? PriorityTone { get; set; }  // neutral|info|success|warning|danger
+
+        public string? Href { get; set; }
+    }
+
+
+
+    public class Pie3DSlice
+    {
+        public string Key { get; set; } = "";
+        public string Label { get; set; } = "";
+        public decimal Value { get; set; } = 0m;
+
+        public string? Color { get; set; }       // اختياري
+        public string? Href { get; set; }        // اختياري drilldown
+        public string? Hint { get; set; }        // اختياري (tooltip)
+    }
 
     public class StatsGridGroup
     {
@@ -321,6 +439,38 @@ namespace SmartFoundation.UI.ViewModels.SmartCharts
         public List<StatsGridGroup> StatsGridGroups { get; set; } = new();
         public bool StatsGridAnimate { get; set; } = true;
 
+
+        // -------- Pie3D --------
+        public List<Pie3DSlice> Pie3DSlices { get; set; } = new();
+        public int Pie3DSize { get; set; } = 280;          // قطر
+        public int Pie3DHeight { get; set; } = 18;         // سماكة (Extrusion)
+        public int Pie3DInnerHole { get; set; } = 0;       // 0 = Pie صافي، لو تبغى donut 3D حط 40 مثلاً
+        public bool Pie3DShowLegend { get; set; } = true;
+        public bool Pie3DShowCenterTotal { get; set; } = true;
+        public string Pie3DValueFormat { get; set; } = "0";
+        public bool Pie3DExplodeOnHover { get; set; } = true;
+
+
+        // -------- OpsBoard (NEW) --------
+        public List<OpsBoardSection> OpsBoardSections { get; set; } = new();
+        public bool OpsBoardAnimate { get; set; } = true;
+        public bool OpsBoardCompact { get; set; } = false;
+        public int OpsBoardColumns { get; set; } = 2;   // 1..3
+
+        // -------- ExecWatch (NEW) --------
+        public List<ExecWatchKpi> ExecWatchKpis { get; set; } = new();
+        public List<ExecWatchStage> ExecWatchStages { get; set; } = new();
+        public List<ExecWatchWorkshop> ExecWatchWorkshops { get; set; } = new();
+        public List<ExecWatchRisk> ExecWatchRisks { get; set; } = new();
+
+        public bool ExecWatchAnimate { get; set; } = true;
+
+        public string? ExecWatchSlaLabel { get; set; }
+        public string? ExecWatchSlaValue { get; set; }
+        public string? ExecWatchSlaUnit { get; set; }
+        public string? ExecWatchSlaHint { get; set; }
+        public string? ExecWatchSlaTone { get; set; }  // info/success/warning/danger
+        public string? ExecWatchSlaHref { get; set; }
 
 
 

@@ -179,6 +179,18 @@
                                     @await Html.PartialAsync("~/Views/Shared/Components/SmartCharts/Cards/_StatsGrid.cshtml", card)
                                     break;
 
+                                case ChartCardType.Pie3D:
+                                    @await Html.PartialAsync("~/Views/Shared/Components/SmartCharts/Cards/_Pie3D.cshtml", card)
+                                    break;
+
+                                case ChartCardType.OpsBoard:
+                                    @await Html.PartialAsync("~/Views/Shared/Components/SmartCharts/Cards/_OpsBoard.cshtml", card)
+                                    break;
+
+                                case ChartCardType.ExecWatch:
+                                    @await Html.PartialAsync("~/Views/Shared/Components/SmartCharts/Cards/_ExecWatch.cshtml", card)
+                                    break;
+
 
                                 default:
                                     <div class="rounded-xl border border-gray-200 bg-gray-50 p-4">

@@ -1,0 +1,68 @@
+@model SmartFoundation.UI.ViewModels.SmartCharts.ChartCardConfig
+@using SmartFoundation.UI.ViewModels.SmartCharts
+@using System.Text.Json
+@using System.Text.Encodings.Web
+
+@{
+    var hostId = $"pie3d_{Model.Id}";
+    var cfgId = $"{hostId}_cfg";
+
+    var slices = (Model.Pie3DSlices ?? new List<Pie3DSlice>())
+        .Where(s => !string.IsNullOrWhiteSpace(s.Label))
+        .Select(s => new
+        {
+            key = s.Key ?? "",
+            label = s.Label ?? "",
+            value = (double)s.Value,
+            color = s.Color ?? "",
+            href = s.Href ?? "",
+            hint = s.Hint ?? ""
+        }).ToList();
+
+    var cfg = new
+    {
+        id = hostId,
+        dir = (Model.Dir ?? "rtl").ToLower(),
+        tone = Model.Tone.ToString().ToLower(),
+
+        size = Model.Pie3DSize <= 0 ? 280 : Model.Pie3DSize,
+        height = Model.Pie3DHeight < 0 ? 18 : Model.Pie3DHeight,
+        innerHole = Model.Pie3DInnerHole < 0 ? 0 : Model.Pie3DInnerHole,
+
+        showLegend = Model.Pie3DShowLegend,
+        showCenterTotal = Model.Pie3DShowCenterTotal,
+        valueFormat = string.IsNullOrWhiteSpace(Model.Pie3DValueFormat) ? "0" : Model.Pie3DValueFormat,
+        explodeOnHover = Model.Pie3DExplodeOnHover,
+
+        slices = slices
+    };
+
+    var json = JsonSerializer.Serialize(cfg, new JsonSerializerOptions
+    {
+        Encoder = JavaScriptEncoder.Default,
+        PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+    });
+}
+
+<div id="@hostId" class="smart-pie3d" dir="@Model.Dir" data-config-id="@cfgId">
+    <div class="smart-pie3d__wrap">
+        <div class="smart-pie3d__svg"></div>
+
+        @if (Model.Pie3DShowLegend)
+        {
+            <div class="smart-pie3d__legend"></div>
+        }
+    </div>
+
+    <div class="smart-pie3d__tooltip" aria-hidden="true">
+        <div class="smart-pie3d__details" style="margin-top:12px;"></div> 
+
+        <div class="smart-pie3d__tt-title"></div>
+        <div class="smart-pie3d__tt-val"></div>
+        <div class="smart-pie3d__tt-hint"></div>
+    </div>
+</div>
+
+<script type="application/json" id="@cfgId">
+    @Html.Raw(json)
+</script>

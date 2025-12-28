@@ -1,0 +1,73 @@
+@model SmartFoundation.UI.ViewModels.SmartCharts.ChartCardConfig
+@using SmartFoundation.UI.ViewModels.SmartCharts
+@using System.Text.Json
+@using System.Text.Encodings.Web
+
+@{
+    var hostId = $"op_{Model.Id}";
+    var cfgId = $"{hostId}_cfg";
+
+    var sections = (Model.OpsBoardSections ?? new List<OpsBoardSection>())
+        .Select(s => new
+        {
+            key = s.Key,
+            title = s.Title ?? "",
+            subtitle = s.Subtitle ?? "",
+            icon = s.Icon ?? "",
+            badge = s.Badge ?? "",
+            href = s.Href ?? "",
+            kpis = (s.Kpis ?? new List<OpsBoardKpi>())
+                .Select(k => new
+                {
+                    key = k.Key,
+                    label = k.Label ?? "",
+                    value = k.Value ?? "",
+                    unit = k.Unit ?? "",
+                    icon = k.Icon ?? "",
+                    hint = k.Hint ?? "",
+                    delta = k.Delta ?? "",
+                    deltaPositive = k.DeltaPositive,
+                    progress = k.Progress,
+                    href = k.Href ?? ""
+                }).ToList(),
+            events = (s.Events ?? new List<OpsBoardEvent>())
+                .Select(e => new
+                {
+                    key = e.Key,
+                    title = e.Title ?? "",
+                    subtitle = e.Subtitle ?? "",
+                    icon = e.Icon ?? "",
+                    time = e.Time ?? "",
+                    status = e.Status ?? "",
+                    statusTone = (e.StatusTone ?? "neutral").ToLower(),
+                    priority = e.Priority ?? "",
+                    priorityTone = (e.PriorityTone ?? "neutral").ToLower(),
+                    href = e.Href ?? ""
+                }).ToList()
+        }).ToList();
+
+    var cfg = new
+    {
+        id = hostId,
+        dir = (Model.Dir ?? "rtl").ToLower(),
+        animate = Model.OpsBoardAnimate,
+        compact = Model.OpsBoardCompact,
+        columns = Model.OpsBoardColumns <= 0 ? 2 : Model.OpsBoardColumns,
+        sections = sections
+    };
+
+    var json = JsonSerializer.Serialize(cfg, new JsonSerializerOptions
+    {
+        Encoder = JavaScriptEncoder.Default,
+        PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+    });
+}
+
+<div id="@hostId"
+     class="smart-opsboard"
+     dir="@Model.Dir"
+     data-config-id="@cfgId"></div>
+
+<script type="application/json" id="@cfgId">
+    @Html.Raw(json)
+</script>

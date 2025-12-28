@@ -1,0 +1,157 @@
+﻿.smart-pie3d {
+    position: relative;
+    width: 100%;
+}
+
+.smart-pie3d__wrap {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 14px;
+}
+
+@media (min-width: 768px) {
+    .smart-pie3d__wrap {
+        grid-template-columns: 1fr 260px; /* الرسم + ليجند */
+        align-items: center;
+    }
+}
+
+.smart-pie3d__svg {
+    width: 100%;
+    min-width: 0;
+}
+
+.smart-pie3d__legend {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.smart-pie3d__leg-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 10px 12px;
+    border: 1px solid rgba(226,232,240,.9);
+    border-radius: 14px;
+    background: #fff;
+}
+
+.smart-pie3d__leg-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-width: 0;
+}
+
+.smart-pie3d__dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 999px;
+    flex-shrink: 0;
+}
+
+.smart-pie3d__leg-label {
+    font-size: 12px;
+    color: #0f172a;
+    font-weight: 800;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 180px;
+}
+
+.smart-pie3d__leg-right {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    flex-shrink: 0;
+}
+
+.smart-pie3d__leg-val {
+    font-size: 12px;
+    font-weight: 900;
+    color: #0f172a;
+}
+
+.smart-pie3d__leg-pct {
+    font-size: 11px;
+    color: #64748b;
+    font-weight: 700;
+}
+
+/*.smart-pie3d__tooltip {
+    position: absolute;
+    top: 0;
+    left: 0;
+    transform: translate(-9999px, -9999px);
+    pointer-events: none;
+    z-index: 50;
+    min-width: 220px;
+    max-width: 280px;
+    padding: 10px 12px;
+    border-radius: 16px;
+    border: 1px solid rgba(226,232,240,.9);
+    background: rgba(255,255,255,.96);
+    box-shadow: 0 14px 40px rgba(15,23,42,.10);*/
+    /* ✅ hide افتراضي */
+    /*opacity: 0;
+    visibility: hidden;
+    transition: opacity .12s ease, visibility .12s ease;
+}
+
+    .smart-pie3d__tooltip.is-show {*/
+        /* ✅ show عند hover */
+        /*opacity: 1;
+        visibility: visible;
+    }*/
+
+
+.smart-pie3d__tt-title {
+    font-size: 12px;
+    font-weight: 900;
+    color: #0f172a;
+}
+
+.smart-pie3d__tt-val {
+    margin-top: 6px;
+    font-size: 12px;
+    font-weight: 900;
+    color: #0f172a;
+}
+
+.smart-pie3d__tt-hint {
+    margin-top: 6px;
+    font-size: 11px;
+    color: #64748b;
+    line-height: 1.35;
+}
+
+
+
+
+
+.smart-pie3d__tooltip {
+    position: fixed;
+    top: 0;
+    left: 0;
+    transform: translate(-9999px, -9999px);
+    pointer-events: none;
+    z-index: 2147483647;
+    min-width: 220px;
+    max-width: 280px;
+    padding: 10px 12px;
+    border-radius: 16px;
+    border: 1px solid rgba(226,232,240,.9);
+    background: rgba(255,255,255,.96);
+    box-shadow: 0 14px 40px rgba(15,23,42,.10);
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity .12s ease, visibility .12s ease;
+}
+
+    .smart-pie3d__tooltip.is-show {
+        opacity: 1;
+        visibility: visible;
+    }

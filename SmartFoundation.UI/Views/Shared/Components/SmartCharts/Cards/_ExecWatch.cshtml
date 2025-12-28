@@ -1,0 +1,95 @@
+@model SmartFoundation.UI.ViewModels.SmartCharts.ChartCardConfig
+@using SmartFoundation.UI.ViewModels.SmartCharts
+@using System.Text.Json
+@using System.Text.Encodings.Web
+
+@{
+    var hostId = $"ew_{Model.Id}";
+    var cfgId = $"{hostId}_cfg";
+
+    var kpis = (Model.ExecWatchKpis ?? new List<ExecWatchKpi>())
+        .Select(k => new
+        {
+            key = k.Key,
+            label = k.Label ?? "",
+            value = k.Value ?? "",
+            unit = k.Unit ?? "",
+            icon = k.Icon ?? "",
+            hint = k.Hint ?? "",
+            delta = k.Delta ?? "",
+            deltaPositive = k.DeltaPositive,
+            tone = (k.Tone ?? "neutral").ToLower(),
+            href = k.Href ?? ""
+        }).ToList();
+
+    var stages = (Model.ExecWatchStages ?? new List<ExecWatchStage>())
+        .Select(s => new
+        {
+            key = s.Key,
+            label = s.Label ?? "",
+            count = s.Count,
+            percent = s.Percent,
+            avgHours = s.AvgHours,
+            overdue = s.Overdue,
+            tone = (s.Tone ?? "neutral").ToLower(),
+            href = s.Href ?? ""
+        }).ToList();
+
+    var workshops = (Model.ExecWatchWorkshops ?? new List<ExecWatchWorkshop>())
+        .Select(w => new
+        {
+            key = w.Key,
+            name = w.Name ?? "",
+            icon = w.Icon ?? "",
+            capacity = w.Capacity,
+            load = w.Load,
+            productivity = w.Productivity,
+            backlog = w.Backlog,
+            delayed = w.Delayed,
+            tone = (w.Tone ?? "neutral").ToLower(),
+            href = w.Href ?? ""
+        }).ToList();
+
+    var risks = (Model.ExecWatchRisks ?? new List<ExecWatchRisk>())
+        .Select(r => new
+        {
+            key = r.Key,
+            title = r.Title ?? "",
+            desc = r.Desc ?? "",
+            tone = (r.Tone ?? "danger").ToLower(),
+            time = r.Time ?? "",
+            href = r.Href ?? ""
+        }).ToList();
+
+    var cfg = new
+    {
+        id = hostId,
+        dir = (Model.Dir ?? "rtl").ToLower(),
+        animate = Model.ExecWatchAnimate,
+        kpis = kpis,
+        stages = stages,
+        workshops = workshops,
+        risks = risks,
+        sla = new
+        {
+            label = Model.ExecWatchSlaLabel ?? "SLA",
+            value = Model.ExecWatchSlaValue ?? "—",
+            unit = Model.ExecWatchSlaUnit ?? "%",
+            hint = Model.ExecWatchSlaHint ?? "",
+            tone = (Model.ExecWatchSlaTone ?? "info").ToLower(),
+            href = Model.ExecWatchSlaHref ?? ""
+        }
+    };
+
+    var json = JsonSerializer.Serialize(cfg, new JsonSerializerOptions
+    {
+        Encoder = JavaScriptEncoder.Default,
+        PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+    });
+}
+
+<div id="@hostId" class="smart-execwatch" dir="@Model.Dir" data-config-id="@cfgId"></div>
+
+<script type="application/json" id="@cfgId">
+    @Html.Raw(json)
+</script>
