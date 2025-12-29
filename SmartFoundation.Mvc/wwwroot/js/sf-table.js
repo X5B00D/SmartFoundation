@@ -1095,39 +1095,152 @@
 
 
 
+                    //case "number":
+                    //    const min = field.min !== undefined ? `min="${field.min}"` : "";
+                    //    const max = field.max !== undefined ? `max="${field.max}"` : "";
+                    //    const step = field.step !== undefined ? `step="${field.step}"` : "";
+                    //    fieldHtml = `
+                    //    <div class="form-group ${colCss}">
+                    //        <label class="block text-sm font-medium text-gray-700 mb-1">
+                    //            ${this.escapeHtml(field.label)} ${field.required ? '<span class="text-red-500">*</span>' : ''}
+
+                    //        </label>
+                    //        <input type="number" name="${this.escapeHtml(field.name)}"
+                    //               value="${this.escapeHtml(value)}"
+                    //               class="sf-modal-input"
+                    //               ${placeholder} ${min} ${max} ${step} ${required} ${disabled} ${readonly}>
+                    //        ${field.helpText ? `<p class="mt-1 text-xs text-gray-500">${this.escapeHtml(field.helpText)}</p>` : ''}
+                    //    </div>`;
+                    //    break;
+
                     case "number":
-                        const min = field.min !== undefined ? `min="${field.min}"` : "";
-                        const max = field.max !== undefined ? `max="${field.max}"` : "";
-                        const step = field.step !== undefined ? `step="${field.step}"` : "";
-                        fieldHtml = `
-                        <div class="form-group ${colCss}">
-                            <label class="block text-sm font-medium text-gray-700 mb-1">
-                                ${this.escapeHtml(field.label)} ${field.required ? '<span class="text-red-500">*</span>' : ''}
+                        // رقم >= 0 فقط (بدون سالب)
+                        const min0 = `min="0"`;
+                        const numStep = field.step !== undefined ? `step="${field.step}"` : `step="1"`;
+                        const numMax = field.max !== undefined ? `max="${field.max}"` : "";
 
-                            </label>
-                            <input type="number" name="${this.escapeHtml(field.name)}" 
-                                   value="${this.escapeHtml(value)}" 
-                                   class="sf-modal-input"
-                                   ${placeholder} ${min} ${max} ${step} ${required} ${disabled} ${readonly}>
-                            ${field.helpText ? `<p class="mt-1 text-xs text-gray-500">${this.escapeHtml(field.helpText)}</p>` : ''}
-                        </div>`;
+                        // يمنع إدخال السالب و e و + ويقص أي شيء غير رقم (ويسمح بنقطة لو step فيه كسور)
+                        const allowDecimal = String(field.step ?? "").includes('.') || (typeof field.step === 'number' && !Number.isInteger(field.step));
+                        const numberOnInput = allowDecimal
+                            ? `oninput="this.value=this.value.replace(/[^0-9.]/g,''); if(this.value.startsWith('.')) this.value='0'+this.value; if(this.value.includes('.')){const p=this.value.split('.'); this.value=p[0]+'.'+p.slice(1).join('');}"`
+                            : `oninput="this.value=this.value.replace(/\\D/g,'')"`;
+
+                        const numberOnKeyDown =
+                            `onkeydown="if(['-','e','E','+'].includes(event.key)) event.preventDefault()"`;
+
+                        fieldHtml = `
+                            <div class="form-group ${colCss}">
+                                <label class="block text-sm font-medium text-gray-700 mb-1">
+                                    ${this.escapeHtml(field.label)} ${field.required ? '<span class="text-red-500">*</span>' : ''}
+                                </label>
+                                <input
+                                    type="number"
+                                    inputmode="numeric"
+                                    name="${this.escapeHtml(field.name)}"
+                                    value="${this.escapeHtml(value)}"
+                                    class="sf-modal-input"
+                                    ${placeholder}
+                                    ${min0}
+                                    ${numMax}
+                                    ${numStep}
+                                    ${required}
+                                    ${disabled}
+                                    ${readonly}
+                                    ${numberOnKeyDown}
+                                    ${numberOnInput}
+                                >
+                                ${field.helpText ? `<p class="mt-1 text-xs text-gray-500">${this.escapeHtml(field.helpText)}</p>` : ''}
+                            </div>`;
                         break;
 
-                    case "phone":
-                    case "tel":
-                        fieldHtml = `
-                        <div class="form-group ${colCss}">
-                            <label class="block text-sm font-medium text-gray-700 mb-1">
-                                ${this.escapeHtml(field.label)} ${field.required ? '<span class="text-red-500">*</span>' : ''}
 
-                            </label>
-                            <input type="tel" name="${this.escapeHtml(field.name)}" 
-                                   value="${this.escapeHtml(value)}" 
-                                   class="sf-modal-input"
-                                   ${placeholder} ${required} ${disabled} ${readonly} ${maxLength}>
-                            ${field.helpText ? `<p class="mt-1 text-xs text-gray-500">${this.escapeHtml(field.helpText)}</p>` : ''}
-                        </div>`;
-                        break;
+                    case "nationalid":
+                    case "nid":
+                    case "identity":
+                        // الهوية الوطنية: أرقام فقط + بدون سالب + أقصى 12 رقم
+                        const nidOnInput =
+                            `oninput="` +
+                            `this.value=this.value.replace(/\\D/g,'');` +                 // أرقام فقط
+                            `if(this.value.length>12)this.value=this.value.slice(0,12);` + // حد 12
+                            `"`;
+
+                        const nidOnKeyDown =
+                            `onkeydown="if(['-','e','E','+','.'].includes(event.key)) event.preventDefault()"`;
+
+                        fieldHtml = `
+                                <div class="form-group ${colCss}">
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">
+                                        ${this.escapeHtml(field.label)} ${field.required ? '<span class="text-red-500">*</span>' : ''}
+                                    </label>
+
+                                    <input
+                                        type="text"
+                                        inputmode="numeric"
+                                        name="${this.escapeHtml(field.name)}"
+                                        value="${this.escapeHtml(value)}"
+                                        class="sf-modal-input"
+                                        ${placeholder}
+                                        ${required}
+                                        ${disabled}
+                                        ${readonly}
+                                        maxlength="12"
+                                        pattern="^[0-9]{1,12}$"
+                                        title="الهوية الوطنية يجب أن تكون أرقام فقط وبحد أقصى 12 رقم"
+                                        ${nidOnKeyDown}
+                                        ${nidOnInput}
+                                    />
+
+                                    ${field.helpText ? `<p class="mt-1 text-xs text-gray-500">${this.escapeHtml(field.helpText)}</p>` : ''}
+                                </div>`;
+                                                break;
+
+
+
+                    
+                                    case "phone":
+                                    case "tel":
+                                        // ثابت 05 + المستخدم يكمل 8 أرقام (المجموع 10)
+                                        const phoneOnInput =
+                                            `oninput="` +
+                                            `this.value=this.value.replace(/\\D/g,'');` +                 // أرقام فقط
+                                            `if(!this.value.startsWith('05')){` +
+                                            `  this.value='05' + this.value.replace(/^05/,'');` +        // فرض 05 بالبداية
+                                            `}` +
+                                            `if(this.value.length<2)this.value='05';` +                  // ما يسمح يقل عن 05
+                                            `if(this.value.length>10)this.value=this.value.slice(0,10);` + // حد 10
+                                            `"`;
+
+                                        // عند التركيز لو فاضي يحط 05
+                                        const phoneOnFocus = `onfocus="if(!this.value) this.value='05'"`;
+
+                                        fieldHtml = `
+                                        <div class="form-group ${colCss}">
+                                            <label class="block text-sm font-medium text-gray-700 mb-1">
+                                                ${this.escapeHtml(field.label)} ${field.required ? '<span class="text-red-500">*</span>' : ''}
+                                            </label>
+
+                                            <input
+                                                type="tel"
+                                                inputmode="numeric"
+                                                name="${this.escapeHtml(field.name)}"
+                                                value="${this.escapeHtml(value || '05')}"
+                                                class="sf-modal-input"
+                                                ${placeholder}
+                                                ${required}
+                                                ${disabled}
+                                                ${readonly}
+                                                maxlength="10"
+                                                pattern="^05[0-9]{8}$"
+                                                title="ابدأ بـ 05 ثم أكمل 8 أرقام"
+                                                ${phoneOnFocus}
+                                                ${phoneOnInput}
+                                            />
+
+                                            ${field.helpText ? `<p class="mt-1 text-xs text-gray-500">${this.escapeHtml(field.helpText)}</p>` : ''}
+                                        </div>`;
+                                        break;
+
+
 
                     case "iban":
                         fieldHtml = `
