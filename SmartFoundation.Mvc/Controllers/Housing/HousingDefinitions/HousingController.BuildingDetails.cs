@@ -435,8 +435,8 @@ namespace SmartFoundation.Mvc.Controllers.Housing
     new FieldConfig { Name = "p04", Label = "مساحة المبنى", Type = "number", ColCss = "3", Required = true },
     new FieldConfig { Name = "p05", Label = "احداثيات المبنى", Type = "text", ColCss = "3", Required = true },
     new FieldConfig { Name = "p06", Label = "نوع المبنى", Type = "select", ColCss = "3", Required = true, Options = BuildingTypeOptions },
-    new FieldConfig { Name = "p07", Label = "موقع المبنى", Type = "select", ColCss = "3", Required = true, Options = MilitaryLocationOptions },
-    new FieldConfig { Name = "p08", Label = "فئة المبنى", Type = "select", ColCss = "3", Required = true, Options = BuildingClassOptions },
+    new FieldConfig { Name = "p07", Label = "موقع المبنى", Type = "select", ColCss = "6", Required = true, Options = MilitaryLocationOptions },
+    new FieldConfig { Name = "p08", Label = "فئة المبنى", Type = "select", ColCss = "6", Required = true, Options = BuildingClassOptions },
     new FieldConfig { Name = "p09", Label = "تيلفون المبنى 1", Type = "number", ColCss = "3", Required = false },
     new FieldConfig { Name = "p10", Label = "تيلفون المبنى 2", Type = "number", ColCss = "3", Required = false },
 
@@ -493,8 +493,8 @@ namespace SmartFoundation.Mvc.Controllers.Housing
                 new FieldConfig { Name = "p06", Label = "احداثيات المبنى", Type = "number", ColCss = "3", Required = true },
                 new FieldConfig { Name = "p07", Label = "نوع المبنى", Type = "select", ColCss = "3", Required = true,   Options =         BuildingTypeOptions },
                 new FieldConfig { Name = "p08", Label = "نوع المرفق", Type = "hidden", ColCss = "3", Required = true,   Value=UtilityTypeID_ },
-                new FieldConfig { Name = "p09", Label = "موقع المبنى", Type = "select", ColCss = "3", Required = true,  Options =        MilitaryLocationOptions },
-                new FieldConfig { Name = "p10", Label = "فئة المبنى", Type = "select", ColCss = "3", Required = true,   Options =         BuildingClassOptions },
+                new FieldConfig { Name = "p09", Label = "موقع المبنى", Type = "select", ColCss = "6", Required = true,  Options =        MilitaryLocationOptions },
+                new FieldConfig { Name = "p10", Label = "فئة المبنى", Type = "select", ColCss = "6", Required = true,   Options =         BuildingClassOptions },
                 new FieldConfig { Name = "p11", Label = "تيلفون المبنى 1", Type = "number", ColCss = "3", Required = false },
                 new FieldConfig { Name = "p12", Label = "تيلفون المبنى 2", Type = "number", ColCss = "3", Required = false },
 

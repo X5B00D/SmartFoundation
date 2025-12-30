@@ -836,9 +836,13 @@
 
                 const colCss = this.resolveColCss(field.colCss || "6");
 
-                const required = field.required ? "required" : "";
-                const disabled = field.disabled ? "disabled" : "";
-                const readonly = field.readonly ? "readonly" : "";
+                //const required = field.required ? "required" : "";
+                //const disabled = field.disabled ? "disabled" : "";
+                //const readonly = field.readonly ? "readonly" : "";
+                const required = (field.required ?? field.Required) ? "required" : "";
+                const disabled = (field.disabled ?? field.Disabled) ? "disabled" : "";
+                const readonly = (field.readonly ?? field.Readonly) ? "readonly" : "";
+
 
                 const placeholder = field.placeholder
                     ? `placeholder="${this.escapeHtml(field.placeholder)}"`
@@ -973,7 +977,7 @@
                 ${field.helpText
                                 ? `<p class="mt-1 text-xs text-gray-500">${this.escapeHtml(field.helpText)}</p>`
                                 : ''}
-            </div>`;
+                    </div>`;
                         break;
 
 
@@ -994,20 +998,12 @@
                         </div>`;
                         break;
 
+
+
+
                     case "select":
                         let options = "";
-                        //if (!field.required) {
-                        //    options += `<option value="">${field.placeholder || 'اختر...'}</option>`;
-                        //}
-                        //(field.options || []).forEach(opt => {
-                        //    const optValue = opt.value ?? opt.Value ?? "";
-                        //    const optText = opt.text ?? opt.Text ?? "";
-                        //    const optDisabled = (opt.disabled ?? opt.Disabled) ? "disabled" : "";
-                        //    const selected = String(value) === String(optValue) ? "selected" : "";
-
-                        //    options += `<option value="${this.escapeHtml(optValue)}" ${selected} ${optDisabled}>${this.escapeHtml(optText)}</option>`;
-                        //});
-
+                        
                         // إضافة خيار فارغ افتراضي ويكون selected إذا لم توجد قيمة
                         options += `<option value="" disabled ${!value ? "selected" : ""}>${field.placeholder || 'الرجاء الاختيار'}</option>`;
 
@@ -1031,20 +1027,20 @@
                         const dependsUrlAttr = field.dependsUrl ? `data-depends-url="${this.escapeHtml(field.dependsUrl)}"` : "";
 
                         fieldHtml = `
-    <div class="form-group ${colCss}">
-        <label class="block text-sm font-medium text-gray-700 mb-1">
-            ${this.escapeHtml(field.label)} ${field.required ? '<span class="text-red-500">*</span>' : ''}
-        </label>
-        <select name="${this.escapeHtml(field.name)}" 
+                        <div class="form-group ${colCss}">
+                            <label class="block text-sm font-medium text-gray-700 mb-1">
+                                ${this.escapeHtml(field.label)} ${field.required ? '<span class="text-red-500">*</span>' : ''}
+                            </label>
+                            <select name="${this.escapeHtml(field.name)}" 
         
-        class="sf-modal-input sf-modal-select js-select2"
+                            class="sf-modal-input sf-modal-select js-select2"
 
-                ${required} ${disabled} ${onChangeAttr} ${dependsOnAttr} ${dependsUrlAttr}>
-            ${options}
-        </select>
-        ${field.helpText ? `<p class="mt-1 text-xs text-gray-500">${this.escapeHtml(field.helpText)}</p>` : ''}
-    </div>`;
-                        break;
+                                    ${required} ${disabled} ${onChangeAttr} ${dependsOnAttr} ${dependsUrlAttr}>
+                                ${options}
+                            </select>
+                            ${field.helpText ? `<p class="mt-1 text-xs text-gray-500">${this.escapeHtml(field.helpText)}</p>` : ''}
+                        </div>`;
+                             break;
 
 
                     case "checkbox":
@@ -1093,26 +1089,6 @@
                         break;
 
 
-
-
-                    //case "number":
-                    //    const min = field.min !== undefined ? `min="${field.min}"` : "";
-                    //    const max = field.max !== undefined ? `max="${field.max}"` : "";
-                    //    const step = field.step !== undefined ? `step="${field.step}"` : "";
-                    //    fieldHtml = `
-                    //    <div class="form-group ${colCss}">
-                    //        <label class="block text-sm font-medium text-gray-700 mb-1">
-                    //            ${this.escapeHtml(field.label)} ${field.required ? '<span class="text-red-500">*</span>' : ''}
-
-                    //        </label>
-                    //        <input type="number" name="${this.escapeHtml(field.name)}"
-                    //               value="${this.escapeHtml(value)}"
-                    //               class="sf-modal-input"
-                    //               ${placeholder} ${min} ${max} ${step} ${required} ${disabled} ${readonly}>
-                    //        ${field.helpText ? `<p class="mt-1 text-xs text-gray-500">${this.escapeHtml(field.helpText)}</p>` : ''}
-                    //    </div>`;
-                    //    break;
-
                     case "number":
                         // رقم >= 0 فقط (بدون سالب)
                         const min0 = `min="0"`;
@@ -1148,26 +1124,29 @@
                                     ${readonly}
                                     ${numberOnKeyDown}
                                     ${numberOnInput}
+                                    
+
                                 >
                                 ${field.helpText ? `<p class="mt-1 text-xs text-gray-500">${this.escapeHtml(field.helpText)}</p>` : ''}
                             </div>`;
                         break;
 
 
-                    case "nationalid":
-                    case "nid":
-                    case "identity":
-                        // الهوية الوطنية: أرقام فقط + بدون سالب + أقصى 12 رقم
-                        const nidOnInput =
-                            `oninput="` +
-                            `this.value=this.value.replace(/\\D/g,'');` +                 // أرقام فقط
-                            `if(this.value.length>12)this.value=this.value.slice(0,12);` + // حد 12
-                            `"`;
+                            case "nationalid":
+                            case "nid":
+                            case "identity": {
 
-                        const nidOnKeyDown =
-                            `onkeydown="if(['-','e','E','+','.'].includes(event.key)) event.preventDefault()"`;
+                                // أرقام فقط + أقصى 10 أرقام
+                                const nidOnInput =
+                                    `oninput="` +
+                                    `this.value=this.value.replace(/\\D/g,'');` +
+                                    `if(this.value.length>10)this.value=this.value.slice(0,10);` +
+                                    `"`; // ملاحظة: هذا سيشتغل حتى لو readonly (لا يضر)
 
-                        fieldHtml = `
+                                const nidOnKeyDown =
+                                    `onkeydown="if(['-','e','E','+','.'].includes(event.key)) event.preventDefault()"`;
+
+                                fieldHtml = `
                                 <div class="form-group ${colCss}">
                                     <label class="block text-sm font-medium text-gray-700 mb-1">
                                         ${this.escapeHtml(field.label)} ${field.required ? '<span class="text-red-500">*</span>' : ''}
@@ -1183,62 +1162,148 @@
                                         ${required}
                                         ${disabled}
                                         ${readonly}
-                                        maxlength="12"
-                                        pattern="^[0-9]{1,12}$"
-                                        title="الهوية الوطنية يجب أن تكون أرقام فقط وبحد أقصى 12 رقم"
+
+                                        autocomplete="new-password"
+                                        autocorrect="off"
+                                        autocapitalize="off"
+                                        spellcheck="false"
+
+                                        maxlength="10"
+                                        pattern="^[0-9]{1,10}$"
+                                        title="الهوية الوطنية يجب أن تكون أرقام فقط وبحد أقصى 10 رقم"
+
                                         ${nidOnKeyDown}
                                         ${nidOnInput}
                                     />
-
                                     ${field.helpText ? `<p class="mt-1 text-xs text-gray-500">${this.escapeHtml(field.helpText)}</p>` : ''}
                                 </div>`;
-                                                break;
+                            break;
+                           }
 
 
 
                     
-                                    case "phone":
-                                    case "tel":
-                                        // ثابت 05 + المستخدم يكمل 8 أرقام (المجموع 10)
-                                        const phoneOnInput =
-                                            `oninput="` +
-                                            `this.value=this.value.replace(/\\D/g,'');` +                 // أرقام فقط
-                                            `if(!this.value.startsWith('05')){` +
-                                            `  this.value='05' + this.value.replace(/^05/,'');` +        // فرض 05 بالبداية
-                                            `}` +
-                                            `if(this.value.length<2)this.value='05';` +                  // ما يسمح يقل عن 05
-                                            `if(this.value.length>10)this.value=this.value.slice(0,10);` + // حد 10
-                                            `"`;
+                    case "phone":
+                    case "tel": {
 
-                                        // عند التركيز لو فاضي يحط 05
-                                        const phoneOnFocus = `onfocus="if(!this.value) this.value='05'"`;
+                        const normalizeFn = `
+                                (function(el){
+                                    let v = (el.value || '');
 
-                                        fieldHtml = `
-                                        <div class="form-group ${colCss}">
-                                            <label class="block text-sm font-medium text-gray-700 mb-1">
-                                                ${this.escapeHtml(field.label)} ${field.required ? '<span class="text-red-500">*</span>' : ''}
-                                            </label>
+                                    // digits to ascii
+                                    v = v.replace(/[٠-٩]/g, d => '٠١٢٣٤٥٦٧٨٩'.indexOf(d));
+                                    v = v.replace(/[۰-۹]/g, d => '۰۱۲۳۴۵۶۷۸۹'.indexOf(d));
 
-                                            <input
-                                                type="tel"
-                                                inputmode="numeric"
-                                                name="${this.escapeHtml(field.name)}"
-                                                value="${this.escapeHtml(value || '05')}"
-                                                class="sf-modal-input"
-                                                ${placeholder}
-                                                ${required}
-                                                ${disabled}
-                                                ${readonly}
-                                                maxlength="10"
-                                                pattern="^05[0-9]{8}$"
-                                                title="ابدأ بـ 05 ثم أكمل 8 أرقام"
-                                                ${phoneOnFocus}
-                                                ${phoneOnInput}
-                                            />
+                                    // keep digits only
+                                    v = v.replace(/\\s+/g,'');
+                                    v = v.replace(/^\\+/, '');      // +966... -> 966...
+                                    v = v.replace(/\\D/g,'');
 
-                                            ${field.helpText ? `<p class="mt-1 text-xs text-gray-500">${this.escapeHtml(field.helpText)}</p>` : ''}
-                                        </div>`;
-                                        break;
+                                    // Saudi normalize to 05XXXXXXXX
+                                    if (v.startsWith('966') ) v = '0' + v.slice(3);     // 9665xxxxxxxx -> 05xxxxxxxx
+                                    if (v.startsWith('00966')) v = '0' + v.slice(5);    // 009665xxxxxxxx -> 05xxxxxxxx
+                                    if (v.startsWith('5') && v.length === 9) v = '0' + v; // 5xxxxxxxx -> 05xxxxxxxx
+
+                                    // force prefix 05 if user started typing mobile
+                                    if (v.length >= 2 && !v.startsWith('05')) {
+                                        if (v.startsWith('0')) v = '05' + v.slice(2);
+                                        else v = '05' + v.replace(/^05/, '').slice(0); // fallback
+                                    }
+
+                                    if (v.length > 10) v = v.slice(0,10);
+                                    el.value = v;
+                                })(this);
+                            `;
+
+                                                const validateFn = `
+                                (function(el){
+                                    // normalize first
+                                    ${normalizeFn.replace(/this/g, 'el')}
+
+                                    const v = (el.value || '');
+                                    if (${field.required ? 'true' : 'false'} && !v) {
+                                        el.setCustomValidity('رقم الجوال مطلوب');
+                                        return;
+                                    }
+                                    if (!v) { el.setCustomValidity(''); return; }
+
+                                    if (!/^05\\d{8}$/.test(v)) {
+                                        el.setCustomValidity('رقم الجوال يجب أن يبدأ بـ 05 ثم 8 أرقام');
+                                    } else {
+                                        el.setCustomValidity('');
+                                    }
+                                })(this);
+                            `;
+
+                        // initial normalize (server value)
+                        const initial = (() => {
+                            let v = (value ?? '').toString();
+                            v = v.replace(/[٠-٩]/g, d => '٠١٢٣٤٥٦٧٨٩'.indexOf(d));
+                            v = v.replace(/[۰-۹]/g, d => '۰۱۲۳۴۵۶۷۸۹'.indexOf(d));
+                            v = v.replace(/\s+/g, '').replace(/^\+/, '').replace(/\D/g, '');
+
+                            if (v.startsWith('00966')) v = '0' + v.slice(5);
+                            if (v.startsWith('966')) v = '0' + v.slice(3);
+                            if (v.startsWith('5') && v.length === 9) v = '0' + v;
+                            if (v.length > 10) v = v.slice(0, 10);
+                            return v;
+                        })();
+
+                        // IMPORTANT: oninput لا يعرض رسالة، فقط يطبّع
+                        const onInput = `oninput="${normalizeFn} this.setCustomValidity('');"`;
+                        // التحقق فقط عند blur/invalid
+                        const onBlur = `onblur="${validateFn}"`;
+                        const onInvalid = `oninvalid="${validateFn}"`;
+
+                        // الأهم: قبل الإرسال مباشرة (يغطي أي validator عام)
+                        // نستخدم onsubmit على الفورم عبر formaction؟ لا. لذلك نضيف onchange + blur كافي عادة
+                        // لكن لضمان 100% أضف onkeyup أيضًا (اختياري)
+                        const onChange = `onchange="${normalizeFn}"`;
+
+                        const onKeyDown =
+                            `onkeydown="if(['-','e','E','+','.'].includes(event.key)) event.preventDefault()"`;
+
+                        fieldHtml = `
+                                <div class="form-group ${colCss}">
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">
+                                        ${this.escapeHtml(field.label)} ${field.required ? '<span class="text-red-500">*</span>' : ''}
+                                    </label>
+
+                                    <input
+                                        type="text"
+                                        inputmode="numeric"
+                                        name="${this.escapeHtml(field.name)}"
+                                        value="${this.escapeHtml(initial)}"
+                                        class="sf-modal-input"
+                                        ${placeholder}
+                                        ${required}
+                                        ${disabled}
+                                        ${readonly}
+
+                                        data-sa-mobile="1"
+                                        autocomplete="new-password"
+                                        autocorrect="off"
+                                        autocapitalize="off"
+                                        spellcheck="false"
+
+                                        maxlength="10"
+                                        title="مثال: 05XXXXXXXX"
+
+                                        ${onKeyDown}
+                                        ${onChange}
+                                        ${onInvalid}
+                                        ${onBlur}
+                                        ${onInput}
+                                    />
+
+                                    ${field.helpText ? `<p class="mt-1 text-xs text-gray-500">${this.escapeHtml(field.helpText)}</p>` : ''}
+                                </div>`;
+                                                        break;
+                                                    }
+
+
+
+
 
 
 

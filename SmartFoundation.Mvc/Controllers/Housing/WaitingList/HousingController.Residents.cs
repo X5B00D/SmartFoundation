@@ -249,8 +249,10 @@ namespace SmartFoundation.Mvc.Controllers.Housing
             {
                 new FieldConfig { Name = rowIdField, Type = "hidden" },
 
-                new FieldConfig { Name = "p01", Label = "رقم الهوية", Type = "number", ColCss = "6", Required = true },
+                new FieldConfig { Name = "p01", Label = "رقم الهوية", Type = "nationalid", ColCss = "6", },
                 new FieldConfig { Name = "p02", Label = "الرقم العام", Type = "number", ColCss = "6", Required = true },
+                
+
 
                 new FieldConfig { Name = "p03", Label = "الاسم الاول بالعربي", Type = "text", Required = true, Placeholder = "حقل عربي فقط",  Icon = "fa-solid fa-user", ColCss = "3", MaxLength = 50, TextMode = "arabic",},
                 new FieldConfig { Name = "p04", Label = "اسم الاب بالعربي", Type = "text", Required = true, Placeholder = "حقل عربي فقط",  Icon = "fa-solid fa-user", ColCss = "3", MaxLength = 50, TextMode = "arabic",},
@@ -264,16 +266,16 @@ namespace SmartFoundation.Mvc.Controllers.Housing
                 new FieldConfig { Name = "p10", Label = "الاسم الاخير بالانجليزي", Type = "text", Placeholder = "حقل انجليزي فقط",  Icon = "fa-solid fa-user", ColCss = "3", MaxLength = 50, TextMode = "english",},
 
                 new FieldConfig { Name = "p11", Label = "الرتبة", Type = "select", ColCss = "3", Required = true, Options= rankOptions },
-                new FieldConfig { Name = "p12", Label = "الوحدة", Type = "select", ColCss = "3", Required = true, Options= militaryUnitOptions },
+                new FieldConfig { Name = "p12", Label = "الوحدة", Type = "select", ColCss = "6", Required = true, Options= militaryUnitOptions },
                 new FieldConfig { Name = "p13", Label = "الحالة الاجتماعية", Type = "select", ColCss = "3", Required = true, Options= MaritalStatusOptions },
                 new FieldConfig { Name = "p14", Label = "الجنسية", Type = "select", ColCss = "3", Required = true, Options= NationalityOptions },
 
                 new FieldConfig { Name = "p15", Label = "عدد التابعين", Type = "number", ColCss = "3" },
                 new FieldConfig { Name = "p16", Label = "الجنس", Type = "select", ColCss = "3", Required = true, Options= GenderOptions },
                 new FieldConfig { Name = "p17", Label = "تاريخ الميلاد", Type = "date", ColCss = "3" },
-                new FieldConfig { Name = "p18", Label = "رقم الجوال", Type = "number", ColCss = "3", Required = true },
-
-                new FieldConfig { Name = "p19", Label = "ملاحظات", Type = "text", ColCss = "6", Required = false }
+                new FieldConfig { Name = "p18", Label = "رقم الجوال", Type = "tel", ColCss = "3", Required = true, HelpText=" مثال : 05XXXXXXXX" },
+                new FieldConfig { Name = "p19", Label = "ملاحظات", Type = "textarea", ColCss = "6", Required = false },
+                
             };
 
             // hidden fields
@@ -301,8 +303,8 @@ namespace SmartFoundation.Mvc.Controllers.Housing
 
 
 
-                new FieldConfig { Name = "p01", Label = "الرقم المرجعي",             Type = "hidden", Readonly = true, ColCss = "3" },
-                new FieldConfig { Name = "p02", Label = "رقم الهوية", Type = "number", ColCss = "6", Required = true },
+                new FieldConfig { Name = "p01", Label = "الرقم المرجعي",             Type = "hidden", ColCss = "3" },
+                new FieldConfig { Name = "p02", Label = "رقم الهوية", Type = "nationalid", ColCss = "6" , Readonly=true},
                 new FieldConfig { Name = "p03", Label = "الرقم العام", Type = "number", ColCss = "6", Required = true },
 
                 new FieldConfig { Name = "p04", Label = "الاسم الاول بالعربي", Type = "text", Required = true, Placeholder = "حقل عربي فقط",  Icon = "fa-solid fa-user", ColCss = "3", MaxLength = 50, TextMode = "arabic",},
@@ -317,14 +319,14 @@ namespace SmartFoundation.Mvc.Controllers.Housing
                 new FieldConfig { Name = "p11", Label = "الاسم الاخير بالانجليزي", Type = "text", Placeholder = "حقل انجليزي فقط",  Icon = "fa-solid fa-user", ColCss = "3", MaxLength = 50, TextMode = "english",},
 
                 new FieldConfig { Name = "p14", Label = "الرتبة", Type = "select", ColCss = "3", Required = true, Options= rankOptions },
-                new FieldConfig { Name = "p16", Label = "الوحدة", Type = "select", ColCss = "3", Required = true, Options= militaryUnitOptions },
+                new FieldConfig { Name = "p16", Label = "الوحدة", Type = "select", ColCss = "6", Required = true, Options= militaryUnitOptions },
                 new FieldConfig { Name = "p18", Label = "الحالة الاجتماعية", Type = "select", ColCss = "3", Required = true, Options= MaritalStatusOptions },
                 new FieldConfig { Name = "p21", Label = "الجنسية", Type = "select", ColCss = "3", Required = true, Options= NationalityOptions },
 
                 new FieldConfig { Name = "p20", Label = "عدد التابعين", Type = "number", ColCss = "3" },
                 new FieldConfig { Name = "p23", Label = "الجنس", Type = "select", ColCss = "3", Required = true, Options= GenderOptions },
                 new FieldConfig { Name = "p25", Label = "تاريخ الميلاد", Type = "date", ColCss = "3" },
-                new FieldConfig { Name = "p26", Label = "رقم الجوال", Type = "number", ColCss = "3", Required = true },
+                new FieldConfig { Name = "p26", Label = "رقم الجوال", Type = "tel", ColCss = "3", Required = true },
 
                 new FieldConfig { Name = "p27", Label = "ملاحظات", Type = "text", ColCss = "6", Required = false }
             };
@@ -351,7 +353,7 @@ namespace SmartFoundation.Mvc.Controllers.Housing
                 Rows = rowsList,
                 RowIdField = rowIdField,
                 PageSize = 10,
-                PageSizes = new List<int> { 10, 25, 50, 100 },
+                PageSizes = new List<int> { 10, 25, 50, 200, },
                 QuickSearchFields = dynamicColumns.Select(c => c.Field).Take(4).ToList(),
                 Searchable = true,
                 AllowExport = true,
@@ -447,7 +449,7 @@ namespace SmartFoundation.Mvc.Controllers.Housing
             {
                 PageTitle = dsModel.PageTitle,
                 PanelTitle = dsModel.PanelTitle,
-                PanelIcon = "fa-layer-group",
+                PanelIcon = "fa fa-list",
                 TableDS = dsModel
             };
 

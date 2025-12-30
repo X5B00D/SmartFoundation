@@ -1,4 +1,4 @@
-/* =========================
+﻿/* =========================
    Fonts & FontAwesome
    ========================= */
 @import url("/lib/fontawesome/css/all.min.css");
@@ -37,7 +37,7 @@ body, h1, h2, h3, h4, h5, h6, input, textarea, select, button {
     }
 
     body {
-        @apply text-gray-900 bg-gray-50;
+        @apply bg-gray-50 text-gray-900;
     }
 
     .rtl {
@@ -58,11 +58,11 @@ body, h1, h2, h3, h4, h5, h6, input, textarea, select, button {
    ========================= */
 @layer components {
     .form-container {
-        @apply w-full p-4 bg-gray-100 border border-gray-400 rounded-lg shadow md:p-8;
+        @apply w-full rounded-lg border border-gray-400 bg-gray-100 p-4 shadow md:p-8;
     }
 
     .form-header {
-        @apply flex items-center justify-between pb-3 mb-4 border-b border-gray-200;
+        @apply mb-4 flex items-center justify-between border-b border-gray-200 pb-3;
     }
 
     .form-title {
@@ -74,11 +74,11 @@ body, h1, h2, h3, h4, h5, h6, input, textarea, select, button {
     }
 
     .form-section {
-        @apply col-span-12 p-4 bg-white border border-gray-200 shadow-sm rounded-sm md:p-6;
+        @apply col-span-12 rounded-sm border border-gray-200 bg-white p-4 shadow-sm md:p-6;
     }
 
     .form-legend {
-        @apply inline-flex items-center gap-2 px-3 -mt-6 text-lg font-semibold text-gray-800 bg-white;
+        @apply -mt-6 inline-flex items-center gap-2 bg-white px-3 text-lg font-semibold text-gray-800;
     }
 
     .form-row {
@@ -90,7 +90,7 @@ body, h1, h2, h3, h4, h5, h6, input, textarea, select, button {
     }
 
     .form-label {
-        @apply block mb-1.5 text-sm font-medium text-gray-800;
+        @apply mb-1.5 block text-sm font-medium text-gray-800;
     }
 
     .form-help {
@@ -108,54 +108,54 @@ body, h1, h2, h3, h4, h5, h6, input, textarea, select, button {
 
 
     .input {
-        @apply block w-full h-10 px-3 py-2 text-base leading-relaxed text-gray-800 placeholder-gray-500 transition-colors duration-200 bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-600 disabled:bg-gray-100 disabled:text-gray-500 disabled:cursor-not-allowed read-only:bg-gray-100 read-only:text-gray-500 read-only:cursor-not-allowed;
+        @apply placeholder-gray-500 block h-10 w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-base leading-relaxed text-gray-800 transition-colors duration-200 read-only:cursor-not-allowed read-only:bg-gray-100 read-only:text-gray-500 focus:border-emerald-600 focus:ring-2 focus:ring-emerald-500 focus:outline-none disabled:cursor-not-allowed disabled:bg-gray-100 disabled:text-gray-500;
         font-family: "Tajawal", ui-sans-serif, system-ui, sans-serif;
     }
 
 
 
     .actions-bar {
-        @apply col-span-12 px-4 pt-4 mt-5 mb-6 border-t border-gray-200;
+        @apply col-span-12 mt-5 mb-6 border-t border-gray-200 px-4 pt-4;
     }
 
     .actions-inner {
-        @apply flex flex-col md:flex-row flex-wrap justify-end items-center gap-2.5 md:gap-3;
+        @apply flex flex-col flex-wrap items-center justify-end gap-2.5 md:flex-row md:gap-3;
     }
 
     .section-title {
-        @apply text-lg md:text-xl font-medium text-gray-700 bg-gray-200 rounded-sm px-2 py-1.5 mb-3 relative pl-4;
+        @apply relative mb-3 rounded-sm bg-gray-200 px-2 py-1.5 pl-4 text-lg font-medium text-gray-700 md:text-xl;
         font-family: "Tajawal", sans-serif;
         font-weight: 500;
     }
 
         .section-title::before {
             content: "";
-            @apply absolute top-0 left-0 w-1 h-full bg-emerald-500 rounded-l-md;
+            @apply absolute top-0 left-0 h-full w-1 rounded-l-md bg-emerald-500;
         }
 
     .section-box {
-        @apply col-span-12 border border-gray-300 rounded-sm bg-gray-100 p-4 md:p-5 /*shadow-sm*/;
+        @apply /*shadow-sm*/ col-span-12 rounded-sm border border-gray-300 bg-gray-100 p-4 md:p-5;
     }
 
     .section-legend {
-        @apply inline-block px-3 -mt-6 text-base font-semibold text-gray-600 md:text-sm;
+        @apply -mt-6 inline-block px-3 text-base font-semibold text-gray-600 md:text-sm;
     }
 
 
     .sf-label {
-        @apply block mb-1 text-sm font-medium text-gray-800;
+        @apply mb-1 block text-sm font-medium text-gray-800;
     }
 
     .sf-input {
-        @apply w-full text-sm text-gray-900 border border-gray-300 rounded-md bg-gray-50 focus:ring-emerald-500 focus:border-emerald-500;
+        @apply w-full rounded-md border border-gray-300 bg-gray-50 text-sm text-gray-900 focus:border-emerald-500 focus:ring-emerald-500;
     }
 
     .sf-textarea {
-        @apply w-full rounded-md border border-gray-300 bg-gray-50 text-sm text-gray-900 focus:ring-emerald-500 focus:border-emerald-600 min-h-[100px];
+        @apply min-h-[100px] w-full rounded-md border border-gray-300 bg-gray-50 text-sm text-gray-900 focus:border-emerald-600 focus:ring-emerald-500;
     }
 
     .sf-select {
-        @apply relative block w-full py-2 text-base text-gray-900 transition-colors duration-150 bg-white border border-gray-300 rounded-sm shadow-sm ps-3 pe-10 focus:outline-none focus:ring-1 focus:ring-emerald-600 focus:border-emerald-600 disabled:opacity-60 disabled:cursor-not-allowed;
+        @apply relative block w-full rounded-sm border border-gray-300 bg-white py-2 ps-3 pe-10 text-base text-gray-900 shadow-sm transition-colors duration-150 focus:border-emerald-600 focus:ring-1 focus:ring-emerald-600 focus:outline-none disabled:cursor-not-allowed disabled:opacity-60;
         font-family: "Tajawal", sans-serif;
         text-align: right;
     }
@@ -166,7 +166,7 @@ body, h1, h2, h3, h4, h5, h6, input, textarea, select, button {
 
    
     .sf-select-panel {
-        @apply w-full mt-0 bg-white border border-gray-300 rounded-sm shadow-sm;
+        @apply mt-0 w-full rounded-sm border border-gray-300 bg-white shadow-sm;
         max-height: 50vh; 
         overflow-y: auto; 
     }
@@ -176,33 +176,33 @@ body, h1, h2, h3, h4, h5, h6, input, textarea, select, button {
         }
 
     .sf-select-radio {
-        @apply inline-block w-3 h-3 border border-gray-300 rounded-full shrink-0;
+        @apply inline-block h-3 w-3 shrink-0 rounded-full border border-gray-300;
     }
 
         .sf-select-radio.selected {
-            @apply shadow-inner border-emerald-600 bg-emerald-600;
+            @apply border-emerald-600 bg-emerald-600 shadow-inner;
         }
 
 
 
 
     .sf-date {
-        @apply block w-full text-base text-gray-900 transition-colors duration-150 bg-white border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:border-emerald-600 disabled:bg-gray-100 disabled:text-gray-500;
+        @apply block w-full rounded-lg border border-gray-300 bg-white text-base text-gray-900 shadow-sm transition-colors duration-150 focus:border-emerald-600 focus:outline-none disabled:bg-gray-100 disabled:text-gray-500;
         font-family: "Tajawal", sans-serif;
         direction: ltr;
         text-align: right;
     }
 
     .date-info-box {
-        @apply p-2 space-y-1 text-sm text-gray-700 border rounded-md shadow-sm border-emerald-100 bg-emerald-100;
+        @apply space-y-1 rounded-md border border-emerald-100 bg-emerald-100 p-2 text-sm text-gray-700 shadow-sm;
     }
 
     .days-counter-box {
-        @apply inline-flex items-center gap-2 px-3 py-2 mt-2 text-sm text-gray-700 border rounded-md border-emerald-100 bg-emerald-100 ;
+        @apply mt-2 inline-flex items-center gap-2 rounded-md border border-emerald-100 bg-emerald-100 px-3 py-2 text-sm text-gray-700;
     }
 
     .sf-file {
-        @apply block w-full text-base text-gray-900 transition-colors duration-150 bg-white border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:border-emerald-600 disabled:opacity-60 disabled:cursor-not-allowed;
+        @apply block w-full rounded-lg border border-gray-300 bg-white text-base text-gray-900 shadow-sm transition-colors duration-150 focus:border-emerald-600 focus:outline-none disabled:cursor-not-allowed disabled:opacity-60;
         font-family: "Tajawal", sans-serif;
         padding: 0;
     }
@@ -210,7 +210,7 @@ body, h1, h2, h3, h4, h5, h6, input, textarea, select, button {
 
 
         .sf-file::file-selector-button {
-            @apply px-4 py-2 text-sm font-medium text-white transition-colors duration-150 border-0 rounded-md cursor-pointer bg-emerald-600 hover:bg-emerald-700;
+            @apply cursor-pointer rounded-md border-0 bg-emerald-600 px-4 py-2 text-sm font-medium text-white transition-colors duration-150 hover:bg-emerald-700;
             margin-inline-start: auto;
         }
 
@@ -220,13 +220,13 @@ body, h1, h2, h3, h4, h5, h6, input, textarea, select, button {
         }
 
     .sf-checkbox {
-        @apply w-4 h-4 bg-white border border-gray-300 rounded-none shadow-sm appearance-none cursor-pointer text-emerald-600 focus:ring-2 focus:ring-emerald-600 focus:border-emerald-600 checked:bg-emerald-600 checked:border-emerald-600 disabled:bg-gray-100 disabled:border-gray-200 disabled:cursor-not-allowed;
+        @apply h-4 w-4 cursor-pointer appearance-none rounded-none border border-gray-300 bg-white text-emerald-600 shadow-sm checked:border-emerald-600 checked:bg-emerald-600 focus:border-emerald-600 focus:ring-2 focus:ring-emerald-600 disabled:cursor-not-allowed disabled:border-gray-200 disabled:bg-gray-100;
         margin-top: 5px;
     }
 
 
     .sf-checkline {
-        @apply flex items-center gap-2 mt-1;
+        @apply mt-1 flex items-center gap-2;
     }
 }
 
@@ -236,66 +236,66 @@ body, h1, h2, h3, h4, h5, h6, input, textarea, select, button {
    ========================= */
 
 .btn {
-    @apply inline-flex items-center justify-center h-8.5 gap-2 px-2 text-sm font-medium transition rounded-sm focus:outline-none focus:ring-2 focus:ring-offset-0 disabled:opacity-60 disabled:pointer-events-none;
+    @apply inline-flex h-8.5 items-center justify-center gap-2 rounded-sm px-2 text-sm font-medium transition focus:ring-2 focus:ring-offset-0 focus:outline-none disabled:pointer-events-none disabled:opacity-60;
 }
     .btn i {
         @apply text-sm;
     }
 .btn-primary {
-    @apply text-white bg-blue-600 hover:bg-blue-700 focus:ring-blue-400;
+    @apply bg-blue-600 text-white hover:bg-blue-700 focus:ring-blue-400;
 }
 
 .btn-secondary {
-    @apply text-gray-800 bg-gray-300 hover:bg-gray-400 focus:ring-gray-500;
+    @apply bg-gray-300 text-gray-800 hover:bg-gray-400 focus:ring-gray-500;
 }
 
 .btn-success {
-    @apply text-white bg-emerald-600 hover:bg-emerald-800 focus:ring-emerald-600;
+    @apply bg-emerald-600 text-white hover:bg-emerald-800 focus:ring-emerald-600;
 }
 
 .btn-danger {
-    @apply text-white bg-red-700 hover:bg-red-800 focus:ring-red-400;
+    @apply bg-red-700 text-white hover:bg-red-800 focus:ring-red-400;
 }
 
 .btn-warning {
-    @apply text-gray-900 bg-amber-500 hover:bg-amber-600 focus:ring-amber-400;
+    @apply bg-amber-500 text-gray-900 hover:bg-amber-600 focus:ring-amber-400;
 }
 
 .btn-info {
-    @apply text-white bg-sky-600 hover:bg-sky-700 focus:ring-sky-400;
+    @apply bg-sky-600 text-white hover:bg-sky-700 focus:ring-sky-400;
 }
 
 input[readonly],
 textarea[readonly] {
-    @apply text-gray-500 bg-gray-200 cursor-not-allowed;
+    @apply cursor-not-allowed bg-gray-200 text-gray-500;
 }
 
 .sf-table-wrapper {
-    @apply w-full p-4 mx-auto bg-white border border-gray-300 shadow-sm max-w-7xl rounded-xl;
+    @apply mx-auto w-full max-w-7xl rounded-xl border border-gray-300 bg-white p-4 shadow-sm;
 }
 
 .table-box {
-    @apply relative w-full overflow-x-auto border border-gray-300  rounded-sm;
+    @apply relative w-full overflow-x-auto rounded-sm border border-gray-300;
 }
 
 
 .sf-table {
-    @apply w-full text-sm text-center text-gray-800 border-collapse; 
+    @apply w-full border-collapse text-center text-sm text-gray-800; 
 }
 
 .table-head {
-    @apply sticky top-0 z-10 bg-gray-300 text-base font-medium tracking-wide text-gray-900 uppercase text-center;
+    @apply sticky top-0 z-10 bg-gray-300 text-center text-base font-medium tracking-wide text-gray-900 uppercase;
 }
 
 .th-cell {
-    @apply px-6 py-2 text-base font-semibold tracking-wider text-center text-gray-900 uppercase;
-    @apply text-gray-600 bg-gray-300 align-middle border-b border-gray-300;
+    @apply px-6 py-2 text-center text-base font-semibold tracking-wider text-gray-900 uppercase;
+    @apply border-b border-gray-300 bg-gray-300 align-middle text-gray-600;
     @apply transition-colors duration-100 hover:bg-gray-100;
 }
 
 
 .tr-row {
-    @apply transition-colors duration-10 border-b border-gray-200;
+    @apply border-b border-gray-200 transition-colors duration-10;
 }
 
     .tr-row:last-child {
@@ -312,15 +312,15 @@ textarea[readonly] {
 
 
 .td-cell {
-    @apply px-0 py-0.5 text-base text-center align-middle whitespace-nowrap;
-    @apply text-gray-600 text-lg font-medium leading-relaxed;
+    @apply px-0 py-0.5 text-center align-middle text-base whitespace-nowrap;
+    @apply text-lg leading-relaxed font-medium text-gray-600;
     -webkit-font-smoothing: antialiased;
     text-rendering: optimizeLegibility;
 }
 
 /*.td-cell {
     @apply px-0 py-2 text-center align-middle whitespace-nowrap;
-    @apply text-gray-600 text-lg font-medium leading-relaxed;*/
+    @apply text-lg leading-relaxed font-medium text-gray-600;*/
     /* تحسين جودة الخط */
     /*-webkit-font-smoothing: antialiased;*/ /* Chrome / Edge */
     /*-moz-osx-font-smoothing: grayscale;*/ /* Firefox macOS */
@@ -353,7 +353,7 @@ textarea[readonly] {
 }
 
 .badge-danger {
-    @apply text-red-800 bg-red-100;
+    @apply bg-red-100 text-red-800;
 }
 
 .badge-warning {
@@ -368,24 +368,24 @@ textarea[readonly] {
    Toolbar
    ========================= */
 .toolbar {
-    @apply flex flex-col items-stretch justify-between gap-4 mb-5 md:flex-row md:items-center;
-    @apply px-2.5 py-2 border border-gray-200 rounded-sm bg-gray-100;
+    @apply mb-5 flex flex-col items-stretch justify-between gap-4 md:flex-row md:items-center;
+    @apply rounded-sm border border-gray-200 bg-gray-100 px-2.5 py-2;
 }
 
 .toolbar-search {
-    @apply flex items-center w-full h-10 gap-2 md:w-auto rounded-none;
+    @apply flex h-10 w-full items-center gap-2 rounded-none md:w-auto;
 }
 
 .search-input {
-    @apply w-full text-sm bg-white border border-gray-300 rounded-sm md:w-65;
+    @apply w-full rounded-sm border border-gray-300 bg-white text-sm md:w-65;
     @apply px-3 py-2 transition-colors duration-50;
-    @apply focus:outline-none focus:border-emerald-50 focus:ring-1 focus:ring-emerald-700;
+    @apply focus:border-emerald-50 focus:ring-1 focus:ring-emerald-700 focus:outline-none;
     
 }
 
 .select-sm {
-    @apply w-18 px-2 text-sm bg-white border border-gray-300 rounded-sm h-9;
-    @apply transition focus:outline-none focus:border-emerald-100 focus:ring-1 focus:ring-emerald-700;
+    @apply h-9 w-18 rounded-sm border border-gray-300 bg-white px-2 text-sm;
+    @apply transition focus:border-emerald-100 focus:ring-1 focus:ring-emerald-700 focus:outline-none;
 }
 
 /* =========================
@@ -396,21 +396,21 @@ textarea[readonly] {
 }
 
     .actions-list .btn {
-        @apply h-8 px-3 text-xs font-medium transition-colors duration-150 border rounded-md;
+        @apply h-8 rounded-md border px-3 text-xs font-medium transition-colors duration-150;
         @apply flex items-center gap-1;
     }
 
      
     .actions-list .btn-edit {
-        @apply border-sky-300 text-sky-700 bg-sky-50 hover:bg-sky-100;
+        @apply border-sky-300 bg-sky-50 text-sky-700 hover:bg-sky-100;
     }
 
     .actions-list .btn-delete {
-        @apply text-red-700 border-red-300 bg-red-50 hover:bg-red-100;
+        @apply border-red-300 bg-red-50 text-red-700 hover:bg-red-100;
     }
 
     .actions-list .btn-view {
-        @apply border-emerald-300 text-emerald-700 bg-emerald-50 hover:bg-emerald-100;
+        @apply border-emerald-300 bg-emerald-50 text-emerald-700 hover:bg-emerald-100;
     }
 
 
@@ -418,7 +418,7 @@ textarea[readonly] {
    Pagination
    ========================= */
 .pagination {
-    @apply flex flex-col items-center justify-between gap-2 mt-3 mb-14 text-sm text-gray-600 md:flex-row;
+    @apply mt-3 mb-14 flex flex-col items-center justify-between gap-2 text-sm text-gray-600 md:flex-row;
 }
 
 /* ترقيم الصفحة تحت من الى  */
@@ -434,11 +434,11 @@ textarea[readonly] {
 }
 
     .pagination-nav button {
-        @apply inline-flex items-center justify-center min-w-[20px] h-7 rounded-sm border border-gray-300 bg-gray-200 text-sm font-medium text-gray-600 transition-colors duration-50;
+        @apply inline-flex h-7 min-w-[20px] items-center justify-center rounded-sm border border-gray-300 bg-gray-200 text-sm font-medium text-gray-600 transition-colors duration-50;
         
-        @apply focus:outline-none focus:ring-0;
+        @apply focus:ring-0 focus:outline-none;
         
-        @apply active:bg-gray-300 ;
+        @apply active:bg-gray-300;
         
     }
 
@@ -449,7 +449,7 @@ textarea[readonly] {
 
     /* زر الصفحة الحالية */
     .pagination-nav .active {
-        @apply text-white bg-emerald-600 border-emerald-600 hover:bg-emerald-700;
+        @apply border-emerald-600 bg-emerald-600 text-white hover:bg-emerald-700;
     }
 
     /* نص الصفحة */
@@ -461,7 +461,7 @@ textarea[readonly] {
    Modal Backdrop
    ========================= */
 .sf-modal-backdrop {
-    @apply fixed inset-0 z-40 flex items-center justify-center ;
+    @apply fixed inset-0 z-40 flex items-center justify-center;
     @apply bg-black/70;
 }
 
@@ -469,14 +469,14 @@ textarea[readonly] {
    Modal
    ========================= */
 /*.sf-modal {
-    @apply z-50 w-full max-w-4xl mx-2 overflow-hidden bg-gray-100 rounded-sm md:mx-0;
-    @apply max-h-[80vh] flex flex-col;
+    @apply z-50 mx-2 w-full max-w-4xl overflow-hidden rounded-sm bg-gray-100 md:mx-0;
+    @apply flex max-h-[80vh] flex-col;
     @apply transition-transform duration-50 ease-out;
 }*/
 
 
 .sf-modal {
-    @apply z-50 w-full mx-2 overflow-hidden bg-gray-100 rounded-sm md:mx-0;
+    @apply z-50 mx-2 w-full overflow-hidden rounded-sm bg-gray-100 md:mx-0;
     @apply flex flex-col;
     @apply transition-transform duration-50 ease-out;
     /* بدل max-w-4xl الثابت */
@@ -490,7 +490,7 @@ textarea[readonly] {
    Modal Header
    ========================= */
 .sf-modal-header {
-    @apply relative flex items-center justify-center px-5 py-3 border-b border-gray-200;
+    @apply relative flex items-center justify-center border-b border-gray-200 px-5 py-3;
     @apply bg-gray-300;
     @apply min-h-[4rem]; /* فصل  */
 }
@@ -507,25 +507,25 @@ textarea[readonly] {
 
 
 .sf-modal-close {
-    @apply absolute -translate-y-1/2 right-4 top-1/2;
-    @apply flex items-center justify-center w-8 h-8 rounded-full;
+    @apply absolute top-1/2 right-4 -translate-y-1/2;
+    @apply flex h-8 w-8 items-center justify-center rounded-full;
     /*@apply text-gray-400 hover:text-gray-600 hover:bg-gray-200;*/
     @apply transition-colors cursor-pointer;
 }
 
 .dark .sf-modal-close {
-    @apply text-gray-400 hover:text-gray-200 ;
+    @apply text-gray-400 hover:text-gray-200;
 }
 
 /* =========================
    Dark Mode
    ========================= */
 /*.dark .sf-modal-header {
-    @apply bg-slate-700 font-bold border-gray-100 text-white;
+    @apply border-gray-100 bg-slate-700 font-bold text-white;
 }*/
 
 .sf-modal-header {
-    @apply relative flex items-center justify-center px-5 py-3 border-b;
+    @apply relative flex items-center justify-center border-b px-5 py-3;
     background-color: #064E3B; 
 }
 
@@ -541,25 +541,25 @@ textarea[readonly] {
 
 @layer components {
     .sf-modal-input {
-        @apply w-full px-3 py-2 border border-gray-300 rounded-sm bg-gray-50 focus:outline-none focus:ring-2 focus:ring-emerald-600 focus:border-slate-500;
+        @apply w-full rounded-sm border border-gray-300 bg-gray-50 px-3 py-2 focus:border-emerald-700 focus:ring-2 focus:ring-emerald-600 focus:outline-none;
     }
 }
 
 
 .sf-modal-close {
-    @apply text-gray-100 cursor-pointer hover:text-gray-700;
+    @apply cursor-pointer text-gray-100 hover:text-gray-700;
 }
 
 /*.sf-modal-body {
-    @apply p-8 max-h-[70vh] overflow-y-auto;
+    @apply max-h-[70vh] overflow-y-auto p-8;
 }*/
 .sf-modal-body {
-    @apply p-6 max-h-[70vh] overflow-y-auto;
+    @apply max-h-[80vh] overflow-y-auto p-6;
 }
 
 
 .sf-modal-footer {
-    @apply flex items-center justify-end gap-2 px-4 py-3 border-t border-gray-200;
+    @apply flex items-center justify-end gap-2 border-t border-gray-200 px-4 py-3;
 }
 
 .sf-modal-table {
@@ -567,11 +567,11 @@ textarea[readonly] {
 }
 
     .sf-modal-table th {
-        @apply px-3 py-2 text-sm font-medium text-gray-600 border-b border-gray-200;
+        @apply border-b border-gray-200 px-3 py-2 text-sm font-medium text-gray-600;
     }
 
     .sf-modal-table td {
-        @apply px-3 py-2 text-sm border-b border-gray-100;
+        @apply border-b border-gray-100 px-3 py-2 text-sm;
     }
 
 
@@ -715,7 +715,7 @@ textarea[readonly] {
 /* ===== لوحة العرض (Panel) ===== */
 
 .sf-panel {
-    @apply relative w-full mx-auto mt-20 mb-6 bg-white overflow-hidden shadow-sm rounded-sm transition-all duration-900 ease-in-out;
+    @apply relative mx-auto mt-20 mb-6 w-full overflow-hidden rounded-sm bg-white shadow-sm transition-all duration-900 ease-in-out;
     border: 0px solid rgb(229 231 235); 
 
 }
@@ -730,7 +730,7 @@ textarea[readonly] {
 
 
 .sf-panel-title {
-    @apply text-base md:text-lg font-semibold tracking-tight text-gray-600;
+    @apply text-base font-semibold tracking-tight text-gray-600 md:text-lg;
     @apply leading-snug;
 }
 
@@ -741,7 +741,7 @@ textarea[readonly] {
 
 /* ===== جسم اللوحة ===== */
 .sf-panel-body {
-    @apply relative p-5 bg-white;
+    @apply relative bg-white p-5;
 }
 /* ===== Panel Actions ===== */
 .sf-panel-actions {
@@ -749,7 +749,7 @@ textarea[readonly] {
 }
 
     .sf-panel-actions button {
-        @apply flex items-center justify-center transition bg-transparent rounded-full w-7 h-7;
+        @apply flex h-7 w-7 items-center justify-center rounded-full bg-transparent transition;
     }
 
     /* أيقونات ملونة */
@@ -773,7 +773,7 @@ textarea[readonly] {
     /*  Tooltip  */
     .sf-panel-actions button[title]::after {
         content: attr(title);
-        @apply absolute invisible px-2 py-1 text-xs text-white bg-gray-700 rounded opacity-0;
+        @apply invisible absolute rounded bg-gray-700 px-2 py-1 text-xs text-white opacity-0;
         transform: translateY(-150%);
         transition: opacity 0.2s;
     }
@@ -784,7 +784,7 @@ textarea[readonly] {
 
 /* ===== Panel Body ===== */
 .sf-panel-body {
-    @apply p-1.5 bg-gray-100;
+    @apply bg-gray-100 p-1.5;
 }
 
 
@@ -792,7 +792,7 @@ textarea[readonly] {
      Loader – Bouncing Dots
      ========================= */
 .sf-loader-dots {
-    @apply flex gap-1 items-center justify-center;
+    @apply flex items-center justify-center gap-1;
 }
 
     .sf-loader-dots span {

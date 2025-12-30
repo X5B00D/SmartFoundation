@@ -143,10 +143,10 @@
 
                     <template x-for="col in visibleColumns()" :key="col.field">
                         <th class="th-cell" :style="col.width ? `width:${col.width}` : ''" :class="col.sortable ? 'cursor-pointer' : ''" x-on:click="toggleSort(col)">
-                            <div class="flex items-center justify-center gap-1 th-inner">
+                            <div class="th-inner flex items-center justify-center gap-1">
                                 <span x-text="col.label"></span>
                                 <template x-if="col.sortable && sort.field===col.field">
-                                    <i class="ml-1 text-xs text-gray-400 fas" :class="sort.dir === 'asc' ? 'fa-sort-up' : 'fa-sort-down'"></i>
+                                    <i class="fas ml-1 text-xs text-gray-400" :class="sort.dir === 'asc' ? 'fa-sort-up' : 'fa-sort-down'"></i>
                                 </template>
                             </div>
                         </th>
