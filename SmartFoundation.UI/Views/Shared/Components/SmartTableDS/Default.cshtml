@@ -31,6 +31,8 @@
     };
 }
 
+
+
 <div x-data='sfTable(@Html.Raw(JsonSerializer.Serialize(tableConfig, webJson)))'
      x-init="init()" x-cloak x-on:refresh-table.window="refresh()">
 
