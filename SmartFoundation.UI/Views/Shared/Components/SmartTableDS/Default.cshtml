@@ -23,7 +23,7 @@
         autoRefresh = true,
         columns = Model.Columns ?? new List<TableColumn>(),
         actions = new List<object>(), // row actions not used here; toolbar contains add/edit actions
-        selectable = true,
+        selectable = Model.Selectable,
         singleSelect = true,
         rowIdField = Model.RowIdField ?? "Id",
         rows = Model.Rows ?? new List<Dictionary<string, object?>>(),
@@ -51,7 +51,7 @@
             </button>
         </div>
 
-        <div class="toolbar-actions">
+        <div class="toolbar-actions" x-show="searchable">
             <label class="label-sm">صفوف/صفحة</label>
             <select class="sf-input select-sm" x-model.number="pageSize" x-on:change="page=1; load()">
                 <template x-for="s in pageSizes" :key="s">
@@ -227,6 +227,8 @@
         </div>
     </div>
 
+    <br />
+  
     @* Modal markup is reused from SmartTable Default *@
     @* <template x-if="modal.open">
         <div class="sf-modal-backdrop" x-transition.opacity>

@@ -6,6 +6,11 @@
         Model.Form is not null
         || Model.DatePicker is not null
         || Model.TableDS is not null
+        || Model.TableDS1 is not null
+        || Model.TableDS2 is not null
+        || Model.TableDS3 is not null
+        || Model.TableDS4 is not null
+        || Model.TableDS5 is not null
         || Model.Table is not null;
 }
 
@@ -68,6 +73,26 @@
             @if (Model.TableDS is not null)
             {
                 @await Component.InvokeAsync("SmartTableDS", new { model = Model.TableDS, embedded = true })
+            }
+            @if (Model.TableDS1 is not null)
+            {
+                @await Component.InvokeAsync("SmartTableDS", new { model = Model.TableDS1, embedded = true })
+            }
+            @if (Model.TableDS2 is not null)
+            {
+                @await Component.InvokeAsync("SmartTableDS", new { model = Model.TableDS2, embedded = true })
+            }
+            @if (Model.TableDS3 is not null)
+            {
+                @await Component.InvokeAsync("SmartTableDS", new { model = Model.TableDS3, embedded = true })
+            }
+            @if (Model.TableDS4 is not null)
+            {
+                @await Component.InvokeAsync("SmartTableDS", new { model = Model.TableDS4, embedded = true })
+            }
+            @if (Model.TableDS5 is not null)
+            {
+                @await Component.InvokeAsync("SmartTableDS", new { model = Model.TableDS5, embedded = true })
             }
             else if (Model.Table is not null)
             {
