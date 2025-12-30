@@ -74,7 +74,8 @@ namespace SmartFoundation.UI.ViewModels.SmartTable
         public string? AriaLabel { get; set; }
         public bool HighContrast { get; set; } = false;
 
-        
+
+        public List<TableStyleRule> StyleRules { get; set; } = new();
 
     }
 }

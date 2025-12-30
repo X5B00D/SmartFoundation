@@ -25,27 +25,40 @@
 @if (hasPanelContent)
 {
     <div x-data="{ open:true }" class="sf-panel mt-6">
-        <div class="sf-panel-header flex items-center justify-between border-b border-gray-300">
+        @* <div class="sf-panel-header flex items-center justify-between border-b border-gray-300"> *@
+        <div class="sf-panel-header">
+
             <h3 class="sf-panel-title flex items-center gap-2">
                 <i class="fa-solid @(Model.PanelIcon ?? "fa-layer-group") text-emerald-600 text-sm"></i>
                 @(Model.PanelTitle ?? Model.PageTitle)
             </h3>
 
-            <div class="flex items-center gap-2 text-gray-500">
-                <button type="button" x-on:click="open = !open" class="hover:text-gray-700 transition">
-                    <i class="fa-solid" x-bind:class="open ? 'fa-minus' : 'fa-plus'"></i>
+            @* <div class="flex items-center gap-2 text-gray-500"> *@
+            <div class="sf-panel-actions">
+
+                @* <button type="button" x-on:click="open = !open" class="hover:text-gray-700 transition"> *@
+                <button type="button" x-on:click="open = !open" class="sf-panel-btn" title="تصغير/توسيع">
+
+
+                    @* <i class="fa-solid" x-bind:class="open ? 'fa-minus' : 'fa-plus'"></i> *@
+                    <i class="fa-solid" x-bind:class="open ? 'fa-chevron-up' : 'fa-chevron-down'"></i>
+
                 </button>
 
                 <button type="button"
                         x-on:click="$el.closest('.sf-panel').classList.toggle('sf-panel-full')"
-                        class="hover:text-gray-700 transition"
+                        
+                        class="sf-panel-btn"
                         title="ملء الشاشة">
-                    <i class="fa-solid fa-expand"></i>
+                    
+                    <i class="fa-solid fa-up-right-and-down-left-from-center"></i>
+
                 </button>
 
                 <button type="button"
                         x-on:click="$el.closest('.sf-panel').remove()"
-                        class="hover:text-red-600 transition"
+                        @* class="hover:text-red-600 transition" *@
+                        class="sf-panel-btn sf-panel-btn-close"
                         title="إغلاق">
                     <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />

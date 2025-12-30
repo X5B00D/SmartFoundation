@@ -40,6 +40,42 @@ namespace SmartFoundation.UI.ViewModels.SmartTable
         public string? Filename { get; set; }
     }
 
+    public class TableStyleRule
+    {
+        
+        // "row" = صف كامل
+        // "cell" = خلية واحدة (حسب Field)
+        // "column" = عمود كامل (حسب Field)
+        public string Target { get; set; } = "cell";
+
+        // اسم الحقل (مطلوب للـ cell/column، وممكن للـ row)
+        public string? Field { get; set; }
+
+        // نوع المقارنة: eq, neq, gt, gte, lt, lte, contains, startswith, endswith, in
+        public string Op { get; set; } = "eq";
+        // "eq"    يساوي
+        //"neq"   لا يساوي
+        //"gt"    أكبر من (أرقام)
+        //"lt"    أصغر من
+        //"gte"   أكبر أو يساوي
+        //"lte"   أصغر أو يساوي
+        //"contains"  يحتوي نص
+
+        // القيمة المراد مقارنتها (نخليها object عشان تدعم نص/رقم/بول)
+        public object? Value { get; set; }
+
+        // CSS class تُطبق عند تحقق الشرط
+        public string CssClass { get; set; } = "";
+
+        // (اختياري) ترتيب التنفيذ: الأقل أولاً
+        public int Priority { get; set; } = 0;
+
+        // (اختياري) إذا true: أول Rule ينطبق يوقف
+        public bool StopOnMatch { get; set; } = false;
+    }
+
+
+
     public class TableColumn
     {
         public string Field { get; set; } = string.Empty;
@@ -66,6 +102,9 @@ namespace SmartFoundation.UI.ViewModels.SmartTable
         public string? AggregateType { get; set; }
         public string? LinkTemplate { get; set; }
         public string? ImageTemplate { get; set; }
+        public bool truncate { get; set; } = false; // جديد 30/12/2025
+        
+
         public Dictionary<string, object> CustomProperties { get; set; } = new();
     }
 
@@ -182,6 +221,8 @@ namespace SmartFoundation.UI.ViewModels.SmartTable
         public bool EnableScreenReader { get; set; } = true;
         public string? AriaLabel { get; set; }
         public bool HighContrast { get; set; } = false;
+        public List<TableStyleRule> StyleRules { get; set; } = new();
+
     }
 
 }

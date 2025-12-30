@@ -27,8 +27,10 @@
         singleSelect = true,
         rowIdField = Model.RowIdField ?? "Id",
         rows = Model.Rows ?? new List<Dictionary<string, object?>>(),
-        toolbar = Model.Toolbar ?? new TableToolbarConfig()
+        toolbar = Model.Toolbar ?? new TableToolbarConfig(),
+        styleRules = Model.StyleRules ?? new List<TableStyleRule>(),
     };
+   
 }
 
 
@@ -157,6 +159,11 @@
 
                     <th x-show="actions.length > 0" class="th-cell">إجراءات</th>
                 </tr>
+
+
+
+
+
             </thead>
             <tbody>
                 <template x-if="loading">
@@ -184,7 +191,27 @@
                 </template>
 
                 <template x-for="(row, idx) in rows" :key="row[rowIdField] ?? idx">
-                    <tr class="tr-row" x-on:click="toggleRow(row)" style="cursor: pointer;">
+                    @* <tr class="tr-row"
+                        :class="{ 'tr-row-selected': isSelected(row) }"
+                        x-on:click="toggleRow(row)"
+                        style="cursor: pointer;"> *@
+                    <tr class="tr-row"
+                        x-bind:class="[isSelected(row) ? 'tr-row-selected' : '',applyStyleRules(row, null, 'row')]"
+                        x-on:click="toggleRow(row)"
+                        style="cursor: pointer;">
+
+
+
+
+                @* <tr class="tr-row"
+                    :data-row-index="idx"
+                    :class="{
+                    'tr-row-selected': isSelected(row),
+                    'tr-row-active': activeIndex === idx}"
+                    x-on:click="toggleRow(row); activeIndex = idx"
+                    style="cursor: pointer;"> *@
+
+
                         <td x-show="selectable" class="td-cell">
                             <input type="checkbox"
                                    class="sf-checkbox"
@@ -194,7 +221,23 @@
                         </td>
 
                         <template x-for="col in visibleColumns()" :key="col.field">
-                            <td class="td-cell" :class="col.align" x-html="formatCell(row, col)"></td>
+                            @* <td class="td-cell" :class="col.align" x-html="formatCell(row, col)"></td> *@
+                            @* <td class="td-cell"
+                                :class="[ col.align, col.truncate ? 'truncate-cell' : '' ]"
+                                :title="col.truncate ? (row[col.field] ?? '') : ''"
+                                x-html="formatCell(row, col)"></td> *@
+                            @* <td class="td-cell"
+                                :class="[ col.align, col.truncate ? 'truncate-cell' : '' ]"
+                                x-html="formatCell(row, col)"
+                                x-effect="if(col.truncate){ $el.title = stripHtml(formatCell(row, col)); } else { $el.title=''; }">
+                            </td> *@
+                            <td class="td-cell"
+                                x-bind:class="[col.align,col.truncate ? 'truncate-cell' : '',applyStyleRules(row, col, 'cell')]"
+                                x-html="formatCell(row, col)"
+                                x-effect="if(col.truncate){ $el.title = stripHtml(formatCell(row, col)); } else { $el.title=''; }">
+                            </td>
+
+
                         </template>
 
                         <td x-show="actions.length > 0" class="td-cell">
@@ -216,8 +259,14 @@
         </table>
     </div>
 
+
+
     <div class="pagination" x-show="showFooter">
-        <div class="pagination-info"><span x-text="rangeText()"></span></div>
+        @* <div class="pagination-info"><span x-text="rangeText()"></span></div> *@
+        <div class="pagination-info">
+            <span class="pagination-range" x-text="rangeText()"></span>
+        </div>
+
         <div class="pagination-nav">
             <button class="btn btn-secondary" x-on:click="firstPage()" :disabled="page<=1">الأولى</button>
             <button class="btn btn-secondary" x-on:click="prevPage()" :disabled="page<=1">السابق</button>
