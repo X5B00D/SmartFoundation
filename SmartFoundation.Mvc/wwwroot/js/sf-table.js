@@ -17,6 +17,7 @@ window.__sfTableGlobalBound = window.__sfTableGlobalBound || false;
             serverPaging: !!cfg.serverPaging,
 
 
+
             // Search
             searchable: !!cfg.searchable,
             searchPlaceholder: cfg.searchPlaceholder || "بحث…",
@@ -46,60 +47,14 @@ window.__sfTableGlobalBound = window.__sfTableGlobalBound || false;
             rowIdField: cfg.rowIdField || "Id",
             singleSelect: !!cfg.singleSelect, // NEW: read from config
 
-            // ===== Selection Management =====
-            //toggleRow(row) {
-            //    const key = row?.[this.rowIdField];
-            //    if (key == null) return;
+            stripHtml(html) {
+                const div = document.createElement('div');
+                div.innerHTML = html ?? '';
+                return (div.textContent || div.innerText || '').trim();
+            },
 
-            //    if (this.singleSelect) {
-            //        // clicking selected row → clear all; else select only this row
-            //        if (this.selectedKeys.has(key)) {
-            //            this.selectedKeys.clear();
-            //        } else {
-            //            this.selectedKeys.clear();
-            //            this.selectedKeys.add(key);
-            //        }
-            //    } else {
-            //        // original multi-select
-            //        if (this.selectedKeys.has(key)) {
-            //            this.selectedKeys.delete(key);
-            //        } else {
-            //            this.selectedKeys.add(key);
-            //        }
-            //    }
-            //    this.updateSelectAllState();
-            //},
 
-            //toggleSelectAll() {
-            //    if (this.singleSelect) {
-            //        // In single-select mode, select first visible row or clear
-            //        if (this.selectAll && this.rows.length > 0) {
-            //            this.selectedKeys.clear();
-            //            this.selectedKeys.add(this.rows[0][this.rowIdField]);
-            //        } else {
-            //            this.selectedKeys.clear();
-            //        }
-            //    } else {
-            //        if (this.selectAll) {
-            //            this.rows.forEach(row => this.selectedKeys.add(row[this.rowIdField]));
-            //        } else {
-            //            this.selectedKeys.clear();
-            //        }
-            //    }
-            //    this.updateSelectAllState();
-            //},
-
-            //updateSelectAllState() {
-            //    if (this.singleSelect) {
-            //        // selectAll reflects whether one selected exists on current page
-            //        const pageKeys = new Set(this.rows.map(r => r[this.rowIdField]));
-            //        const hasOnPage = Array.from(this.selectedKeys).some(k => pageKeys.has(k));
-            //        this.selectAll = hasOnPage && this.selectedKeys.size === 1;
-            //        return;
-            //    }
-            //    this.selectAll = this.rows.length > 0 &&
-            //        this.rows.every(row => this.selectedKeys.has(row[this.rowIdField]));
-            //},
+            
 
             // Grouping & Storage
             groupBy: cfg.groupBy || null,
@@ -119,6 +74,7 @@ window.__sfTableGlobalBound = window.__sfTableGlobalBound || false;
             sort: { field: null, dir: "asc" },
             loading: false,
             error: null,
+            activeIndex: -1,  //  Keyboard row navigation
 
             // Selection State
             selectedKeys: new Set(),
@@ -143,6 +99,87 @@ window.__sfTableGlobalBound = window.__sfTableGlobalBound || false;
                 loading: false,
                 error: null
             },
+
+
+            //  Step 3: style rules from server
+            styleRules: Array.isArray(cfg.styleRules) ? cfg.styleRules : [],
+
+            applyStyleRules(row, col, target /* 'row' | 'cell' | 'column' */) {
+                const normTarget = String(target || 'cell').toLowerCase();
+
+                const rules = (this.styleRules || [])
+                    .filter(r => {
+                        const rt = String(r.target || 'cell').toLowerCase();
+
+                        // ✅ لو target=cell شغّل معه قواعد column أيضًا
+                        if (normTarget === 'cell') return rt === 'cell' || rt === 'column';
+
+                        return rt === normTarget;
+                    })
+                    .filter(r => {
+                        const rt = String(r.target || 'cell').toLowerCase();
+
+                        // cell/column لازم Field يطابق العمود الحالي
+                        if ((rt === "cell" || rt === "column") && r.field) return r.field === col?.field;
+
+                        // row: لو فيه Field نطبّق حسبه، ولو ما فيه Field نطبّق دائمًا
+                        if (rt === "row") return true;
+
+                        return false;
+                    })
+                    .sort((a, b) => (a.priority || 0) - (b.priority || 0));
+
+                const isMatch = (r) => {
+                    const op = String(r.op || "eq").toLowerCase();
+                    const val = r.value;
+
+                    let left; // ✅ مهم
+
+                    const rt = String(r.target || 'cell').toLowerCase();
+                    if (rt === "row") {
+                        // rule صف عام بدون field = يطبق دائمًا
+                        if (!r.field) return true;
+                        left = row?.[r.field];
+                    } else {
+                        left = row?.[col?.field];
+                    }
+
+                    const l = left ?? "";
+                    const v = val ?? "";
+
+                    const ln = Number(l);
+                    const vn = Number(v);
+                    const bothNum = !Number.isNaN(ln) && !Number.isNaN(vn);
+
+                    switch (op) {
+                        case "eq": return String(l) === String(v);
+                        case "neq": return String(l) !== String(v);
+                        case "gt": return bothNum ? ln > vn : String(l) > String(v);
+                        case "gte": return bothNum ? ln >= vn : String(l) >= String(v);
+                        case "lt": return bothNum ? ln < vn : String(l) < String(v);
+                        case "lte": return bothNum ? ln <= vn : String(l) <= String(v);
+                        case "contains": return String(l).includes(String(v));
+                        case "startswith": return String(l).startsWith(String(v));
+                        case "endswith": return String(l).endsWith(String(v));
+                        case "in":
+                            if (Array.isArray(val)) return val.map(String).includes(String(l));
+                            return String(v).split(",").map(s => s.trim()).includes(String(l));
+                        default:
+                            return false;
+                    }
+                };
+
+                let classes = [];
+                for (const r of rules) {
+                    if (r && r.cssClass && isMatch(r)) {
+                        classes.push(r.cssClass);
+                        if (r.stopOnMatch) break;
+                    }
+                }
+                return classes.join(" ");
+            },
+
+
 
 
             // ===== Initialization =====
@@ -301,16 +338,38 @@ window.__sfTableGlobalBound = window.__sfTableGlobalBound || false;
                     if (root && root.__x?.$data?.modal?.open) root.__x.$data.closeModal();
                 });
 
-                document.addEventListener('click', (e) => {
-                    const cancelBtn = e.target.closest('.sf-modal-cancel');
-                    if (!cancelBtn) return;
+                //document.addEventListener('click', (e) => {
+                //    const cancelBtn = e.target.closest('.sf-modal-cancel');
+                //    if (!cancelBtn) return;
 
-                    const root = cancelBtn.closest('[x-data]');
-                    if (root && root.__x?.$data?.modal?.open) {
+                //    const root = cancelBtn.closest('[x-data]');
+                //    if (root && root.__x?.$data?.modal?.open) {
+                //        e.preventDefault();
+                //        root.__x.$data.closeModal();
+                //    }
+                //});
+                document.addEventListener('click', (e) => {
+                    const api = window.__sfTableActive;
+                    if (!api || !api.modal?.open) return;
+
+                    //  زر X أو زر إلغاء أو أي زر إغلاق
+                    if (e.target.closest('.sf-modal-close,[data-modal-close],.sf-modal-cancel,.sf-modal-btn-cancel')) {
                         e.preventDefault();
-                        root.__x.$data.closeModal();
+                        api.closeModal();
+                        return;
+                    }
+
+                    //  الضغط على الخلفية (خارج الصندوق) يغلق المودال
+                    const backdrop = e.target.closest('.sf-modal-backdrop');
+                    if (backdrop) {
+                        const inside = e.target.closest('.sf-modal');
+                        if (!inside) {
+                            e.preventDefault();
+                            api.closeModal();
+                        }
                     }
                 });
+
 
                 // depends dropdowns (listener واحد فقط)
                 document.addEventListener('change', async (e) => {
@@ -682,6 +741,9 @@ window.__sfTableGlobalBound = window.__sfTableGlobalBound || false;
                     }
                 }
                 this.updateSelectAllState();
+                // ✅ sync activeIndex مع الصف المحدد
+                //const i = this.rows.findIndex(r => r?.[this.rowIdField] == key);
+                //if (i >= 0) this.activeIndex = i;
             },
 
             toggleSelectAll() {
@@ -731,6 +793,91 @@ window.__sfTableGlobalBound = window.__sfTableGlobalBound || false;
                 this.selectedKeys.clear();
                 this.selectAll = false;
             },
+
+            // ✅ Keyboard: ↑ ↓ Enter
+            //onTableKeydown(e) {
+            //    const tag = (e.target?.tagName || "").toLowerCase();
+            //    if (tag === "input" || tag === "textarea" || tag === "select") return;
+
+            //    if (!this.rows || this.rows.length === 0) return;
+
+            //    if (e.key === "ArrowDown") {
+            //        e.preventDefault();
+            //        this.moveActive(1);
+            //        return;
+            //    }
+
+            //    if (e.key === "ArrowUp") {
+            //        e.preventDefault();
+            //        this.moveActive(-1);
+            //        return;
+            //    }
+
+            //    if (e.key === "Enter") {
+            //        e.preventDefault();
+            //        this.openActiveRowAction();
+            //        return;
+            //    }
+            //},
+
+            //moveActive(step) {
+            //    if (!this.rows || this.rows.length === 0) return;
+
+            //    if (this.activeIndex < 0) this.activeIndex = 0;
+            //    else this.activeIndex = Math.min(this.rows.length - 1, Math.max(0, this.activeIndex + step));
+
+            //    const row = this.rows[this.activeIndex];
+            //    if (!row) return;
+
+            //    // ✅ بدل toggleRow (عشان ما يصير تحديد/إلغاء مع الأسهم)
+            //    this.selectRowOnly(row);
+
+            //    this.$nextTick(() => {
+            //        const el = this.$root?.querySelector?.(`tr[data-row-index="${this.activeIndex}"]`);
+            //        el?.scrollIntoView?.({ block: "nearest", inline: "nearest" });
+            //    });
+            //},
+
+            //openActiveRowAction() {
+            //    if (this.activeIndex < 0 || !this.rows || this.rows.length === 0) return;
+            //    const row = this.rows[this.activeIndex];
+            //    if (!row) return;
+
+            //    // 1) Edit من التولبار
+            //    if (this.toolbar?.edit) {
+            //        this.doAction(this.toolbar.edit, row);
+            //        return;
+            //    }
+
+            //    // 2) View من actions
+            //    const viewAct =
+            //        (this.actions || []).find(a =>
+            //            (a?.isView === true) ||
+            //            (String(a?.label || "").includes("عرض")) ||
+            //            (String(a?.name || "").toLowerCase() === "view")
+            //        );
+
+            //    if (viewAct) {
+            //        this.doAction(viewAct, row);
+            //        return;
+            //    }
+
+            //    // 3) أول أكشن
+            //    if ((this.actions || []).length > 0) {
+            //        this.doAction(this.actions[0], row);
+            //    }
+            //},
+
+            //// ✅ تحديد صف واحد بدون toggle
+            //selectRowOnly(row) {
+            //    const key = row?.[this.rowIdField];
+            //    if (key == null) return;
+
+            //    this.selectedKeys.clear();
+            //    this.selectedKeys.add(key);
+            //    this.updateSelectAllState();
+            //},
+
 
             // ===== Export Functions =====
             exportData(type, scope = 'page') {
@@ -888,6 +1035,7 @@ window.__sfTableGlobalBound = window.__sfTableGlobalBound || false;
             // ===== Modal Management =====
             async openModal(action, row) {
                 this.modal.open = true;
+                window.__sfTableActive = this; //جديد
                 this.modal.title = action.modalTitle || action.label || "";
                 this.modal.message = action.modalMessage || ""; //  جديد
                 this.modal.action = action;
@@ -941,6 +1089,7 @@ window.__sfTableGlobalBound = window.__sfTableGlobalBound || false;
                 this.modal.action = null;
                 this.modal.error = null;
                 this.modal.message = ""; //  جديد
+                if (window.__sfTableActive === this) window.__sfTableActive = null;//جديد
             },
 
 

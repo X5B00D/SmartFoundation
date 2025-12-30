@@ -17,7 +17,9 @@
     font-style: normal;
 }
 
-body, h1, h2, h3, h4, h5, h6, input, textarea, select, button {
+body,
+h1, h2, h3, h4, h5, h6,
+input, textarea, select, button {
     font-family: "Tajawal", sans-serif !important;
 }
 
@@ -25,8 +27,12 @@ body, h1, h2, h3, h4, h5, h6, input, textarea, select, button {
    Tailwind
    ========================= */
 @import "tailwindcss";
-
 @custom-variant dark (&:where(.dark, .dark *));
+
+/* =========================
+   Flowbite
+   ========================= */
+@import "flowbite";
 
 /* =========================
    Base
@@ -50,6 +56,17 @@ body, h1, h2, h3, h4, h5, h6, input, textarea, select, button {
 
     button {
         @apply bg-transparent;
+    }
+
+    /* =========================
+     Global Light Mode Fix
+     ========================= */
+    html:not(.dark) body,
+    html:not(.dark) nav,
+    html:not(.dark) aside,
+    html:not(.dark) main,
+    html:not(.dark) footer {
+        @apply text-gray-900;
     }
 }
 
@@ -105,14 +122,10 @@ body, h1, h2, h3, h4, h5, h6, input, textarea, select, button {
         @apply text-red-500;
     }
 
-
-
     .input {
         @apply placeholder-gray-500 block h-10 w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-base leading-relaxed text-gray-800 transition-colors duration-200 read-only:cursor-not-allowed read-only:bg-gray-100 read-only:text-gray-500 focus:border-emerald-600 focus:ring-2 focus:ring-emerald-500 focus:outline-none disabled:cursor-not-allowed disabled:bg-gray-100 disabled:text-gray-500;
         font-family: "Tajawal", ui-sans-serif, system-ui, sans-serif;
     }
-
-
 
     .actions-bar {
         @apply col-span-12 mt-5 mb-6 border-t border-gray-200 px-4 pt-4;
@@ -141,7 +154,6 @@ body, h1, h2, h3, h4, h5, h6, input, textarea, select, button {
         @apply -mt-6 inline-block px-3 text-base font-semibold text-gray-600 md:text-sm;
     }
 
-
     .sf-label {
         @apply mb-1 block text-sm font-medium text-gray-800;
     }
@@ -164,15 +176,14 @@ body, h1, h2, h3, h4, h5, h6, input, textarea, select, button {
             @apply block text-right text-gray-700;
         }
 
-   
     .sf-select-panel {
         @apply mt-0 w-full rounded-sm border border-gray-300 bg-white shadow-sm;
-        max-height: 50vh; 
-        overflow-y: auto; 
+        max-height: 50vh;
+        overflow-y: auto;
     }
 
         .sf-select-panel ul {
-            max-height: none; 
+            max-height: none;
         }
 
     .sf-select-radio {
@@ -182,9 +193,6 @@ body, h1, h2, h3, h4, h5, h6, input, textarea, select, button {
         .sf-select-radio.selected {
             @apply border-emerald-600 bg-emerald-600 shadow-inner;
         }
-
-
-
 
     .sf-date {
         @apply block w-full rounded-lg border border-gray-300 bg-white text-base text-gray-900 shadow-sm transition-colors duration-150 focus:border-emerald-600 focus:outline-none disabled:bg-gray-100 disabled:text-gray-500;
@@ -207,8 +215,6 @@ body, h1, h2, h3, h4, h5, h6, input, textarea, select, button {
         padding: 0;
     }
 
-
-
         .sf-file::file-selector-button {
             @apply cursor-pointer rounded-md border-0 bg-emerald-600 px-4 py-2 text-sm font-medium text-white transition-colors duration-150 hover:bg-emerald-700;
             margin-inline-start: auto;
@@ -224,23 +230,29 @@ body, h1, h2, h3, h4, h5, h6, input, textarea, select, button {
         margin-top: 5px;
     }
 
-
     .sf-checkline {
         @apply mt-1 flex items-center gap-2;
     }
-}
 
+    /* =========================
+     Modal Input (كان مكرر داخل @layer components)
+     ========================= */
+    .sf-modal-input {
+        @apply w-full rounded-sm border border-gray-300 bg-gray-50 px-3 py-2 focus:border-emerald-700 focus:ring-2 focus:ring-emerald-600 focus:outline-none;
+    }
+}
 
 /* =========================
    Buttons Table
    ========================= */
-
 .btn {
     @apply inline-flex h-8.5 items-center justify-center gap-2 rounded-sm px-2 text-sm font-medium transition focus:ring-2 focus:ring-offset-0 focus:outline-none disabled:pointer-events-none disabled:opacity-60;
 }
+
     .btn i {
         @apply text-sm;
     }
+
 .btn-primary {
     @apply bg-blue-600 text-white hover:bg-blue-700 focus:ring-blue-400;
 }
@@ -265,197 +277,618 @@ body, h1, h2, h3, h4, h5, h6, input, textarea, select, button {
     @apply bg-sky-600 text-white hover:bg-sky-700 focus:ring-sky-400;
 }
 
+
+
+
+
 input[readonly],
 textarea[readonly] {
     @apply cursor-not-allowed bg-gray-200 text-gray-500;
 }
 
+
+
+/* =========================
+   Table
+   ========================= */
+
+ Wrapper 
 .sf-table-wrapper {
-    @apply mx-auto w-full max-w-7xl rounded-xl border border-gray-300 bg-white p-4 shadow-sm;
+    @apply mx-auto w-full max-w-7xl;
+    @apply rounded-md border border-gray-300 bg-gray-50;
+    @apply shadow-sm;
+    @apply p-3;
 }
 
+/* Table container */
 .table-box {
-    @apply relative w-full overflow-x-auto rounded-sm border border-gray-300;
+    @apply relative w-full overflow-x-auto;
+    @apply rounded-sm border border-gray-300 bg-white;
 }
 
-
-.sf-table {
-    @apply w-full border-collapse text-center text-sm text-gray-800; 
-}
-
-.table-head {
-    @apply sticky top-0 z-10 bg-gray-300 text-center text-base font-medium tracking-wide text-gray-900 uppercase;
-}
-
-.th-cell {
-    @apply px-6 py-2 text-center text-base font-semibold tracking-wider text-gray-900 uppercase;
-    @apply border-b border-gray-300 bg-gray-300 align-middle text-gray-600;
-    @apply transition-colors duration-100 hover:bg-gray-100;
-}
-
-
-.tr-row {
-    @apply border-b border-gray-200 transition-colors duration-10;
-}
-
-    .tr-row:last-child {
-        @apply border-b-0;
+    /* Scrollbar (هادئ) */
+    .table-box::-webkit-scrollbar {
+        height: 10px;
     }
 
+    .table-box::-webkit-scrollbar-track {
+        @apply bg-gray-100;
+    }
+
+    .table-box::-webkit-scrollbar-thumb {
+        @apply rounded bg-gray-300;
+    }
+
+        .table-box::-webkit-scrollbar-thumb:hover {
+            @apply bg-gray-400;
+        }
+
+/* Table */
+.sf-table {
+    @apply w-full;
+    @apply border-collapse;
+}
+
+
+/* =========================
+   Table Head (Formal / Government UI)
+   ========================= */
+.table-head {
+    @apply sticky top-0 z-20;
+    @apply bg-gray-100; 
+    @apply border-b-1 border-gray-900; 
+    box-shadow: inset 0 -1px 0 rgba(0,0,0,0.06), 
+    0 2px 6px rgba(0,0,0,0.05);
+}
+    .table-head::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+        /* لمعان داخلي خفيف جدًا */
+        background: linear-gradient( to bottom, rgba(255,255,255,0.35), rgba(255,255,255,0.0) );
+    }
+
+/* فصل بصري أدق بين الرأس والمحتوى */
+.sf-table tbody {
+    border-top: 1px solid rgba(0,0,0,0.04);
+}
+
+
+/* TH */
+/*.th-cell {
+    @apply px-4 py-3 text-center align-middle;
+    @apply text-sm font-semibold text-gray-800;
+    @apply whitespace-nowrap;
+    @apply border-b border-gray-300;
+}*/
+
+/* TD */
+/*.td-cell {
+    @apply px-4 py-2.5 text-center align-middle;
+    @apply text-sm font-medium text-gray-700;
+    @apply whitespace-nowrap;
+    @apply border-b border-gray-200;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+}*/
+
+/* Rows */
+/*.tr-row {
+    @apply bg-white transition-colors duration-100;
+}*/
+
+    /* ===== Selected row  ===== */
+
+    /*.tr-row.tr-row-selected {
+        background-color: rgba(5, 150, 105, 0.10) !important;*/ /* أخضر خفيف */
+        /*box-shadow: inset 4px 0 0 0 rgba(5, 150, 105, 0.65), inset -4px 0 0 0 rgba(5, 150, 105, 0.65);
+    }
+
+        .tr-row.tr-row-selected:hover {
+            background-color: rgba(5, 150, 105, 0.14) !important;
+        }*/
+
+
+    /* Zebra خفيف */
+    /*.tr-row:nth-child(even) {
+        @apply bg-gray-50;
+    }*/
+
+    /* Hover – خط أخضر يمين ويسار */
+    /*.tr-row:hover {
+        @apply bg-gray-200;
+        box-shadow: inset 4px 0 0 0 rgba(5, 150, 105, 0.55),*/ /* يسار */
+        /*inset -4px 0 0 0 rgba(5, 150, 105, 0.55);*/ /* يمين */
+    /*}*/
+
+/* آخر صف بدون حد سفلي زائد */
+/*.sf-table tbody .tr-row:last-child .td-cell {
+    @apply border-b-0;
+}*/
+
+/* Density */
+/*.sf-table[data-density="compact"] .th-cell {
+    @apply py-2 text-xs;
+}
+
+.sf-table[data-density="compact"] .td-cell {
+    @apply py-2 text-sm;
+}
+
+.sf-table[data-density="comfortable"] .th-cell {
+    @apply py-4;
+}
+
+.sf-table[data-density="comfortable"] .td-cell {
+    @apply py-4;
+}*/
+
+
+
+
+
+
+
+
+/* TH */
+.th-cell {
+    @apply px-4 py-3 text-center align-middle;
+    @apply text-sm font-semibold text-gray-800;
+    @apply whitespace-nowrap;
+    @apply border-b border-gray-300;
+}
+
+/* TD */
+.td-cell {
+    @apply px-4 py-2.5 text-center align-middle;
+    @apply text-sm font-medium text-gray-700;
+    @apply whitespace-nowrap;
+    @apply border-b border-gray-200;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+    /* تحسين القراءة بدون ما يغير الشكل العام */
+    line-height: 1.55;
+}
+
+/* Rows */
+.tr-row {
+    @apply bg-white;
+    transition: background-color 120ms ease, box-shadow 120ms ease, transform 80ms ease;
+    will-change: background-color, box-shadow, transform;
+}
+
+    /* Zebra خفيف */
     .tr-row:nth-child(even) {
         @apply bg-gray-50;
     }
 
+    /* Hover – خط أخضر يمين ويسار (كما هو) */
     .tr-row:hover {
-        @apply bg-gray-300; 
+        @apply bg-gray-200;
+        box-shadow: inset 4px 0 0 0 rgba(5, 150, 105, 0.55), inset -4px 0 0 0 rgba(5, 150, 105, 0.55);
+    }
+
+    /* ===== Selected row (يبقى أخضر خفيف بعد إزالة الماوس) ===== */
+    .tr-row.tr-row-selected {
+        background-color: rgba(5, 150, 105, 0.10) !important;
+        /* نفس الخطين + حلقة ناعمة “فخمة” حول الصف */
+        box-shadow: inset 4px 0 0 0 rgba(5, 150, 105, 0.65), inset -4px 0 0 0 rgba(5, 150, 105, 0.65), 0 0 0 1px rgba(5, 150, 105, 0.18);
+    }
+
+        /* Hover على الصف المحدد: لا يخرب الهوية */
+        .tr-row.tr-row-selected:hover {
+            background-color: rgba(5, 150, 105, 0.14) !important;
+            box-shadow: inset 4px 0 0 0 rgba(5, 150, 105, 0.70), inset -4px 0 0 0 rgba(5, 150, 105, 0.70), 0 0 0 1px rgba(5, 150, 105, 0.22);
+        }
+
+    /* Active / Pressed: إحساس ضغط خفيف */
+    .tr-row:active {
+        transform: translateY(0.5px);
+    }
+
+    /* Focus للكيبورد (مفيد جدًا للتنقل) */
+    /* اشتغل حتى لو ما عندك tabindex على tr بشرط يكون داخل الصف عنصر عليه focus */
+    .tr-row:focus-within {
+        outline: none;
+        box-shadow: inset 4px 0 0 0 rgba(5, 150, 105, 0.55), inset -4px 0 0 0 rgba(5, 150, 105, 0.55), 0 0 0 2px rgba(16, 185, 129, 0.18);
+    }
+
+    
+    .tr-row.tr-row-selected:focus-within {
+        box-shadow: inset 4px 0 0 0 rgba(5, 150, 105, 0.70), inset -4px 0 0 0 rgba(5, 150, 105, 0.70), 0 0 0 2px rgba(16, 185, 129, 0.22);
+    }
+
+.td-cell.truncate-cell {
+    max-width: 260px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+    .td-cell.truncate-cell > * {
+        display: block;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
     }
 
 
-.td-cell {
-    @apply px-0 py-0.5 text-center align-middle text-base whitespace-nowrap;
-    @apply text-lg leading-relaxed font-medium text-gray-600;
-    -webkit-font-smoothing: antialiased;
-    text-rendering: optimizeLegibility;
+
+/* الصف النشط من الكيبورد (غير التحديد) */
+.tr-row.tr-row-active {
+    outline: 2px solid rgba(5, 150, 105, 0.35);
+    outline-offset: -2px;
 }
 
-/*.td-cell {
-    @apply px-0 py-2 text-center align-middle whitespace-nowrap;
-    @apply text-lg leading-relaxed font-medium text-gray-600;*/
-    /* تحسين جودة الخط */
-    /*-webkit-font-smoothing: antialiased;*/ /* Chrome / Edge */
-    /*-moz-osx-font-smoothing: grayscale;*/ /* Firefox macOS */
-    /*text-rendering: optimizeLegibility;*/ /* تحسين تشكيل الحروف */
-    /*font-feature-settings: "kern" 1, "liga" 1;
-    letter-spacing: 0.01em;
-}*/
 
+/* Respect reduced motion */
+@media (prefers-reduced-motion: reduce) {
+    .tr-row {
+        transition: none;
+    }
 
+        .tr-row:active {
+            transform: none;
+        }
+}
 
+/* آخر صف بدون حد سفلي زائد */
+.sf-table tbody .tr-row:last-child .td-cell {
+    @apply border-b-0;
+}
 
+/* Density */
+.sf-table[data-density="compact"] .th-cell {
+    @apply py-2 text-xs;
+}
 
 .sf-table[data-density="compact"] .td-cell {
-    @apply py-1 text-base;
+    @apply py-2 text-sm;
+}
+
+.sf-table[data-density="comfortable"] .th-cell {
+    @apply py-4;
 }
 
 .sf-table[data-density="comfortable"] .td-cell {
-    @apply py-4 text-base;
+    @apply py-4;
 }
+
+
 
 /* =========================
-   Badges
+   الوان الصفوف والخلايا في خاصية TableStyleRule 
    ========================= */
-.badge {
-    @apply inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium;
-}
-
-.badge-success {
-    @apply bg-emerald-100 text-emerald-800;
-}
-
-.badge-danger {
-    @apply bg-red-100 text-red-800;
-}
-
-.badge-warning {
-    @apply bg-amber-100 text-amber-800;
-}
-
-.badge-info {
-    @apply bg-sky-100 text-sky-800;
-}
 
 /* =========================
-   Toolbar
+   Column Colors 
    ========================= */
-.toolbar {
-    @apply mb-5 flex flex-col items-stretch justify-between gap-4 md:flex-row md:items-center;
-    @apply rounded-sm border border-gray-200 bg-gray-100 px-2.5 py-2;
+
+
+
+/* ===== Column colors (override row colors) ===== */
+.tr-row > .td-cell.col-green {
+    background-color: #dcfce7 !important;
 }
 
-.toolbar-search {
-    @apply flex h-10 w-full items-center gap-2 rounded-none md:w-auto;
+.tr-row > .td-cell.col-blue {
+    background-color: #dbeafe !important;
 }
 
-.search-input {
-    @apply w-full rounded-sm border border-gray-300 bg-white text-sm md:w-65;
-    @apply px-3 py-2 transition-colors duration-50;
-    @apply focus:border-emerald-50 focus:ring-1 focus:ring-emerald-700 focus:outline-none;
+.tr-row > .td-cell.col-purple {
+    background-color: #ede9fe !important;
+}
+
+.tr-row > .td-cell.col-red {
+    background-color: #fee2e2 !important;
+}
+
+.tr-row > .td-cell.col-orange {
+    background-color: #ffedd5 !important;
+}
+
+.tr-row > .td-cell.col-yellow {
+    background-color: #fef9c3 !important;
+}
+
+.tr-row > .td-cell.col-gray {
+    background-color: #f3f4f6 !important;
+}
+
+.tr-row > .td-cell.col-pink {
+    background-color: #fce7f3 !important;
+}
+
+
+/* =========================
+   row Colors 
+   ========================= */
+
+/* أخضر  */
+.tr-row.row-green > td {
+    background-color: #d1fae5 !important; /* green-100 → أقرب لـ 200 */
+}
+
+/* أزرق  */
+.tr-row.row-blue > td {
+    background-color: #dbeafe !important; /* blue-100 → 200 */
+}
+
+/* بنفسجي  */
+.tr-row.row-purple > td {
+    background-color: #ede9fe !important; /* violet-100 → 200 */
+}
+
+/* أحمر  */
+.tr-row.row-red > td {
+    background-color: #fecaca !important; /* red-100 → 200 */
+}
+
+/* أصفر */
+.tr-row.row-yellow > td {
+    background-color: #fef08a !important;
+}
+
+/* برتقالي */
+.tr-row.row-orange > td {
+    background-color: #fed7aa !important;
+}
+
+/* سماوي */
+.tr-row.row-cyan > td {
+    background-color: #cffafe !important;
+}
+
+/* رمادي */
+.tr-row.row-gray > td {
+    background-color: #e5e7eb !important;
+}
+
+/* وردي */
+.tr-row.row-pink > td {
+    background-color: #fbcfe8 !important;
+}
+
+
+/* =========================
+   cell Colors 
+   ========================= */
+/* أخضر (نجاح / طبيعي) */
+.td-cell.cell-green {
+    background-color: #bbf7d0 !important; /* أغمق شوي */
+    color: #14532d !important;
     
 }
 
-.select-sm {
-    @apply h-9 w-18 rounded-sm border border-gray-300 bg-white px-2 text-sm;
-    @apply transition focus:border-emerald-100 focus:ring-1 focus:ring-emerald-700 focus:outline-none;
+/* أزرق (معلومة) */
+.td-cell.cell-blue {
+    background-color: #dbeafe !important;
+    color: #1e3a8a !important;
+    
+}
+
+/* بنفسجي (حالة خاصة) */
+.td-cell.cell-purple {
+    background-color: #e9d5ff !important;
+    color: #581c87 !important;
+    
+}
+
+/* أصفر (تنبيه) */
+.td-cell.cell-yellow {
+    background-color: #fde68a !important;
+    color: #78350f !important;
+    
+}
+
+/* برتقالي (مراجعة) */
+.td-cell.cell-orange {
+    background-color: #fed7aa !important;
+    color: #7c2d12 !important;
+    
+}
+
+/* أحمر (تحذير / غير مطابق) */
+.td-cell.cell-red {
+    background-color: #fecaca !important;
+    color: #7f1d1d !important;
+    
+}
+
+
+
+
+
+/* =========================
+   Badges (Classic)
+   ========================= */
+.badge {
+    @apply inline-flex items-center;
+    @apply rounded-sm border px-2 py-0.5;
+    @apply text-xs font-semibold;
+}
+
+.badge-success {
+    @apply border-emerald-200 bg-emerald-50 text-emerald-800;
+}
+
+.badge-danger {
+    @apply border-red-200 bg-red-50 text-red-800;
+}
+
+.badge-warning {
+    @apply border-amber-200 bg-amber-50 text-amber-900;
+}
+
+.badge-info {
+    @apply border-sky-200 bg-sky-50 text-sky-800;
 }
 
 /* =========================
-   Actions
+   Toolbar (Classic + Matched)
+   ========================= */
+.toolbar {
+    @apply mb-3 flex flex-col gap-3 md:flex-row md:items-center md:justify-between;
+    @apply rounded-sm border border-gray-200 bg-gray-50;
+    @apply px-3 py-3;
+}
+
+ Search block 
+.toolbar-search {
+    @apply flex w-full items-center gap-2 md:w-auto;
+}
+
+ Search input 
+.search-input {
+    @apply h-10 w-full md:w-72;
+    @apply rounded-md border border-gray-300 bg-white;
+    @apply px-3 text-sm text-gray-700 placeholder:text-gray-400;
+    @apply transition duration-100;
+    @apply focus:border-emerald-600 focus:ring-2 focus:ring-emerald-100 focus:outline-none;
+}
+
+ Select 
+.select-sm {
+    @apply h-10 w-20;
+    @apply rounded-md border border-gray-300 bg-white px-2;
+    @apply text-sm text-gray-700;
+    @apply transition duration-100;
+    @apply focus:border-emerald-600 focus:ring-1 focus:ring-emerald-100 focus:outline-none;
+}
+
+
+
+
+
+
+
+
+
+/* =========================
+   Actions (Classic buttons)
    ========================= */
 .actions-list {
-    @apply flex flex-wrap justify-start gap-2;
+    @apply flex flex-wrap items-center justify-start gap-2;
+}
+
+
+
+.toolbar-search {
+    @apply flex w-full items-center gap-2 md:w-auto;
+}
+
+.search-input {
+    @apply h-9 w-full md:w-72;
+    @apply rounded-md border border-gray-300 bg-white;
+    @apply px-3 text-sm text-gray-700 placeholder:text-gray-400;
+    @apply transition duration-150;
+    @apply focus:border-emerald-700 focus:ring-0 focus:ring-emerald-700 focus:outline-none;
 }
 
     .actions-list .btn {
-        @apply h-8 rounded-md border px-3 text-xs font-medium transition-colors duration-150;
-        @apply flex items-center gap-1;
+        @apply inline-flex h-9 items-center justify-center gap-2;
+        @apply rounded-md border px-3;
+        @apply text-sm font-semibold;
+        @apply transition duration-100;
+        @apply focus:outline-none focus:ring-2;
     }
 
      
     .actions-list .btn-edit {
-        @apply border-sky-300 bg-sky-50 text-sky-700 hover:bg-sky-100;
+        @apply border-sky-300 bg-sky-100 text-sky-800;
+        @apply hover:bg-sky-200;
+        @apply focus:ring-sky-200;
     }
 
     .actions-list .btn-delete {
-        @apply border-red-300 bg-red-50 text-red-700 hover:bg-red-100;
+        @apply border-red-300 bg-red-100 text-red-800;
+        @apply hover:bg-red-200;
+        @apply focus:ring-red-200;
     }
 
     .actions-list .btn-view {
-        @apply border-emerald-300 bg-emerald-50 text-emerald-700 hover:bg-emerald-100;
+        @apply border-emerald-300 bg-emerald-100 text-emerald-900;
+        @apply hover:bg-emerald-200;
+        @apply focus:ring-emerald-200;
     }
+
+.select-sm {
+    @apply h-9 w-20;
+    @apply rounded-sm border border-gray-300 bg-white px-2;
+    @apply text-sm text-gray-700;
+    @apply transition duration-100;
+    @apply focus:border-emerald-600 focus:ring-1 focus:ring-emerald-700 focus:outline-none;
+}
+
+
+.toolbar .actions-list,
+.toolbar .toolbar-actions {
+    @apply flex flex-wrap items-center gap-2;
+}
 
 
 /* =========================
-   Pagination
+   Pagination (Classic)
    ========================= */
 .pagination {
-    @apply mt-3 mb-14 flex flex-col items-center justify-between gap-2 text-sm text-gray-600 md:flex-row;
+    @apply mt-3 mb-6 flex flex-col gap-1 md:flex-row md:items-center md:justify-between;
+    @apply text-sm text-gray-700;
 }
 
-/* ترقيم الصفحة تحت من الى  */
-/*.pagination-info {
-    @apply text-base text-gray-600 select-none;
-    @apply font-xl; 
-    @apply leading-relaxed; 
-    @apply whitespace-nowrap; 
-}*/
-/* أزرار التنقل */
 .pagination-nav {
-    @apply flex items-center gap-1;
+    @apply inline-flex items-center gap-2;
+    @apply rounded-sm border border-gray-200 bg-gray-50;
+    @apply px-2 py-1;
 }
 
     .pagination-nav button {
-        @apply inline-flex h-7 min-w-[20px] items-center justify-center rounded-sm border border-gray-300 bg-gray-200 text-sm font-medium text-gray-600 transition-colors duration-50;
-        
-        @apply focus:ring-0 focus:outline-none;
-        
-        @apply active:bg-gray-300;
-        
+        @apply inline-flex h-7 min-w-[70px] items-center justify-center;
+        @apply rounded-sm border border-gray-200 bg-gray-50;
+        @apply text-sm  text-gray-700;
+        @apply transition duration-100;
+        @apply hover:bg-gray-100;
+        @apply focus:outline-none focus:ring-1 focus:ring-emerald-600;
     }
 
-        
-        .pagination-nav button:hover {
-            @apply bg-gray-300;
-        }
-
-    /* زر الصفحة الحالية */
     .pagination-nav .active {
-        @apply border-emerald-600 bg-emerald-600 text-white hover:bg-emerald-700;
+        @apply border-emerald-700 bg-emerald-700 text-white;
+        @apply hover:bg-emerald-800;
+        @apply focus:ring-emerald-200;
     }
 
-    /* نص الصفحة */
     .pagination-nav .page-text {
-        @apply mx-2 text-xs text-gray-700;
+        @apply mx-2 text-xs font-medium text-gray-600;
     }
+
+    .pagination-nav button:disabled {
+        @apply cursor-not-allowed opacity-50 hover:bg-gray-900;
+    }
+
+
+
+
+.pagination-range {
+    @apply inline-flex items-center;
+    @apply h-7 px-3;
+    @apply rounded-sm;
+    @apply text-xs font-medium;
+    @apply bg-gray-100 text-gray-700;
+    @apply border-0;
+    @apply select-none;
+}
+
+
+/* =========================
+   Loading overlay ()
+   ========================= */
+.sf-table-wrapper[data-loading="true"] .table-box::after {
+    content: "";
+    @apply absolute inset-0 bg-white/50;
+}
+
+
+
 
 /* =========================
    Modal Backdrop
@@ -468,95 +901,54 @@ textarea[readonly] {
 /* =========================
    Modal
    ========================= */
-/*.sf-modal {
-    @apply z-50 mx-2 w-full max-w-4xl overflow-hidden rounded-sm bg-gray-100 md:mx-0;
-    @apply flex max-h-[80vh] flex-col;
-    @apply transition-transform duration-50 ease-out;
-}*/
-
-
 .sf-modal {
     @apply z-50 mx-2 w-full overflow-hidden rounded-sm bg-gray-100 md:mx-0;
     @apply flex flex-col;
     @apply transition-transform duration-50 ease-out;
-    /* بدل max-w-4xl الثابت */
     width: calc(100vw - 24px);
     max-width: 1000px; /* على الديسكتوب */
     max-height: 80vh;
 }
-    
 
 /* =========================
    Modal Header
    ========================= */
 .sf-modal-header {
-    @apply relative flex items-center justify-center border-b border-gray-200 px-5 py-3;
-    @apply bg-gray-300;
-    @apply min-h-[4rem]; /* فصل  */
+    @apply relative flex items-center justify-center border-b px-5 py-3;
+    background-color: #064e3b;
 }
 
-/*.sf-modal-title {
-    @apply text-2xl font-semibold tracking-normal text-gray-700;
-    color: #fff;
-}*/
 .sf-modal-title {
     @apply text-2xl font-semibold tracking-normal;
     color: #fff;
 }
 
-
-
+/* close */
 .sf-modal-close {
     @apply absolute top-1/2 right-4 -translate-y-1/2;
     @apply flex h-8 w-8 items-center justify-center rounded-full;
-    /*@apply text-gray-400 hover:text-gray-600 hover:bg-gray-200;*/
     @apply transition-colors cursor-pointer;
-}
-
-.dark .sf-modal-close {
-    @apply text-gray-400 hover:text-gray-200;
-}
-
-/* =========================
-   Dark Mode
-   ========================= */
-/*.dark .sf-modal-header {
-    @apply border-gray-100 bg-slate-700 font-bold text-white;
-}*/
-
-.sf-modal-header {
-    @apply relative flex items-center justify-center border-b px-5 py-3;
-    background-color: #064E3B; 
-}
-
-
-.dark .sf-modal-title {
-    @apply text-gray-100;
-    color: #fff;
+    @apply cursor-pointer text-gray-100 hover:text-gray-700;
 }
 
 .dark .sf-modal-close {
     @apply text-gray-100 hover:text-gray-300;
 }
 
-@layer components {
-    .sf-modal-input {
-        @apply w-full rounded-sm border border-gray-300 bg-gray-50 px-3 py-2 focus:border-emerald-700 focus:ring-2 focus:ring-emerald-600 focus:outline-none;
-    }
+/* =========================
+   Dark Mode (Modal)
+   ========================= */
+.dark .sf-modal-title {
+    @apply text-gray-100;
+    color: #fff;
 }
 
-
-.sf-modal-close {
-    @apply cursor-pointer text-gray-100 hover:text-gray-700;
-}
-
-/*.sf-modal-body {
-    @apply max-h-[70vh] overflow-y-auto p-8;
-}*/
+/* =========================
+   Modal Body / Footer / Table
+   ========================= */
 .sf-modal-body {
     @apply max-h-[80vh] overflow-y-auto p-6;
 }
-
 
 .sf-modal-footer {
     @apply flex items-center justify-end gap-2 border-t border-gray-200 px-4 py-3;
@@ -574,21 +966,9 @@ textarea[readonly] {
         @apply border-b border-gray-100 px-3 py-2 text-sm;
     }
 
-
-
-/* =========================
-   Modal Buttons (Unified)
-   ========================= */
-
-/* =========================
-   Modal Buttons – FINAL FIX
-   ========================= */
-
 /* =========================
    Modal Buttons - SAFE OVERRIDE
    ========================= */
-
-/* حاوية أزرار المودال  sf-modal-actions أو actions-bar) */
 .sf-modal-actions,
 .sf-modal .actions-bar .actions-inner {
     display: flex;
@@ -649,38 +1029,11 @@ textarea[readonly] {
             filter: brightness(0.95);
         }
 
-
 .sf-modal .form-group > label {
-    font-size: 16px !important; /* حجم الخط داخل المودال */
-    margin-bottom: 10px; /* ← المسافة */
+    font-size: 16px !important;
+    margin-bottom: 10px;
     display: block;
-    
 }
-
-/* select داخل المودال */
-/*.sf-modal-select {
-    height: 42px;
-    font-size: 14px;
-    border-radius: 6px;
-    padding-inline: 12px;
-}*/
-/* العنصر المحدد */
-/*.sf-modal-select option:checked {
-        background-color: #10b981;*/ /* emerald-500 */
-/*        color: #ffffff;
-    }*/
-
-/* عند المرور بالماوس */
-/*.sf-modal-select option:hover {
-        background-color: #10b981;
-        color: #ffffff;
-    }*/
-
-/* عند السحب بالكيبورد / active */
-/*.sf-modal-select option:active {
-        background-color: #10b981;
-        color: #ffffff;
-    }*/
 
 /* select داخل المودال */
 .sf-modal-select {
@@ -688,7 +1041,6 @@ textarea[readonly] {
     font-size: 16px;
     border-radius: 5px;
     padding-inline: 12px;
-    
 }
 
     .sf-modal-select option {
@@ -699,98 +1051,123 @@ textarea[readonly] {
         .sf-modal-select option:hover,
         .sf-modal-select option:focus {
             background-color: #e2e8f0 !important; /* slate-200 */
-            color: #064E3B;
+            color: #064e3b;
         }
 
         .sf-modal-select option:checked {
-            background-color: #064E3B; 
+            background-color: #064e3b;
             color: #ffffff;
         }
 
-
-
-
-    /*البانل بصفحة الرندر*/
-
-/* ===== لوحة العرض (Panel) ===== */
+/* =========================
+   Panel (صفحة الرندر)
+   ========================= */
 
 .sf-panel {
-    @apply relative mx-auto mt-20 mb-6 w-full overflow-hidden rounded-sm bg-white shadow-sm transition-all duration-900 ease-in-out;
-    border: 0px solid rgb(229 231 235); 
-
+    @apply relative mx-auto mt-16 mb-6 w-full overflow-hidden;
+    @apply rounded-md border border-gray-300 bg-gray-100;
+    @apply shadow-none;
 }
 
 
-
-
-/* ===== ترويسة اللوحة ===== */
+/* Header:*/
 .sf-panel-header {
-    @apply sticky top-0 z-10 flex items-center justify-between bg-gray-300 px-7 py-3;
+    @apply relative flex items-center justify-between;
+    @apply px-5 py-3;
+    @apply bg-gray-200;
+    @apply border-b border-gray-300;
+    /* خط علوي خفيف جدًا يعطي فخامة */
+    box-shadow: inset 0 0px 0 rgba(255,255,255,0.65), 0 3px 3px rgba(0,0,0,0.06);
 }
 
-
+/* Title */
 .sf-panel-title {
-    @apply text-base font-semibold tracking-tight text-gray-600 md:text-lg;
-    @apply leading-snug;
+    @apply flex items-center gap-2;
+    @apply text-base md:text-base font-semibold text-gray-600;
+    letter-spacing: 0.2px;
 }
 
+    /* Icon: أصغر وأهدأ */
+    .sf-panel-title i {
+        @apply text-emerald-700;
+        font-size: 15px;
+    }
 
-
-
-
-
-/* ===== جسم اللوحة ===== */
+/* Body */
 .sf-panel-body {
-    @apply relative bg-white p-5;
+    @apply bg-gray-50;
+    @apply p-2.5 md:p-3;
 }
-/* ===== Panel Actions ===== */
+
+/* =========================
+   Panel Actions (Modern icon buttons)
+   ========================= */
 .sf-panel-actions {
     @apply flex items-center gap-2;
 }
 
-    .sf-panel-actions button {
-        @apply flex h-7 w-7 items-center justify-center rounded-full bg-transparent transition;
-    }
 
-    /* أيقونات ملونة */
-    .sf-panel-actions .btn-close i {
-        @apply text-base text-red-500;
-    }
+.sf-panel-btn {
+    @apply inline-flex h-5 w-5 items-center justify-center;
 
-    .sf-panel-actions .btn-minimize i {
-        @apply text-base text-gray-500;
-    }
+    @apply rounded-full; 
+    @apply border border-gray-300 bg-white;
+    @apply text-gray-900;
 
-    .sf-panel-actions .btn-refresh i {
-        @apply text-base text-gray-500;
-    }
-
-    /* تأثير hover */
-    .sf-panel-actions button:hover {
-        @apply bg-gray-100;
-    }
-
-    /*  Tooltip  */
-    .sf-panel-actions button[title]::after {
-        content: attr(title);
-        @apply invisible absolute rounded bg-gray-700 px-2 py-1 text-xs text-white opacity-0;
-        transform: translateY(-150%);
-        transition: opacity 0.2s;
-    }
-
-    .sf-panel-actions button:hover::after {
-        @apply visible opacity-100;
-    }
-
-/* ===== Panel Body ===== */
-.sf-panel-body {
-    @apply bg-gray-100 p-1.5;
+    @apply transition duration-150;
+    @apply hover:bg-gray-100 hover:text-gray-900;
+    @apply focus:outline-none focus:ring-1 focus:ring-emerald-600;
+    /* لمسة فخامة خفيفة جدًا */
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.75), 0 1px 2px rgba(0,0,0,0.06);
 }
+
+    
+    .sf-panel-btn:active {
+        transform: translateY(1px);
+        box-shadow: inset 0 2px 3px rgba(0,0,0,0.10);
+    }
+
+    .sf-panel-btn i {
+        font-size: 10px;
+        color: #374151;
+        opacity: 0.85;
+    }
+
+    .sf-panel-btn svg {
+        width: 10px;
+        height: 10px;
+        stroke-width: 2;
+        stroke: #374151;
+        opacity: 0.85;
+    }
+
+
+
+    /* Hover:*/
+    .sf-panel-btn:hover i,
+    .sf-panel-btn:hover svg {
+        opacity: 1;
+    }
+
+/* زر الإغلاق */
+.sf-panel-btn-close {
+    @apply border-gray-300 bg-white text-gray-600;
+    @apply hover:bg-gray-50 hover:text-gray-700 hover:border-gray-300;
+    
+}
+
+/* Fullscreen:  */
+/*.sf-panel.sf-panel-full {
+    @apply fixed inset-4 z-50 m-0;
+    @apply rounded-md border border-gray-300 bg-white;
+    @apply shadow-lg;
+}*/
+
 
 
 /* =========================
-     Loader – Bouncing Dots
-     ========================= */
+   Loader – Bouncing Dots
+   ========================= */
 .sf-loader-dots {
     @apply flex items-center justify-center gap-1;
 }
@@ -808,9 +1185,7 @@ textarea[readonly] {
             animation-delay: 0.3s;
         }
 
-
-
-/* الحركة  */
+/* الحركة */
 @keyframes sf-bounce {
     0%, 80%, 100% {
         transform: translateY(0);
@@ -818,12 +1193,10 @@ textarea[readonly] {
     }
 
     40% {
-        transform: translateY(-20px); /*  قوة الحركة */
+        transform: translateY(-20px);
         opacity: 1;
     }
 }
-
-
 
 /* =========================
    Modal Responsive
@@ -837,11 +1210,10 @@ textarea[readonly] {
     }
 
     .sf-modal-body {
-        max-height: calc(90vh - 70px); /*  الهيدر  */
+        max-height: calc(90vh - 70px);
         overflow-y: auto;
     }
 
-    /*  حقول المودال تصير عمود واحد */
     .sf-modal .form-row {
         grid-template-columns: 1fr !important;
         gap: 12px !important;
@@ -853,56 +1225,34 @@ textarea[readonly] {
 }
 
 /* =========================
-   Flowbite
-   ========================= */
-@import "flowbite";
-
-/* =========================
-   Global Light Mode Fix
-   ========================= */
-@layer base {
-  html:not(.dark) body,
-  html:not(.dark) nav,
-  html:not(.dark) aside,
-  html:not(.dark) main,
-  html:not(.dark) footer {
-    @apply text-gray-900;
-  }
-}
-
-/* =========================
    Hidden Fields on Page Load
    ========================= */
-
-/* Hide any field with hidden-field class */
 .hidden-field {
     display: none !important;
 }
 
-/* Hide form-group containers that have hidden-field inputs */
 .form-group:has(.hidden-field) {
     display: none !important;
 }
 
-/* Hide search-field containers on page load */
 .form-group:has(.search-field) {
     display: none !important;
 }
 
-/* Show field when it has the 'active' class */
 .form-group.active {
     display: block !important;
 }
 
+/* =========================
+   Modal Header text forced white
+   ========================= */
 .sf-modal-header {
-    color: #fff !important; /*  نص داخل الهيدر أبيض */
+    color: #fff !important;
 }
 
     .sf-modal-header .sf-modal-title,
     .sf-modal-header h1,
     .sf-modal-header h2,
     .sf-modal-header h3 {
-        color: #fff !important; 
+        color: #fff !important;
     }
-
-

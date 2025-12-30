@@ -181,7 +181,16 @@ namespace SmartFoundation.Mvc.Controllers.Housing
                             bool ismartialStatusID_FK = c.ColumnName.Equals("martialStatusID_FK", StringComparison.OrdinalIgnoreCase);
                             bool isnationalityID_FK = c.ColumnName.Equals("nationalityID_FK", StringComparison.OrdinalIgnoreCase);
                             bool isgenderID_FK = c.ColumnName.Equals("genderID_FK", StringComparison.OrdinalIgnoreCase);
-                          
+
+
+
+                            bool isMilitaryUnitName =   //جديد
+                            c.ColumnName.Equals("militaryUnitName_A", StringComparison.OrdinalIgnoreCase);
+
+                            bool isNote =
+                            c.ColumnName.Equals("note", StringComparison.OrdinalIgnoreCase);
+
+
 
                             dynamicColumns.Add(new TableColumn
                             {
@@ -190,7 +199,11 @@ namespace SmartFoundation.Mvc.Controllers.Housing
                                 Type = colType,
                                 Sortable = true
                                  ,
-                                Visible = !(isfirstName_A || isfirstName_E || issecondName_A || issecondName_E || isthirdName_A || isthirdName_E || islastName_A || islastName_E || isrankID_FK || ismilitaryUnitID_FK || ismartialStatusID_FK || isnationalityID_FK || isgenderID_FK)
+                                Visible = !(isfirstName_A || isfirstName_E || issecondName_A || issecondName_E || isthirdName_A || isthirdName_E || islastName_A || islastName_E || isrankID_FK || ismilitaryUnitID_FK || ismartialStatusID_FK || isnationalityID_FK || isgenderID_FK),
+
+
+                                truncate = isMilitaryUnitName || isNote // truncate يقص النص الطويل 
+
                             });
                         }
 
@@ -442,6 +455,59 @@ namespace SmartFoundation.Mvc.Controllers.Housing
                     },
                 }
             };
+
+
+
+            dsModel.StyleRules = new List<TableStyleRule>
+                {
+                   
+                    new TableStyleRule
+                    {
+                        Target = "row",
+                        Field = "rankNameA",
+                        Op = "eq",
+                        Value = "جندي اول",
+                        CssClass = "row-blue",
+                        Priority = 1
+                    },
+                    new TableStyleRule
+                    {
+                        Target = "cell",
+                        Field = "nationalityName_A",
+                        Op = "neq",
+                        Value = "سعودي",
+                        CssClass = "cell-green",
+                        Priority = 1
+                    },
+
+                    new TableStyleRule
+                    {
+                        Target = "cell",
+                        Field = "dependinceCounter",
+                        Op = "gt",            // أكبر من
+                        Value = 2,            
+                        CssClass = "cell-orange",
+                        Priority = 1
+                    },
+                    new TableStyleRule
+                    {
+                        Target = "cell",                    
+                        Field = "maritalStatusName_A",    
+                        Op = "eq",                         
+                        Value = "أعزب",                   
+                        CssClass = "cell-red",            
+                        Priority = 1
+                    },
+                    new TableStyleRule
+                    {
+                        Target = "column",
+                        Field = "note",
+                        Op = "contains",
+                        CssClass = "col-pink",
+                        Priority = 1
+                    }
+
+                };
 
             //return View("HousingDefinitions/BuildingType", dsModel);
 
