@@ -12,6 +12,10 @@ namespace SmartFoundation.UI.ViewModels.SmartTable
         public List<Dictionary<string, object?>> Rows { get; set; } = new();
         public string RowIdField { get; set; } = "Id";
 
+        public string TabelLabel { get; set; } = "";
+
+        public bool ShowToolbar { get; set; } = true;
+
         // ===== إعدادات عامة (من TableConfig) =====
         public string? Endpoint { get; set; }
         public string StoredProcedureName { get; set; } = "";

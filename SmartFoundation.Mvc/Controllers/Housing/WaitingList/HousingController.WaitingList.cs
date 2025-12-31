@@ -86,7 +86,9 @@ namespace SmartFoundation.Mvc.Controllers.Housing
             string rowIdField = "";
             string rowIdField_dt2 = "";
             bool canInsert = false;
+            bool canInsert1 = false;
             bool canUpdate = false;
+            bool canMoveWaitingList = false;
             bool canDelete = false;
 
 
@@ -156,7 +158,7 @@ namespace SmartFoundation.Mvc.Controllers.Housing
                          Label="البحث برقم الهوية الوطنية",
                          Required =true,
                          Name = "NationalID",
-                         Type = "text",
+                         Type = "nationalid",
                          ColCss = "3",
                          Value = NationalID_,
                          Placeholder = "اختر نوع البحث",
@@ -170,22 +172,22 @@ namespace SmartFoundation.Mvc.Controllers.Housing
 
                     Buttons = new List<FormButtonConfig>
                     {
-    //                               new FormButtonConfig
-    //                      {
-    //                          Text="بحث",
-    //                          Icon="fa-solid fa-search",
-    //                          Type="button",
-    //                          Color="success",
-    //                          // Replace the OnClickJs of the "تجربة" button with this:
-    //                          OnClickJs = "(function(){"
-    //+ "var hidden=document.querySelector('input[name=NationalID]');"
-    //+ "if(!hidden){toastr.error('لا يوجد حقل مستخدم');return;}"
-    //+ "var NationalID = (hidden.value||'').trim();"
-    //+ "if(!NationalID){toastr.info('الرجاء كتابة رقم الهوية الوطنية');return;}"
-    //+ "var url = '/Housing/WaitingList?NID=' + encodeURIComponent(NationalID);"
-    //+ "window.location.href = url;"
-    //+ "})();"
-    //                      },
+                                   new FormButtonConfig
+                          {
+                              Text="بحث",
+                              Icon="fa-solid fa-search",
+                              Type="button",
+                              Color="success",
+                              // Replace the OnClickJs of the "تجربة" button with this:
+                              OnClickJs = "(function(){"
+    + "var hidden=document.querySelector('input[name=NationalID]');"
+    + "if(!hidden){toastr.error('لا يوجد حقل مستخدم');return;}"
+    + "var NationalID = (hidden.value||'').trim();"
+    + "if(!NationalID){toastr.info('الرجاء كتابة رقم الهوية الوطنية');return;}"
+    + "var url = '/Housing/WaitingList?NID=' + encodeURIComponent(NationalID);"
+    + "window.location.href = url;"
+    + "})();"
+                          },
 
 
 
@@ -201,7 +203,9 @@ namespace SmartFoundation.Mvc.Controllers.Housing
                         var permissionName = row["permissionTypeName_E"]?.ToString()?.Trim().ToUpper();
 
                         if (permissionName == "INSERT") canInsert = true;
+                        if (permissionName == "INSERTOCCUBENTLETTER") canInsert1 = true;
                         if (permissionName == "UPDATE") canUpdate = true;
+                        if (permissionName == "MOVEWAITINGLIST") canMoveWaitingList = true;
                         if (permissionName == "DELETE") canDelete = true;
                     }
 
@@ -269,7 +273,7 @@ namespace SmartFoundation.Mvc.Controllers.Housing
                                 Type = colType,
                                 Sortable = true
                                  ,
-                                Visible = !(isfirstName_A || isfirstName_E || issecondName_A || issecondName_E || isthirdName_A || isthirdName_E || islastName_A || islastName_E || isrankID_FK || ismilitaryUnitID_FK || ismartialStatusID_FK || isnationalityID_FK || isgenderID_FK || isFullName_E || isbirthdate || isnote || isresidentInfoID)
+                                Visible = !(isfirstName_A || isfirstName_E || issecondName_A || issecondName_E || isthirdName_A || isthirdName_E || islastName_A || islastName_E || isrankID_FK || ismilitaryUnitID_FK || ismartialStatusID_FK || isnationalityID_FK || isgenderID_FK || isFullName_E || isbirthdate || isnote )
                             });
                         }
 
@@ -335,6 +339,7 @@ namespace SmartFoundation.Mvc.Controllers.Housing
                             ["ActionDecisionDate"] = "تاريخ القرار",
                             ["WaitingClassName"] = "فئة الانتظار",
                             ["WaitingOrderTypeName"] = "النوع",
+                            ["ActionNote"] = "ملاحظات",
                         };
 
                         // الأعمدة
@@ -382,16 +387,14 @@ namespace SmartFoundation.Mvc.Controllers.Housing
                             // p01..p05
                             object? Get(string key) => dict2.TryGetValue(key, out var v) ? v : null;
                             dict2["p01"] = Get("ActionID") ?? Get("actionID");
-                            dict2["p02"] = Get("NationalID");
-                            dict2["p03"] = Get("GeneralNo");
-                            dict2["p04"] = Get("ActionDecisionNo");
-                            dict2["p05"] = Get("ActionDecisionDate");
-                            dict2["p06"] = Get("WaitingClassID");
-                            dict2["p07"] = Get("WaitingClassName");
+                            dict2["p02"] = Get("residentInfoID_FK");
+                            dict2["p03"] = Get("NationalID");
+                            dict2["p04"] = Get("GeneralNo");
+                            dict2["p05"] = Get("ActionDecisionNo");
+                            dict2["p06"] = Get("ActionDecisionDate");
+                            dict2["p07"] = Get("WaitingClassID");
                             dict2["p08"] = Get("WaitingOrderTypeID");
-                            dict2["p09"] = Get("WaitingOrderTypeName");
-                            dict2["p10"] = Get("waitingClassSequence");
-                            dict2["p11"] = Get("residentInfoID_FK");
+                            dict2["p09"] = Get("ActionNote");
 
                             rowsList_dt2.Add(dict2);
                         }
@@ -419,11 +422,11 @@ namespace SmartFoundation.Mvc.Controllers.Housing
 
               
                 new FieldConfig { Name = "p04", Label = "رقم القرار", Type = "text", ColCss = "3", MaxLength = 50, TextMode = "number",Required=true},
-                new FieldConfig { Name = "p04", Label = "تاريخ القرار", Type = "date", ColCss = "3", MaxLength = 50, TextMode = "number",Required=true,Placeholder="YYYY-MM-DD"},
+                new FieldConfig { Name = "p05", Label = "تاريخ القرار", Type = "date", ColCss = "3", MaxLength = 50, TextMode = "number",Required=true,Placeholder="YYYY-MM-DD"},
 
-                new FieldConfig { Name = "p05", Label = "فئة سجل الانتظار", Type = "select", ColCss = "3", Required = true, Options= waitingClassOptions },
-                new FieldConfig { Name = "p06", Label = "نوع سجل الانتظار", Type = "select", ColCss = "3", Required = true, Options= waitingOrderTypeOptions },
-                new FieldConfig { Name = "p07", Label = "ملاحظات", Type = "textarea", ColCss = "6", Required = false },
+                new FieldConfig { Name = "p06", Label = "فئة سجل الانتظار", Type = "select", ColCss = "3", Required = true, Options= waitingClassOptions },
+                new FieldConfig { Name = "p07", Label = "نوع سجل الانتظار", Type = "select", ColCss = "3", Required = true, Options= waitingOrderTypeOptions },
+                new FieldConfig { Name = "p08", Label = "ملاحظات", Type = "textarea", ColCss = "6", Required = false },
                 
             };
 
@@ -438,47 +441,69 @@ namespace SmartFoundation.Mvc.Controllers.Housing
             addFields.Insert(0, new FieldConfig { Name = "redirectController", Type = "hidden", Value = ControllerName });
             addFields.Insert(0, new FieldConfig { Name = "redirectUrl", Type = "hidden", Value = currentUrl });
 
+            // ADD fields
+            var addFields1 = new List<FieldConfig>
+            {
+                new FieldConfig { Name = rowIdField_dt2, Type = "hidden" },
+                new FieldConfig { Name = "p01", Label = "الرقم المرجعي", Type = "hidden", ColCss = "6", Required =          true,Value=residentInfoID_ },
+                new FieldConfig { Name = "p02", Label = "رقم الهوية", Type = "hidden", ColCss = "6",Placeholder="1xxxxxxxxx",   Value=     NationalID_ },
+                new FieldConfig { Name = "p03", Label = "الرقم العام", Type = "hidden", ColCss = "6", Required =        true,Value=generalNo_FK_ },
+
+
+
+
+
+                new FieldConfig { Name = "p04", Label = "رقم القرار", Type = "text", ColCss = "3", MaxLength = 50, TextMode =       "number",Required=true},
+                new FieldConfig { Name = "p05", Label = "تاريخ القرار", Type = "date", ColCss = "3", MaxLength = 50, TextMode =         "number",Required=true,Placeholder="YYYY-MM-DD"},
+
+ 
+                new FieldConfig { Name = "p08", Label = "ملاحظات", Type = "textarea", ColCss = "6", Required = false },
+
+            };
+
+            // hidden fields
+            addFields1.Insert(0, new FieldConfig { Name = "__RequestVerificationToken", Type = "hidden", Value = (Request.Headers["RequestVerificationToken"].FirstOrDefault() ?? "") });
+            addFields1.Insert(0, new FieldConfig { Name = "hostname", Type = "hidden", Value = Request.Host.Value });
+            addFields1.Insert(0, new FieldConfig { Name = "entrydata", Type = "hidden", Value = usersId.ToString() });
+            addFields1.Insert(0, new FieldConfig { Name = "idaraID", Type = "hidden", Value = IdaraId.ToString() });
+            addFields1.Insert(0, new FieldConfig { Name = "ActionType", Type = "hidden", Value = "INSERT" });
+            addFields1.Insert(0, new FieldConfig { Name = "pageName_", Type = "hidden", Value = PageName });
+            addFields1.Insert(0, new FieldConfig { Name = "redirectAction", Type = "hidden", Value = PageName });
+            addFields1.Insert(0, new FieldConfig { Name = "redirectController", Type = "hidden", Value = ControllerName });
+            addFields1.Insert(0, new FieldConfig { Name = "redirectUrl", Type = "hidden", Value = currentUrl });
+
             // UPDATE fields
             var updateFields = new List<FieldConfig>
             {
                 new FieldConfig { Name = "redirectAction",      Type = "hidden", Value = PageName },
                 new FieldConfig { Name = "redirectController",  Type = "hidden", Value = ControllerName},
+                new FieldConfig { Name = "redirectUrl",  Type = "hidden", Value = currentUrl},
                 new FieldConfig { Name = "pageName_",           Type = "hidden", Value = PageName },
                 new FieldConfig { Name = "ActionType",          Type = "hidden", Value = "UPDATE" },
                 new FieldConfig { Name = "idaraID",             Type = "hidden", Value = IdaraId.ToString() },
                 new FieldConfig { Name = "entrydata",           Type = "hidden", Value = usersId.ToString() },
                 new FieldConfig { Name = "hostname",            Type = "hidden", Value = Request.Host.Value },
                 new FieldConfig { Name = "__RequestVerificationToken", Type = "hidden", Value = (Request.Headers["RequestVerificationToken"].FirstOrDefault() ?? "") },
-                new FieldConfig { Name = rowIdField,            Type = "hidden" },
+                new FieldConfig { Name = rowIdField_dt2,            Type = "hidden" },
 
 
 
-                new FieldConfig { Name = "p01", Label = "الرقم المرجعي",             Type = "hidden", ColCss = "3" },
-                new FieldConfig { Name = "p02", Label = "رقم الهوية", Type = "nationalid", ColCss = "6" , Readonly=true},
-                new FieldConfig { Name = "p03", Label = "الرقم العام", Type = "number", ColCss = "6", Required = true },
-
-                new FieldConfig { Name = "p04", Label = "الاسم الاول بالعربي", Type = "text", Required = true, Placeholder = "حقل عربي فقط",  Icon = "fa-solid fa-user", ColCss = "3", MaxLength = 50, TextMode = "arabic",},
-                new FieldConfig { Name = "p05", Label = "اسم الاب بالعربي", Type = "text", Required = true, Placeholder = "حقل عربي فقط",  Icon = "fa-solid fa-user", ColCss = "3", MaxLength = 50, TextMode = "arabic",},
-                new FieldConfig { Name = "p06", Label = "اسم الجد بالعربي", Type = "text", Required = true, Placeholder = "حقل عربي فقط",  Icon = "fa-solid fa-user", ColCss = "3", MaxLength = 50, TextMode = "arabic",},
-                new FieldConfig { Name = "p07", Label = "الاسم الاخير بالعربي", Type = "text", Required = true, Placeholder = "حقل عربي فقط",  Icon = "fa-solid fa-user", ColCss = "3", MaxLength = 50, TextMode = "arabic",},
+                
+                new FieldConfig { Name = "p01", Label = "الرقم المرجعي", Type = "hidden", ColCss = "6", Required = true,Value=residentInfoID_ },
+                new FieldConfig { Name = "p02", Label = "الرقم المرجعي", Type = "hidden", ColCss = "6", Required = true,Value=residentInfoID_ },
+                new FieldConfig { Name = "p03", Label = "رقم الهوية", Type = "hidden", ColCss = "6",Placeholder="1xxxxxxxxx",Value= NationalID_ },
+                new FieldConfig { Name = "p04", Label = "الرقم العام", Type = "hidden", ColCss = "6", Required = true,Value=generalNo_FK_ },
 
 
-                new FieldConfig { Name = "p08", Label = "الاسم الاول بالانجليزي", Type = "text",  Placeholder = "حقل انجليزي فقط",  Icon = "fa-solid fa-user", ColCss = "3", MaxLength = 50, TextMode = "english",},
-                new FieldConfig { Name = "p09", Label = "اسم الاب بالانجليزي", Type = "text",  Placeholder = "حقل انجليزي فقط",  Icon = "fa-solid fa-user", ColCss = "3", MaxLength = 50, TextMode = "english",},
-                new FieldConfig { Name = "p10", Label = "اسم الجد بالانجليزي", Type = "text", Placeholder = "حقل انجليزي فقط",  Icon = "fa-solid fa-user", ColCss = "3", MaxLength = 50, TextMode = "english",},
-                new FieldConfig { Name = "p11", Label = "الاسم الاخير بالانجليزي", Type = "text", Placeholder = "حقل انجليزي فقط",  Icon = "fa-solid fa-user", ColCss = "3", MaxLength = 50, TextMode = "english",},
 
-                new FieldConfig { Name = "p14", Label = "الرتبة", Type = "select", ColCss = "3", Required = true, Options= null },
-                new FieldConfig { Name = "p16", Label = "الوحدة", Type = "select", ColCss = "6", Required = true, Options= null },
-                new FieldConfig { Name = "p18", Label = "الحالة الاجتماعية", Type = "select", ColCss = "3", Required = true, Options= null },
-                new FieldConfig { Name = "p21", Label = "الجنسية", Type = "select", ColCss = "3", Required = true, Options= null },
 
-                new FieldConfig { Name = "p20", Label = "عدد التابعين", Type = "number", ColCss = "3" },
-               
-                new FieldConfig { Name = "p25", Label = "تاريخ الميلاد", Type = "date", ColCss = "3" },
-                new FieldConfig { Name = "p26", Label = "رقم الجوال", Type = "tel", ColCss = "3", Required = true },
 
-                new FieldConfig { Name = "p27", Label = "ملاحظات", Type = "text", ColCss = "6", Required = false }
+                new FieldConfig { Name = "p05", Label = "رقم القرار", Type = "text", ColCss = "3", MaxLength = 50, TextMode = "number",Required=true},
+                new FieldConfig { Name = "p06", Label = "تاريخ القرار", Type = "date", ColCss = "3", MaxLength = 50, TextMode = "number",Required=true,Placeholder="YYYY-MM-DD"},
+
+                new FieldConfig { Name = "p07", Label = "فئة سجل الانتظار", Type = "hidden", ColCss = "3", Required = true, Options= waitingClassOptions },
+                new FieldConfig { Name = "p08", Label = "نوع سجل الانتظار", Type = "select", ColCss = "3", Required = true, Options= waitingOrderTypeOptions },
+                new FieldConfig { Name = "p09", Label = "ملاحظات", Type = "textarea", ColCss = "6", Required = false },
             };
 
             // DELETE fields
@@ -486,14 +511,15 @@ namespace SmartFoundation.Mvc.Controllers.Housing
             {
                 new FieldConfig { Name = "redirectAction",     Type = "hidden", Value = PageName },
                 new FieldConfig { Name = "redirectController", Type = "hidden", Value = ControllerName },
+                new FieldConfig { Name = "redirectUrl",  Type = "hidden", Value = currentUrl},
                 new FieldConfig { Name = "pageName_",          Type = "hidden", Value = PageName },
                 new FieldConfig { Name = "ActionType",         Type = "hidden", Value = "DELETE" },
                 new FieldConfig { Name = "idaraID",            Type = "hidden", Value = IdaraId.ToString() },
                 new FieldConfig { Name = "entrydata",          Type = "hidden", Value = usersId.ToString() },
                 new FieldConfig { Name = "hostname",           Type = "hidden", Value = Request.Host.Value },
                 new FieldConfig { Name = "__RequestVerificationToken", Type = "hidden", Value = (Request.Headers["RequestVerificationToken"].FirstOrDefault() ?? "") },
-                new FieldConfig { Name = rowIdField, Type = "hidden" },
-                new FieldConfig { Name = "p01", Type = "hidden", MirrorName = "residentInfoID" }
+                new FieldConfig { Name = rowIdField_dt2, Type = "hidden" },
+                new FieldConfig { Name = "p01", Type = "hidden", MirrorName = "ActionID" }
             };
 
 
@@ -511,6 +537,7 @@ namespace SmartFoundation.Mvc.Controllers.Housing
                 AllowExport = true,
                 ShowRowBorders = false,
                 PanelTitle = "قوائم الانتظار",
+                TabelLabel= "قوائم الانتظار",
                 Toolbar = new TableToolbarConfig
                 {
                     ShowRefresh = false,
@@ -518,23 +545,25 @@ namespace SmartFoundation.Mvc.Controllers.Housing
                     ShowExportCsv = false,
                     ShowExportExcel = false,
                     ShowAdd = canInsert,
+                    ShowAdd1 = canInsert1,
                     ShowEdit = canUpdate,
+                    ShowEdit1 = canMoveWaitingList,
                     ShowDelete = canDelete,
                     ShowBulkDelete = false,
                     
 
                     Add = new TableAction
                     {
-                        Label = "إضافة انتظار جديد",
+                        Label = "إضافة سجل انتظار جديد",
                         Icon = "fa fa-plus",
                         Color = "success",
                         OpenModal = true,
-                        ModalTitle = "إدخال بيانات انتظار جديد",
+                        ModalTitle = "إدخال بيانات سجل انتظار جديد",
                         ModalMessage = "ملاحظة: جميع التعديلات مرصودة",
                         OpenForm = new FormConfig
                         {
                             FormId = "BuildingTypeInsertForm",
-                            Title = "بيانات انتظار جديد",
+                            Title = "بيانات سجل انتظار جديد",
                             Method = "post",
                             ActionUrl = "/crud/insert",
                             Fields = addFields,
@@ -543,6 +572,29 @@ namespace SmartFoundation.Mvc.Controllers.Housing
                                 new FormButtonConfig { Text = "حفظ", Type = "submit", Color = "success" },
                                 new FormButtonConfig { Text = "إلغاء", Type = "button", Color = "secondary", OnClickJs = "this.closest('.sf-modal').__x.$data.closeModal();" }
                             }
+                        }
+                    },
+
+                    Add1 = new TableAction
+                    {
+                        Label = "إضافة خطاب تسكين جديد",
+                        Icon = "fa fa-plus",
+                        Color = "success",
+                        OpenModal = true,
+                        ModalTitle = "إدخال بيانات خطاب تسكين جديد",
+                        ModalMessage = "ملاحظة: جميع التعديلات مرصودة",
+                        OpenForm = new FormConfig
+                        {
+                            FormId = "BuildingTypeInsertForm",
+                            Title = "بيانات خطاب تسكين جديد",
+                            Method = "post",
+                            ActionUrl = "/crud/insert",
+                            Fields = addFields1,
+                            Buttons = new List<FormButtonConfig>
+                          {
+                              new FormButtonConfig { Text = "حفظ", Type = "submit", Color = "success" },
+                              new FormButtonConfig { Text = "إلغاء", Type = "button", Color = "secondary", OnClickJs = "this.     closest('.  sf-   modal').__x.$data.closeModal();" }
+                          }
                         }
                     },
 
@@ -569,19 +621,42 @@ namespace SmartFoundation.Mvc.Controllers.Housing
                         MaxSelection = 1
                     },
 
+                    Edit1 = new TableAction
+                    {
+                        Label = "طلب نقل سجل انتظار لادارة اخرى",
+                        Icon = "fa fa-paper-plane",
+                        Color = "warning",
+                        IsEdit = true,
+                        OpenModal = true,
+                        ModalTitle = "طلب نقل سجل انتظار لادارة اخرى",
+                        OpenForm = new FormConfig
+                        {
+                            FormId = "BuildingTypeEditForm",
+                            Title = "طلب نقل سجل انتظار لادارة اخرى",
+                            Method = "post",
+                            ActionUrl = "/crud/update",
+                            SubmitText = "حفظ التعديلات",
+                            CancelText = "إلغاء",
+                            Fields = updateFields
+                        },
+                        RequireSelection = true,
+                        MinSelection = 1,
+                        MaxSelection = 1
+                    },
+
                     Delete = new TableAction
                     {
-                        Label = "حذف بيانات انتظار",
+                        Label = "الغاء بيانات انتظار",
                         Icon = "fa fa-trash",
                         Color = "danger",
                         IsEdit = true,
                         OpenModal = true,
                         ModalTitle = "<i class='fa fa-exclamation-triangle text-red-600 text-xl mr-2'></i> تحذير",
-                        ModalMessage = "هل أنت متأكد من حذف بيانات الانتظار؟",
+                        ModalMessage = "هل أنت متأكد من الغاء بيانات الانتظار؟",
                         OpenForm = new FormConfig
                         {
                             FormId = "BuildingTypeDeleteForm",
-                            Title = "تأكيد حذف بيانات الانتظار",
+                            Title = "تأكيد الغاء بيانات الانتظار",
                             Method = "post",
                             ActionUrl = "/crud/delete",
                             Buttons = new List<FormButtonConfig>
@@ -613,10 +688,13 @@ namespace SmartFoundation.Mvc.Controllers.Housing
                 PanelTitle = "المستفيدين",
                 ShowFooter = false,
                 Selectable = false,
+                TabelLabel = "بيانات المستفيد",
+                ShowToolbar = false,
+
 
             };
 
-
+ 
             bool dsModelHasRows = dt1 != null && dt1.Rows.Count > 0;
             bool dsModel1HasRows = dt2 != null && dt2.Rows.Count > 0;
 
@@ -634,6 +712,7 @@ namespace SmartFoundation.Mvc.Controllers.Housing
                 Form =form,
                 TableDS = dsModelHasRows ? dsModel : null,
                 TableDS1 = dsModelHasRows ? dsModel1 : null
+                
             };
 
             return View("WaitingList/WaitingList", page);

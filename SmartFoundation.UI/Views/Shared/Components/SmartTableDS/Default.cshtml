@@ -29,6 +29,8 @@
         rows = Model.Rows ?? new List<Dictionary<string, object?>>(),
         toolbar = Model.Toolbar ?? new TableToolbarConfig(),
         styleRules = Model.StyleRules ?? new List<TableStyleRule>(),
+        TabelLabel = Model.TabelLabel ?? "",
+        ShowToolbar = Model.ShowToolbar,
     };
    
 }
@@ -40,104 +42,116 @@
 
 
 
-
+    @if (!string.IsNullOrWhiteSpace(Model.TabelLabel))
+    {
+        <div style="display:flex; align-items:center; justify-content:center; margin-bottom:1rem;">
+            <hr style="flex:1; border: none; border-top: 1.5px solid #bbb; margin: 0 12px;" />
+            <h6 style="margin:0; font-size:x-large; color:darkgreen; white-space:nowrap;">@Model.TabelLabel</h6>
+            <hr style="flex:1; border: none; border-top: 1.5px solid #bbb; margin: 0 12px;" />
+        </div>
+    }
 
     <!-- reuse same markup as SmartTable Default: toolbar, table, pagination, modal -->
     <!-- Toolbar / table markup intentionally identical to existing SmartTable Default to reuse sf-table JS -->
     @* Toolbar portion *@
-    <div class="toolbar">
-        <div class="toolbar-search" x-show="searchable">
-            <input type="text" class="sf-input search-input" x-model="q" x-on:input.debounce.500="debouncedSearch()" :placeholder="searchPlaceholder" />
-            <button type="button" class="btn btn-secondary" x-on:click="refresh()" x-show="toolbar.showRefresh">
-                <i class="fa fa-rotate"></i><span class="hidden-md">تحديث</span>
-            </button>
-        </div>
+     @if (Model.ShowToolbar == true)
+    {
+        <div class="toolbar">
+            <div class="toolbar-search" x-show="searchable">
+                <input type="text" class="sf-input search-input" x-model="q" x-on:input.debounce.500="debouncedSearch()" :placeholder="searchPlaceholder" />
+                <button type="button" class="btn btn-secondary" x-on:click="refresh()" x-show="toolbar.showRefresh">
+                    <i class="fa fa-rotate"></i><span class="hidden-md">تحديث</span>
+                </button>
+            </div>
 
-        <div class="toolbar-actions" x-show="searchable">
-            <label class="label-sm">صفوف/صفحة</label>
-            <select class="sf-input select-sm" x-model.number="pageSize" x-on:change="page=1; load()">
-                <template x-for="s in pageSizes" :key="s">
-                    <option x-text="s"></option>
+            <div class="toolbar-actions" x-show="searchable">
+                <label class="label-sm">صفوف/صفحة</label>
+                <select class="sf-input select-sm" x-model.number="pageSize" x-on:change="page=1; load()">
+                    <template x-for="s in pageSizes" :key="s">
+                        <option x-text="s"></option>
+                    </template>
+                </select>
+
+                <template x-if="allowExport && toolbar.showExportExcel">
+                    <button type="button" class="btn btn-info" x-on:click="exportData('excel')">
+                        <i class="fa fa-file-excel"></i> Excel
+                    </button>
                 </template>
-            </select>
+                <template x-if="allowExport && toolbar.showExportCsv">
+                    <button type="button" class="btn btn-warning" x-on:click="exportData('csv')">
+                        <i class="fa fa-file-csv"></i> CSV
+                    </button>
+                </template>
 
-            <template x-if="allowExport && toolbar.showExportExcel">
-                <button type="button" class="btn btn-info" x-on:click="exportData('excel')">
-                    <i class="fa fa-file-excel"></i> Excel
-                </button>
-            </template>
-            <template x-if="allowExport && toolbar.showExportCsv">
-                <button type="button" class="btn btn-warning" x-on:click="exportData('csv')">
-                    <i class="fa fa-file-csv"></i> CSV
-                </button>
-            </template>
+                <template x-if="toolbar.showAdd && toolbar.add">
+                    <button type="button" class="btn" :class="'btn-' + (toolbar.add?.color ?? 'success')" x-on:click="doAction(toolbar.add, null)">
+                        <i :class="toolbar.add?.icon ?? ''"></i>
+                        <span x-text="toolbar.add?.label ?? 'إضافة'"></span>
+                    </button>
+                </template>
+                <template x-if="toolbar.showAdd1 && toolbar.add1">
+                    <button type="button" class="btn" :class="'btn-' + (toolbar.add1?.color ?? 'success')" x-on:click="doAction(toolbar.add1, null)">
+                        <i :class="toolbar.add1?.icon ?? ''"></i>
+                        <span x-text="toolbar.add1?.label ?? 'إضافة'"></span>
+                    </button>
+                </template>
+                <template x-if="toolbar.showAdd2 && toolbar.add2">
+                    <button type="button" class="btn" :class="'btn-' + (toolbar.add2?.color ?? 'success')" x-on:click="doAction(toolbar.add2, null)">
+                        <i :class="toolbar.add2?.icon ?? ''"></i>
+                        <span x-text="toolbar.add2?.label ?? 'إضافة'"></span>
+                    </button>
+                </template>
 
-            <template x-if="toolbar.showAdd && toolbar.add">
-                <button type="button" class="btn" :class="'btn-' + (toolbar.add?.color ?? 'success')" x-on:click="doAction(toolbar.add, null)">
-                    <i :class="toolbar.add?.icon ?? ''"></i>
-                    <span x-text="toolbar.add?.label ?? 'إضافة'"></span>
-                </button>
-            </template>
-            <template x-if="toolbar.showAdd1 && toolbar.add1">
-                <button type="button" class="btn" :class="'btn-' + (toolbar.add1?.color ?? 'success')" x-on:click="doAction(toolbar.add1, null)">
-                    <i :class="toolbar.add1?.icon ?? ''"></i>
-                    <span x-text="toolbar.add1?.label ?? 'إضافة'"></span>
-                </button>
-            </template>
-            <template x-if="toolbar.showAdd2 && toolbar.add2">
-                <button type="button" class="btn" :class="'btn-' + (toolbar.add2?.color ?? 'success')" x-on:click="doAction(toolbar.add2, null)">
-                    <i :class="toolbar.add2?.icon ?? ''"></i>
-                    <span x-text="toolbar.add2?.label ?? 'إضافة'"></span>
-                </button>
-            </template>
-
-            <template x-if="toolbar.showEdit && toolbar.edit">
-                <button type="button" class="btn" :class="'btn-' + (toolbar.edit?.color ?? 'info')" x-on:click="doAction(toolbar.edit, getSingleSelection())" :disabled="selectedKeys.size !== 1">
-                    <i :class="toolbar.edit?.icon ?? ''"></i>
-                    <span x-text="toolbar.edit?.label ?? 'تعديل'"></span>
-                </button>
-            </template>
-            <template x-if="toolbar.showEdit1 && toolbar.edit1">
-                <button type="button" class="btn" :class="'btn-' + (toolbar.edit1?.color ?? 'info')" x-on:click="doAction(toolbar.edit1, getSingleSelection())" :disabled="selectedKeys.size !== 1">
-                    <i :class="toolbar.edit1?.icon ?? ''"></i>
-                    <span x-text="toolbar.edit1?.label ?? 'تعديل'"></span>
-                </button>
-            </template>
-            <template x-if="toolbar.showEdit2 && toolbar.edit2">
-                <button type="button" class="btn" :class="'btn-' + (toolbar.edit2?.color ?? 'info')" x-on:click="doAction(toolbar.edit2, getSingleSelection())" :disabled="selectedKeys.size !== 1">
-                    <i :class="toolbar.edit2?.icon ?? ''"></i>
-                    <span x-text="toolbar.edit2?.label ?? 'تعديل'"></span>
-                </button>
-            </template>
-
-         
-            <template x-if="toolbar.showDelete && toolbar.delete">
-                <button type="button" class="btn" :class="'btn-' + (toolbar.delete?.color ?? 'danger')" x-on:click="doAction(toolbar.delete, getSingleSelection())" :disabled="selectedKeys.size !== 1">
-                    <i :class="toolbar.delete?.icon ?? ''"></i>
-                    <span x-text="toolbar.delete?.label ?? 'حذف'"></span>
-                </button>
-            </template>
-
-            <template x-if="toolbar.showDelete1 && toolbar.delete1">
-                <button type="button" class="btn" :class="'btn-' + (toolbar.delete1?.color ?? 'danger')" x-on:click="doAction(toolbar.delete1, getSingleSelection())" :disabled="selectedKeys.size !== 1">
-                    <i :class="toolbar.delete1?.icon ?? ''"></i>
-                    <span x-text="toolbar.delete1?.label ?? 'حذف'"></span>
-                </button>
-            </template>
-
-            <template x-if="toolbar.showDelete2 && toolbar.delete2">
-                <button type="button" class="btn" :class="'btn-' + (toolbar.delete2?.color ?? 'danger')" x-on:click="doAction(toolbar.delete2, getSingleSelection())" :disabled="selectedKeys.size !== 1">
-                    <i :class="toolbar.delete2?.icon ?? ''"></i>
-                    <span x-text="toolbar.delete2?.label ?? 'حذف'"></span>
-                </button>
-            </template>
+                <template x-if="toolbar.showEdit && toolbar.edit">
+                    <button type="button" class="btn" :class="'btn-' + (toolbar.edit?.color ?? 'info')" x-on:click="doAction(toolbar.edit, getSingleSelection())" :disabled="selectedKeys.size !== 1">
+                        <i :class="toolbar.edit?.icon ?? ''"></i>
+                        <span x-text="toolbar.edit?.label ?? 'تعديل'"></span>
+                    </button>
+                </template>
+                <template x-if="toolbar.showEdit1 && toolbar.edit1">
+                    <button type="button" class="btn" :class="'btn-' + (toolbar.edit1?.color ?? 'info')" x-on:click="doAction(toolbar.edit1, getSingleSelection())" :disabled="selectedKeys.size !== 1">
+                        <i :class="toolbar.edit1?.icon ?? ''"></i>
+                        <span x-text="toolbar.edit1?.label ?? 'تعديل'"></span>
+                    </button>
+                </template>
+                <template x-if="toolbar.showEdit2 && toolbar.edit2">
+                    <button type="button" class="btn" :class="'btn-' + (toolbar.edit2?.color ?? 'info')" x-on:click="doAction(toolbar.edit2, getSingleSelection())" :disabled="selectedKeys.size !== 1">
+                        <i :class="toolbar.edit2?.icon ?? ''"></i>
+                        <span x-text="toolbar.edit2?.label ?? 'تعديل'"></span>
+                    </button>
+                </template>
 
 
+                <template x-if="toolbar.showDelete && toolbar.delete">
+                    <button type="button" class="btn" :class="'btn-' + (toolbar.delete?.color ?? 'danger')" x-on:click="doAction(toolbar.delete, getSingleSelection())" :disabled="selectedKeys.size !== 1">
+                        <i :class="toolbar.delete?.icon ?? ''"></i>
+                        <span x-text="toolbar.delete?.label ?? 'حذف'"></span>
+                    </button>
+                </template>
+
+                <template x-if="toolbar.showDelete1 && toolbar.delete1">
+                    <button type="button" class="btn" :class="'btn-' + (toolbar.delete1?.color ?? 'danger')" x-on:click="doAction(toolbar.delete1, getSingleSelection())" :disabled="selectedKeys.size !== 1">
+                        <i :class="toolbar.delete1?.icon ?? ''"></i>
+                        <span x-text="toolbar.delete1?.label ?? 'حذف'"></span>
+                    </button>
+                </template>
+
+                <template x-if="toolbar.showDelete2 && toolbar.delete2">
+                    <button type="button" class="btn" :class="'btn-' + (toolbar.delete2?.color ?? 'danger')" x-on:click="doAction(toolbar.delete2, getSingleSelection())" :disabled="selectedKeys.size !== 1">
+                        <i :class="toolbar.delete2?.icon ?? ''"></i>
+                        <span x-text="toolbar.delete2?.label ?? 'حذف'"></span>
+                    </button>
+                </template>
+
+
+            </div>
         </div>
-    </div>
-
+    }
     @* Table markup identical to SmartTable Default *@
+
+   
     <div class="table-box">
+       
         <table class="sf-table">
             <thead x-show="showHeader" class="table-head">
                 <tr>

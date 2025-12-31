@@ -498,7 +498,7 @@ namespace SmartFoundation.Mvc.Controllers.Housing
                         CssClass = "cell-red",            
                         Priority = 1
                     },
-                    new TableStyleRule
+                     new TableStyleRule
                     {
                         Target = "column",
                         Field = "note",
