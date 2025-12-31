@@ -209,7 +209,7 @@ namespace SmartFoundation.Mvc.Controllers.Login
             //}
 
 
-            return RedirectToAction("Index", "Home");
+            return RedirectToAction("Index", "Dashboard");
         }
 
         [HttpGet]
