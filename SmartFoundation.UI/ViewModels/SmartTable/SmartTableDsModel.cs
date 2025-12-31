@@ -33,7 +33,7 @@ namespace SmartFoundation.UI.ViewModels.SmartTable
 
         public List<TableAction> RowActions { get; set; } = new();
 
-        public bool Selectable { get; set; } = false;
+        public bool Selectable { get; set; } = true;
         public string? GroupBy { get; set; }
         public string? StorageKey { get; set; }
 
@@ -74,7 +74,8 @@ namespace SmartFoundation.UI.ViewModels.SmartTable
         public string? AriaLabel { get; set; }
         public bool HighContrast { get; set; } = false;
 
-        
+
+        public List<TableStyleRule> StyleRules { get; set; } = new();
 
     }
 }

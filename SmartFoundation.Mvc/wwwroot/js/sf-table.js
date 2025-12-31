@@ -1,4 +1,7 @@
 ﻿// wwwroot/js/sf-table.js - Complete Rewrite
+
+window.__sfTableGlobalBound = window.__sfTableGlobalBound || false;
+
 (function () {
     const register = () => {
         Alpine.data("sfTable", (cfg) => ({
@@ -10,6 +13,10 @@
             // Pagination
             pageSize: cfg.pageSize || 10,
             pageSizes: cfg.pageSizes || [10, 25, 50, 100],
+            // NEW: Server paging (fast mode) - off by default
+            serverPaging: !!cfg.serverPaging,
+
+
 
             // Search
             searchable: !!cfg.searchable,
@@ -40,60 +47,14 @@
             rowIdField: cfg.rowIdField || "Id",
             singleSelect: !!cfg.singleSelect, // NEW: read from config
 
-            // ===== Selection Management =====
-            toggleRow(row) {
-                const key = row?.[this.rowIdField];
-                if (key == null) return;
-
-                if (this.singleSelect) {
-                    // clicking selected row → clear all; else select only this row
-                    if (this.selectedKeys.has(key)) {
-                        this.selectedKeys.clear();
-                    } else {
-                        this.selectedKeys.clear();
-                        this.selectedKeys.add(key);
-                    }
-                } else {
-                    // original multi-select
-                    if (this.selectedKeys.has(key)) {
-                        this.selectedKeys.delete(key);
-                    } else {
-                        this.selectedKeys.add(key);
-                    }
-                }
-                this.updateSelectAllState();
+            stripHtml(html) {
+                const div = document.createElement('div');
+                div.innerHTML = html ?? '';
+                return (div.textContent || div.innerText || '').trim();
             },
 
-            toggleSelectAll() {
-                if (this.singleSelect) {
-                    // In single-select mode, select first visible row or clear
-                    if (this.selectAll && this.rows.length > 0) {
-                        this.selectedKeys.clear();
-                        this.selectedKeys.add(this.rows[0][this.rowIdField]);
-                    } else {
-                        this.selectedKeys.clear();
-                    }
-                } else {
-                    if (this.selectAll) {
-                        this.rows.forEach(row => this.selectedKeys.add(row[this.rowIdField]));
-                    } else {
-                        this.selectedKeys.clear();
-                    }
-                }
-                this.updateSelectAllState();
-            },
 
-            updateSelectAllState() {
-                if (this.singleSelect) {
-                    // selectAll reflects whether one selected exists on current page
-                    const pageKeys = new Set(this.rows.map(r => r[this.rowIdField]));
-                    const hasOnPage = Array.from(this.selectedKeys).some(k => pageKeys.has(k));
-                    this.selectAll = hasOnPage && this.selectedKeys.size === 1;
-                    return;
-                }
-                this.selectAll = this.rows.length > 0 &&
-                    this.rows.every(row => this.selectedKeys.has(row[this.rowIdField]));
-            },
+            
 
             // Grouping & Storage
             groupBy: cfg.groupBy || null,
@@ -113,6 +74,7 @@
             sort: { field: null, dir: "asc" },
             loading: false,
             error: null,
+            activeIndex: -1,  //  Keyboard row navigation
 
             // Selection State
             selectedKeys: new Set(),
@@ -139,11 +101,93 @@
             },
 
 
+            //  Step 3: style rules from server
+            styleRules: Array.isArray(cfg.styleRules) ? cfg.styleRules : [],
+
+            applyStyleRules(row, col, target /* 'row' | 'cell' | 'column' */) {
+                const normTarget = String(target || 'cell').toLowerCase();
+
+                const rules = (this.styleRules || [])
+                    .filter(r => {
+                        const rt = String(r.target || 'cell').toLowerCase();
+
+                        // ✅ لو target=cell شغّل معه قواعد column أيضًا
+                        if (normTarget === 'cell') return rt === 'cell' || rt === 'column';
+
+                        return rt === normTarget;
+                    })
+                    .filter(r => {
+                        const rt = String(r.target || 'cell').toLowerCase();
+
+                        // cell/column لازم Field يطابق العمود الحالي
+                        if ((rt === "cell" || rt === "column") && r.field) return r.field === col?.field;
+
+                        // row: لو فيه Field نطبّق حسبه، ولو ما فيه Field نطبّق دائمًا
+                        if (rt === "row") return true;
+
+                        return false;
+                    })
+                    .sort((a, b) => (a.priority || 0) - (b.priority || 0));
+
+                const isMatch = (r) => {
+                    const op = String(r.op || "eq").toLowerCase();
+                    const val = r.value;
+
+                    let left; // ✅ مهم
+
+                    const rt = String(r.target || 'cell').toLowerCase();
+                    if (rt === "row") {
+                        // rule صف عام بدون field = يطبق دائمًا
+                        if (!r.field) return true;
+                        left = row?.[r.field];
+                    } else {
+                        left = row?.[col?.field];
+                    }
+
+                    const l = left ?? "";
+                    const v = val ?? "";
+
+                    const ln = Number(l);
+                    const vn = Number(v);
+                    const bothNum = !Number.isNaN(ln) && !Number.isNaN(vn);
+
+                    switch (op) {
+                        case "eq": return String(l) === String(v);
+                        case "neq": return String(l) !== String(v);
+                        case "gt": return bothNum ? ln > vn : String(l) > String(v);
+                        case "gte": return bothNum ? ln >= vn : String(l) >= String(v);
+                        case "lt": return bothNum ? ln < vn : String(l) < String(v);
+                        case "lte": return bothNum ? ln <= vn : String(l) <= String(v);
+                        case "contains": return String(l).includes(String(v));
+                        case "startswith": return String(l).startsWith(String(v));
+                        case "endswith": return String(l).endsWith(String(v));
+                        case "in":
+                            if (Array.isArray(val)) return val.map(String).includes(String(l));
+                            return String(v).split(",").map(s => s.trim()).includes(String(l));
+                        default:
+                            return false;
+                    }
+                };
+
+                let classes = [];
+                for (const r of rules) {
+                    if (r && r.cssClass && isMatch(r)) {
+                        classes.push(r.cssClass);
+                        if (r.stopOnMatch) break;
+                    }
+                }
+                return classes.join(" ");
+            },
+
+
+
+
             // ===== Initialization =====
             init() {
                 this.loadStoredPreferences();
                 this.load();
                 this.setupEventListeners();
+
             },
 
             loadStoredPreferences() {
@@ -185,6 +229,8 @@
                 }
             },
 
+
+
             //setupEventListeners() {
             //    document.addEventListener('keydown', (e) => {
             //        if (e.key === 'Escape' && this.modal.open) {
@@ -201,25 +247,131 @@
             //        }
             //    });
 
+            //    // === ربط القوائم المعتمدة على قائمة أخرى (DependsOn / DependsUrl)  ===
+            //    document.addEventListener('change', async (e) => {
+            //        const parentSelect = e.target.closest('select');
+            //        if (!parentSelect) return;
+
+            //        const parentName = parentSelect.name;
+            //        if (!parentName) return;
+
+            //        const form = parentSelect.closest('form');
+            //        if (!form) return;
+
+            //        // كل القوائم التي تعتمد على هذا الحقل داخل نفس الفورم
+            //        const dependentSelects = form.querySelectorAll(`select[data-depends-on="${parentName}"]`);
+
+            //        for (const dependentSelect of dependentSelects) {
+            //            const dependsUrl = dependentSelect.getAttribute('data-depends-url');
+            //            if (!dependsUrl) continue;
+
+            //            const parentValue = parentSelect.value;
+
+            //            // حالة اختيار غير صالح
+            //            if (!parentValue || parentValue === '-1') {
+            //                dependentSelect.innerHTML = '<option value="-1">الرجاء الاختيار</option>';
+            //                return;
+            //            }
+
+            //            const originalHtml = dependentSelect.innerHTML;
+            //            dependentSelect.innerHTML = '<option value="-1">جاري التحميل...</option>';
+            //            dependentSelect.disabled = true;
+
+            //            try {
+            //                // const url = `${dependsUrl}&${encodeURIComponent(parentName)}=${encodeURIComponent(parentValue)}`;
+            //                //const url = `${dependsUrl}&${encodeURIComponent(parentName)}=${encodeURIComponent(parentValue)}`;
+            //                const url = `${dependsUrl}${dependsUrl.includes('?') ? '&' : '?'}DDLValues=${encodeURIComponent(parentValue)}`;
+
+            //                const response = await fetch(url);
+            //                if (!response.ok) {
+            //                    throw new Error(`HTTP ${response.status}`);
+            //                }
+
+            //                const data = await response.json();
+
+            //                dependentSelect.innerHTML = '';
+
+            //                if (Array.isArray(data) && data.length > 0) {
+            //                    data.forEach(item => {
+            //                        const option = document.createElement('option');
+            //                        option.value = item.value;
+            //                        option.textContent = item.text;
+            //                        dependentSelect.appendChild(option);
+            //                    });
+            //                } else {
+            //                    dependentSelect.innerHTML = '<option value="-1">لا توجد خيارات متاحة</option>';
+            //                }
+
+
+            //                // ✅ تحديث select2 بعد تغيير الخيارات
+            //                if (window.jQuery && jQuery.fn.select2 && dependentSelect.classList.contains('js-select2')) {
+            //                    const parentModal = dependentSelect.closest('.sf-modal') || document.body;
+
+            //                    $(dependentSelect).select2('destroy');
+            //                    $(dependentSelect).select2({
+            //                        width: '100%',
+            //                        dir: 'rtl',
+            //                        dropdownParent: $(parentModal)
+            //                    });
+            //                }
+
+
+            //            } catch (error) {
+            //                console.error('Error loading dependent options:', error);
+            //                dependentSelect.innerHTML = originalHtml;
+            //                this.showToast('فشل تحميل الخيارات: ' + error.message, 'error');
+            //            } finally {
+            //                dependentSelect.disabled = false;
+            //            }
+            //        }
+            //    });
             //},
 
             setupEventListeners() {
+                // ✅ يمنع تكرار ربط الأحداث (لأنه Alpine يسوي instance لكل جدول)
+                if (window.__sfTableGlobalBound) return;
+                window.__sfTableGlobalBound = true;
+
                 document.addEventListener('keydown', (e) => {
-                    if (e.key === 'Escape' && this.modal.open) {
-                        this.closeModal();
-                    }
+                    if (e.key !== 'Escape') return;
+                    const root = document.querySelector('[x-data*="sfTable"]');
+                    if (root && root.__x?.$data?.modal?.open) root.__x.$data.closeModal();
                 });
 
-                // إغلاق المودال بزر "إلغاء"
+                //document.addEventListener('click', (e) => {
+                //    const cancelBtn = e.target.closest('.sf-modal-cancel');
+                //    if (!cancelBtn) return;
+
+                //    const root = cancelBtn.closest('[x-data]');
+                //    if (root && root.__x?.$data?.modal?.open) {
+                //        e.preventDefault();
+                //        root.__x.$data.closeModal();
+                //    }
+                //});
                 document.addEventListener('click', (e) => {
-                    const cancelBtn = e.target.closest('.sf-modal-cancel');
-                    if (cancelBtn && this.modal.open) {
+                    const api = window.__sfTableActive;
+                    if (!api || !api.modal?.open) return;
+
+                    //  زر X أو زر إلغاء أو أي زر إغلاق
+                    if (e.target.closest('.sf-modal-close,[data-modal-close],.sf-modal-cancel,.sf-modal-btn-cancel')) {
                         e.preventDefault();
-                        this.closeModal();
+                        api.closeModal();
+                        return;
+                    }
+
+                    //  الضغط على الخلفية (خارج الصندوق) يغلق المودال
+                    const backdrop = e.target.closest('.sf-modal-backdrop');
+                    if (backdrop) {
+                        const inside = e.target.closest('.sf-modal');
+                        if (!inside) {
+                            e.preventDefault();
+                            api.closeModal();
+                        }
                     }
                 });
 
-                // === ربط القوائم المعتمدة على قائمة أخرى (DependsOn / DependsUrl)  ===
+
+                // depends dropdowns (listener واحد فقط)
                 document.addEventListener('change', async (e) => {
                     const parentSelect = e.target.closest('select');
                     if (!parentSelect) return;
@@ -230,7 +382,6 @@
                     const form = parentSelect.closest('form');
                     if (!form) return;
 
-                    // كل القوائم التي تعتمد على هذا الحقل داخل نفس الفورم
                     const dependentSelects = form.querySelectorAll(`select[data-depends-on="${parentName}"]`);
 
                     for (const dependentSelect of dependentSelects) {
@@ -239,10 +390,10 @@
 
                         const parentValue = parentSelect.value;
 
-                        // حالة اختيار غير صالح
+                        // ❗ مهم: لا تستخدم return هنا
                         if (!parentValue || parentValue === '-1') {
                             dependentSelect.innerHTML = '<option value="-1">الرجاء الاختيار</option>';
-                            return;
+                            continue;
                         }
 
                         const originalHtml = dependentSelect.innerHTML;
@@ -250,48 +401,32 @@
                         dependentSelect.disabled = true;
 
                         try {
-                            // const url = `${dependsUrl}&${encodeURIComponent(parentName)}=${encodeURIComponent(parentValue)}`;
-                            //const url = `${dependsUrl}&${encodeURIComponent(parentName)}=${encodeURIComponent(parentValue)}`;
                             const url = `${dependsUrl}${dependsUrl.includes('?') ? '&' : '?'}DDLValues=${encodeURIComponent(parentValue)}`;
-
-                            const response = await fetch(url);
-                            if (!response.ok) {
-                                throw new Error(`HTTP ${response.status}`);
-                            }
+                            const response = await fetch(url, { credentials: 'same-origin' });
+                            if (!response.ok) throw new Error(`HTTP ${response.status}`);
 
                             const data = await response.json();
 
                             dependentSelect.innerHTML = '';
-
                             if (Array.isArray(data) && data.length > 0) {
-                                data.forEach(item => {
+                                for (const item of data) {
                                     const option = document.createElement('option');
                                     option.value = item.value;
                                     option.textContent = item.text;
                                     dependentSelect.appendChild(option);
-                                });
+                                }
                             } else {
                                 dependentSelect.innerHTML = '<option value="-1">لا توجد خيارات متاحة</option>';
                             }
 
-
-                            // ✅ تحديث select2 بعد تغيير الخيارات
+                            //  لا destroy/reinit (ثقيل)
                             if (window.jQuery && jQuery.fn.select2 && dependentSelect.classList.contains('js-select2')) {
-                                const parentModal = dependentSelect.closest('.sf-modal') || document.body;
-
-                                $(dependentSelect).select2('destroy');
-                                $(dependentSelect).select2({
-                                    width: '100%',
-                                    dir: 'rtl',
-                                    dropdownParent: $(parentModal)
-                                });
+                                $(dependentSelect).trigger('change.select2');
                             }
-
 
                         } catch (error) {
                             console.error('Error loading dependent options:', error);
                             dependentSelect.innerHTML = originalHtml;
-                            this.showToast('فشل تحميل الخيارات: ' + error.message, 'error');
                         } finally {
                             dependentSelect.disabled = false;
                         }
@@ -301,17 +436,94 @@
 
 
 
+
+            //async load() {
+            //    this.loading = true;
+            //    this.error = null;
+
+            //    try {
+            //        // If client-side mode and initial rows provided, use them
+            //        if (this.allRows.length === 0) {
+            //            if (this.clientSideMode && Array.isArray(this.initialRows) && this.initialRows.length > 0) {
+            //                this.allRows = this.initialRows;
+            //            } else {
+            //                // Load all data once from server
+            //                const body = {
+            //                    Component: "Table",
+            //                    SpName: this.spName,
+            //                    Operation: this.operation,
+            //                    Paging: { Page: 1, Size: 1000000 }
+            //                };
+
+            //                const json = await this.postJson(this.endpoint, body);
+            //                this.allRows = Array.isArray(json?.data) ? json.data : [];
+            //            }
+            //        }
+
+            //        // Apply local filtering and sorting
+            //        this.applyFiltersAndSort();
+
+            //    } catch (e) {
+            //        console.error("Load error:", e);
+            //        this.error = e.message || "خطأ في تحميل البيانات";
+            //    } finally {
+            //        this.loading = false;
+            //    }
+            //},
+
             async load() {
                 this.loading = true;
                 this.error = null;
 
                 try {
-                    // If client-side mode and initial rows provided, use them
+                    // ===== FAST MODE: server-side paging (only if enabled) =====
+                    if (this.serverPaging) {
+                        const body = {
+                            Component: "Table",
+                            SpName: this.spName,
+                            Operation: this.operation,
+                            Paging: { Page: this.page, Size: this.pageSize },
+                            Params: {
+                                q: this.q || null,
+                                sortField: this.sort.field || null,
+                                sortDir: this.sort.dir || "asc"
+                            }
+                        };
+
+                        const json = await this.postJson(this.endpoint, body);
+
+                        // بيانات الصفحة الحالية فقط
+                        this.rows = Array.isArray(json?.data) ? json.data : [];
+
+                        // إجمالي السجلات (إذا السيرفر يرجعه)
+                        const total = json?.total ?? json?.count ?? json?.Total ?? json?.Count ?? null;
+
+                        // إذا ما رجع total، نخليها صفحة واحدة عشان ما ينكسر شيء
+                        if (total == null) {
+                            this.total = this.rows.length;
+                            this.pages = 1;
+                            this.page = 1;
+                        } else {
+                            this.total = Number(total) || 0;
+                            this.pages = Math.max(1, Math.ceil(this.total / this.pageSize));
+                            this.page = Math.min(this.page, this.pages);
+                        }
+
+                        // في وضع السيرفر ما نحتاج allRows/filteredRows
+                        this.allRows = [];
+                        this.filteredRows = [];
+
+                        this.savePreferences();
+                        this.updateSelectAllState();
+                        return;
+                    }
+
+                    // ===== OLD MODE (unchanged): client-side =====
                     if (this.allRows.length === 0) {
                         if (this.clientSideMode && Array.isArray(this.initialRows) && this.initialRows.length > 0) {
                             this.allRows = this.initialRows;
                         } else {
-                            // Load all data once from server
+                            // نفس كودك القديم كما هو
                             const body = {
                                 Component: "Table",
                                 SpName: this.spName,
@@ -324,7 +536,6 @@
                         }
                     }
 
-                    // Apply local filtering and sorting
                     this.applyFiltersAndSort();
 
                 } catch (e) {
@@ -335,18 +546,58 @@
                 }
             },
 
+
+
+
+
+
+
+
+
+
             applyFiltersAndSort() {
                 let filtered = [...this.allRows];
 
                 // Apply search filter
-                if (this.q && this.quickSearchFields.length > 0) {
-                    const qLower = this.q.toLowerCase();
-                    filtered = filtered.filter(row =>
-                        this.quickSearchFields.some(field =>
-                            String(row[field] || "").toLowerCase().includes(qLower)
-                        )
-                    );
+                //if (this.q && this.quickSearchFields.length > 0) {
+                //    const qLower = this.q.toLowerCase();
+                //    filtered = filtered.filter(row =>
+                //        this.quickSearchFields.some(field =>
+                //            String(row[field] || "").toLowerCase().includes(qLower)
+                //        )
+                //    );
+                //}
+
+                // Apply search filter (token-based, across all quickSearchFields)
+                if (this.q) {
+                    const tokens = String(this.q)
+                        .toLowerCase()
+                        .trim()
+                        .split(/\s+/)
+                        .filter(Boolean);
+
+                    const fields = (this.quickSearchFields && this.quickSearchFields.length)
+                        ? this.quickSearchFields
+                        : this.visibleColumns().map(c => c.field); // fallback: كل الأعمدة الظاهرة
+
+                    if (tokens.length) {
+                        filtered = filtered.filter(row => {
+                            // نجمع كل القيم القابلة للبحث في نص واحد
+                            const haystack = fields
+                                .map(f => String(row?.[f] ?? "").toLowerCase())
+                                .join(" ");
+
+                            // لازم كل كلمات البحث موجودة (AND)
+                            return tokens.every(t => haystack.includes(t));
+                        });
+                    }
                 }
+
+
+
+
+            
+
 
                 // Apply sorting
                 if (this.sort.field) {
@@ -394,16 +645,32 @@
 
                 this.savePreferences();
                 this.updateSelectAllState();
+
+                //  كل مرة تتغير البيانات/الصفحة/البحث
+                //this.$nextTick(() => this.enhanceTableUI());
             },
 
             // ===== Debounced Search =====
+            //debouncedSearch() {
+            //    clearTimeout(this.searchTimer);
+            //    this.searchTimer = setTimeout(() => {
+            //        this.page = 1;
+            //        this.applyFiltersAndSort();
+            //    }, this.searchDelay);
+            //},
+
             debouncedSearch() {
                 clearTimeout(this.searchTimer);
                 this.searchTimer = setTimeout(() => {
                     this.page = 1;
-                    this.applyFiltersAndSort();
+                    if (this.serverPaging) {
+                        this.load();            // ✅ سيرفر سايد
+                    } else {
+                        this.applyFiltersAndSort();
+                    }
                 }, this.searchDelay);
             },
+
 
             refresh() {
                 this.allRows = [];
@@ -420,6 +687,19 @@
                 this.savePreferences();
             },
 
+            //toggleSort(col) {
+            //    if (!col.sortable) return;
+
+            //    if (this.sort.field === col.field) {
+            //        this.sort.dir = this.sort.dir === "asc" ? "desc" : "asc";
+            //    } else {
+            //        this.sort.field = col.field;
+            //        this.sort.dir = "asc";
+            //    }
+
+            //    this.applyFiltersAndSort();
+            //},
+
             toggleSort(col) {
                 if (!col.sortable) return;
 
@@ -430,8 +710,14 @@
                     this.sort.dir = "asc";
                 }
 
-                this.applyFiltersAndSort();
+                this.page = 1;
+                if (this.serverPaging) {
+                    this.load();                // ✅ سيرفر سايد
+                } else {
+                    this.applyFiltersAndSort();
+                }
             },
+
 
             // ===== Selection Management =====
             toggleRow(row) {
@@ -455,6 +741,9 @@
                     }
                 }
                 this.updateSelectAllState();
+                // ✅ sync activeIndex مع الصف المحدد
+                //const i = this.rows.findIndex(r => r?.[this.rowIdField] == key);
+                //if (i >= 0) this.activeIndex = i;
             },
 
             toggleSelectAll() {
@@ -504,6 +793,91 @@
                 this.selectedKeys.clear();
                 this.selectAll = false;
             },
+
+            // ✅ Keyboard: ↑ ↓ Enter
+            //onTableKeydown(e) {
+            //    const tag = (e.target?.tagName || "").toLowerCase();
+            //    if (tag === "input" || tag === "textarea" || tag === "select") return;
+
+            //    if (!this.rows || this.rows.length === 0) return;
+
+            //    if (e.key === "ArrowDown") {
+            //        e.preventDefault();
+            //        this.moveActive(1);
+            //        return;
+            //    }
+
+            //    if (e.key === "ArrowUp") {
+            //        e.preventDefault();
+            //        this.moveActive(-1);
+            //        return;
+            //    }
+
+            //    if (e.key === "Enter") {
+            //        e.preventDefault();
+            //        this.openActiveRowAction();
+            //        return;
+            //    }
+            //},
+
+            //moveActive(step) {
+            //    if (!this.rows || this.rows.length === 0) return;
+
+            //    if (this.activeIndex < 0) this.activeIndex = 0;
+            //    else this.activeIndex = Math.min(this.rows.length - 1, Math.max(0, this.activeIndex + step));
+
+            //    const row = this.rows[this.activeIndex];
+            //    if (!row) return;
+
+            //    // ✅ بدل toggleRow (عشان ما يصير تحديد/إلغاء مع الأسهم)
+            //    this.selectRowOnly(row);
+
+            //    this.$nextTick(() => {
+            //        const el = this.$root?.querySelector?.(`tr[data-row-index="${this.activeIndex}"]`);
+            //        el?.scrollIntoView?.({ block: "nearest", inline: "nearest" });
+            //    });
+            //},
+
+            //openActiveRowAction() {
+            //    if (this.activeIndex < 0 || !this.rows || this.rows.length === 0) return;
+            //    const row = this.rows[this.activeIndex];
+            //    if (!row) return;
+
+            //    // 1) Edit من التولبار
+            //    if (this.toolbar?.edit) {
+            //        this.doAction(this.toolbar.edit, row);
+            //        return;
+            //    }
+
+            //    // 2) View من actions
+            //    const viewAct =
+            //        (this.actions || []).find(a =>
+            //            (a?.isView === true) ||
+            //            (String(a?.label || "").includes("عرض")) ||
+            //            (String(a?.name || "").toLowerCase() === "view")
+            //        );
+
+            //    if (viewAct) {
+            //        this.doAction(viewAct, row);
+            //        return;
+            //    }
+
+            //    // 3) أول أكشن
+            //    if ((this.actions || []).length > 0) {
+            //        this.doAction(this.actions[0], row);
+            //    }
+            //},
+
+            //// ✅ تحديد صف واحد بدون toggle
+            //selectRowOnly(row) {
+            //    const key = row?.[this.rowIdField];
+            //    if (key == null) return;
+
+            //    this.selectedKeys.clear();
+            //    this.selectedKeys.add(key);
+            //    this.updateSelectAllState();
+            //},
+
 
             // ===== Export Functions =====
             exportData(type, scope = 'page') {
@@ -661,6 +1035,7 @@
             // ===== Modal Management =====
             async openModal(action, row) {
                 this.modal.open = true;
+                window.__sfTableActive = this; //جديد
                 this.modal.title = action.modalTitle || action.label || "";
                 this.modal.message = action.modalMessage || ""; //  جديد
                 this.modal.action = action;
@@ -714,6 +1089,7 @@
                 this.modal.action = null;
                 this.modal.error = null;
                 this.modal.message = ""; //  جديد
+                if (window.__sfTableActive === this) window.__sfTableActive = null;//جديد
             },
 
 
@@ -727,6 +1103,13 @@
                 const action = formConfig.actionUrl || "#";
 
                 let html = `<form id="${formId}" method="${method}" action="${action}" class="sf-modal-form">`;
+
+                //const formId = formConfig.formId || "modalForm";
+                //const method = formConfig.method || "POST";
+
+                //// ✅ امنع أي submit طبيعي يسبب Reload كامل
+                //let html = `<form id="${formId}" method="${method}" action="#" onsubmit="return false;" class="sf-modal-form">`;
+
                 
 
                 html += `<div class="grid grid-cols-12 gap-4">`;
@@ -836,9 +1219,13 @@
 
                 const colCss = this.resolveColCss(field.colCss || "6");
 
-                const required = field.required ? "required" : "";
-                const disabled = field.disabled ? "disabled" : "";
-                const readonly = field.readonly ? "readonly" : "";
+                //const required = field.required ? "required" : "";
+                //const disabled = field.disabled ? "disabled" : "";
+                //const readonly = field.readonly ? "readonly" : "";
+                const required = (field.required ?? field.Required) ? "required" : "";
+                const disabled = (field.disabled ?? field.Disabled) ? "disabled" : "";
+                const readonly = (field.readonly ?? field.Readonly) ? "readonly" : "";
+
 
                 const placeholder = field.placeholder
                     ? `placeholder="${this.escapeHtml(field.placeholder)}"`
@@ -973,7 +1360,7 @@
                 ${field.helpText
                                 ? `<p class="mt-1 text-xs text-gray-500">${this.escapeHtml(field.helpText)}</p>`
                                 : ''}
-            </div>`;
+                    </div>`;
                         break;
 
 
@@ -994,20 +1381,12 @@
                         </div>`;
                         break;
 
+
+
+
                     case "select":
                         let options = "";
-                        //if (!field.required) {
-                        //    options += `<option value="">${field.placeholder || 'اختر...'}</option>`;
-                        //}
-                        //(field.options || []).forEach(opt => {
-                        //    const optValue = opt.value ?? opt.Value ?? "";
-                        //    const optText = opt.text ?? opt.Text ?? "";
-                        //    const optDisabled = (opt.disabled ?? opt.Disabled) ? "disabled" : "";
-                        //    const selected = String(value) === String(optValue) ? "selected" : "";
-
-                        //    options += `<option value="${this.escapeHtml(optValue)}" ${selected} ${optDisabled}>${this.escapeHtml(optText)}</option>`;
-                        //});
-
+                        
                         // إضافة خيار فارغ افتراضي ويكون selected إذا لم توجد قيمة
                         options += `<option value="" disabled ${!value ? "selected" : ""}>${field.placeholder || 'الرجاء الاختيار'}</option>`;
 
@@ -1031,20 +1410,20 @@
                         const dependsUrlAttr = field.dependsUrl ? `data-depends-url="${this.escapeHtml(field.dependsUrl)}"` : "";
 
                         fieldHtml = `
-    <div class="form-group ${colCss}">
-        <label class="block text-sm font-medium text-gray-700 mb-1">
-            ${this.escapeHtml(field.label)} ${field.required ? '<span class="text-red-500">*</span>' : ''}
-        </label>
-        <select name="${this.escapeHtml(field.name)}" 
+                        <div class="form-group ${colCss}">
+                            <label class="block text-sm font-medium text-gray-700 mb-1">
+                                ${this.escapeHtml(field.label)} ${field.required ? '<span class="text-red-500">*</span>' : ''}
+                            </label>
+                            <select name="${this.escapeHtml(field.name)}" 
         
-        class="sf-modal-input sf-modal-select js-select2"
+                            class="sf-modal-input sf-modal-select js-select2"
 
-                ${required} ${disabled} ${onChangeAttr} ${dependsOnAttr} ${dependsUrlAttr}>
-            ${options}
-        </select>
-        ${field.helpText ? `<p class="mt-1 text-xs text-gray-500">${this.escapeHtml(field.helpText)}</p>` : ''}
-    </div>`;
-                        break;
+                                    ${required} ${disabled} ${onChangeAttr} ${dependsOnAttr} ${dependsUrlAttr}>
+                                ${options}
+                            </select>
+                            ${field.helpText ? `<p class="mt-1 text-xs text-gray-500">${this.escapeHtml(field.helpText)}</p>` : ''}
+                        </div>`;
+                             break;
 
 
                     case "checkbox":
@@ -1093,41 +1472,223 @@
                         break;
 
 
-
-
                     case "number":
-                        const min = field.min !== undefined ? `min="${field.min}"` : "";
-                        const max = field.max !== undefined ? `max="${field.max}"` : "";
-                        const step = field.step !== undefined ? `step="${field.step}"` : "";
-                        fieldHtml = `
-                        <div class="form-group ${colCss}">
-                            <label class="block text-sm font-medium text-gray-700 mb-1">
-                                ${this.escapeHtml(field.label)} ${field.required ? '<span class="text-red-500">*</span>' : ''}
+                        // رقم >= 0 فقط (بدون سالب)
+                        const min0 = `min="0"`;
+                        const numStep = field.step !== undefined ? `step="${field.step}"` : `step="1"`;
+                        const numMax = field.max !== undefined ? `max="${field.max}"` : "";
 
-                            </label>
-                            <input type="number" name="${this.escapeHtml(field.name)}" 
-                                   value="${this.escapeHtml(value)}" 
-                                   class="sf-modal-input"
-                                   ${placeholder} ${min} ${max} ${step} ${required} ${disabled} ${readonly}>
-                            ${field.helpText ? `<p class="mt-1 text-xs text-gray-500">${this.escapeHtml(field.helpText)}</p>` : ''}
-                        </div>`;
+                        // يمنع إدخال السالب و e و + ويقص أي شيء غير رقم (ويسمح بنقطة لو step فيه كسور)
+                        const allowDecimal = String(field.step ?? "").includes('.') || (typeof field.step === 'number' && !Number.isInteger(field.step));
+                        const numberOnInput = allowDecimal
+                            ? `oninput="this.value=this.value.replace(/[^0-9.]/g,''); if(this.value.startsWith('.')) this.value='0'+this.value; if(this.value.includes('.')){const p=this.value.split('.'); this.value=p[0]+'.'+p.slice(1).join('');}"`
+                            : `oninput="this.value=this.value.replace(/\\D/g,'')"`;
+
+                        const numberOnKeyDown =
+                            `onkeydown="if(['-','e','E','+'].includes(event.key)) event.preventDefault()"`;
+
+                        fieldHtml = `
+                            <div class="form-group ${colCss}">
+                                <label class="block text-sm font-medium text-gray-700 mb-1">
+                                    ${this.escapeHtml(field.label)} ${field.required ? '<span class="text-red-500">*</span>' : ''}
+                                </label>
+                                <input
+                                    type="number"
+                                    inputmode="numeric"
+                                    name="${this.escapeHtml(field.name)}"
+                                    value="${this.escapeHtml(value)}"
+                                    class="sf-modal-input"
+                                    ${placeholder}
+                                    ${min0}
+                                    ${numMax}
+                                    ${numStep}
+                                    ${required}
+                                    ${disabled}
+                                    ${readonly}
+                                    ${numberOnKeyDown}
+                                    ${numberOnInput}
+                                    
+
+                                >
+                                ${field.helpText ? `<p class="mt-1 text-xs text-gray-500">${this.escapeHtml(field.helpText)}</p>` : ''}
+                            </div>`;
                         break;
 
+
+                            case "nationalid":
+                            case "nid":
+                            case "identity": {
+
+                                // أرقام فقط + أقصى 10 أرقام
+                                const nidOnInput =
+                                    `oninput="` +
+                                    `this.value=this.value.replace(/\\D/g,'');` +
+                                    `if(this.value.length>10)this.value=this.value.slice(0,10);` +
+                                    `"`; // ملاحظة: هذا سيشتغل حتى لو readonly (لا يضر)
+
+                                const nidOnKeyDown =
+                                    `onkeydown="if(['-','e','E','+','.'].includes(event.key)) event.preventDefault()"`;
+
+                                fieldHtml = `
+                                <div class="form-group ${colCss}">
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">
+                                        ${this.escapeHtml(field.label)} ${field.required ? '<span class="text-red-500">*</span>' : ''}
+                                    </label>
+
+                                    <input
+                                        type="text"
+                                        inputmode="numeric"
+                                        name="${this.escapeHtml(field.name)}"
+                                        value="${this.escapeHtml(value)}"
+                                        class="sf-modal-input"
+                                        ${placeholder}
+                                        ${required}
+                                        ${disabled}
+                                        ${readonly}
+
+                                        autocomplete="new-password"
+                                        autocorrect="off"
+                                        autocapitalize="off"
+                                        spellcheck="false"
+
+                                        maxlength="10"
+                                        pattern="^[0-9]{1,10}$"
+                                        title="الهوية الوطنية يجب أن تكون أرقام فقط وبحد أقصى 10 رقم"
+
+                                        ${nidOnKeyDown}
+                                        ${nidOnInput}
+                                    />
+                                    ${field.helpText ? `<p class="mt-1 text-xs text-gray-500">${this.escapeHtml(field.helpText)}</p>` : ''}
+                                </div>`;
+                            break;
+                           }
+
+
+
+                    
                     case "phone":
-                    case "tel":
-                        fieldHtml = `
-                        <div class="form-group ${colCss}">
-                            <label class="block text-sm font-medium text-gray-700 mb-1">
-                                ${this.escapeHtml(field.label)} ${field.required ? '<span class="text-red-500">*</span>' : ''}
+                    case "tel": {
 
-                            </label>
-                            <input type="tel" name="${this.escapeHtml(field.name)}" 
-                                   value="${this.escapeHtml(value)}" 
-                                   class="sf-modal-input"
-                                   ${placeholder} ${required} ${disabled} ${readonly} ${maxLength}>
-                            ${field.helpText ? `<p class="mt-1 text-xs text-gray-500">${this.escapeHtml(field.helpText)}</p>` : ''}
-                        </div>`;
-                        break;
+                        const normalizeFn = `
+                                (function(el){
+                                    let v = (el.value || '');
+
+                                    // digits to ascii
+                                    v = v.replace(/[٠-٩]/g, d => '٠١٢٣٤٥٦٧٨٩'.indexOf(d));
+                                    v = v.replace(/[۰-۹]/g, d => '۰۱۲۳۴۵۶۷۸۹'.indexOf(d));
+
+                                    // keep digits only
+                                    v = v.replace(/\\s+/g,'');
+                                    v = v.replace(/^\\+/, '');      // +966... -> 966...
+                                    v = v.replace(/\\D/g,'');
+
+                                    // Saudi normalize to 05XXXXXXXX
+                                    if (v.startsWith('966') ) v = '0' + v.slice(3);     // 9665xxxxxxxx -> 05xxxxxxxx
+                                    if (v.startsWith('00966')) v = '0' + v.slice(5);    // 009665xxxxxxxx -> 05xxxxxxxx
+                                    if (v.startsWith('5') && v.length === 9) v = '0' + v; // 5xxxxxxxx -> 05xxxxxxxx
+
+                                    // force prefix 05 if user started typing mobile
+                                    if (v.length >= 2 && !v.startsWith('05')) {
+                                        if (v.startsWith('0')) v = '05' + v.slice(2);
+                                        else v = '05' + v.replace(/^05/, '').slice(0); // fallback
+                                    }
+
+                                    if (v.length > 10) v = v.slice(0,10);
+                                    el.value = v;
+                                })(this);
+                            `;
+
+                                                const validateFn = `
+                                (function(el){
+                                    // normalize first
+                                    ${normalizeFn.replace(/this/g, 'el')}
+
+                                    const v = (el.value || '');
+                                    if (${field.required ? 'true' : 'false'} && !v) {
+                                        el.setCustomValidity('رقم الجوال مطلوب');
+                                        return;
+                                    }
+                                    if (!v) { el.setCustomValidity(''); return; }
+
+                                    if (!/^05\\d{8}$/.test(v)) {
+                                        el.setCustomValidity('رقم الجوال يجب أن يبدأ بـ 05 ثم 8 أرقام');
+                                    } else {
+                                        el.setCustomValidity('');
+                                    }
+                                })(this);
+                            `;
+
+                        // initial normalize (server value)
+                        const initial = (() => {
+                            let v = (value ?? '').toString();
+                            v = v.replace(/[٠-٩]/g, d => '٠١٢٣٤٥٦٧٨٩'.indexOf(d));
+                            v = v.replace(/[۰-۹]/g, d => '۰۱۲۳۴۵۶۷۸۹'.indexOf(d));
+                            v = v.replace(/\s+/g, '').replace(/^\+/, '').replace(/\D/g, '');
+
+                            if (v.startsWith('00966')) v = '0' + v.slice(5);
+                            if (v.startsWith('966')) v = '0' + v.slice(3);
+                            if (v.startsWith('5') && v.length === 9) v = '0' + v;
+                            if (v.length > 10) v = v.slice(0, 10);
+                            return v;
+                        })();
+
+                        // IMPORTANT: oninput لا يعرض رسالة، فقط يطبّع
+                        const onInput = `oninput="${normalizeFn} this.setCustomValidity('');"`;
+                        // التحقق فقط عند blur/invalid
+                        const onBlur = `onblur="${validateFn}"`;
+                        const onInvalid = `oninvalid="${validateFn}"`;
+
+                        // الأهم: قبل الإرسال مباشرة (يغطي أي validator عام)
+                        // نستخدم onsubmit على الفورم عبر formaction؟ لا. لذلك نضيف onchange + blur كافي عادة
+                        // لكن لضمان 100% أضف onkeyup أيضًا (اختياري)
+                        const onChange = `onchange="${normalizeFn}"`;
+
+                        const onKeyDown =
+                            `onkeydown="if(['-','e','E','+','.'].includes(event.key)) event.preventDefault()"`;
+
+                        fieldHtml = `
+                                <div class="form-group ${colCss}">
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">
+                                        ${this.escapeHtml(field.label)} ${field.required ? '<span class="text-red-500">*</span>' : ''}
+                                    </label>
+
+                                    <input
+                                        type="text"
+                                        inputmode="numeric"
+                                        name="${this.escapeHtml(field.name)}"
+                                        value="${this.escapeHtml(initial)}"
+                                        class="sf-modal-input"
+                                        ${placeholder}
+                                        ${required}
+                                        ${disabled}
+                                        ${readonly}
+
+                                        data-sa-mobile="1"
+                                        autocomplete="new-password"
+                                        autocorrect="off"
+                                        autocapitalize="off"
+                                        spellcheck="false"
+
+                                        maxlength="10"
+                                        title="مثال: 05XXXXXXXX"
+
+                                        ${onKeyDown}
+                                        ${onChange}
+                                        ${onInvalid}
+                                        ${onBlur}
+                                        ${onInput}
+                                    />
+
+                                    ${field.helpText ? `<p class="mt-1 text-xs text-gray-500">${this.escapeHtml(field.helpText)}</p>` : ''}
+                                </div>`;
+                                                        break;
+                                                    }
+
+
+
+
+
+
 
                     case "iban":
                         fieldHtml = `
@@ -1303,22 +1864,50 @@
 
             async saveModalChanges() {
                 if (!this.modal.action) return;
-                
+
                 const form = this.$el.querySelector('.sf-modal form');
                 if (!form) return;
-                
+
                 try {
                     this.modal.loading = true;
                     this.modal.error = null;
-                    
+
                     const formData = this.serializeForm(form);
-                    
-                    const success = await this.executeSp(
+
+                    //const success = await this.executeSp(
+                    //    this.modal.action.saveSp,
+                    //    this.modal.action.saveOp || (this.modal.action.isEdit ? "update" : "insert"),
+                    //    formData
+                    //);
+
+                    const result = await this.executeSp(
                         this.modal.action.saveSp,
                         this.modal.action.saveOp || (this.modal.action.isEdit ? "update" : "insert"),
                         formData
                     );
-                    
+
+                    if (result) {
+                        // ✅ تحديث سريع بدون refresh ثقيل
+                        if (this.serverPaging) {
+                            await this.load(); // يرجّع نفس الصفحة فقط
+                        } else {
+                            const saved = result.data || result.row || result.item || null;
+                            const id = (saved && saved[this.rowIdField]) ?? formData[this.rowIdField];
+
+                            if (saved) {
+                                const idx = this.allRows.findIndex(r => r[this.rowIdField] == id);
+                                if (idx >= 0) this.allRows[idx] = { ...this.allRows[idx], ...saved };
+                                else this.allRows.unshift(saved);
+                            }
+
+                            this.applyFiltersAndSort();
+                        }
+
+                        this.closeModal();
+                        this.clearSelection();
+                    }
+
+
                     if (success) {
                         this.closeModal();
                         if (this.autoRefresh) {
@@ -1326,7 +1915,7 @@
                             await this.refresh();
                         }
                     }
-                    
+
                 } catch (e) {
                     console.error("Save error:", e);
                     this.modal.error = e.message || "فشل في الحفظ";
@@ -1334,6 +1923,10 @@
                     this.modal.loading = false;
                 }
             },
+
+
+            
+
 
             formatDetailView(data, columns) {
                 if (!data) return "<p>لا توجد بيانات</p>";
@@ -1407,6 +2000,35 @@
             },
 
             // ===== Server Communication =====
+            //async executeSp(spName, operation, params) {
+            //    try {
+            //        const body = {
+            //            Component: "Form",
+            //            SpName: spName,
+            //            Operation: operation,
+            //            Params: params || {}
+            //        };
+
+            //        const result = await this.postJson(this.endpoint, body);
+
+            //        if (result?.message) {
+            //            this.showToast(result.message, 'success');
+            //        }
+
+            //        return true;
+
+            //    } catch (e) {
+            //        console.error("Execute SP error:", e);
+            //        this.showToast("⚠️ " + (e.message || "فشل العملية"), 'error');
+
+            //        if (e.server?.errors) {
+            //            this.applyServerErrors(e.server.errors);
+            //        }
+
+            //        return false;
+            //    }
+            //},
+
             async executeSp(spName, operation, params) {
                 try {
                     const body = {
@@ -1415,26 +2037,22 @@
                         Operation: operation,
                         Params: params || {}
                     };
-                    
+
                     const result = await this.postJson(this.endpoint, body);
-                    
-                    if (result?.message) {
-                        this.showToast(result.message, 'success');
-                    }
-                    
-                    return true;
-                    
+
+                    if (result?.message) this.showToast(result.message, 'success');
+
+                    return result; // ✅ بدل true
                 } catch (e) {
                     console.error("Execute SP error:", e);
                     this.showToast("⚠️ " + (e.message || "فشل العملية"), 'error');
-                    
-                    if (e.server?.errors) {
-                        this.applyServerErrors(e.server.errors);
-                    }
-                    
-                    return false;
+
+                    if (e.server?.errors) this.applyServerErrors(e.server.errors);
+
+                    return null;
                 }
             },
+
 
             async postJson(url, body) {
                 const headers = { "Content-Type": "application/json" };
@@ -1579,35 +2197,71 @@
             },
 
             // ===== Pagination =====
+            //goToPage(page) {
+            //    const newPage = Math.max(1, Math.min(page, this.pages));
+            //    if (newPage !== this.page) {
+            //        this.page = newPage;
+            //        this.applyFiltersAndSort();
+            //    }
+            //},
+
             goToPage(page) {
-                const newPage = Math.max(1, Math.min(page, this.pages));
+                const newPage = Math.max(1, Math.min(page, this.pages || 1));
                 if (newPage !== this.page) {
                     this.page = newPage;
-                    this.applyFiltersAndSort();
+                    if (this.serverPaging) this.load();
+                    else this.applyFiltersAndSort();
                 }
             },
 
+
+            //nextPage() {
+            //    if (this.page < this.pages) {
+            //        this.page++;
+            //        this.applyFiltersAndSort();
+            //    }
+            //},
+
             nextPage() {
-                if (this.page < this.pages) {
+                if (this.page < (this.pages || 1)) {
                     this.page++;
-                    this.applyFiltersAndSort();
+                    if (this.serverPaging) this.load();
+                    else this.applyFiltersAndSort();
                 }
             },
+
+
+            //prevPage() {
+            //    if (this.page > 1) {
+            //        this.page--;
+            //        this.applyFiltersAndSort();
+            //    }
+            //},
 
             prevPage() {
                 if (this.page > 1) {
                     this.page--;
-                    this.applyFiltersAndSort();
+                    if (this.serverPaging) this.load();
+                    else this.applyFiltersAndSort();
                 }
             },
+
+
+            //firstPage() {
+            //    this.goToPage(1);
+            //},
+
+            //lastPage() {
+            //    this.goToPage(this.pages);
+            //},
 
             firstPage() {
                 this.goToPage(1);
             },
-
             lastPage() {
-                this.goToPage(this.pages);
+                this.goToPage(this.pages || 1);
             },
+
 
             rangeText() {
                 if (this.total === 0) return "0 من 0";
@@ -1665,6 +2319,9 @@
                 this.$el.setAttribute('data-density', density);
                 this.savePreferences();
             }
+
+
+
         }));
     };
 
@@ -1695,3 +2352,4 @@ document.addEventListener("DOMContentLoaded", () => {
     }, true);
 
 });
+

@@ -1,0 +1,45 @@
+﻿@model SmartFoundation.UI.ViewModels.SmartPage.SmartPageViewModel
+@{
+    ViewData["Title"] = Model.PageTitle;
+}
+
+    @await Component.InvokeAsync("SmartRenderer", new { model = Model })
+
+<script>
+    (function () {
+
+      if (location.search && location.search.length > 1) {
+        history.replaceState(null, "", location.pathname + location.hash);
+      }
+    })();
+</script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        var input = document.querySelector('input[name="NationalID"]');
+        if(input) {
+            input.addEventListener('keydown', function(e) {
+                if(e.key === 'Enter') {
+                    var NationalID = (input.value || '').trim();
+                    if(!NationalID) {
+                        toastr.error('الرجاء كتابة رقم الهوية الوطنية');
+                        return;
+                    }
+                    var url = '/Housing/WaitingList?NID=' + encodeURIComponent(NationalID);
+                    window.location.href = url;
+                }
+            });
+        }
+    });
+</script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        var input = document.querySelector('input[name="NationalID"]');
+        var hasRows = @(ViewBag.dsModelHasRows?.ToString().ToLower() ?? "false");
+        var nationalId = input ? (input.value || '').trim() : '';
+        if (!hasRows && nationalId) {
+            toastr.error('لا توجد بيانات مطابقة لرقم الهوية الوطنية المدخل');
+        }
+    });
+</script>
