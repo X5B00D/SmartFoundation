@@ -1,6 +1,6 @@
 /**
  * Print report from database - Global reusable function
- * @param {number} reportId - Report ID to print
+ * @param {number} reportID - Report ID to print
  * @param {string} webMethodUrl - Optional: Custom WebMethod URL (default: 'GetReportData')
  * @param {object} options - Optional: Custom printThis options
  * 
@@ -22,12 +22,12 @@
  */
 /**
  * Print report from database with dynamic data injection
- * @param {number} reportId - Report ID to print
+ * @param {number} reportID - Report ID to print
  * @param {object} dataToInject - Data to inject into report template (e.g., {fullName: 'Ahmad', generalNo: '123'})
  * @param {string} webMethodUrl - Optional: Custom WebMethod URL (default: 'GetReportData')
  * @param {object} options - Optional: Custom printThis options
  */
-async function printReport(reportId, dataToInject = {}, webMethodUrl = 'GetReportData', options = {}) {
+async function printReport(reportID, dataToInject = {}, webMethodUrl = 'GetReportData', options = {}) {
     try {
         // Ensure webMethodUrl is a string before using includes
         let url = '';
@@ -39,7 +39,7 @@ async function printReport(reportId, dataToInject = {}, webMethodUrl = 'GetRepor
         const response = await fetch(url, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ reportId })
+            body: JSON.stringify({ reportID })
         });
 
         if (!response.ok) throw new Error(`HTTP ${response.status}`);

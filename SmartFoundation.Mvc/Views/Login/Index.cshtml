@@ -191,6 +191,21 @@
                     eye.classList.toggle("fa-eye-slash");
                 });
             }
+            
+             /* ===============================
+                💾 تذكرني (Remember Me)
+            =============================== */
+            const rememberMe = document.getElementById("remember-me");
+
+            // عند فتح الصفحة: استرجاع الهوية
+            const savedNationalID = localStorage.getItem("rememberedNationalID");
+            if (savedNationalID && NationalID && rememberMe) {
+                NationalID.value = savedNationalID;
+                rememberMe.checked = true;
+
+                // UX: إذا الهوية موجودة، روح مباشرة لكلمة المرور
+                if (password) password.focus();
+            }
 
             
             const form = document.getElementById("loginForm");
@@ -200,6 +215,15 @@
 
             if (form && btnLogin) {
                 form.addEventListener("submit", function () {
+                    
+                    // حفظ / حذف الهوية
+                    if (rememberMe && rememberMe.checked && NationalID) {
+                        localStorage.setItem("rememberedNationalID", NationalID.value);
+                    } else {
+                        localStorage.removeItem("rememberedNationalID");
+                    }
+                    
+                    // UI Loading
                     if (btnText) btnText.style.display = "none";
                     if (spinner) spinner.style.display = "block";
                     btnLogin.disabled = true;
@@ -215,24 +239,24 @@
                 <div class="block grid-cols-2 gap-4 xl:grid">
                     <!-- BEGIN: Login Info -->
                     <!-- BEGIN: Login Info -->
-                    <div class="hidden min-h-screen flex-col xl:flex">
+                    <div class="flex-col hidden min-h-screen xl:flex">
                         <div class="my-auto">
                             <!-- بلوك داخلي بعرض أصغر ومزاح لليسار -->
                             <div class="text-center"
                                  style="max-width: 520px; margin: 0 0 0 -5rem;">
                                 <!-- الشعار -->
-                                <img class="-intro-x -mt-10 w-1/3 mx-auto"
+                                <img class="w-1/3 mx-auto -mt-10 -intro-x"
                                      src="~/img/ppng.png"
                                      alt="KFMC" />
 
                                 <!-- السطر الأول -->
-                                <div class="-intro-x mt-6 font-medium leading-tight text-white"
+                                <div class="mt-6 font-medium leading-tight text-white -intro-x"
                                      style="font-size: 55px;">
                                     نظام إدارة الأصول
                                 </div>
 
                                 <!-- السطر الثاني -->
-                                @* <div class="-intro-x mt-3 font-medium leading-tight text-white"
+                                @* <div class="mt-3 font-medium leading-tight text-white -intro-x"
                                      style="font-size: 40px;">
                                     لإدارات المدن للتشغيل والصيانة
                                 </div> *@
@@ -242,21 +266,21 @@
                     <!-- END: Login Info -->
                     <!-- END: Login Info -->
                     <!-- BEGIN: Login Form -->
-                    <div class="my-10 flex h-screen py-5 xl:my-0 xl:h-auto xl:py-0">
-                        <div class="mx-auto my-auto w-full rounded-md bg-white px-5 py-8 shadow-md dark:bg-darkmode-600 sm:w-3/4 sm:px-8 lg:w-2/4 xl:ml-20 xl:w-auto xl:bg-transparent xl:p-0 xl:shadow-none">
-                            <h2 class="intro-x text-center text-2xl font-bold xl:text-left xl:text-3xl">
+                    <div class="flex h-screen py-5 my-10 xl:my-0 xl:h-auto xl:py-0">
+                        <div class="w-full px-5 py-8 mx-auto my-auto bg-white rounded-md shadow-md dark:bg-darkmode-600 sm:w-3/4 sm:px-8 lg:w-2/4 xl:ml-20 xl:w-auto xl:bg-transparent xl:p-0 xl:shadow-none">
+                            <h2 class="text-2xl font-bold text-center intro-x xl:text-left xl:text-3xl">
                                 تسجيل الدخول
                             </h2>
 
                             <!-- Show any controller-level error -->
                             @if (ViewBag.ErrorMessage != null)
                             {
-                                <div class="alert alert-danger mt-4">
+                                <div class="mt-4 alert alert-danger">
                                     @ViewBag.ErrorMessage
                                 </div>
                             }
 
-                            <div class="intro-x mt-8">
+                            <div class="mt-8 intro-x">
                                 <input type="text"
                                        name="NationalID"
                                        id="txtNationalID"
@@ -264,27 +288,27 @@
                                        placeholder="رقم الهوية الوطنية"
                                        maxlength="10"
                                        class="form-control disabled:bg-slate-100 disabled:cursor-not-allowed dark:disabled:bg-darkmode-800/50 dark:disabled:border-transparent [&amp;[readonly]]:bg-slate-100 [&amp;[readonly]]:cursor-not-allowed [&amp;[readonly]]:dark:bg-darkmode-800/50 [&amp;[readonly]]:dark:border-transparent transition duration-200 ease-in-out w-full text-sm border-slate-200 shadow-sm rounded-md placeholder:text-slate-400/90 focus:ring-4 focus:ring-primary focus:ring-opacity-20 focus:border-primary focus:border-opacity-40 dark:bg-darkmode-800 dark:border-transparent dark:focus:ring-slate-700 dark:focus:ring-opacity-50 dark:placeholder:text-slate-500/80 intro-x login__input block min-w-full px-4 py-3 xl:min-w-[350px] intro-x login__input block min-w-full px-4 py-3 xl:min-w-[350px]" />
-                                <div class="login__input-error mt-2 text-danger" id="error-email"></div>
+                                <div class="mt-2 login__input-error text-danger" id="error-email"></div>
 
                                 <div class="relative mt-4">
                                     <input type="password"
                                            name="password"
                                            id="txtPassword"
                                            placeholder="كلمة المرور"
-                                           class="form-control w-full px-4 py-3 pr-10 text-sm border-slate-200 shadow-sm rounded-md dark:bg-darkmode-800 dark:border-transparent placeholder:text-slate-400/90 focus:ring-4 focus:ring-primary focus:ring-opacity-20 focus:border-primary focus:border-opacity-40 dark:focus:ring-slate-700 dark:focus:ring-opacity-50 dark:placeholder:text-slate-500/80" />
-                                    <span id="togglePassword" class="absolute inset-y-0 right-0 flex items-center px-3 cursor-pointer text-white hover:text-primary">
+                                           class="w-full px-4 py-3 pr-10 text-sm rounded-md shadow-sm form-control border-slate-200 dark:bg-darkmode-800 dark:border-transparent placeholder:text-slate-400/90 focus:ring-4 focus:ring-primary focus:ring-opacity-20 focus:border-primary focus:border-opacity-40 dark:focus:ring-slate-700 dark:focus:ring-opacity-50 dark:placeholder:text-slate-500/80" />
+                                    <span id="togglePassword" class="absolute inset-y-0 right-0 flex items-center px-3 text-white cursor-pointer hover:text-primary">
                                         <i class="fa fa-eye-slash" id="eyeIcon" style="font-size:20px;color:black;"></i>
                                     </span>
                                 </div>
-                                <div class="login__input-error mt-2 text-danger" id="error-password"></div>
+                                <div class="mt-2 login__input-error text-danger" id="error-password"></div>
                             </div>
 
-                            <div class="intro-x mt-4 flex text-xs text-slate-600 dark:text-slate-500 sm:text-sm">
-                                <div class="mr-auto flex items-center">
+                            <div class="flex mt-4 text-xs intro-x text-slate-600 dark:text-slate-500 sm:text-sm">
+                                <div class="flex items-center mr-auto">
                                     <input type="checkbox"
                                            name="rememberMe"
                                            id="remember-me"
-                                           class="transition-all duration-100 ease-in-out shadow-sm border-slate-200 cursor-pointer rounded focus:ring-4 focus:ring-offset-0 focus:ring-primary focus:ring-opacity-20 dark:bg-darkmode-800 dark:border-transparent mr-2" />
+                                           class="mr-2 transition-all duration-100 ease-in-out rounded shadow-sm cursor-pointer border-slate-200 focus:ring-4 focus:ring-offset-0 focus:ring-primary focus:ring-opacity-20 dark:bg-darkmode-800 dark:border-transparent" />
                                     <label class="cursor-pointer select-none" for="remember-me">
                                         تذكرني
                                     </label>
@@ -292,7 +316,7 @@
                                 <a href="#" class="text-primary">نسيت كلمة المرور؟</a>
                             </div>
 
-                            <div class="intro-x mt-5 text-center xl:mt-8 xl:text-left">
+                            <div class="mt-5 text-center intro-x xl:mt-8 xl:text-left">
                                 <button id="btnLogin"
                                         type="submit"
                                         class="transition duration-200 border shadow-sm inline-flex items-center justify-center rounded-md font-medium cursor-pointer focus:ring-4 focus:ring-primary focus:ring-opacity-20 focus-visible:outline-none dark:focus:ring-slate-700 dark:focus:ring-opacity-50 [&amp;:hover:not(:disabled)]:bg-opacity-90 [&amp;:hover:not(:disabled)]:border-opacity-90 disabled:opacity-70 disabled:cursor-not-allowed bg-primary border-primary text-white dark:border-primary w-full px-4 py-3 align-top xl:mr-3 xl:w-32">

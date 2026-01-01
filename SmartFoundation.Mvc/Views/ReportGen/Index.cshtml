@@ -1,0 +1,116 @@
+﻿@model SmartFoundation.UI.ViewModels.SmartPage.SmartPageViewModel
+
+@await Component.InvokeAsync("SmartRenderer", new { model = Model })
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.css" />
+
+<style>
+    /* A4 preview requirements (explicit mm sizing) */
+    .a4 {
+        width: 210mm;
+        height: 297mm;
+        background: white;
+        padding: 15mm;
+        box-shadow: 0 0 10px rgba(0,0,0,0.3);
+    }
+
+    /* Keep the iframe fully controlled and scroll-free */
+    .a4-frame {
+        width: 210mm;
+        height: 297mm;
+        border: 0;
+        background: white;
+        display: block;
+    }
+
+    /* Match the textarea sizing when CodeMirror is enabled */
+    .CodeMirror {
+        height: calc(100vh - 260px);
+        min-height: 360px;
+    }
+</style>
+
+<div class="grid grid-cols-1 gap-4 mt-6 lg:grid-cols-2">
+    <section>
+        <div class="mb-2">
+            <div class="flex items-center gap-3">
+                <h2 class="text-lg font-semibold">Report Designer (HTML + CSS)</h2>
+
+                <button
+                    id="copyReportDesignBtn"
+                    type="button"
+                    class="transition duration-200 border shadow-sm inline-flex items-center justify-center rounded-md font-medium cursor-pointer focus:ring-4 focus:ring-primary focus:ring-opacity-20 focus-visible:outline-none dark:focus:ring-slate-700 dark:focus:ring-opacity-50 [&:hover:not(:disabled)]:bg-opacity-90 [&:hover:not(:disabled)]:border-opacity-90 disabled:opacity-70 disabled:cursor-not-allowed bg-primary border-primary text-white px-3 py-2"
+                >
+                    Copy ReportDesign
+                </button>
+
+                <span id="copyReportDesignStatus" class="text-sm text-slate-600"></span>
+            </div>
+            <p class="text-sm text-gray-600">
+                Use inline <code>&lt;style&gt;</code> blocks and placeholders like <code>{{fullName}}</code>.
+            </p>
+        </div>
+
+        <textarea
+            id="reportDesignerEditor"
+            class="w-full p-3 font-mono text-sm border rounded"
+            style="height: calc(100vh - 260px); min-height: 360px;"
+            spellcheck="false"
+        ><!-- Write HTML/CSS here. This is design-only preview (no saving/printing). -->
+<style>
+  .title { font-size: 20px; font-weight: 700; margin-bottom: 12px; }
+  .row { display: flex; gap: 12px; margin: 6px 0; }
+  .label { width: 120px; color: #444; }
+  .value { flex: 1; }
+</style>
+
+<div class="title">Employee Card</div>
+<div class="row"><div class="label">Full Name:</div><div class="value">{{fullName}}</div></div>
+<div class="row"><div class="label">General No:</div><div class="value">{{generalNo}}</div></div>
+<div class="row"><div class="label">Department:</div><div class="value">{{Department}}</div></div>
+</textarea>
+    </section>
+
+    <section>
+        <div class="mb-2">
+            <h2 class="text-lg font-semibold">Live Preview (A4)</h2>
+            <p class="text-sm text-gray-600">Preview updates instantly using sample data replacements.</p>
+        </div>
+
+        <div class="overflow-hidden a4">
+            <iframe id="reportDesignerPreview" class="a4-frame" title="A4 Preview"></iframe>
+        </div>
+    </section>
+</div>
+
+@section Scripts {
+    <script src="/js/printThis.js"></script>
+    <script src="/js/printDynamicReport.js"></script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/xml/xml.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/css/css.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/htmlmixed/htmlmixed.min.js"></script>
+
+    <script src="~/js/reportDesigner.js" asp-append-version="true"></script>
+    <script>
+    // Print Employee Card - uses the generic dynamic report architecture
+    async function printEmployeeCard() {
+        // Get generalNo from the form input using form ID
+        const generalNo = parseInt($('#reportGenForm input[name="GeneralNo"]').val() || '0', 10);
+        if (!generalNo) { 
+            alert('الرجاء إدخال رقم عام صحيح');
+            return;
+        }
+
+        printDynamicReport({
+            reportID: 2,
+            dataSp: 'dbo.EmpInfoNew',
+            params: { generalNo }
+        });
+    }
+    </script>
+}
+
+
+
