@@ -371,6 +371,9 @@ namespace SmartFoundation.Mvc.Controllers.Housing
                 Searchable = true,
                 AllowExport = true,
                 PanelTitle = "المستفيدين",
+                //TabelLabel = "بيانات المستفيدين",
+                //TabelLabelIcon = "fa-solid fa-user-group",
+                EnableCellCopy = true, // تفعيل نسخ الخلايا 
                 Toolbar = new TableToolbarConfig
                 {
                     ShowRefresh = false,
@@ -381,6 +384,7 @@ namespace SmartFoundation.Mvc.Controllers.Housing
                     ShowEdit = canUpdate,
                     ShowDelete = canDelete,
                     ShowBulkDelete = false,
+
 
                     Add = new TableAction
                     {
@@ -515,7 +519,7 @@ namespace SmartFoundation.Mvc.Controllers.Housing
             {
                 PageTitle = dsModel.PageTitle,
                 PanelTitle = dsModel.PanelTitle,
-                PanelIcon = "fa fa-list",
+                PanelIcon = "fa-solid fa-user-group",
                 TableDS = dsModel
             };
 

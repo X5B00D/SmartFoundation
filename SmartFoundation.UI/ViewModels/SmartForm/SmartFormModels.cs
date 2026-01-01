@@ -83,9 +83,18 @@ namespace SmartFoundation.UI.ViewModels.SmartForm
         public string? DisplayFormat { get; set; }
 
         public string? ColCssFrom { get; set; }       
-        public string? ColCssTo { get; set; }       
+        public string? ColCssTo { get; set; }
 
-        
+        // ===== Inline Button (زر داخل الحقل) =====
+        public bool InlineButton { get; set; } = false;          // تفعيل الزر جنب الحقل
+        public string? InlineButtonText { get; set; }            // نص الزر
+        public string? InlineButtonIcon { get; set; }            // أيقونة (اختياري)
+        public string? InlineButtonCss { get; set; }             // كلاس إضافي (اختياري)
+        public string? InlineButtonOnClickJs { get; set; }       // كود JS عند الضغط
+        public string InlineButtonPosition { get; set; } = "end"; // end | start (يمين/يسار)
+
+
+
         public SmartTable.TableConfig? Table { get; set; }
 
         public string GetResolvedColCss()

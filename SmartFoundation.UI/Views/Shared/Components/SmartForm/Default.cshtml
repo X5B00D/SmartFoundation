@@ -7,8 +7,10 @@
     string? currentSection = null;
     var sectionOpen = false;
 
-    
     var webJson = new JsonSerializerOptions(JsonSerializerDefaults.Web);
+
+    // مهم: هذا لازم يبقى برا foreach عشان نقدر نسكره بعدين
+    var defaultRowOpen = false;
 }
 
 <form id="@formId"
@@ -22,339 +24,305 @@
     @* Show LabelText if provided *@
     @if (!string.IsNullOrWhiteSpace(Model.LabelText))
     {
-        <div class="mb-4 text-sm text-gray-700 form-label-text">@Model.LabelText</div>
+        <div class="form-label-text mb-4 text-sm text-gray-700">@Model.LabelText</div>
     }
 
     @foreach (var hidden in Model.Fields.Where(f => f.IsHidden || f.Type.Equals("hidden", StringComparison.OrdinalIgnoreCase)))
     {
         <input type="hidden" name="@hidden.Name" value="@hidden.Value" />
     }
-    @{
-        var defaultRowOpen = false;
-    }
 
-@foreach (var field in Model.Fields.Where(f => !f.IsHidden && !f.Type.Equals("hidden", StringComparison.OrdinalIgnoreCase)))
-{
-   
-    if (!string.IsNullOrWhiteSpace(field.SectionTitle) && field.SectionTitle != currentSection)
-{
-    // اقفل أي سكشن مفتوح
-    if (sectionOpen)
-{
-    
-    @* @:</div>  *@
-    @:</fieldset> 
-    sectionOpen = false;
-}
-
-
-    
-    if (defaultRowOpen)
+    @foreach (var field in Model.Fields.Where(f => !f.IsHidden && !f.Type.Equals("hidden", StringComparison.OrdinalIgnoreCase)))
     {
-        @:<div>
-        @:</div> 
-        defaultRowOpen = false;
-    }
-
-    // افتح سكشن جديد باستخدام fieldset
-currentSection = field.SectionTitle;
-@:<fieldset class="col-span-12 mb-2 section-box">
-    @:<legend class="section-legend">@currentSection</legend>
-    @:<div class="grid grid-cols-12 gap-6 form-row sm:gap-8">
-sectionOpen = true;
-
-}
-else
-{
-    // لو مافيه سكشن مفتوح، افتح grid افتراضي
-    if (!sectionOpen && !defaultRowOpen)
-    {
-        @:<div class="grid grid-cols-12 gap-6 form-row sm:gap-8">
-        defaultRowOpen = true;
-    }
-}
-
-
-
-                var colCss = field.GetResolvedColCss();
-
-                <div class="form-group @colCss">
-                    @if (!field.Type.Equals("checkbox", StringComparison.OrdinalIgnoreCase)
-                      && !field.Type.Equals("radio", StringComparison.OrdinalIgnoreCase))
-                    {
-                        <label for="@field.Name" class="block mb-1.5 text-md font-medium text-gray-900">
-                            @field.Label
-                            @if (field.Required) { <span class="text-red-500">*</span> }
-                        </label>
-                    }
-
-                    @switch (field.Type.ToLower())
-                    {
-                        case "select":
-    
-        var selectConfig = new
+        if (!string.IsNullOrWhiteSpace(field.SectionTitle) && field.SectionTitle != currentSection)
         {
-            name = field.Name,
-            placeholder = field.Placeholder ?? "اختر...",
-            multiple = field.Multiple,
-            disabled = field.Disabled,
-            @readonly = field.Readonly,
-            initial = field.Value ?? "",
-            onchangeJs = field.OnChangeJs ?? "",
-            options = field.Options.Select(o => new { Value = o.Value, Text = o.Text, Disabled = o.Disabled, Selected = o.Selected }).ToList()
-        };
-        var selectConfigJson = JsonSerializer.Serialize(selectConfig, webJson);
-    
-    <div x-data='sfSelect(@Html.Raw(selectConfigJson))'
-         x-init="init()"
-         data-dependson="@field.DependsOn"
-         data-dependsurl="@field.DependsUrl"
-         class="relative"
-         x-on:keydown.escape.window="open=false">
+            // اقفل أي سكشن مفتوح
+            if (sectionOpen)
+            {
+                @:</div>
+                @:</fieldset>
+                sectionOpen = false;
+            }
 
-        <!-- Hidden input -->
-        <input type="hidden" x-ref="hidden" name="@field.Name" :value="serialize()"
-               @(field.Required ? "required" : null) @(field.Disabled ? "disabled" : null) />
+            // اقفل grid الافتراضي (لو كان مفتوح)
+            if (defaultRowOpen)
+            {
+                @:</div>
+                defaultRowOpen = false;
+            }
 
-        <!-- Select button -->
-        <button type="button"
-                x-ref="anchor"
-                class="sf-select @field.ExtraCss"
-                x-bind:disabled="disabled || readonly"
-                x-bind:aria-expanded="open.toString()"
-                x-on:click="togglePanel()"
-                x-on:keydown.enter="togglePanel()">
-            <span class="truncate" x-text="displayText()"></span>
-            <span class="absolute inset-y-0 flex items-center pointer-events-none end-0 pe-2">
-                <svg class="w-5 h-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                    <path fill-rule="evenodd" d="M10 3a.75.75 0 01.53.22l3.5 3.5a.75.75 0 01-1.06 1.06L10 4.81 6.53 8.28a.75.75 0 01-1.06-1.06l3.5-3.5A.75.75 0 0110 3zm-3.72 9.28a.75.75 0 011.06 0L10 15.19l2.67-2.91a.75.75 0 111.06 1.06l-3.5 3.5a.75.75 0 01-1.06 0l-3.5-3.5a.75.75 0 010-1.06z" clip-rule="evenodd" />
-                </svg>
-            </span>
-        </button>
+            // افتح سكشن جديد باستخدام fieldset
+            currentSection = field.SectionTitle;
+            @:<fieldset class="section-box col-span-12 mb-2">
+                @:<legend class="section-legend">@currentSection</legend>
+                @:<div class="form-row grid grid-cols-12 gap-6 sm:gap-8">
+            sectionOpen = true;
+        }
+        else
+        {
+            // لو مافيه سكشن مفتوح، افتح grid افتراضي
+            if (!sectionOpen && !defaultRowOpen)
+            {
+                @:<div class="form-row grid grid-cols-12 gap-6 sm:gap-8">
+                defaultRowOpen = true;
+            }
+        }
 
-        <!-- Dropdown panel -->
-        <template x-teleport="body">
-            <div x-show="open" x-transition x-cloak
-                 x-on:click.outside="open=false";
-                 x-bind:style="panelStyle"
-                 class="sf-select-panel fixed z-[9999] animate-fade-in">
+        var colCss = field.GetResolvedColCss();
 
-                <!-- شريط علوي -->
-                <div class="flex justify-end p-3 pb-1">
-                    <button type="button" class="text-xs text-gray-800 hover:text-gray-800" x-on:click="clear()">مسح</button>
-                </div>
+        <div class="form-group @colCss">
+            @if (!field.Type.Equals("checkbox", StringComparison.OrdinalIgnoreCase)
+              && !field.Type.Equals("radio", StringComparison.OrdinalIgnoreCase))
+            {
+                <label for="@field.Name" class="text-md mb-1.5 block font-medium text-gray-900">
+                    @field.Label
+                    @if (field.Required) { <span class="text-red-500">*</span> }
+                </label>
+            }
 
-                <!-- البحث -->
-                <div class="p-2">
-                    <input type="text" x-model.trim="q" placeholder="بحث..." dir="rtl"
-                           class="w-full px-3 py-2 text-sm border border-gray-300 rounded-sm focus:outline-none focus:ring-1 focus:ring-emerald-600" />
-                </div>
+            @switch (field.Type.ToLower())
+            {
+                case "select":
+                    {
+                        var selectConfig = new
+                        {
+                            name = field.Name,
+                            placeholder = field.Placeholder ?? "اختر...",
+                            multiple = field.Multiple,
+                            disabled = field.Disabled,
+                            @readonly = field.Readonly,
+                            initial = field.Value ?? "",
+                            onchangeJs = field.OnChangeJs ?? "",
+                            options = field.Options.Select(o => new { Value = o.Value, Text = o.Text, Disabled = o.Disabled, Selected = o.Selected }).ToList()
+                        };
+                        var selectConfigJson = JsonSerializer.Serialize(selectConfig, webJson);
 
-                <!-- العناصر -->
-                <ul class="py-1 overflow-y-auto max-h-60">
-                    <template x-for="opt in filtered()" :key="opt.value">
-                        <li class="px-3 py-1.5 cursor-pointer select-none hover:bg-gray-200"
-                            :class="opt.disabled ? 'opacity-50 cursor-not-allowed' : ''"
-                            x-on:click.stop="toggle(opt)">
-                            <div class="flex items-center gap-3">
-                                <template x-if="!multiple">
-                                    <span class="sf-select-radio"
-                                          :class="isSelected(opt) ? 'selected' : ''"></span>
-                                </template>
-                                <template x-if="multiple">
-                                    <input type="checkbox" class="w-4 h-4 shrink-0"
-                                           :checked="isSelected(opt)" x-on:click.stop>
-                                </template>
-                                <span class="truncate grow" x-text="opt.text"></span>
-                            </div>
-                        </li>
-                    </template>
-                </ul>
-            </div>
-        </template>
-    </div>
-    break;
+                        <div x-data='sfSelect(@Html.Raw(selectConfigJson))'
+                             x-init="init()"
+                             data-dependson="@field.DependsOn"
+                             data-dependsurl="@field.DependsUrl"
+                             class="relative"
+                             x-on:keydown.escape.window="open=false">
 
-                        default:
-                            <div class="form-group @field.GetResolvedColCss() relative">
-                                
-                                @if (!string.IsNullOrWhiteSpace(field.Icon))
-                                {
-                                    <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-                                        <i class="@field.Icon text-gray-400 text-md"></i>
+                            <!-- Hidden input -->
+                            <input type="hidden" x-ref="hidden" name="@field.Name" :value="serialize()"
+                                   @(field.Required ? "required" : null) @(field.Disabled ? "disabled" : null) />
+
+                            <!-- Select button -->
+                            <button type="button"
+                                    x-ref="anchor"
+                                    class="sf-select @field.ExtraCss"
+                                    x-bind:disabled="disabled || readonly"
+                                    x-bind:aria-expanded="open.toString()"
+                                    x-on:click="togglePanel()"
+                                    x-on:keydown.enter="togglePanel()">
+                                <span class="truncate" x-text="displayText()"></span>
+                                <span class="pointer-events-none absolute inset-y-0 end-0 flex items-center pe-2">
+                                    <svg class="h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                                        <path fill-rule="evenodd" d="M10 3a.75.75 0 01.53.22l3.5 3.5a.75.75 0 01-1.06 1.06L10 4.81 6.53 8.28a.75.75 0 01-1.06-1.06l3.5-3.5A.75.75 0 0110 3zm-3.72 9.28a.75.75 0 011.06 0L10 15.19l2.67-2.91a.75.75 0 111.06 1.06l-3.5 3.5a.75.75 0 01-1.06 0l-3.5-3.5a.75.75 0 010-1.06z" clip-rule="evenodd" />
+                                    </svg>
+                                </span>
+                            </button>
+
+                            <!-- Dropdown panel -->
+                            <template x-teleport="body">
+                                <div x-show="open" x-transition x-cloak
+                                     x-on:click.outside="open=false"
+                                     x-bind:style="panelStyle"
+                                     class="sf-select-panel animate-fade-in fixed z-[9999]">
+
+                                    <!-- شريط علوي -->
+                                    <div class="flex justify-end p-3 pb-1">
+                                        <button type="button" class="text-xs text-gray-800 hover:text-gray-800" x-on:click="clear()">مسح</button>
                                     </div>
-                                }
 
-                                @if (field.Type.ToLower() == "textarea")
-                                {
-                                    <textarea id="@field.Name"
-                                              name="@field.Name"
-                                              rows="4"
-                                              placeholder="@field.Placeholder"
-                                              value="@field.Value"
-                                              autocomplete="@(field.Autocomplete ?? "off")"
-                                              spellcheck="@(field.Spellcheck?.ToString().ToLower() ?? "false")"
-                                              autocapitalize="@(field.Autocapitalize ?? "none")"
-                                              autocorrect="@(field.Autocorrect ?? "off")"
-                                              @(field.Min.HasValue ? $"min=\"{field.Min}\"" : null)
-                                              @(field.Max.HasValue ? $"max=\"{field.Max}\"" : null)
-                                              @(field.MaxLength.HasValue ? $"maxlength=\"{field.MaxLength}\"" : null)
-                                              x-input-lang="@field.InputLang"
-                                              x-input-pattern="@field.InputPattern"
-                                              x-on:change="@field.OnChangeJs"
-                                              data-dependson="@field.DependsOn"
-                                              data-dependsurl="@field.DependsUrl"
-                                              data-textmode="@field.TextMode"
-                                              dir="@(field.IsNumericOnly ? "ltr" : "rtl")"
-                                              class="sf-textarea text-md text-right @field.ExtraCss @(string.IsNullOrWhiteSpace(field.Icon) ? "" : "pl-10")"
-                                              @(field.Required ? "required" : null)
-                                              @(field.Disabled ? "disabled" : null)
-                                              @(field.Readonly ? "readonly" : null)
-                                              aria-required="@(field.Required.ToString().ToLower())"
-                                              aria-invalid="false"
-                                              aria-describedby="@($"{field.Name}_error {field.Name}_help")"
-                                              oninput="@(
-                                                  field.TextMode switch {
-                                                      "arabic"      => $"this.value=this.value.replace(/[^\\u0600-\\u06FF]/g,'').slice(0,{field.MaxLength ?? 200});",
-                                                      "arsentence"  => $"this.value=this.value.replace(/[^\\u0600-\\u06FF\\s،.]/g,'').slice(0,{field.MaxLength ?? 200});",
-                                                      "english"     => $"this.value=this.value.replace(/[^A-Za-z]/g,'').slice(0,{field.MaxLength ?? 200});",
-                                                      "engsentence" => $"this.value=this.value.replace(/[^A-Za-z\\s.,]/g,'').slice(0,{field.MaxLength ?? 200});",
-                                                      "email"       => $"this.value=this.value.replace(/[^A-Za-z0-9@._-]/g,'').slice(0,{field.MaxLength ?? 100});",
-                                                      "url"         => $"this.value=this.value.replace(/[^A-Za-z0-9:/?&=._-]/g,'').slice(0,{field.MaxLength ?? 200});",
-                                                      _ when field.IsNumericOnly => $"this.value=this.value.replace(/\\D/g,'').slice(0,{field.MaxLength ?? 200});",
-                                                      _ when field.MaxLength.HasValue => $"this.value=this.value.slice(0,{field.MaxLength});",
-                                                      _ => null
-                                                  })">@field.Value</textarea>
-                                }
-                                else
-                                {
-                                    <input type="@(field.Type.ToLower() == "phone" ? "tel" : field.Type.ToLower() == "iban" ? "text" : field.Type)"
-                                           id="@field.Name"
-                                           name="@field.Name"
-                                           value="@field.Value"
-                                           placeholder="@(field.Placeholder ?? (field.Type.ToLower() == "phone" ? "05xxxxxxxx" : field.IsIban ? "SAxxxxxxxxxxxxxxxxxxxx" : ""))"
-                                           @(field.Min.HasValue ? $"min=\"{field.Min}\"" : null)
-                                           @(field.Max.HasValue ? $"max=\"{field.Max}\"" : null)
-                                           @(field.MaxLength.HasValue ? $"maxlength=\"{field.MaxLength}\"" : null)
-                                           pattern="@(field.Type.ToLower() == "phone" ? @"^05\d{8}$" : field.IsIban ? @"^SA[0-9]{2}[0-9]{2,20}$" : field.IsNumericOnly ? @"^\d{10}$" : field.Pattern)"
-                                           x-input-lang="@field.InputLang"
-                                           x-input-pattern="@field.InputPattern"
-                                           x-on:change="@field.OnChangeJs"
-                                           autocomplete="@(field.Autocomplete ?? "off")"
-                                           spellcheck="@(field.Spellcheck?.ToString().ToLower() ?? "false")"
-                                           autocapitalize="@(field.Autocapitalize ?? "none")"
-                                           autocorrect="@(field.Autocorrect ?? "off")"
-                                           data-dependson="@field.DependsOn"
-                                           data-dependsurl="@field.DependsUrl"
-                                           data-textmode="@field.TextMode"
-                                           dir="@(field.IsNumericOnly || field.IsIban || field.Type.ToLower() == "phone" ? "ltr" : "rtl")"
-                                           oninput="@(
-                                                   field.Name == "Age"
-                                                   ? "if(this.value !== '' && parseInt(this.value) < 1) this.value = 1;"
-                                                 : field.Type.ToLower() switch {
-                                                   "phone" => $"this.value=this.value.replace(/\\D/g,'');if(!this.value.startsWith('05'))this.value='05'+this.value.replace(/^05?/,'');this.value=this.value.slice(0,{field.MaxLength ?? 10});",
-                                                   "iban"  => $"this.value=this.value.toUpperCase().replace(/[^A-Z0-9]/g,'');if(!this.value.startsWith('SA'))this.value='SA'+this.value.replace(/^SA?/,'');this.value=this.value.slice(0,{field.MaxLength ?? 34});",
-                                                   _ when field.TextMode=="arabic"      => $"this.value=this.value.replace(/[^\\u0600-\\u06FF]/g,'').slice(0,{field.MaxLength ?? 200});",
-                                                   _ when field.TextMode=="arsentence"  => $"this.value=this.value.replace(/[^\\u0600-\\u06FF\\s،.]/g,'').slice(0,{field.MaxLength ?? 200});",
-                                                   _ when field.TextMode=="english"     => $"this.value=this.value.replace(/[^A-Za-z]/g,'').slice(0,{field.MaxLength ?? 200});",
-                                                   _ when field.TextMode=="engsentence" => $"this.value=this.value.replace(/[^A-Za-z\\s.,]/g,'').slice(0,{field.MaxLength ?? 200});",
-                                                   _ when field.TextMode=="email"       => $"this.value=this.value.replace(/[^A-Za-z0-9@._-]/g,'').slice(0,{field.MaxLength ?? 100});",
-                                                   _ when field.TextMode=="url"         => $"this.value=this.value.replace(/[^A-Za-z0-9:/?&=._-]/g,'').slice(0,{field.MaxLength ?? 200});",
-                                                   _ when field.IsNumericOnly           => $"this.value=this.value.replace(/\\D/g,'').slice(0,{field.MaxLength ?? 10});",
-                                                   _ when field.MaxLength.HasValue      => $"this.value=this.value.slice(0,{field.MaxLength});",
-                                                   _ => null
-                                               })"
-                                           onkeydown="@(field.IsNumericOnly || field.Type.ToLower()=="phone" ? "return (event.ctrlKey||event.metaKey||event.key.length>1)||/[0-9]/.test(event.key)" : null)"
-                                           class="input text-md text-right @field.ExtraCss @(string.IsNullOrWhiteSpace(field.Icon) ? "" : "pl-10") @(field.IsIban ? "uppercase tracking-wider font-mono" : "")"
-                                           @(field.Required ? "required" : null)
-                                           @(field.Disabled ? "disabled" : null)
-                                           @(field.Readonly ? "readonly" : null)
-                                           aria-required="@(field.Required.ToString().ToLower())"
-                                           aria-invalid="false"
-                                           aria-describedby="@($"{field.Name}_error {field.Name}_help")" />
-                                }
+                                    <!-- البحث -->
+                                    <div class="p-2">
+                                        <input type="text" x-model.trim="q" placeholder="بحث..." dir="rtl"
+                                               class="w-full rounded-sm border border-gray-300 px-3 py-2 text-sm focus:ring-1 focus:ring-emerald-600 focus:outline-none" />
+                                    </div>
 
-                                
-                                
-                                <span id="@($"{field.Name}_error")" asp-validation-for="@field.Name" class="form-error"></span>
-                            </div>
-                            break;
-
-                        case "checkbox":
-                            <div class="form-group @field.GetResolvedColCss()">
-                                <div class="flex items-start gap-2">
-                                    <input type="hidden" name="@field.Name" value="false" />
-                                    <input type="checkbox" id="@field.Name" name="@field.Name" value="true"
-                                           class="sf-checkbox @field.ExtraCss"
-                                           @(field.Value == "true" ? "checked" : null)
-                                           x-on:change="@field.OnChangeJs" />
-                                    <label for="@field.Name"
-                                           class="leading-relaxed text-gray-700 break-words whitespace-normal cursor-pointer select-none text-md">
-                                        @field.Label @if (field.Required) { <span class="text-red-500">*</span> }
-                                    </label>
+                                    <!-- العناصر -->
+                                    <ul class="max-h-60 overflow-y-auto py-1">
+                                        <template x-for="opt in filtered()" :key="opt.value">
+                                            <li class="cursor-pointer px-3 py-1.5 select-none hover:bg-gray-200"
+                                                :class="opt.disabled ? 'cursor-not-allowed opacity-50' : ''"
+                                                x-on:click.stop="toggle(opt)">
+                                                <div class="flex items-center gap-3">
+                                                    <template x-if="!multiple">
+                                                        <span class="sf-select-radio"
+                                                              :class="isSelected(opt) ? 'selected' : ''"></span>
+                                                    </template>
+                                                    <template x-if="multiple">
+                                                        <input type="checkbox" class="h-4 w-4 shrink-0"
+                                                               :checked="isSelected(opt)" x-on:click.stop>
+                                                    </template>
+                                                    <span class="grow truncate" x-text="opt.text"></span>
+                                                </div>
+                                            </li>
+                                        </template>
+                                    </ul>
                                 </div>
-                            </div>
-                            break;
+                            </template>
+                        </div>
+                    }
+                    break;
 
-                        case "radio":
-                            <div class="form-group @field.GetResolvedColCss()">
-                                <div class="grid gap-2 mt-1">
-                                    <span class="sf-label">@field.Label @if (field.Required) { <span class="text-red-500">*</span> }</span>
-                                    @foreach (var opt in field.Options)
-                                    {
-                                        var radioId = $"{field.Name}_{opt.Value}";
-                                        <label for="@radioId" class="flex items-center gap-2 text-gray-700 text-md">
-                                            <input type="radio" id="@radioId" name="@field.Name" value="@opt.Value"
-                                                   class="sf-radio"
-                                                   @(opt.Selected ? "checked" : null)
-                                                   @(opt.Disabled ? "disabled" : null)
-                                                   x-on:change="@field.OnChangeJs" />
-                                            <span>@opt.Text</span>
-                                        </label>
-                                    }
-                                </div>
-                            </div>
-                            break;
+                case "checkbox":
+                    <div class="form-group @field.GetResolvedColCss()">
+                        <div class="flex items-start gap-2">
+                            <input type="hidden" name="@field.Name" value="false" />
+                            <input type="checkbox" id="@field.Name" name="@field.Name" value="true"
+                                   class="sf-checkbox @field.ExtraCss"
+                                   @(field.Value == "true" ? "checked" : null)
+                                   x-on:change="@field.OnChangeJs" />
+                            <label for="@field.Name"
+                                   class="text-md cursor-pointer leading-relaxed break-words whitespace-normal text-gray-700 select-none">
+                                @field.Label @if (field.Required) { <span class="text-red-500">*</span> }
+                            </label>
+                        </div>
+                    </div>
+                    break;
 
-                        case "file":
-                            <div class="form-group @field.GetResolvedColCss()">
-                                <input type="file" id="@field.Name" name="@field.Name"
-                                        class="sf-file @field.ExtraCss"
-                                       @(field.Multiple ? "multiple" : null)
-                                       @(field.Required ? "required" : null)
-                                       x-on:change="@field.OnChangeJs" />
-                            </div>
-                            break;
-
-                        case "date":
+                case "radio":
+                    <div class="form-group @field.GetResolvedColCss()">
+                        <div class="mt-1 grid gap-2">
+                            <span class="sf-label">@field.Label @if (field.Required) { <span class="text-red-500">*</span> }</span>
+                            @foreach (var opt in field.Options)
                             {
-                                var inputId = field.Name;
-                                var mirrorId = $"{field.Name}__mirror";
-                                var hasIcon = !string.IsNullOrWhiteSpace(field.Icon);
-                                var inputCss = $"sf-date text-right {(hasIcon ? "pl-10" : "")} {field.ExtraCss}";
-                                var placeholder = field.Placeholder
-                                    ?? ((field.DisplayFormat ?? "yyyy-mm-dd").ToLower() == "yyyy-mm-dd"
-                                        ? "YYYY-MM-DD"
-                                        : field.DisplayFormat);
+                                var radioId = $"{field.Name}_{opt.Value}";
+                                <label for="@radioId" class="text-md flex items-center gap-2 text-gray-700">
+                                    <input type="radio" id="@radioId" name="@field.Name" value="@opt.Value"
+                                           class="sf-radio"
+                                           @(opt.Selected ? "checked" : null)
+                                           @(opt.Disabled ? "disabled" : null)
+                                           x-on:change="@field.OnChangeJs" />
+                                    <span>@opt.Text</span>
+                                </label>
+                            }
+                        </div>
+                    </div>
+                    break;
 
-                                <div class="form-group @field.GetResolvedColCss() relative">
+                case "file":
+                    <div class="form-group @field.GetResolvedColCss()">
+                        <input type="file" id="@field.Name" name="@field.Name"
+                               class="sf-file @field.ExtraCss"
+                               @(field.Multiple ? "multiple" : null)
+                               @(field.Required ? "required" : null)
+                               x-on:change="@field.OnChangeJs" />
+                    </div>
+                    break;
+
+                case "date":
+                    {
+                        var inputId = field.Name;
+                        var mirrorId = $"{field.Name}__mirror";
+                        var hasIcon = !string.IsNullOrWhiteSpace(field.Icon);
+                        var inputCss = $"sf-date text-right {(hasIcon ? "pl-10" : "")} {field.ExtraCss}";
+                        var placeholder = field.Placeholder
+                            ?? ((field.DisplayFormat ?? "yyyy-mm-dd").ToLower() == "yyyy-mm-dd"
+                                ? "YYYY-MM-DD"
+                                : field.DisplayFormat);
+
+                        <div class="form-group @field.GetResolvedColCss() relative">
+                            @if (hasIcon)
+                            {
+                                <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+                                    <i class="@field.Icon text-md text-gray-400"></i>
+                                </div>
+                            }
+
+                            <input type="text"
+                                   id="@inputId"
+                                   name="@field.Name"
+                                   value="@field.Value"
+                                   placeholder="@placeholder"
+                                   inputmode="numeric"
+                                   style="direction:ltr; text-align:right"
+                                   autocomplete="off" spellcheck="false" autocapitalize="none" autocorrect="off"
+                                   class="@inputCss"
+                                   pattern="^\d{4}-\d{2}-\d{2}$"
+                                   data-role="sf-date"
+                                   data-date-format="@field.DisplayFormat"
+                                   data-manual-order="dmy"
+                                   data-calendar="@field.Calendar"
+                                   data-input-calendar="@field.DateInputCalendar"
+                                   data-display-lang="@field.DateDisplayLang"
+                                   data-numerals="@field.DateNumerals"
+                                   data-show-day-name="@(field.ShowDayName.ToString().ToLower())"
+                                   data-default-today="@(field.DefaultToday.ToString().ToLower())"
+                                   data-min-date="@field.MinDateStr"
+                                   data-max-date="@field.MaxDateStr"
+                                   data-mirror-name="@field.MirrorName"
+                                   data-mirror-calendar="@field.MirrorCalendar"
+                                   x-on:change="@field.OnChangeJs"
+                                   @(field.Required ? "required" : null)
+                                   @(field.Disabled ? "disabled" : null)
+                                   @(field.Readonly ? "readonly" : null) />
+
+                            @if (!string.IsNullOrWhiteSpace(field.MirrorName))
+                            {
+                                <input type="hidden" id="@mirrorId" name="@field.MirrorName" value="" />
+                            }
+                        </div>
+
+                        <div id="@($"{inputId}__info")" class="mt-2">
+                            <div class="date-info-box">
+                                <div class="flex items-center gap-1 text-xs text-gray-500">
+                                    <i class="fa-regular fa-calendar"></i>
+                                    <span>الميلادي:</span>
+                                    <span data-greg-full>—</span>
+                                </div>
+                                <div class="mt-1 flex items-center gap-1 text-xs text-gray-500">
+                                    <i class="fa-regular fa-moon"></i>
+                                    <span>الهجري:</span>
+                                    <span data-hijri-full>—</span>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                    break;
+
+                case "date-range":
+                    {
+                        var baseName = field.Name;
+                        var fromId = $"{baseName}_From";
+                        var toId = $"{baseName}_To";
+                        var mirrorFromId = $"{fromId}__mirror";
+                        var mirrorToId = $"{toId}__mirror";
+                        var hasIcon = !string.IsNullOrWhiteSpace(field.Icon);
+                        var inputCss = $"sf-date text-right {(hasIcon ? "pl-10" : "")} {field.ExtraCss}";
+                        var placeholder = field.Placeholder
+                            ?? ((field.DisplayFormat ?? "yyyy-mm-dd").ToLower() == "yyyy-mm-dd"
+                                ? "YYYY-MM-DD"
+                                : field.DisplayFormat);
+
+                        var raw = !string.IsNullOrWhiteSpace(field.ColCss) ? field.ColCss : "12";
+                        int span = 12;
+                        if (int.TryParse(raw, out var n)) span = Math.Clamp(n, 1, 12);
+                        int half = Math.Max(1, span / 2);
+                        var fromCss = new FieldConfig { ColCss = half.ToString() }.GetResolvedColCss();
+                        var toCss = new FieldConfig { ColCss = (span - half).ToString() }.GetResolvedColCss();
+
+                        <div class="grid grid-cols-12 gap-3">
+                            <!-- من -->
+                            <div class="@fromCss">
+                                <div class="relative">
                                     @if (hasIcon)
                                     {
-                                        <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-                                            <i class="@field.Icon text-gray-400 text-md"></i>
+                                        <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+                                            <i class="@field.Icon text-md text-gray-400"></i>
                                         </div>
                                     }
-
                                     <input type="text"
-                                           id="@inputId"
-                                           name="@field.Name"
-                                           value="@field.Value"
+                                           id="@fromId"
+                                           name="@($"{baseName}From")"
                                            placeholder="@placeholder"
-                                           inputmode="numeric"
                                            style="direction:ltr; text-align:right"
+                                           inputmode="numeric"
                                            autocomplete="off" spellcheck="false" autocapitalize="none" autocorrect="off"
                                            class="@inputCss"
-                                           pattern="^\d{4}-\d{2}-\d{2}$"
                                            data-role="sf-date"
                                            data-date-format="@field.DisplayFormat"
                                            data-manual-order="dmy"
@@ -366,312 +334,316 @@ else
                                            data-default-today="@(field.DefaultToday.ToString().ToLower())"
                                            data-min-date="@field.MinDateStr"
                                            data-max-date="@field.MaxDateStr"
-                                           data-mirror-name="@field.MirrorName"
+                                           data-mirror-name="@(string.IsNullOrWhiteSpace(field.MirrorName) ? "" : $"{field.MirrorName}From")"
                                            data-mirror-calendar="@field.MirrorCalendar"
+                                           data-range-group="@baseName"
+                                           data-range-role="start"
+                                           data-days-target="@($"{baseName}__days")"
                                            x-on:change="@field.OnChangeJs"
                                            @(field.Required ? "required" : null)
                                            @(field.Disabled ? "disabled" : null)
                                            @(field.Readonly ? "readonly" : null) />
-
                                     @if (!string.IsNullOrWhiteSpace(field.MirrorName))
                                     {
-                                        <input type="hidden" id="@mirrorId" name="@field.MirrorName" value="" />
+                                        <input type="hidden" id="@mirrorFromId" name="@($"{field.MirrorName}From")" value="" />
                                     }
                                 </div>
+                                <div id="@($"{fromId}__info")" class="mt-2">
+                                    <div class="rounded-lg border border-gray-200 bg-gray-50 p-2">
+                                        <div class="text-xs text-gray-500">الميلادي: <span data-greg-full>—</span></div>
+                                        <div class="mt-1 text-xs text-gray-500">الهجري: <span data-hijri-full>—</span></div>
+                                    </div>
+                                </div>
+                            </div>
 
-                                <div id="@($"{inputId}__info")" class="mt-2">
+                            <!-- إلى -->
+                            <div class="@toCss">
+                                <div class="relative">
+                                    @if (hasIcon)
+                                    {
+                                        <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+                                            <i class="@field.Icon text-md text-gray-400"></i>
+                                        </div>
+                                    }
+                                    <input type="text"
+                                           id="@toId"
+                                           name="@($"{baseName}To")"
+                                           placeholder="@placeholder"
+                                           style="direction:ltr; text-align:right"
+                                           inputmode="numeric"
+                                           autocomplete="off" spellcheck="false" autocapitalize="none" autocorrect="off"
+                                           class="@inputCss"
+                                           data-role="sf-date"
+                                           data-date-format="@field.DisplayFormat"
+                                           data-manual-order="dmy"
+                                           data-calendar="@field.Calendar"
+                                           data-input-calendar="@field.DateInputCalendar"
+                                           data-display-lang="@field.DateDisplayLang"
+                                           data-numerals="@field.DateNumerals"
+                                           data-show-day-name="@(field.ShowDayName.ToString().ToLower())"
+                                           data-default-today="false"
+                                           data-min-date="@field.MinDateStr"
+                                           data-max-date="@field.MaxDateStr"
+                                           data-mirror-name="@(string.IsNullOrWhiteSpace(field.MirrorName) ? "" : $"{field.MirrorName}To")"
+                                           data-mirror-calendar="@field.MirrorCalendar"
+                                           data-range-group="@baseName"
+                                           data-range-role="end"
+                                           data-days-target="@($"{baseName}__days")"
+                                           x-on:change="@field.OnChangeJs"
+                                           @(field.Required ? "required" : null)
+                                           @(field.Disabled ? "disabled" : null)
+                                           @(field.Readonly ? "readonly" : null) />
+                                    @if (!string.IsNullOrWhiteSpace(field.MirrorName))
+                                    {
+                                        <input type="hidden" id="@mirrorToId" name="@($"{field.MirrorName}To")" value="" />
+                                    }
+                                </div>
+                                <div id="@($"{toId}__info")" class="mt-2">
                                     <div class="date-info-box">
-                                        <div class="flex items-center gap-1 text-xs text-gray-500">
-                                            <i class="fa-regular fa-calendar"></i>
-                                            <span>الميلادي:</span>
-                                            <span data-greg-full>—</span>
-                                        </div>
-                                        <div class="flex items-center gap-1 mt-1 text-xs text-gray-500">
-                                            <i class="fa-regular fa-moon"></i>
-                                            <span>الهجري:</span>
-                                            <span data-hijri-full>—</span>
-                                        </div>
+                                        <div class="text-xs text-gray-500">الميلادي: <span data-greg-full>—</span></div>
+                                        <div class="mt-1 text-xs text-gray-500">الهجري: <span data-hijri-full>—</span></div>
                                     </div>
                                 </div>
-                            }
-                            break;
+                            </div>
+                        </div>
 
-                        case "date-range":
-                            {
-                                var baseName = field.Name;
-                                var fromId = $"{baseName}_From";
-                                var toId   = $"{baseName}_To";
-                                var mirrorFromId = $"{fromId}__mirror";
-                                var mirrorToId   = $"{toId}__mirror";
-                                var hasIcon = !string.IsNullOrWhiteSpace(field.Icon);
-                                var inputCss = $"sf-date text-right {(hasIcon ? "pl-10" : "")} {field.ExtraCss}";
-                                var placeholder = field.Placeholder
-                                    ?? ((field.DisplayFormat ?? "yyyy-mm-dd").ToLower() == "yyyy-mm-dd"
-                                        ? "YYYY-MM-DD"
-                                        : field.DisplayFormat);
-
-                                var raw = !string.IsNullOrWhiteSpace(field.ColCss) ? field.ColCss : "12";
-                                int span = 12;
-                                if (int.TryParse(raw, out var n)) span = Math.Clamp(n, 1, 12);
-                                int half = Math.Max(1, span / 2);
-                                var fromCss = new FieldConfig { ColCss = half.ToString() }.GetResolvedColCss();
-                                var toCss   = new FieldConfig { ColCss = (span - half).ToString() }.GetResolvedColCss();
-
-                                <div class="grid grid-cols-12 gap-3">
-                                    <!-- من -->
-                                    <div class="@fromCss">
-                                        <div class="relative">
-                                            @if (hasIcon)
-                                            {
-                                                <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-                                                    <i class="@field.Icon text-gray-400 text-md"></i>
-                                                </div>
-                                            }
-                                            <input type="text"
-                                                   id="@fromId"
-                                                   name="@($"{baseName}From")"
-                                                   placeholder="@placeholder"
-                                                   style="direction:ltr; text-align:right"
-                                                   inputmode="numeric"
-                                                   autocomplete="off" spellcheck="false" autocapitalize="none" autocorrect="off"
-                                                   class="@inputCss"
-                                                   data-role="sf-date"
-                                                   data-date-format="@field.DisplayFormat"
-                                                   data-manual-order="dmy"
-                                                   data-calendar="@field.Calendar"
-                                                   data-input-calendar="@field.DateInputCalendar"
-                                                   data-display-lang="@field.DateDisplayLang"
-                                                   data-numerals="@field.DateNumerals"
-                                                   data-show-day-name="@(field.ShowDayName.ToString().ToLower())"
-                                                   data-default-today="@(field.DefaultToday.ToString().ToLower())"
-                                                   data-min-date="@field.MinDateStr"
-                                                   data-max-date="@field.MaxDateStr"
-                                                   data-mirror-name="@(string.IsNullOrWhiteSpace(field.MirrorName) ? "" : $"{field.MirrorName}From")"
-                                                   data-mirror-calendar="@field.MirrorCalendar"
-                                                   data-range-group="@baseName"
-                                                   data-range-role="start"
-                                                   data-days-target="@($"{baseName}__days")"
-                                                   x-on:change="@field.OnChangeJs"
-                                                   @(field.Required ? "required" : null)
-                                                   @(field.Disabled ? "disabled" : null)
-                                                   @(field.Readonly ? "readonly" : null) />
-                                            @if (!string.IsNullOrWhiteSpace(field.MirrorName))
-                                            {
-                                                <input type="hidden" id="@mirrorFromId" name="@($"{field.MirrorName}From")" value="" />
-                                            }
-                                        </div>
-                                        <div id="@($"{fromId}__info")" class="mt-2">
-                                            <div class="p-2 border border-gray-200 rounded-lg bg-gray-50">
-                                                <div class="text-xs text-gray-500">الميلادي: <span data-greg-full>—</span></div>
-                                                <div class="mt-1 text-xs text-gray-500">الهجري: <span data-hijri-full>—</span></div>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <!-- إلى -->
-                                    <div class="@toCss">
-                                        <div class="relative">
-                                            @if (hasIcon)
-                                            {
-                                                <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-                                                    <i class="@field.Icon text-gray-400 text-md"></i>
-                                                </div>
-                                            }
-                                            <input type="text"
-                                                   id="@toId"
-                                                   name="@($"{baseName}To")"
-                                                   placeholder="@placeholder"
-                                                   style="direction:ltr; text-align:right"
-                                                   inputmode="numeric"
-                                                   autocomplete="off" spellcheck="false" autocapitalize="none" autocorrect="off"
-                                                   class="@inputCss"
-                                                   data-role="sf-date"
-                                                   data-date-format="@field.DisplayFormat"
-                                                   data-manual-order="dmy"
-                                                   data-calendar="@field.Calendar"
-                                                   data-input-calendar="@field.DateInputCalendar"
-                                                   data-display-lang="@field.DateDisplayLang"
-                                                   data-numerals="@field.DateNumerals"
-                                                   data-show-day-name="@(field.ShowDayName.ToString().ToLower())"
-                                                   data-default-today="false"
-                                                   data-min-date="@field.MinDateStr"
-                                                   data-max-date="@field.MaxDateStr"
-                                                   data-mirror-name="@(string.IsNullOrWhiteSpace(field.MirrorName) ? "" : $"{field.MirrorName}To")"
-                                                   data-mirror-calendar="@field.MirrorCalendar"
-                                                   data-range-group="@baseName"
-                                                   data-range-role="end"
-                                                   data-days-target="@($"{baseName}__days")"
-                                                   x-on:change="@field.OnChangeJs"
-                                                   @(field.Required ? "required" : null)
-                                                   @(field.Disabled ? "disabled" : null)
-                                                   @(field.Readonly ? "readonly" : null) />
-                                            @if (!string.IsNullOrWhiteSpace(field.MirrorName))
-                                            {
-                                                <input type="hidden" id="@mirrorToId" name="@($"{field.MirrorName}To")" value="" />
-                                            }
-                                        </div>
-                                        <div id="@($"{toId}__info")" class="mt-2">
-                                                <div class="date-info-box">
-                                                <div class="text-xs text-gray-500">الميلادي: <span data-greg-full>—</span></div>
-                                                <div class="mt-1 text-xs text-gray-500">الهجري: <span data-hijri-full>—</span></div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div id="@($"{baseName}__days")" class="days-counter-box">
-                                    <i class="text-gray-500 fa-solid fa-calculator"></i>
-                                    <span class="text-sm text-gray-700">
-                                        <span>عدد الأيام:</span>
-                                        <span data-days-value>—</span>
-                                    </span>
-                                    <span class="hidden text-sm text-red-600" data-days-error></span>
-                                </div>
-                            }
-                            break;
-
-
+                        <div id="@($"{baseName}__days")" class="days-counter-box">
+                            <i class="fa-solid fa-calculator text-gray-500"></i>
+                            <span class="text-sm text-gray-700">
+                                <span>عدد الأيام:</span>
+                                <span data-days-value>—</span>
+                            </span>
+                            <span class="hidden text-sm text-red-600" data-days-error></span>
+                        </div>
                     }
+                    break;
 
-                    @if (!string.IsNullOrWhiteSpace(field.HelpText))
-                    {
-                        <p class="mt-1 text-xs text-gray-500">@field.HelpText</p>
-                    }
-                </div>
-            }
-
-            @if (defaultRowOpen)
-{
-    @:</div> 
-}
-@if (sectionOpen)
-{
-    @:</div> 
-    @:</fieldset>
-}
-
-
-
-@{
-    var hasSubmit = !string.IsNullOrWhiteSpace(Model.SubmitText);
-    var hasReset  = Model.ShowReset && !string.IsNullOrWhiteSpace(Model.ResetText);
-    var hasCustom = Model.Buttons?.Any(b => b.Show) == true;
-
-    var hasActionsBar = hasSubmit || hasReset || hasCustom;
-}
-
-
-            <!-- شريط الأزرار -->
-
-
-
-    @* <div class="col-span-12 px-4 pt-4 mt-5 mb-6 actions-bar">
-    <div class="flex flex-wrap items-center justify-end gap-3 actions-inner">
-
-        @if (!string.IsNullOrWhiteSpace(Model.SubmitText))
+                default:
+    <div class="form-group @field.GetResolvedColCss() relative">
+        @if (!string.IsNullOrWhiteSpace(field.Icon))
         {
-            <button type="submit"
-                    class="border btn btn-success border-emerald-600 focus:ring-offset-2">
-                <i class="fa fa-save text-[14px]"></i>
-                <span>@Model.SubmitText</span>
-            </button>
+            <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+                <i class="@field.Icon text-md text-gray-400"></i>
+            </div>
         }
 
-        @if (Model.ShowReset && !string.IsNullOrWhiteSpace(Model.ResetText))
+        @if (field.Type.ToLower() == "textarea")
         {
-            <button type="reset"
-                    class="btn btn-secondary focus:ring-offset-2">
-                <i class="fa fa-eraser text-[14px]"></i>
-                <span>@Model.ResetText</span>
-            </button>
+            <textarea id="@field.Name"
+                      name="@field.Name"
+                      rows="4"
+                      placeholder="@field.Placeholder"
+                      value="@field.Value"
+                      autocomplete="@(field.Autocomplete ?? "off")"
+                      spellcheck="@(field.Spellcheck?.ToString().ToLower() ?? "false")"
+                      autocapitalize="@(field.Autocapitalize ?? "none")"
+                      autocorrect="@(field.Autocorrect ?? "off")"
+                      @(field.Min.HasValue ? $"min=\"{field.Min}\"" : null)
+                      @(field.Max.HasValue ? $"max=\"{field.Max}\"" : null)
+                      @(field.MaxLength.HasValue ? $"maxlength=\"{field.MaxLength}\"" : null)
+                      x-input-lang="@field.InputLang"
+                      x-input-pattern="@field.InputPattern"
+                      x-on:change="@field.OnChangeJs"
+                      data-dependson="@field.DependsOn"
+                      data-dependsurl="@field.DependsUrl"
+                      data-textmode="@field.TextMode"
+                      dir="@(field.IsNumericOnly ? "ltr" : "rtl")"
+                      class="sf-textarea text-md text-right @field.ExtraCss @(string.IsNullOrWhiteSpace(field.Icon) ? "" : "pl-10")"
+                      @(field.Required ? "required" : null)
+                      @(field.Disabled ? "disabled" : null)
+                      @(field.Readonly ? "readonly" : null)
+                      aria-required="@(field.Required.ToString().ToLower())"
+                      aria-invalid="false"
+                      aria-describedby="@($"{field.Name}_error {field.Name}_help")"
+                      oninput="@(
+                          field.TextMode switch {
+                              "arabic"      => $"this.value=this.value.replace(/[^\\u0600-\\u06FF]/g,'').slice(0,{field.MaxLength ?? 200});",
+                              "arsentence"  => $"this.value=this.value.replace(/[^\\u0600-\\u06FF\\s،.]/g,'').slice(0,{field.MaxLength ?? 200});",
+                              "english"     => $"this.value=this.value.replace(/[^A-Za-z]/g,'').slice(0,{field.MaxLength ?? 200});",
+                              "engsentence" => $"this.value=this.value.replace(/[^A-Za-z\\s.,]/g,'').slice(0,{field.MaxLength ?? 200});",
+                              "email"       => $"this.value=this.value.replace(/[^A-Za-z0-9@._-]/g,'').slice(0,{field.MaxLength ?? 100});",
+                              "url"         => $"this.value=this.value.replace(/[^A-Za-z0-9:/?&=._-]/g,'').slice(0,{field.MaxLength ?? 200});",
+                              _ when field.IsNumericOnly => $"this.value=this.value.replace(/\\D/g,'').slice(0,{field.MaxLength ?? 200});",
+                              _ when field.MaxLength.HasValue => $"this.value=this.value.slice(0,{field.MaxLength});",
+                              _ => null
+                          })">@field.Value</textarea>
         }
-
-        @if (Model.Buttons?.Any(b => b.Show) == true)
+        else
         {
-            @foreach (var b in Model.Buttons.Where(b => b.Show))
+            @* input + inline button (dynamic) *@
+<div class="flex items-center gap-2">
+
+    @* زر قبل الحقل (start) *@
+    @if (field.InlineButton && (field.InlineButtonPosition ?? "end").ToLower() == "start")
+    {
+        <button type="button"
+                class="shrink-0 @(string.IsNullOrWhiteSpace(field.InlineButtonCss) ? "btn btn-success" : field.InlineButtonCss)"
+                @(string.IsNullOrWhiteSpace(field.InlineButtonOnClickJs) ? null : $"onclick=\"{field.InlineButtonOnClickJs}\"")>
+            @if (!string.IsNullOrWhiteSpace(field.InlineButtonIcon))
             {
-                var btnType = string.IsNullOrWhiteSpace(b.Type) ? "button" : b.Type;
-                var iconHtml = string.IsNullOrWhiteSpace(b.Icon) ? "" : $"<i class=\"{b.Icon} text-[14px]\"></i>";
-
-                var variant = (b.Color ?? "").Trim().ToLowerInvariant() switch
-                {
-                    "success"   => "btn-success",
-                    "info"      => "btn-info",
-                    "danger"    => "btn-danger",
-                    "warning"   => "btn-warning",
-                    "secondary" => "btn-secondary",
-                    _           => "btn"
-                };
-
-                var baseClass = "btn";
-
-                <button type="@btnType"
-                        class="@(baseClass) @(variant) @(b.CssClass)"
-                        x-on:click="@(b.OnClickJs ?? "")"
-                        data-op="@b.Operation"
-                        data-sp="@b.StoredProcedureName">
-                    @Html.Raw(iconHtml)
-                    <span>@b.Text</span>
-                </button>
+                <i class="@field.InlineButtonIcon text-[14px]"></i>
             }
+            @if (!string.IsNullOrWhiteSpace(field.InlineButtonText))
+            {
+                <span>@field.InlineButtonText</span>
+            }
+        </button>
+    }
+
+    <input type="@(field.Type.ToLower() == "phone" ? "tel" : field.Type.ToLower() == "iban" ? "text" : field.Type)"
+           id="@field.Name"
+           name="@field.Name"
+           value="@field.Value"
+           placeholder="@(field.Placeholder ?? (field.Type.ToLower() == "phone" ? "05xxxxxxxx" : field.IsIban ? "SAxxxxxxxxxxxxxxxxxxxx" : ""))"
+           @(field.Min.HasValue ? $"min=\"{field.Min}\"" : null)
+           @(field.Max.HasValue ? $"max=\"{field.Max}\"" : null)
+           @(field.MaxLength.HasValue ? $"maxlength=\"{field.MaxLength}\"" : null)
+           pattern="@(field.Type.ToLower() == "phone" ? @"^05\d{8}$" : field.IsIban ? @"^SA[0-9]{2}[0-9]{2,20}$" : field.IsNumericOnly ? @"^\d{10}$" : field.Pattern)"
+           x-input-lang="@field.InputLang"
+           x-input-pattern="@field.InputPattern"
+           x-on:change="@field.OnChangeJs"
+           autocomplete="@(field.Autocomplete ?? "off")"
+           spellcheck="@(field.Spellcheck?.ToString().ToLower() ?? "false")"
+           autocapitalize="@(field.Autocapitalize ?? "none")"
+           autocorrect="@(field.Autocorrect ?? "off")"
+           data-dependson="@field.DependsOn"
+           data-dependsurl="@field.DependsUrl"
+           data-textmode="@field.TextMode"
+           dir="@(field.IsNumericOnly || field.IsIban || field.Type.ToLower() == "phone" ? "ltr" : "rtl")"
+           oninput="@(
+               field.Name == "Age"
+               ? "if(this.value !== '' && parseInt(this.value) < 1) this.value = 1;"
+               : field.Type.ToLower() switch {
+                   "phone" => $"this.value=this.value.replace(/\\D/g,'');if(!this.value.startsWith('05'))this.value='05'+this.value.replace(/^05?/,'');this.value=this.value.slice(0,{field.MaxLength ?? 10});",
+                   "iban"  => $"this.value=this.value.toUpperCase().replace(/[^A-Z0-9]/g,'');if(!this.value.startsWith('SA'))this.value='SA'+this.value.replace(/^SA?/,'');this.value=this.value.slice(0,{field.MaxLength ?? 34});",
+                   _ when field.TextMode=="arabic"      => $"this.value=this.value.replace(/[^\\u0600-\\u06FF]/g,'').slice(0,{field.MaxLength ?? 200});",
+                   _ when field.TextMode=="arsentence"  => $"this.value=this.value.replace(/[^\\u0600-\\u06FF\\s،.]/g,'').slice(0,{field.MaxLength ?? 200});",
+                   _ when field.TextMode=="english"     => $"this.value=this.value.replace(/[^A-Za-z]/g,'').slice(0,{field.MaxLength ?? 200});",
+                   _ when field.TextMode=="engsentence" => $"this.value=this.value.replace(/[^A-Za-z\\s.,]/g,'').slice(0,{field.MaxLength ?? 200});",
+                   _ when field.TextMode=="email"       => $"this.value=this.value.replace(/[^A-Za-z0-9@._-]/g,'').slice(0,{field.MaxLength ?? 100});",
+                   _ when field.TextMode=="url"         => $"this.value=this.value.replace(/[^A-Za-z0-9:/?&=._-]/g,'').slice(0,{field.MaxLength ?? 200});",
+                   _ when field.IsNumericOnly           => $"this.value=this.value.replace(/\\D/g,'').slice(0,{field.MaxLength ?? 10});",
+                   _ when field.MaxLength.HasValue      => $"this.value=this.value.slice(0,{field.MaxLength});",
+                   _ => null
+               })"
+           onkeydown="@(field.IsNumericOnly || field.Type.ToLower()=="phone" ? "return (event.ctrlKey||event.metaKey||event.key.length>1)||/[0-9]/.test(event.key)" : null)"
+           class="input text-md text-right @field.ExtraCss @(string.IsNullOrWhiteSpace(field.Icon) ? "" : "pl-10") @(field.IsIban ? "uppercase tracking-wider font-mono" : "")"
+           @(field.Required ? "required" : null)
+           @(field.Disabled ? "disabled" : null)
+           @(field.Readonly ? "readonly" : null)
+           aria-required="@(field.Required.ToString().ToLower())"
+           aria-invalid="false"
+           aria-describedby="@($"{field.Name}_error {field.Name}_help")" />
+
+    @* زر بعد الحقل (end) *@
+    @if (field.InlineButton && (field.InlineButtonPosition ?? "end").ToLower() != "start")
+    {
+        <button type="button"
+                class="shrink-0 @(string.IsNullOrWhiteSpace(field.InlineButtonCss) ? "btn btn-success" : field.InlineButtonCss)"
+                @(string.IsNullOrWhiteSpace(field.InlineButtonOnClickJs) ? null : $"onclick=\"{field.InlineButtonOnClickJs}\"")>
+            @if (!string.IsNullOrWhiteSpace(field.InlineButtonIcon))
+            {
+                <i class="@field.InlineButtonIcon text-[14px]"></i>
+            }
+            @if (!string.IsNullOrWhiteSpace(field.InlineButtonText))
+            {
+                <span>@field.InlineButtonText</span>
+            }
+        </button>
+    }
+
+</div>
+
         }
+
+        <span id="@($"{field.Name}_error")" asp-validation-for="@field.Name" class="form-error"></span>
     </div>
-</div> *@
+    break;
 
-@if (hasActionsBar)
-{
-    <div class="col-span-12 px-4 pt-4 mt-5 mb-6 actions-bar">
-        <div class="flex flex-wrap items-center justify-end gap-3 actions-inner">
-
-            @if (!string.IsNullOrWhiteSpace(Model.SubmitText))
-            {
-                <button type="submit"
-                        class="border btn btn-success border-emerald-600 focus:ring-offset-2">
-                    <i class="fa fa-save text-[14px]"></i>
-                    <span>@Model.SubmitText</span>
-                </button>
             }
 
-            @if (Model.ShowReset && !string.IsNullOrWhiteSpace(Model.ResetText))
+            @if (!string.IsNullOrWhiteSpace(field.HelpText))
             {
-                <button type="reset"
-                        class="btn btn-secondary focus:ring-offset-2">
-                    <i class="fa fa-eraser text-[14px]"></i>
-                    <span>@Model.ResetText</span>
-                </button>
+                <p class="mt-1 text-xs text-gray-500">@field.HelpText</p>
             }
+        </div>
+    } @* <-- نهاية foreach الحقول (مهم) *@
 
-            @if (Model.Buttons?.Any(b => b.Show) == true)
-            {
-                @foreach (var b in Model.Buttons.Where(b => b.Show))
+    @* اقفل آخر grid مفتوح قبل الأزرار *@
+    @if (defaultRowOpen)
+    {
+        @:</div>
+        defaultRowOpen = false;
+    }
+
+    @if (sectionOpen)
+    {
+        @:</div>
+        @:</fieldset>
+        sectionOpen = false;
+    }
+
+    @{
+        var hasSubmit = !string.IsNullOrWhiteSpace(Model.SubmitText);
+        var hasReset = Model.ShowReset && !string.IsNullOrWhiteSpace(Model.ResetText);
+        var hasCustom = Model.Buttons?.Any(b => b.Show) == true;
+
+        var hasActionsBar = hasSubmit || hasReset || hasCustom;
+    }
+
+    @if (hasActionsBar)
+    {
+        <div class="actions-bar col-span-12 mt-5 mb-6 px-4 pt-4">
+            <div class="actions-inner flex flex-wrap items-center justify-end gap-3">
+
+                @if (!string.IsNullOrWhiteSpace(Model.SubmitText))
                 {
-                    var btnType = string.IsNullOrWhiteSpace(b.Type) ? "button" : b.Type;
-                    var iconHtml = string.IsNullOrWhiteSpace(b.Icon) ? "" : $"<i class=\"{b.Icon} text-[14px]\"></i>";
-
-                    var variant = (b.Color ?? "").Trim().ToLowerInvariant() switch
-                    {
-                        "success"   => "btn-success",
-                        "info"      => "btn-info",
-                        "danger"    => "btn-danger",
-                        "warning"   => "btn-warning",
-                        "secondary" => "btn-secondary",
-                        _           => "btn"
-                    };
-
-                    <button type="@btnType"
-                            class="btn @variant @(b.CssClass)"
-                            x-on:click="@(b.OnClickJs ?? "")"
-                            data-op="@b.Operation"
-                            data-sp="@b.StoredProcedureName">
-                        @Html.Raw(iconHtml)
-                        <span>@b.Text</span>
+                    <button type="submit"
+                            class="btn btn-success border border-emerald-600 focus:ring-offset-2">
+                        <i class="fa fa-save text-[14px]"></i>
+                        <span>@Model.SubmitText</span>
                     </button>
                 }
-            }
 
+                @if (Model.ShowReset && !string.IsNullOrWhiteSpace(Model.ResetText))
+                {
+                    <button type="reset"
+                            class="btn btn-secondary focus:ring-offset-2">
+                        <i class="fa fa-eraser text-[14px]"></i>
+                        <span>@Model.ResetText</span>
+                    </button>
+                }
+
+                @if (Model.Buttons?.Any(b => b.Show) == true)
+                {
+                    @foreach (var b in Model.Buttons.Where(b => b.Show))
+                    {
+                        var btnType = string.IsNullOrWhiteSpace(b.Type) ? "button" : b.Type;
+                        var iconHtml = string.IsNullOrWhiteSpace(b.Icon) ? "" : $"<i class=\"{b.Icon} text-[14px]\"></i>";
+
+                        var variant = (b.Color ?? "").Trim().ToLowerInvariant() switch
+                        {
+                            "success" => "btn-success",
+                            "info" => "btn-info",
+                            "danger" => "btn-danger",
+                            "warning" => "btn-warning",
+                            "secondary" => "btn-secondary",
+                            _ => "btn"
+                        };
+
+                        <button type="@btnType"
+                                class="btn @variant @(b.CssClass)"
+                                x-on:click="@(b.OnClickJs ?? "")"
+                                data-op="@b.Operation"
+                                data-sp="@b.StoredProcedureName">
+                            @Html.Raw(iconHtml)
+                            <span>@b.Text</span>
+                        </button>
+                    }
+                }
+
+            </div>
         </div>
-    </div>
-}
+    }
 
-
-</form>  
+</form>

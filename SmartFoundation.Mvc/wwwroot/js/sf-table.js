@@ -33,6 +33,10 @@ window.__sfTableGlobalBound = window.__sfTableGlobalBound || false;
             autoRefresh: !!(cfg.autoRefresh || cfg.autoRefreshOnSubmit),
 
 
+            // Cell copy
+            enableCellCopy: !!cfg.enableCellCopy,
+
+
             // Structure
             columns: Array.isArray(cfg.columns) ? cfg.columns : [],
             actions: Array.isArray(cfg.actions) ? cfg.actions : [],
@@ -54,7 +58,103 @@ window.__sfTableGlobalBound = window.__sfTableGlobalBound || false;
             },
 
 
-            
+            // ===== Cell Copy Tooltip (fixed over the clicked cell) =====
+            showCellCopied(cellEl, msg = "تم النسخ") {
+                if (!cellEl) return;
+
+                // add styles once
+                if (!window.__sfCellToastStyleAdded) {
+                    window.__sfCellToastStyleAdded = true;
+                    const st = document.createElement("style");
+                    st.textContent = `
+            .sf-cell-copied {
+                position: fixed;
+                padding: 6px 10px;
+                border-radius: 4px;
+                background: rgba(0,0,0,.9);
+                color: #fff;
+                font-size: 12px;
+                line-height: 1;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                max-width: 320px;
+                z-index: 999999;
+                pointer-events: none;
+            }
+        `;
+                    document.head.appendChild(st);
+                }
+
+                // remove any old tooltip
+                document.querySelectorAll(".sf-cell-copied").forEach(x => x.remove());
+
+                const rect = cellEl.getBoundingClientRect();
+
+                const tip = document.createElement("div");
+                tip.className = "sf-cell-copied";
+                tip.textContent = msg;
+                document.body.appendChild(tip);
+
+                // center tooltip over cell
+                const tipRect = tip.getBoundingClientRect();
+                const left = rect.left + (rect.width / 2) - (tipRect.width / 2);
+                const gap = 2;
+                const top = rect.top - tipRect.height - gap;
+
+
+                // keep inside viewport
+                const safeLeft = Math.max(8, Math.min(left, window.innerWidth - tipRect.width - 8));
+                const safeTop = Math.max(8, top);
+
+                tip.style.left = safeLeft + "px";
+                tip.style.top = safeTop + "px";
+
+                setTimeout(() => tip.remove(), 900);
+            },
+
+            // ===== Modern Copy (NO execCommand) =====
+            async copyCell(row, col, e) {
+                if (!this.enableCellCopy) return;
+
+                const cellEl = e?.currentTarget || e?.target?.closest("td,th");
+
+                try {
+                    const html = this.formatCell(row, col);
+                    const text = this.stripHtml(html);
+                    if (!text) return;
+
+                    // 1) Secure context + Clipboard API
+                    if (navigator.clipboard?.writeText && window.isSecureContext) {
+                        await navigator.clipboard.writeText(text);
+                        this.showCellCopied(cellEl, "تم النسخ");
+                        return;
+                    }
+
+                    // 2) Fallback: ClipboardItem (قد يعمل في بعض المتصفحات حتى لو غير secure)
+                    if (navigator.clipboard?.write && typeof ClipboardItem !== "undefined") {
+                        const blob = new Blob([text], { type: "text/plain" });
+                        const item = new ClipboardItem({ "text/plain": blob });
+                        await navigator.clipboard.write([item]);
+                        this.showCellCopied(cellEl, "تم النسخ");
+                        return;
+                    }
+
+                    // 3) No supported method
+                    this.showCellCopied(cellEl, "المتصفح يمنع النسخ");
+                    // اختياري: اعرض النص في مودال/برومبت لو تبي
+                    // prompt("انسخ النص يدويًا:", text);
+
+                } catch (err) {
+                    console.error("Copy cell failed:", err);
+                    this.showCellCopied(cellEl, "فشل النسخ");
+                }
+            },
+
+
+
+        
+
 
             // Grouping & Storage
             groupBy: cfg.groupBy || null,
@@ -94,6 +194,9 @@ window.__sfTableGlobalBound = window.__sfTableGlobalBound || false;
                 open: false,
                 title: "",
                 message: "",   // جديد
+                messageClass: "",   // NEW
+                messageIcon: "",    // NEW
+                messageIsHtml: false, // NEW
                 html: "",
                 action: null,
                 loading: false,
@@ -1038,6 +1141,9 @@ window.__sfTableGlobalBound = window.__sfTableGlobalBound || false;
                 window.__sfTableActive = this; //جديد
                 this.modal.title = action.modalTitle || action.label || "";
                 this.modal.message = action.modalMessage || ""; //  جديد
+                this.modal.messageClass = action.modalMessageClass || "";
+                this.modal.messageIcon = action.modalMessageIcon || "";
+                this.modal.messageIsHtml = !!action.modalMessageIsHtml;
                 this.modal.action = action;
                 this.modal.loading = true;
                 this.modal.error = null;
@@ -1089,6 +1195,9 @@ window.__sfTableGlobalBound = window.__sfTableGlobalBound || false;
                 this.modal.action = null;
                 this.modal.error = null;
                 this.modal.message = ""; //  جديد
+                this.modal.messageClass = "";
+                this.modal.messageIcon = "";
+                this.modal.messageIsHtml = false;
                 if (window.__sfTableActive === this) window.__sfTableActive = null;//جديد
             },
 
@@ -2172,6 +2281,9 @@ window.__sfTableGlobalBound = window.__sfTableGlobalBound || false;
                         return this.escapeHtml(String(value));
                 }
             },
+
+
+
 
             // ===== Grouping =====
             groupedRows() {

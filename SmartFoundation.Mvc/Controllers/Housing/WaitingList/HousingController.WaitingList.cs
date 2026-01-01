@@ -142,8 +142,6 @@ namespace SmartFoundation.Mvc.Controllers.Housing
                     Title = "نموذج الإدخال",
                     Method = "POST",
                     SubmitText = null,
-
-
                     StoredProcedureName = "sp_SaveDemoForm",
                     Operation = "insert",
                     StoredSuccessMessageField = "Message",
@@ -180,19 +178,16 @@ namespace SmartFoundation.Mvc.Controllers.Housing
                               Color="success",
                               // Replace the OnClickJs of the "تجربة" button with this:
                               OnClickJs = "(function(){"
-    + "var hidden=document.querySelector('input[name=NationalID]');"
-    + "if(!hidden){toastr.error('لا يوجد حقل مستخدم');return;}"
-    + "var NationalID = (hidden.value||'').trim();"
-    + "if(!NationalID){toastr.info('الرجاء كتابة رقم الهوية الوطنية');return;}"
-    + "var url = '/Housing/WaitingList?NID=' + encodeURIComponent(NationalID);"
-    + "window.location.href = url;"
-    + "})();"
-                          },
-
-
-
-                    }
-                };
+                                + "var hidden=document.querySelector('input[name=NationalID]');"
+                                + "if(!hidden){toastr.error('لا يوجد حقل مستخدم');return;}"
+                                + "var NationalID = (hidden.value||'').trim();"
+                                + "if(!NationalID){toastr.info('الرجاء كتابة رقم الهوية الوطنية');return;}"
+                                + "var url = '/Housing/WaitingList?NID=' + encodeURIComponent(NationalID);"
+                                + "window.location.href = url;"
+                                + "})();"
+                                },
+                            }
+                        };
 
 
                 if (ds != null && ds.Tables.Count > 0 && permissionTable!.Rows.Count > 0)
@@ -538,6 +533,9 @@ namespace SmartFoundation.Mvc.Controllers.Housing
                 ShowRowBorders = false,
                 PanelTitle = "قوائم الانتظار",
                 TabelLabel= "قوائم الانتظار",
+                TabelLabelIcon = "fa-solid fa-list",
+                ShowToolbar =true,
+                EnableCellCopy = false,
                 Toolbar = new TableToolbarConfig
                 {
                     ShowRefresh = false,
@@ -559,7 +557,13 @@ namespace SmartFoundation.Mvc.Controllers.Housing
                         Color = "success",
                         OpenModal = true,
                         ModalTitle = "إدخال بيانات سجل انتظار جديد",
+                        //ModalMessage = "ملاحظة: جميع التعديلات مرصودة",
                         ModalMessage = "ملاحظة: جميع التعديلات مرصودة",
+                        ModalMessageIcon = "fa-solid fa-circle-info",
+                        ModalMessageClass = "bg-sky-100 border border-sky-200 text-sky-700 text-center flex items-center justify-center gap-2",
+
+
+
                         OpenForm = new FormConfig
                         {
                             FormId = "BuildingTypeInsertForm",
@@ -583,6 +587,8 @@ namespace SmartFoundation.Mvc.Controllers.Housing
                         OpenModal = true,
                         ModalTitle = "إدخال بيانات خطاب تسكين جديد",
                         ModalMessage = "ملاحظة: جميع التعديلات مرصودة",
+                        ModalMessageIcon = "fa-solid fa-circle-info",
+                        ModalMessageClass = "bg-sky-100 border border-sky-200 text-sky-700 text-center flex items-center justify-center gap-2",
                         OpenForm = new FormConfig
                         {
                             FormId = "BuildingTypeInsertForm",
@@ -651,8 +657,10 @@ namespace SmartFoundation.Mvc.Controllers.Housing
                         Color = "danger",
                         IsEdit = true,
                         OpenModal = true,
-                        ModalTitle = "<i class='fa fa-exclamation-triangle text-red-600 text-xl mr-2'></i> تحذير",
+                        ModalTitle = "تحذير",
                         ModalMessage = "هل أنت متأكد من الغاء بيانات الانتظار؟",
+                        ModalMessageIcon = "fa fa-exclamation-triangle text-red-600",
+                        ModalMessageClass = "bg-sky-100 border border-sky-200 text-sky-700 text-center flex items-center justify-center gap-2",
                         OpenForm = new FormConfig
                         {
                             FormId = "BuildingTypeDeleteForm",
@@ -689,7 +697,9 @@ namespace SmartFoundation.Mvc.Controllers.Housing
                 ShowFooter = false,
                 Selectable = false,
                 TabelLabel = "بيانات المستفيد",
+                TabelLabelIcon = "fa-solid fa-user",
                 ShowToolbar = false,
+                EnableCellCopy = true, // تفعيل نسخ الخلايا 
 
 
             };

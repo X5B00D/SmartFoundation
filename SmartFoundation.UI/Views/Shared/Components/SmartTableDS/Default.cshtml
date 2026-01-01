@@ -31,6 +31,7 @@
         styleRules = Model.StyleRules ?? new List<TableStyleRule>(),
         TabelLabel = Model.TabelLabel ?? "",
         ShowToolbar = Model.ShowToolbar,
+        enableCellCopy = Model.EnableCellCopy,
     };
    
 }
@@ -41,15 +42,33 @@
      x-init="init()" x-cloak x-on:refresh-table.window="refresh()">
 
 
-
     @if (!string.IsNullOrWhiteSpace(Model.TabelLabel))
     {
-        <div style="display:flex; align-items:center; justify-content:center; margin-bottom:1rem;">
-            <hr style="flex:1; border: none; border-top: 1.5px solid #bbb; margin: 0 12px;" />
-            <h6 style="margin:0; font-size:x-large; color:darkgreen; white-space:nowrap;">@Model.TabelLabel</h6>
-            <hr style="flex:1; border: none; border-top: 1.5px solid #bbb; margin: 0 12px;" />
+        <div class="my-6 rounded-sm border border-gray-300 bg-sky-50 px-4 py-3 shadow-sm">
+            <div class="flex items-center gap-4">
+                <div class="h-px flex-1 bg-sky-200/60"></div>
+
+                <div class="flex items-center gap-2 text-lg font-semibold whitespace-nowrap text-green-700">
+                    @if (!string.IsNullOrWhiteSpace(Model.TabelLabelIcon))
+                    {
+                        <i class="@Model.TabelLabelIcon text-green-700"></i>
+                    }
+                    <span>@Model.TabelLabel</span>
+                </div>
+
+                <div class="h-px flex-1 bg-sky-200/60"></div>
+            </div>
         </div>
     }
+
+
+
+
+
+
+
+
+
 
     <!-- reuse same markup as SmartTable Default: toolbar, table, pagination, modal -->
     <!-- Toolbar / table markup intentionally identical to existing SmartTable Default to reuse sf-table JS -->
@@ -235,24 +254,17 @@
                         </td>
 
                         <template x-for="col in visibleColumns()" :key="col.field">
-                            @* <td class="td-cell" :class="col.align" x-html="formatCell(row, col)"></td> *@
-                            @* <td class="td-cell"
-                                :class="[ col.align, col.truncate ? 'truncate-cell' : '' ]"
-                                :title="col.truncate ? (row[col.field] ?? '') : ''"
-                                x-html="formatCell(row, col)"></td> *@
-                            @* <td class="td-cell"
-                                :class="[ col.align, col.truncate ? 'truncate-cell' : '' ]"
-                                x-html="formatCell(row, col)"
-                                x-effect="if(col.truncate){ $el.title = stripHtml(formatCell(row, col)); } else { $el.title=''; }">
-                            </td> *@
+                            
                             <td class="td-cell"
-                                x-bind:class="[col.align,col.truncate ? 'truncate-cell' : '',applyStyleRules(row, col, 'cell')]"
+                                x-bind:class="[col.align,col.truncate ? 'truncate-cell' : '',applyStyleRules(row, col, 'cell'),enableCellCopy ? 'sf-copy-cell' : '']"
                                 x-html="formatCell(row, col)"
-                                x-effect="if(col.truncate){ $el.title = stripHtml(formatCell(row, col)); } else { $el.title=''; }">
+                                x-effect="if(col.truncate){ $el.title = stripHtml(formatCell(row, col)); } else { $el.title=''; }"
+                                @* x-on:dblclick.stop="enableCellCopy && copyCell(row, col, $event)"> *@
+                                x-on:dblclick.prevent.stop="enableCellCopy && copyCell(row, col, $event)"
                             </td>
-
-
                         </template>
+
+
 
                         <td x-show="actions.length > 0" class="td-cell">
                             <div class="actions-list">
@@ -319,9 +331,30 @@
 
                 <div class="sf-modal-body">
                     @* الرسالة النصية داخل المودال  *@
+                    
                     <template x-if="modal.message">
-                        <div class="mb-4 text-center text-sm text-gray-700" x-text="modal.message"></div>
+                        <div class="mb-4 rounded-sm border px-4 py-3"
+                             :class="modal.messageClass || 'border border-sky-200 bg-sky-100 text-sky-700'">
+
+                            <div class="flex w-full items-center justify-center gap-2">
+                                <i x-show="modal.messageIcon"
+                                   :class="modal.messageIcon"
+                                   class="text-lg opacity-90"></i>
+
+                                <div class="text-sm leading-6">
+                                    <template x-if="modal.messageIsHtml">
+                                        <div x-html="modal.message"></div>
+                                    </template>
+
+                                    <template x-if="!modal.messageIsHtml">
+                                        <div x-text="modal.message"></div>
+                                    </template>
+                                </div>
+                            </div>
+                        </div>
                     </template>
+
+
 
                     @* حالة التحميل *@
                     <template x-if="modal.loading">

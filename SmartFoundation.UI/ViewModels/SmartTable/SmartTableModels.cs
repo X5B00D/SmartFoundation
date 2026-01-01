@@ -110,6 +110,10 @@ namespace SmartFoundation.UI.ViewModels.SmartTable
 
     public class TableAction
     {
+
+        //public string TabelLabel { get; set; } = "";
+
+        //public bool ShowToolbar { get; set; } = true;
         public string Label { get; set; } = "";
         public string Icon { get; set; } = "";
         public string Color { get; set; } = "secondary";
@@ -121,6 +125,10 @@ namespace SmartFoundation.UI.ViewModels.SmartTable
         public string? ModalTitle { get; set; }
 
         public string? ModalMessage { get; set; }
+        // NEW: تخصيص رسالة المودال
+        public string? ModalMessageClass { get; set; }     // Tailwind/Bootstrap classes
+        public string? ModalMessageIcon { get; set; }      // FontAwesome class
+        public bool ModalMessageIsHtml { get; set; } = false; // افتراضي نص (آمن)
         public List<TableColumn>? ModalColumns { get; set; }
         public string? ConfirmText { get; set; }
         public bool IsEdit { get; set; } = false;

@@ -13,6 +13,7 @@ namespace SmartFoundation.UI.ViewModels.SmartTable
         public string RowIdField { get; set; } = "Id";
 
         public string TabelLabel { get; set; } = "";
+        public string? TabelLabelIcon { get; set; } = null;
 
         public bool ShowToolbar { get; set; } = true;
 
@@ -78,7 +79,7 @@ namespace SmartFoundation.UI.ViewModels.SmartTable
         public string? AriaLabel { get; set; }
         public bool HighContrast { get; set; } = false;
 
-
+        public bool EnableCellCopy { get; set; } = true;  
         public List<TableStyleRule> StyleRules { get; set; } = new();
 
     }

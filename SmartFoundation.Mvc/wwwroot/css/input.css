@@ -355,81 +355,6 @@ textarea[readonly] {
 }
 
 
-/* TH */
-/*.th-cell {
-    @apply px-4 py-3 text-center align-middle;
-    @apply text-sm font-semibold text-gray-800;
-    @apply whitespace-nowrap;
-    @apply border-b border-gray-300;
-}*/
-
-/* TD */
-/*.td-cell {
-    @apply px-4 py-2.5 text-center align-middle;
-    @apply text-sm font-medium text-gray-700;
-    @apply whitespace-nowrap;
-    @apply border-b border-gray-200;
-    -webkit-font-smoothing: antialiased;
-    text-rendering: optimizeLegibility;
-}*/
-
-/* Rows */
-/*.tr-row {
-    @apply bg-white transition-colors duration-100;
-}*/
-
-    /* ===== Selected row  ===== */
-
-    /*.tr-row.tr-row-selected {
-        background-color: rgba(5, 150, 105, 0.10) !important;*/ /* أخضر خفيف */
-        /*box-shadow: inset 4px 0 0 0 rgba(5, 150, 105, 0.65), inset -4px 0 0 0 rgba(5, 150, 105, 0.65);
-    }
-
-        .tr-row.tr-row-selected:hover {
-            background-color: rgba(5, 150, 105, 0.14) !important;
-        }*/
-
-
-    /* Zebra خفيف */
-    /*.tr-row:nth-child(even) {
-        @apply bg-gray-50;
-    }*/
-
-    /* Hover – خط أخضر يمين ويسار */
-    /*.tr-row:hover {
-        @apply bg-gray-200;
-        box-shadow: inset 4px 0 0 0 rgba(5, 150, 105, 0.55),*/ /* يسار */
-        /*inset -4px 0 0 0 rgba(5, 150, 105, 0.55);*/ /* يمين */
-    /*}*/
-
-/* آخر صف بدون حد سفلي زائد */
-/*.sf-table tbody .tr-row:last-child .td-cell {
-    @apply border-b-0;
-}*/
-
-/* Density */
-/*.sf-table[data-density="compact"] .th-cell {
-    @apply py-2 text-xs;
-}
-
-.sf-table[data-density="compact"] .td-cell {
-    @apply py-2 text-sm;
-}
-
-.sf-table[data-density="comfortable"] .th-cell {
-    @apply py-4;
-}
-
-.sf-table[data-density="comfortable"] .td-cell {
-    @apply py-4;
-}*/
-
-
-
-
-
-
-
 
 /* TH */
 .th-cell {
@@ -447,7 +372,7 @@ textarea[readonly] {
     @apply border-b border-gray-200;
     -webkit-font-smoothing: antialiased;
     text-rendering: optimizeLegibility;
-    /* تحسين القراءة بدون ما يغير الشكل العام */
+    /* تحسين القراءة  */
     line-height: 1.55;
 }
 
@@ -458,34 +383,55 @@ textarea[readonly] {
     will-change: background-color, box-shadow, transform;
 }
 
+
+
+
     /* Zebra خفيف */
     .tr-row:nth-child(even) {
         @apply bg-gray-50;
     }
 
-    /* Hover – خط أخضر يمين ويسار (كما هو) */
-    .tr-row:hover {
-        @apply bg-gray-200;
-        box-shadow: inset 4px 0 0 0 rgba(5, 150, 105, 0.55), inset -4px 0 0 0 rgba(5, 150, 105, 0.55);
+    /*  المؤشر على خلايا الصف ثابت */
+    .tr-row > td:first-child {
+        border-right: 4px solid transparent; /* بداية الصف في RTL */
     }
 
-    /* ===== Selected row (يبقى أخضر خفيف بعد إزالة الماوس) ===== */
-    .tr-row.tr-row-selected {
-        background-color: rgba(5, 150, 105, 0.10) !important;
-        /* نفس الخطين + حلقة ناعمة “فخمة” حول الصف */
-        box-shadow: inset 4px 0 0 0 rgba(5, 150, 105, 0.65), inset -4px 0 0 0 rgba(5, 150, 105, 0.65), 0 0 0 1px rgba(5, 150, 105, 0.18);
-    }
 
-        /* Hover على الصف المحدد: لا يخرب الهوية */
-        .tr-row.tr-row-selected:hover {
-            background-color: rgba(5, 150, 105, 0.14) !important;
-            box-shadow: inset 4px 0 0 0 rgba(5, 150, 105, 0.70), inset -4px 0 0 0 rgba(5, 150, 105, 0.70), 0 0 0 1px rgba(5, 150, 105, 0.22);
-        }
+/* ===== Row indicator (RTL) — stable, no side effects وخط ===== */
 
-    /* Active / Pressed: إحساس ضغط خفيف */
-    .tr-row:active {
-        transform: translateY(0.5px);
-    }
+.sf-table .tr-row > td.td-cell:first-child {
+    border-right: 4px solid transparent;
+    box-sizing: border-box;
+}
+
+.sf-table .tr-row > td.td-cell:not(:first-child) {
+    border-right: 0 !important;
+    border-left: 0 !important;
+}
+
+/* Hover */
+.sf-table .tr-row:hover > td.td-cell:first-child {
+    border-right-color: rgba(5,150,105,.55);
+}
+
+/* Selected */
+.sf-table .tr-row.tr-row-selected > td.td-cell:first-child {
+    border-right-color: rgba(5,150,105,.75);
+}
+
+/* خلفية التحديد */
+.sf-table .tr-row.tr-row-selected {
+    background-color: rgba(5,150,105,.10) !important;
+}
+
+/* Active */
+.sf-table .tr-row:active > td {
+    filter: brightness(0.97);
+}
+
+
+
+
 
     /* Focus للكيبورد (مفيد جدًا للتنقل) */
     /* اشتغل حتى لو ما عندك tabindex على tr بشرط يكون داخل الصف عنصر عليه focus */
@@ -791,7 +737,7 @@ textarea[readonly] {
         @apply rounded-md border px-3;
         @apply text-sm font-semibold;
         @apply transition duration-100;
-        @apply focus:outline-none focus:ring-2;
+        @apply focus:ring-2 focus:outline-none;
     }
 
      
@@ -845,10 +791,10 @@ textarea[readonly] {
     .pagination-nav button {
         @apply inline-flex h-7 min-w-[70px] items-center justify-center;
         @apply rounded-sm border border-gray-200 bg-gray-50;
-        @apply text-sm  text-gray-700;
+        @apply text-sm text-gray-700;
         @apply transition duration-100;
         @apply hover:bg-gray-100;
-        @apply focus:outline-none focus:ring-1 focus:ring-emerald-600;
+        @apply focus:ring-1 focus:ring-emerald-600 focus:outline-none;
     }
 
     .pagination-nav .active {
@@ -927,7 +873,7 @@ textarea[readonly] {
 .sf-modal-close {
     @apply absolute top-1/2 right-4 -translate-y-1/2;
     @apply flex h-8 w-8 items-center justify-center rounded-full;
-    @apply transition-colors cursor-pointer;
+    @apply cursor-pointer transition-colors;
     @apply cursor-pointer text-gray-100 hover:text-gray-700;
 }
 
@@ -1076,18 +1022,18 @@ textarea[readonly] {
     @apply px-5 py-3;
     @apply bg-gray-200;
     @apply border-b border-gray-300;
-    /* خط علوي خفيف جدًا يعطي فخامة */
+    /* خط علوي خفيف  */
     box-shadow: inset 0 0px 0 rgba(255,255,255,0.65), 0 3px 3px rgba(0,0,0,0.06);
 }
 
 /* Title */
 .sf-panel-title {
     @apply flex items-center gap-2;
-    @apply text-base md:text-base font-semibold text-gray-600;
+    @apply text-base font-semibold text-gray-600 md:text-base;
     letter-spacing: 0.2px;
 }
 
-    /* Icon: أصغر وأهدأ */
+    /* Icon:   */
     .sf-panel-title i {
         @apply text-emerald-700;
         font-size: 15px;
@@ -1116,8 +1062,8 @@ textarea[readonly] {
 
     @apply transition duration-150;
     @apply hover:bg-gray-100 hover:text-gray-900;
-    @apply focus:outline-none focus:ring-1 focus:ring-emerald-600;
-    /* لمسة فخامة خفيفة جدًا */
+    @apply focus:ring-1 focus:ring-emerald-600 focus:outline-none;
+    
     box-shadow: inset 0 1px 0 rgba(255,255,255,0.75), 0 1px 2px rgba(0,0,0,0.06);
 }
 
@@ -1152,16 +1098,9 @@ textarea[readonly] {
 /* زر الإغلاق */
 .sf-panel-btn-close {
     @apply border-gray-300 bg-white text-gray-600;
-    @apply hover:bg-gray-50 hover:text-gray-700 hover:border-gray-300;
+    @apply hover:border-gray-300 hover:bg-gray-50 hover:text-gray-700;
     
 }
-
-/* Fullscreen:  */
-/*.sf-panel.sf-panel-full {
-    @apply fixed inset-4 z-50 m-0;
-    @apply rounded-md border border-gray-300 bg-white;
-    @apply shadow-lg;
-}*/
 
 
 
@@ -1256,3 +1195,18 @@ textarea[readonly] {
     .sf-modal-header h3 {
         color: #fff !important;
     }
+
+/* منع التحديد الأزرق عند dblclick على خلايا النسخ فقط */
+
+.sf-copy-cell {
+    user-select: none;
+    -webkit-user-select: none;
+    -ms-user-select: none;
+    cursor: pointer;
+}
+
+
+
+
+
+
