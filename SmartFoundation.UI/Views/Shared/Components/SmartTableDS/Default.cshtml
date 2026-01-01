@@ -175,7 +175,7 @@
             <thead x-show="showHeader" class="table-head">
                 <tr>
                     <th x-show="selectable" class="th-cell">
-                        @* <input type="checkbox" class="sf-checkbox" x-model="selectAll" x-on:click="toggleSelectAll()" /> *@
+                       
                     </th>
 
                     <template x-for="col in visibleColumns()" :key="col.field">
@@ -224,26 +224,11 @@
                 </template>
 
                 <template x-for="(row, idx) in rows" :key="row[rowIdField] ?? idx">
-                    @* <tr class="tr-row"
-                        :class="{ 'tr-row-selected': isSelected(row) }"
-                        x-on:click="toggleRow(row)"
-                        style="cursor: pointer;"> *@
+                    
                     <tr class="tr-row"
                         x-bind:class="[isSelected(row) ? 'tr-row-selected' : '',applyStyleRules(row, null, 'row')]"
                         x-on:click="toggleRow(row)"
                         style="cursor: pointer;">
-
-
-
-
-                @* <tr class="tr-row"
-                    :data-row-index="idx"
-                    :class="{
-                    'tr-row-selected': isSelected(row),
-                    'tr-row-active': activeIndex === idx}"
-                    x-on:click="toggleRow(row); activeIndex = idx"
-                    style="cursor: pointer;"> *@
-
 
                         <td x-show="selectable" class="td-cell">
                             <input type="checkbox"
@@ -259,7 +244,6 @@
                                 x-bind:class="[col.align,col.truncate ? 'truncate-cell' : '',applyStyleRules(row, col, 'cell'),enableCellCopy ? 'sf-copy-cell' : '']"
                                 x-html="formatCell(row, col)"
                                 x-effect="if(col.truncate){ $el.title = stripHtml(formatCell(row, col)); } else { $el.title=''; }"
-                                @* x-on:dblclick.stop="enableCellCopy && copyCell(row, col, $event)"> *@
                                 x-on:dblclick.prevent.stop="enableCellCopy && copyCell(row, col, $event)"
                             </td>
                         </template>

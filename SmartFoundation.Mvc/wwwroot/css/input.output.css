@@ -2003,6 +2003,9 @@ body, h1, h2, h3, h4, h5, h6, input, textarea, select, button {
   .border-sky-200 {
     border-color: var(--color-sky-200);
   }
+  .border-sky-500 {
+    border-color: var(--color-sky-500);
+  }
   .border-slate-200 {
     border-color: var(--color-slate-200);
   }
@@ -2269,6 +2272,9 @@ body, h1, h2, h3, h4, h5, h6, input, textarea, select, button {
   }
   .bg-sky-100 {
     background-color: var(--color-sky-100);
+  }
+  .bg-sky-900 {
+    background-color: var(--color-sky-900);
   }
   .bg-slate-100 {
     background-color: var(--color-slate-100);
@@ -3240,6 +3246,9 @@ body, h1, h2, h3, h4, h5, h6, input, textarea, select, button {
   }
   .text-rose-900 {
     color: var(--color-rose-900);
+  }
+  .text-sky-100 {
+    color: var(--color-sky-100);
   }
   .text-sky-500 {
     color: var(--color-sky-500);

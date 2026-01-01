@@ -142,9 +142,6 @@ window.__sfTableGlobalBound = window.__sfTableGlobalBound || false;
 
                     // 3) No supported method
                     this.showCellCopied(cellEl, "المتصفح يمنع النسخ");
-                    // اختياري: اعرض النص في مودال/برومبت لو تبي
-                    // prompt("انسخ النص يدويًا:", text);
-
                 } catch (err) {
                     console.error("Copy cell failed:", err);
                     this.showCellCopied(cellEl, "فشل النسخ");

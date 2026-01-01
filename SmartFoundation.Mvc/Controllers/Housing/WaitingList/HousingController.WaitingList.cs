@@ -560,7 +560,7 @@ namespace SmartFoundation.Mvc.Controllers.Housing
                         //ModalMessage = "ملاحظة: جميع التعديلات مرصودة",
                         ModalMessage = "ملاحظة: جميع التعديلات مرصودة",
                         ModalMessageIcon = "fa-solid fa-circle-info",
-                        ModalMessageClass = "bg-sky-100 border border-sky-200 text-sky-700 text-center flex items-center justify-center gap-2",
+                        ModalMessageClass = "bg-sky-100 border border-sky-200 text-sky-700",
 
 
 
@@ -588,7 +588,7 @@ namespace SmartFoundation.Mvc.Controllers.Housing
                         ModalTitle = "إدخال بيانات خطاب تسكين جديد",
                         ModalMessage = "ملاحظة: جميع التعديلات مرصودة",
                         ModalMessageIcon = "fa-solid fa-circle-info",
-                        ModalMessageClass = "bg-sky-100 border border-sky-200 text-sky-700 text-center flex items-center justify-center gap-2",
+                        ModalMessageClass = "bg-sky-100 border border-sky-200 text-sky-700",
                         OpenForm = new FormConfig
                         {
                             FormId = "BuildingTypeInsertForm",
@@ -660,7 +660,7 @@ namespace SmartFoundation.Mvc.Controllers.Housing
                         ModalTitle = "تحذير",
                         ModalMessage = "هل أنت متأكد من الغاء بيانات الانتظار؟",
                         ModalMessageIcon = "fa fa-exclamation-triangle text-red-600",
-                        ModalMessageClass = "bg-sky-100 border border-sky-200 text-sky-700 text-center flex items-center justify-center gap-2",
+                        ModalMessageClass = "bg-sky-100 border border-sky-200 text-sky-700",
                         OpenForm = new FormConfig
                         {
                             FormId = "BuildingTypeDeleteForm",
