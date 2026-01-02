@@ -153,7 +153,9 @@
 </head>
 
 @* <body class="text-gray-900 transition-colors duration-300 bg-gray-50 dark:bg-gray-900 dark:text-gray-100"> *@
-<body class="text-gray-900 transition-colors duration-300 bg-gray-50 dark:bg-gray-900 dark:text-gray-100 overflow-hidden">
+@* <body class="text-gray-900 transition-colors duration-300 bg-gray-50 dark:bg-gray-900 dark:text-gray-100 overflow-hidden"> *@
+<body class="text-gray-900 transition-colors duration-300 bg-gray-50 dark:bg-gray-900 dark:text-gray-100">
+
 
 
 
@@ -163,11 +165,10 @@
     @await Component.InvokeAsync("MenuItems")
 
     <!-- ✅ Main content area -->
-    @* <div id="main-content"
-         class="relative z-0 flex flex-col min-h-screen pt-16 transition-all duration-300 bg-gray-100 sm:mr-64" > *@
 
     <div id="main-content"
-         class="relative z-0 flex flex-col h-screen pt-16 overflow-y-auto overflow-x-hidden transition-all duration-300 bg-gray-100 sm:mr-64">
+         class="relative flex flex-col h-screen pt-16 overflow-y-auto overflow-x-hidden transition-all duration-300 bg-gray-100 sm:mr-64">
+
 
         <!-- ===== Main Content Loading Overlay ===== -->
         <div id="main-loading"
@@ -384,8 +385,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
 
+@*     <div id="modal-root"></div> *@
 
 
 </body>
 </html>
-

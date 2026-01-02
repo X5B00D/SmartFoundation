@@ -133,9 +133,18 @@
 </nav>
 
 
-<aside id="logo-sidebar"
+@* <aside id="logo-sidebar"
        class="fixed top-0 right-0 z-40 w-64 h-screen translate-x-full border-l pt-24 sm:translate-x-0 bg-slate-800 text-slate-200 border-emerald-900"
-       aria-label="Sidebar">
+       aria-label="Sidebar"> *@
+
+    <aside id="logo-sidebar"
+           data-drawer-placement="right"
+           data-drawer-backdrop="true"
+           data-drawer-body-scrolling="false"
+           class="fixed top-0 right-0 z-40 w-64 h-screen pt-24 transition-transform translate-x-full lg:translate-x-0 border-l bg-slate-800 text-slate-200 border-emerald-900"
+           aria-label="Sidebar">
+
+
 
 
     <div class="relative flex flex-col flex-1 h-full min-h-0 pt-3 bg-transparent">
@@ -848,6 +857,8 @@
         }
 
         main.innerHTML = newMain.innerHTML;
+        if (window.initFlowbite) window.initFlowbite();
+
         window.history.pushState({}, "", url);
 
         const titleEl = doc.querySelector("title");
