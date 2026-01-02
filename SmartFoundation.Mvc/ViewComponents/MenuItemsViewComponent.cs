@@ -35,8 +35,12 @@ namespace SmartFoundation.Mvc.ViewComponents
                 ? response.GetProperty("data").EnumerateArray().Select(MapToMenuItem).ToList()
                 : new List<MenuItem>();
 
+            //var menuTree = BuildMenuHierarchy(menuItems);
+            //return View("~/Views/Shared/_SidebarNavbar.cshtml", menuTree);
             var menuTree = BuildMenuHierarchy(menuItems);
+            HttpContext.Session.SetString("MENU_TREE", JsonSerializer.Serialize(menuTree));
             return View("~/Views/Shared/_SidebarNavbar.cshtml", menuTree);
+
         }
 
         private static List<MenuItem> BuildMenuHierarchy(IEnumerable<MenuItem> items)

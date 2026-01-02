@@ -149,10 +149,6 @@ window.__sfTableGlobalBound = window.__sfTableGlobalBound || false;
             },
 
 
-
-        
-
-
             // Grouping & Storage
             groupBy: cfg.groupBy || null,
             storageKey: cfg.storageKey || null,
@@ -329,106 +325,51 @@ window.__sfTableGlobalBound = window.__sfTableGlobalBound || false;
                 }
             },
 
+            initSelect2InModal(modalEl) {
+                if (!window.jQuery || !jQuery.fn || !jQuery.fn.select2) return;
+
+                const $modal = jQuery(modalEl);
+
+                // 1) destroy أي تهيئة قديمة
+                $modal.find("select.js-select2").each(function () {
+                    const $sel = jQuery(this);
+                    if ($sel.hasClass("select2-hidden-accessible")) {
+                        $sel.select2("destroy");
+                    }
+                });
+
+                // 2) init
+                $modal.find("select.js-select2").each(function () {
+                    const $sel = jQuery(this);
+
+                    const minResults = $sel.data("s2-min-results"); // ممكن undefined
+                    const ph =
+                        $sel.data("s2-placeholder") ||
+                        $sel.find('option[value=""]').text() ||
+                        "الرجاء الاختيار";
+
+                    $sel.select2({
+                        width: "100%",
+                        dir: "rtl",
+                        dropdownParent: $modal,         
+                        placeholder: ph,
+                        allowClear: false,
+                        minimumResultsForSearch:
+                            (minResults === undefined || minResults === null) ? 0 : Number(minResults)
+                    });
+                });
+            },
 
 
-            //setupEventListeners() {
-            //    document.addEventListener('keydown', (e) => {
-            //        if (e.key === 'Escape' && this.modal.open) {
-            //            this.closeModal();
-            //        }
-            //    });
-
-            //    // إغلاق المودال بزر "إلغاء"
-            //    document.addEventListener('click', (e) => {
-            //        const cancelBtn = e.target.closest('.sf-modal-cancel');
-            //        if (cancelBtn && this.modal.open) {
-            //            e.preventDefault();
-            //            this.closeModal();
-            //        }
-            //    });
-
-            //    // === ربط القوائم المعتمدة على قائمة أخرى (DependsOn / DependsUrl)  ===
-            //    document.addEventListener('change', async (e) => {
-            //        const parentSelect = e.target.closest('select');
-            //        if (!parentSelect) return;
-
-            //        const parentName = parentSelect.name;
-            //        if (!parentName) return;
-
-            //        const form = parentSelect.closest('form');
-            //        if (!form) return;
-
-            //        // كل القوائم التي تعتمد على هذا الحقل داخل نفس الفورم
-            //        const dependentSelects = form.querySelectorAll(`select[data-depends-on="${parentName}"]`);
-
-            //        for (const dependentSelect of dependentSelects) {
-            //            const dependsUrl = dependentSelect.getAttribute('data-depends-url');
-            //            if (!dependsUrl) continue;
-
-            //            const parentValue = parentSelect.value;
-
-            //            // حالة اختيار غير صالح
-            //            if (!parentValue || parentValue === '-1') {
-            //                dependentSelect.innerHTML = '<option value="-1">الرجاء الاختيار</option>';
-            //                return;
-            //            }
-
-            //            const originalHtml = dependentSelect.innerHTML;
-            //            dependentSelect.innerHTML = '<option value="-1">جاري التحميل...</option>';
-            //            dependentSelect.disabled = true;
-
-            //            try {
-            //                // const url = `${dependsUrl}&${encodeURIComponent(parentName)}=${encodeURIComponent(parentValue)}`;
-            //                //const url = `${dependsUrl}&${encodeURIComponent(parentName)}=${encodeURIComponent(parentValue)}`;
-            //                const url = `${dependsUrl}${dependsUrl.includes('?') ? '&' : '?'}DDLValues=${encodeURIComponent(parentValue)}`;
-
-            //                const response = await fetch(url);
-            //                if (!response.ok) {
-            //                    throw new Error(`HTTP ${response.status}`);
-            //                }
-
-            //                const data = await response.json();
-
-            //                dependentSelect.innerHTML = '';
-
-            //                if (Array.isArray(data) && data.length > 0) {
-            //                    data.forEach(item => {
-            //                        const option = document.createElement('option');
-            //                        option.value = item.value;
-            //                        option.textContent = item.text;
-            //                        dependentSelect.appendChild(option);
-            //                    });
-            //                } else {
-            //                    dependentSelect.innerHTML = '<option value="-1">لا توجد خيارات متاحة</option>';
-            //                }
 
 
-            //                // ✅ تحديث select2 بعد تغيير الخيارات
-            //                if (window.jQuery && jQuery.fn.select2 && dependentSelect.classList.contains('js-select2')) {
-            //                    const parentModal = dependentSelect.closest('.sf-modal') || document.body;
-
-            //                    $(dependentSelect).select2('destroy');
-            //                    $(dependentSelect).select2({
-            //                        width: '100%',
-            //                        dir: 'rtl',
-            //                        dropdownParent: $(parentModal)
-            //                    });
-            //                }
 
 
-            //            } catch (error) {
-            //                console.error('Error loading dependent options:', error);
-            //                dependentSelect.innerHTML = originalHtml;
-            //                this.showToast('فشل تحميل الخيارات: ' + error.message, 'error');
-            //            } finally {
-            //                dependentSelect.disabled = false;
-            //            }
-            //        }
-            //    });
-            //},
+
+
 
             setupEventListeners() {
-                // ✅ يمنع تكرار ربط الأحداث (لأنه Alpine يسوي instance لكل جدول)
+                //  يمنع تكرار ربط الأحداث (لأنه Alpine يسوي instance لكل جدول)
                 if (window.__sfTableGlobalBound) return;
                 window.__sfTableGlobalBound = true;
 
@@ -438,16 +379,7 @@ window.__sfTableGlobalBound = window.__sfTableGlobalBound || false;
                     if (root && root.__x?.$data?.modal?.open) root.__x.$data.closeModal();
                 });
 
-                //document.addEventListener('click', (e) => {
-                //    const cancelBtn = e.target.closest('.sf-modal-cancel');
-                //    if (!cancelBtn) return;
-
-                //    const root = cancelBtn.closest('[x-data]');
-                //    if (root && root.__x?.$data?.modal?.open) {
-                //        e.preventDefault();
-                //        root.__x.$data.closeModal();
-                //    }
-                //});
+                
                 document.addEventListener('click', (e) => {
                     const api = window.__sfTableActive;
                     if (!api || !api.modal?.open) return;
@@ -519,10 +451,22 @@ window.__sfTableGlobalBound = window.__sfTableGlobalBound || false;
                                 dependentSelect.innerHTML = '<option value="-1">لا توجد خيارات متاحة</option>';
                             }
 
-                            //  لا destroy/reinit (ثقيل)
-                            if (window.jQuery && jQuery.fn.select2 && dependentSelect.classList.contains('js-select2')) {
-                                $(dependentSelect).trigger('change.select2');
+                            if (dependentSelect.classList.contains('js-select2')) {
+                                const modalEl = dependentSelect.closest('.sf-modal') || document.body;
+
+                                // ✅ إذا كان متفعل select2 على العنصر: أعد تهيئته بعد تغيير الخيارات
+                                if (window.jQuery && jQuery.fn.select2) {
+                                    const $sel = $(dependentSelect);
+
+                                    if ($sel.hasClass('select2-hidden-accessible')) {
+                                        $sel.select2('destroy');
+                                    }
+
+                                    // استخدم نفس إعداداتك (ومنها minResults/placeholder من data-attrs)
+                                    this.initSelect2InModal(modalEl);
+                                }
                             }
+
 
                         } catch (error) {
                             console.error('Error loading dependent options:', error);
@@ -534,42 +478,6 @@ window.__sfTableGlobalBound = window.__sfTableGlobalBound || false;
                 });
             },
 
-
-
-
-            //async load() {
-            //    this.loading = true;
-            //    this.error = null;
-
-            //    try {
-            //        // If client-side mode and initial rows provided, use them
-            //        if (this.allRows.length === 0) {
-            //            if (this.clientSideMode && Array.isArray(this.initialRows) && this.initialRows.length > 0) {
-            //                this.allRows = this.initialRows;
-            //            } else {
-            //                // Load all data once from server
-            //                const body = {
-            //                    Component: "Table",
-            //                    SpName: this.spName,
-            //                    Operation: this.operation,
-            //                    Paging: { Page: 1, Size: 1000000 }
-            //                };
-
-            //                const json = await this.postJson(this.endpoint, body);
-            //                this.allRows = Array.isArray(json?.data) ? json.data : [];
-            //            }
-            //        }
-
-            //        // Apply local filtering and sorting
-            //        this.applyFiltersAndSort();
-
-            //    } catch (e) {
-            //        console.error("Load error:", e);
-            //        this.error = e.message || "خطأ في تحميل البيانات";
-            //    } finally {
-            //        this.loading = false;
-            //    }
-            //},
 
             async load() {
                 this.loading = true;
@@ -658,17 +566,6 @@ window.__sfTableGlobalBound = window.__sfTableGlobalBound || false;
             applyFiltersAndSort() {
                 let filtered = [...this.allRows];
 
-                // Apply search filter
-                //if (this.q && this.quickSearchFields.length > 0) {
-                //    const qLower = this.q.toLowerCase();
-                //    filtered = filtered.filter(row =>
-                //        this.quickSearchFields.some(field =>
-                //            String(row[field] || "").toLowerCase().includes(qLower)
-                //        )
-                //    );
-                //}
-
-                // Apply search filter (token-based, across all quickSearchFields)
                 if (this.q) {
                     const tokens = String(this.q)
                         .toLowerCase()
@@ -676,9 +573,20 @@ window.__sfTableGlobalBound = window.__sfTableGlobalBound || false;
                         .split(/\s+/)
                         .filter(Boolean);
 
-                    const fields = (this.quickSearchFields && this.quickSearchFields.length)
-                        ? this.quickSearchFields
-                        : this.visibleColumns().map(c => c.field); // fallback: كل الأعمدة الظاهرة
+                    //const fields = (this.quickSearchFields && this.quickSearchFields.length)
+                    //    ? this.quickSearchFields
+                    //    : this.visibleColumns().map(c => c.field);
+
+
+                    const fields = this.columns
+                        .filter(c => c.visible !== false && c.field)
+                        .map(c => c.field);
+
+                    //const fields = this.columns
+                    //    .filter(c => c.field)
+                    //    .map(c => c.field);
+
+
 
                     if (tokens.length) {
                         filtered = filtered.filter(row => {
@@ -692,11 +600,6 @@ window.__sfTableGlobalBound = window.__sfTableGlobalBound || false;
                         });
                     }
                 }
-
-
-
-
-            
 
 
                 // Apply sorting
@@ -750,14 +653,7 @@ window.__sfTableGlobalBound = window.__sfTableGlobalBound || false;
                 //this.$nextTick(() => this.enhanceTableUI());
             },
 
-            // ===== Debounced Search =====
-            //debouncedSearch() {
-            //    clearTimeout(this.searchTimer);
-            //    this.searchTimer = setTimeout(() => {
-            //        this.page = 1;
-            //        this.applyFiltersAndSort();
-            //    }, this.searchDelay);
-            //},
+           
 
             debouncedSearch() {
                 clearTimeout(this.searchTimer);
@@ -787,18 +683,7 @@ window.__sfTableGlobalBound = window.__sfTableGlobalBound || false;
                 this.savePreferences();
             },
 
-            //toggleSort(col) {
-            //    if (!col.sortable) return;
-
-            //    if (this.sort.field === col.field) {
-            //        this.sort.dir = this.sort.dir === "asc" ? "desc" : "asc";
-            //    } else {
-            //        this.sort.field = col.field;
-            //        this.sort.dir = "asc";
-            //    }
-
-            //    this.applyFiltersAndSort();
-            //},
+       
 
             toggleSort(col) {
                 if (!col.sortable) return;
@@ -812,7 +697,7 @@ window.__sfTableGlobalBound = window.__sfTableGlobalBound || false;
 
                 this.page = 1;
                 if (this.serverPaging) {
-                    this.load();                // ✅ سيرفر سايد
+                    this.load();                //  سيرفر سايد
                 } else {
                     this.applyFiltersAndSort();
                 }
@@ -841,9 +726,7 @@ window.__sfTableGlobalBound = window.__sfTableGlobalBound || false;
                     }
                 }
                 this.updateSelectAllState();
-                // ✅ sync activeIndex مع الصف المحدد
-                //const i = this.rows.findIndex(r => r?.[this.rowIdField] == key);
-                //if (i >= 0) this.activeIndex = i;
+                
             },
 
             toggleSelectAll() {
@@ -894,91 +777,7 @@ window.__sfTableGlobalBound = window.__sfTableGlobalBound || false;
                 this.selectAll = false;
             },
 
-            // ✅ Keyboard: ↑ ↓ Enter
-            //onTableKeydown(e) {
-            //    const tag = (e.target?.tagName || "").toLowerCase();
-            //    if (tag === "input" || tag === "textarea" || tag === "select") return;
-
-            //    if (!this.rows || this.rows.length === 0) return;
-
-            //    if (e.key === "ArrowDown") {
-            //        e.preventDefault();
-            //        this.moveActive(1);
-            //        return;
-            //    }
-
-            //    if (e.key === "ArrowUp") {
-            //        e.preventDefault();
-            //        this.moveActive(-1);
-            //        return;
-            //    }
-
-            //    if (e.key === "Enter") {
-            //        e.preventDefault();
-            //        this.openActiveRowAction();
-            //        return;
-            //    }
-            //},
-
-            //moveActive(step) {
-            //    if (!this.rows || this.rows.length === 0) return;
-
-            //    if (this.activeIndex < 0) this.activeIndex = 0;
-            //    else this.activeIndex = Math.min(this.rows.length - 1, Math.max(0, this.activeIndex + step));
-
-            //    const row = this.rows[this.activeIndex];
-            //    if (!row) return;
-
-            //    // ✅ بدل toggleRow (عشان ما يصير تحديد/إلغاء مع الأسهم)
-            //    this.selectRowOnly(row);
-
-            //    this.$nextTick(() => {
-            //        const el = this.$root?.querySelector?.(`tr[data-row-index="${this.activeIndex}"]`);
-            //        el?.scrollIntoView?.({ block: "nearest", inline: "nearest" });
-            //    });
-            //},
-
-            //openActiveRowAction() {
-            //    if (this.activeIndex < 0 || !this.rows || this.rows.length === 0) return;
-            //    const row = this.rows[this.activeIndex];
-            //    if (!row) return;
-
-            //    // 1) Edit من التولبار
-            //    if (this.toolbar?.edit) {
-            //        this.doAction(this.toolbar.edit, row);
-            //        return;
-            //    }
-
-            //    // 2) View من actions
-            //    const viewAct =
-            //        (this.actions || []).find(a =>
-            //            (a?.isView === true) ||
-            //            (String(a?.label || "").includes("عرض")) ||
-            //            (String(a?.name || "").toLowerCase() === "view")
-            //        );
-
-            //    if (viewAct) {
-            //        this.doAction(viewAct, row);
-            //        return;
-            //    }
-
-            //    // 3) أول أكشن
-            //    if ((this.actions || []).length > 0) {
-            //        this.doAction(this.actions[0], row);
-            //    }
-            //},
-
-            //// ✅ تحديد صف واحد بدون toggle
-            //selectRowOnly(row) {
-            //    const key = row?.[this.rowIdField];
-            //    if (key == null) return;
-
-            //    this.selectedKeys.clear();
-            //    this.selectedKeys.add(key);
-            //    this.updateSelectAllState();
-            //},
-
-
+           
             // ===== Export Functions =====
             exportData(type, scope = 'page') {
                 if (!this.allowExport) return;
@@ -1168,13 +967,152 @@ window.__sfTableGlobalBound = window.__sfTableGlobalBound || false;
                     }
 
 
+                    //this.$nextTick(() => {
+                    //    this.initModalScripts();
+
+                    //    const modalEl = this.$el.querySelector('.sf-modal'); // الأفضل من document
+                    //    this.initDatePickers(modalEl);
+
+
+
+                    //    (function () {
+                    //        const modal = document.querySelector('.sf-modal');
+                    //        const header = document.querySelector('.sf-modal-header');
+
+                    //        if (!modal || !header) return;
+
+                    //        let isDragging = false;
+                    //        let startX = 0;
+                    //        let startY = 0;
+                    //        let startLeft = 0;
+                    //        let startTop = 0;
+
+                    //        header.addEventListener('mousedown', function (e) {
+                    //            e.preventDefault();
+
+                    //            isDragging = true;
+
+                    //            const rect = modal.getBoundingClientRect();
+
+                    //            startX = e.clientX;
+                    //            startY = e.clientY;
+
+                    //            startLeft = rect.left;
+                    //            startTop = rect.top;
+
+                    //            // أول سحب: فك transform
+                    //            modal.style.transform = 'none';
+                    //            modal.style.left = startLeft + 'px';
+                    //            modal.style.top = startTop + 'px';
+
+                    //            document.addEventListener('mousemove', onMouseMove);
+                    //            document.addEventListener('mouseup', onMouseUp);
+                    //        });
+
+                    //        function onMouseMove(e) {
+                    //            if (!isDragging) return;
+
+                    //            const dx = e.clientX - startX;
+                    //            const dy = e.clientY - startY;
+
+                    //            modal.style.left = startLeft + dx + 'px';
+                    //            modal.style.top = startTop + dy + 'px';
+                    //        }
+
+                    //        function onMouseUp() {
+                    //            isDragging = false;
+
+                    //            document.removeEventListener('mousemove', onMouseMove);
+                    //            document.removeEventListener('mouseup', onMouseUp);
+                    //        }
+                    //    })();
+
+
+
+
+                    //    /*initModalSelect2(modalEl);*/
+                    //    this.initSelect2InModal(modalEl);
+                    //});
+
+
                     this.$nextTick(() => {
                         this.initModalScripts();
 
-                        const modalEl = this.$el.querySelector('.sf-modal'); // الأفضل من document
+                        // ✅ الصح: المودال غالباً يُحقن خارج this.$el (Root الجدول)، لذلك خذه من document
+                        // ومع ذلك نخلي fallback لـ this.$el لو كان داخلها
+                        const modalEl =
+                            document.querySelector('.sf-modal') ||
+                            this.$el.querySelector('.sf-modal');
+
+                        // لو ما انوجد المودال، لا تكمل (حتى ما يصير null errors)
+                        if (!modalEl) return;
+
+                        // ✅ datepickers داخل المودال
                         this.initDatePickers(modalEl);
-                        initModalSelect2(modalEl);
+
+                        // ✅ drag (خله يشتغل على نفس modalEl بدل document.querySelector)
+                        (function () {
+                            const modal = modalEl;
+                            const header = modal.querySelector('.sf-modal-header');
+
+                            if (!modal || !header) return;
+
+                            // ✅ منع تكرار الربط إذا فتح المودال أكثر من مرة
+                            if (modal.__dragBound) return;
+                            modal.__dragBound = true;
+
+                            let isDragging = false;
+                            let startX = 0;
+                            let startY = 0;
+                            let startLeft = 0;
+                            let startTop = 0;
+
+                            header.addEventListener('mousedown', function (e) {
+                                // لا تسحب إذا ضغطت على زر/حقل داخل الهيدر
+                                if (e.target.closest('.sf-modal-close,[data-modal-close],button,a,input,select,textarea')) return;
+
+                                e.preventDefault();
+                                isDragging = true;
+
+                                const rect = modal.getBoundingClientRect();
+                                startX = e.clientX;
+                                startY = e.clientY;
+                                startLeft = rect.left;
+                                startTop = rect.top;
+
+                                // أول سحب: فك transform
+                                modal.style.transform = 'none';
+                                modal.style.left = startLeft + 'px';
+                                modal.style.top = startTop + 'px';
+
+                                document.addEventListener('mousemove', onMouseMove);
+                                document.addEventListener('mouseup', onMouseUp);
+                            });
+
+                            function onMouseMove(e) {
+                                if (!isDragging) return;
+
+                                const dx = e.clientX - startX;
+                                const dy = e.clientY - startY;
+
+                                modal.style.left = (startLeft + dx) + 'px';
+                                modal.style.top = (startTop + dy) + 'px';
+                            }
+
+                            function onMouseUp() {
+                                isDragging = false;
+                                document.removeEventListener('mousemove', onMouseMove);
+                                document.removeEventListener('mouseup', onMouseUp);
+                            }
+                        })();
+
+                        // ✅ select2 داخل المودال
+                        this.initSelect2InModal(modalEl);
                     });
+
+
+
+
 
 
 
@@ -1264,9 +1202,15 @@ window.__sfTableGlobalBound = window.__sfTableGlobalBound || false;
                 } else {
                     // Default buttons
                     html += `<div class="col-span-12 flex justify-end gap-2 mt-4 sf-modal-actions">`;
-                    html += `<button type="button" class="sf-modal-btn sf-modal-btn-cancel sf-modal-cancel">إلغاء</button>`;
-                    html += `<button type="submit" class="sf-modal-btn sf-modal-btn-save">حفظ</button>`;
+
+                    // زر حفظ
+                    html += `<button type="submit" class="btn btn-success sf-modal-btn-save">حفظ</button>`;
+
+                    // زر إلغاء
+                    html += `<button type="button" class="btn btn-secondary sf-modal-btn-cancel sf-modal-cancel">إلغاء</button>`;
+
                     html += `</div>`;
+
 
                 }
 
@@ -1296,6 +1240,66 @@ window.__sfTableGlobalBound = window.__sfTableGlobalBound || false;
             //            });
             //        });
             //},
+
+
+
+
+            enableModalDrag(modalEl) {
+                if (!modalEl) return;
+
+                const header = modalEl.querySelector('.sf-modal-header');
+                if (!header) return;
+
+                // ✅ منع تكرار الربط لو فتحته أكثر من مرة
+                if (modalEl.__dragBound) return;
+                modalEl.__dragBound = true;
+
+                let isDragging = false;
+                let startX = 0, startY = 0;
+                let startLeft = 0, startTop = 0;
+
+                const onMouseMove = (e) => {
+                    if (!isDragging) return;
+
+                    const dx = e.clientX - startX;
+                    const dy = e.clientY - startY;
+
+                    modalEl.style.left = (startLeft + dx) + 'px';
+                    modalEl.style.top = (startTop + dy) + 'px';
+                };
+
+                const onMouseUp = () => {
+                    isDragging = false;
+                    document.removeEventListener('mousemove', onMouseMove);
+                    document.removeEventListener('mouseup', onMouseUp);
+                };
+
+                header.addEventListener('mousedown', (e) => {
+                    // لا تسحب إذا ضغطت على زر الإغلاق
+                    if (e.target.closest('.sf-modal-close,[data-modal-close],button,a,input,select,textarea')) return;
+
+                    e.preventDefault();
+                    isDragging = true;
+
+                    const rect = modalEl.getBoundingClientRect();
+                    startX = e.clientX;
+                    startY = e.clientY;
+                    startLeft = rect.left;
+                    startTop = rect.top;
+
+                    // أول سحب: فك التمركز translate
+                    modalEl.style.transform = 'none';
+                    modalEl.style.left = startLeft + 'px';
+                    modalEl.style.top = startTop + 'px';
+
+                    document.addEventListener('mousemove', onMouseMove);
+                    document.addEventListener('mouseup', onMouseUp);
+                });
+            },
+
+
+
+
 
             initDatePickers(rootEl) {
                 if (typeof flatpickr === "undefined") return;
@@ -1490,11 +1494,14 @@ window.__sfTableGlobalBound = window.__sfTableGlobalBound || false;
 
 
 
-                    case "select":
+                   
+                    case "select": {
                         let options = "";
-                        
-                        // إضافة خيار فارغ افتراضي ويكون selected إذا لم توجد قيمة
-                        options += `<option value="" disabled ${!value ? "selected" : ""}>${field.placeholder || 'الرجاء الاختيار'}</option>`;
+
+                        // =========================
+                        // 1) Placeholder
+                        // =========================
+                        options += `<option value="" disabled ${!value ? "selected" : ""}>${this.escapeHtml(field.placeholder || "الرجاء الاختيار")}</option>`;
 
                         (field.options || []).forEach(opt => {
                             const optValue = opt.value ?? opt.Value ?? "";
@@ -1503,11 +1510,13 @@ window.__sfTableGlobalBound = window.__sfTableGlobalBound || false;
                             options += `<option value="${this.escapeHtml(optValue)}" ${selected}>${this.escapeHtml(optText)}</option>`;
                         });
 
+                        // =========================
+                        // 2) onchange / depends
+                        // =========================
                         let onChangeHandler = field.onChangeJs || "";
 
-                        if (field.dependsUrl && field.dependsOn) {
-                            // لا نضيف onchange هنا لأن المعالجة عامة في setupEventListeners
-                        } else if (onChangeHandler && !field.dependsUrl) {
+                        // إذا يعتمد على قائمة أخرى: لا تضف onchange (لأن listener العام يتولى)
+                        if (!(field.dependsUrl && field.dependsOn) && onChangeHandler && !field.dependsUrl) {
                             onChangeHandler = `${onChangeHandler}`;
                         }
 
@@ -1515,21 +1524,60 @@ window.__sfTableGlobalBound = window.__sfTableGlobalBound || false;
                         const dependsOnAttr = field.dependsOn ? `data-depends-on="${this.escapeHtml(field.dependsOn)}"` : "";
                         const dependsUrlAttr = field.dependsUrl ? `data-depends-url="${this.escapeHtml(field.dependsUrl)}"` : "";
 
-                        fieldHtml = `
-                        <div class="form-group ${colCss}">
-                            <label class="block text-sm font-medium text-gray-700 mb-1">
-                                ${this.escapeHtml(field.label)} ${field.required ? '<span class="text-red-500">*</span>' : ''}
-                            </label>
-                            <select name="${this.escapeHtml(field.name)}" 
-        
-                            class="sf-modal-input sf-modal-select js-select2"
+                        // =========================
+                        // 3) ✅ Select2 switch (من الكنترول)
+                        // =========================
+                        // يدعم camelCase و PascalCase
+                        const useSelect2 = !!(field.select2 ?? field.Select2);
 
-                                    ${required} ${disabled} ${onChangeAttr} ${dependsOnAttr} ${dependsUrlAttr}>
-                                ${options}
-                            </select>
-                            ${field.helpText ? `<p class="mt-1 text-xs text-gray-500">${this.escapeHtml(field.helpText)}</p>` : ''}
-                        </div>`;
-                             break;
+                        // اختياري (لو ما تبيها احذفها من هنا ومن FieldConfig)
+                        const minResults = field.select2MinResultsForSearch ?? field.Select2MinResultsForSearch;
+                        const s2Placeholder = field.select2Placeholder ?? field.Select2Placeholder;
+
+                        // إذا Select2=true ضف الكلاس + data attributes
+                        const select2Class = useSelect2 ? "js-select2" : "";
+                        const s2MinAttr = (useSelect2 && minResults !== undefined && minResults !== null)
+                            ? `data-s2-min-results="${this.escapeHtml(minResults)}"`
+                            : "";
+                        const s2PhAttr = (useSelect2 && s2Placeholder)
+                            ? `data-s2-placeholder="${this.escapeHtml(s2Placeholder)}"`
+                            : "";
+
+                        // =========================
+                        // 4) HTML
+                        // =========================
+                        fieldHtml = `
+<div class="form-group ${colCss}">
+    <label class="block text-sm font-medium text-gray-700 mb-1">
+        ${this.escapeHtml(field.label)} ${(field.required ?? field.Required) ? '<span class="text-red-500">*</span>' : ''}
+    </label>
+
+    <div class="sf-select-wrap">
+        <select
+            name="${this.escapeHtml(field.name)}"
+            class="sf-modal-input sf-modal-select ${select2Class}"
+            ${required}
+            ${disabled}
+            ${onChangeAttr}
+            ${dependsOnAttr}
+            ${dependsUrlAttr}
+            ${s2MinAttr}
+            ${s2PhAttr}
+        >
+            ${options}
+        </select>
+    </div>
+
+    ${field.helpText ? `<p class="mt-1 text-xs text-gray-500">${this.escapeHtml(field.helpText)}</p>` : ''}
+</div>`;
+                        break;
+                    }
+
+
+
+                    
+
+
 
 
                     case "checkbox":
@@ -1881,7 +1929,7 @@ window.__sfTableGlobalBound = window.__sfTableGlobalBound || false;
                         this.saveModalChanges();
                     });
 
-                    this.setupDependentDropdowns(form);
+                    /*this.setupDependentDropdowns(form);*/
                 }
             },
         
@@ -2231,53 +2279,148 @@ window.__sfTableGlobalBound = window.__sfTableGlobalBound || false;
             },
 
             // ===== Cell Formatting =====
+            //formatCell(row, col) {
+            //    let value = row[col.field];
+            //    if (value == null) return "";
+
+            //    switch (col.type) {
+            //        case "date":
+            //            try {
+            //                return new Date(value).toLocaleDateString('ar-SA');
+            //            } catch {
+            //                return value;
+            //            }
+            //        case "datetime":
+            //            try {
+            //                return new Date(value).toLocaleString('ar-SA');
+            //            } catch {
+            //                return value;
+            //            }
+            //        case "bool":
+            //            return value ? '<span class="text-green-600">✓</span>' : '<span class="text-red-600">✗</span>';
+            //        case "money":
+            //            try {
+            //                return new Intl.NumberFormat('ar-SA', {
+            //                    style: 'currency',
+            //                    currency: 'SAR'
+            //                }).format(value);
+            //            } catch {
+            //                return value;
+            //            }
+            //        case "badge":
+            //            const badgeClass = col.badge?.map?.[value] || col.badge?.defaultClass || "bg-gray-100 text-gray-800";
+            //            return `<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${badgeClass}">${this.escapeHtml(value)}</span>`;
+            //        case "link":
+            //            if (col.linkTemplate) {
+            //                const href = this.fillUrl(col.linkTemplate, row);
+            //                return `<a href="${this.escapeHtml(href)}" class="text-blue-600 hover:text-blue-800 hover:underline">${this.escapeHtml(value)}</a>`;
+            //            }
+            //            return this.escapeHtml(value);
+            //        case "image":
+            //            if (col.imageTemplate) {
+            //                const src = this.fillUrl(col.imageTemplate, row);
+            //                return `<img src="${this.escapeHtml(src)}" alt="${this.escapeHtml(value)}" class="h-8 w-8 rounded object-cover">`;
+            //            }
+            //            return this.escapeHtml(value);
+            //        default:
+            //            return this.escapeHtml(String(value));
+            //    }
+            //},
+
+
             formatCell(row, col) {
                 let value = row[col.field];
                 if (value == null) return "";
-                
+
+                // هل العمود مطلوب له truncate؟
+                const shouldTruncate = !!(col.truncate ?? col.Truncate);
+
+                // مساعد: يلف الناتج داخل span مع title (بعد تنظيف المسافات) لعرض النص الكامل
+                const wrapTruncate = (htmlOrText, titleText) => {
+                    if (!shouldTruncate) return htmlOrText;
+
+                    const raw = (titleText ?? "");
+                    const clean = String(raw).replace(/\s+/g, " ").trim(); // ✅ يشيل المسافات الزائدة ويطبعها
+                    const t = this.escapeHtml(clean);
+
+                    return `<span class="sf-truncate" title="${t}">${htmlOrText}</span>`;
+                };
+
                 switch (col.type) {
                     case "date":
                         try {
-                            return new Date(value).toLocaleDateString('ar-SA');
+                            const txt = new Date(value).toLocaleDateString('ar-SA');
+                            return wrapTruncate(this.escapeHtml(txt), txt);
                         } catch {
-                            return value;
+                            const txt = String(value);
+                            return wrapTruncate(this.escapeHtml(txt), txt);
                         }
+
                     case "datetime":
                         try {
-                            return new Date(value).toLocaleString('ar-SA');
+                            const txt = new Date(value).toLocaleString('ar-SA');
+                            return wrapTruncate(this.escapeHtml(txt), txt);
                         } catch {
-                            return value;
+                            const txt = String(value);
+                            return wrapTruncate(this.escapeHtml(txt), txt);
                         }
+
                     case "bool":
-                        return value ? '<span class="text-green-600">✓</span>' : '<span class="text-red-600">✗</span>';
+                        // tooltip للـ bool غير مهم عادة
+                        return value
+                            ? '<span class="text-green-600">✓</span>'
+                            : '<span class="text-red-600">✗</span>';
+
                     case "money":
                         try {
-                            return new Intl.NumberFormat('ar-SA', { 
-                                style: 'currency', 
-                                currency: 'SAR' 
+                            const txt = new Intl.NumberFormat('ar-SA', {
+                                style: 'currency',
+                                currency: 'SAR'
                             }).format(value);
+                            return wrapTruncate(this.escapeHtml(txt), txt);
                         } catch {
-                            return value;
+                            const txt = String(value);
+                            return wrapTruncate(this.escapeHtml(txt), txt);
                         }
-                    case "badge":
-                        const badgeClass = col.badge?.map?.[value] || col.badge?.defaultClass || "bg-gray-100 text-gray-800";
-                        return `<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${badgeClass}">${this.escapeHtml(value)}</span>`;
-                    case "link":
+
+                    case "badge": {
+                        const badgeClass =
+                            col.badge?.map?.[value] ||
+                            col.badge?.defaultClass ||
+                            "bg-gray-100 text-gray-800";
+
+                        const txt = String(value);
+                        const html =
+                            `<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${badgeClass}">${this.escapeHtml(txt)}</span>`;
+
+                        return wrapTruncate(html, txt);
+                    }
+
+                    case "link": {
+                        const txt = String(value);
                         if (col.linkTemplate) {
                             const href = this.fillUrl(col.linkTemplate, row);
-                            return `<a href="${this.escapeHtml(href)}" class="text-blue-600 hover:text-blue-800 hover:underline">${this.escapeHtml(value)}</a>`;
+                            const html =
+                                `<a href="${this.escapeHtml(href)}" class="text-blue-600 hover:text-blue-800 hover:underline">${this.escapeHtml(txt)}</a>`;
+                            return wrapTruncate(html, txt);
                         }
-                        return this.escapeHtml(value);
+                        return wrapTruncate(this.escapeHtml(txt), txt);
+                    }
+
                     case "image":
                         if (col.imageTemplate) {
                             const src = this.fillUrl(col.imageTemplate, row);
-                            return `<img src="${this.escapeHtml(src)}" alt="${this.escapeHtml(value)}" class="h-8 w-8 rounded object-cover">`;
+                            return `<img src="${this.escapeHtml(src)}" alt="${this.escapeHtml(String(value))}" class="h-8 w-8 rounded object-cover">`;
                         }
-                        return this.escapeHtml(value);
-                    default:
-                        return this.escapeHtml(String(value));
+                        return "";
+
+                    default: {
+                        const txt = String(value);
+                        return wrapTruncate(this.escapeHtml(txt), txt);
+                    }
                 }
             },
+
 
 
 
@@ -2441,15 +2584,7 @@ window.__sfTableGlobalBound = window.__sfTableGlobalBound || false;
     }
 })();
 
-function initModalSelect2(modalEl) {
-    if (!window.jQuery || !jQuery.fn.select2) return;
 
-    $(modalEl).find('select.js-select2').select2({
-        width: '100%',
-        dir: 'rtl',
-        dropdownParent: $(modalEl)
-    });
-}
 document.addEventListener("DOMContentLoaded", () => {
 
     document.body.addEventListener("invalid", function (e) {
@@ -2461,4 +2596,3 @@ document.addEventListener("DOMContentLoaded", () => {
     }, true);
 
 });
-

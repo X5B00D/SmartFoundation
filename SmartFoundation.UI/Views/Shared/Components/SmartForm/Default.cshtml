@@ -598,8 +598,11 @@
 
                 @if (!string.IsNullOrWhiteSpace(Model.SubmitText))
                 {
-                    <button type="submit"
-                            class="btn btn-success border border-emerald-600 focus:ring-offset-2">
+                    @* <button type="submit"
+                            class="btn btn-success border border-emerald-600 focus:ring-offset-2"> *@
+                            <button type="submit"
+        class="btn btn-success sf-modal-btn-save border border-emerald-600 focus:ring-offset-2">
+
                         <i class="fa fa-save text-[14px]"></i>
                         <span>@Model.SubmitText</span>
                     </button>
@@ -608,7 +611,8 @@
                 @if (Model.ShowReset && !string.IsNullOrWhiteSpace(Model.ResetText))
                 {
                     <button type="reset"
-                            class="btn btn-secondary focus:ring-offset-2">
+        class="btn btn-secondary sf-modal-btn-cancel focus:ring-offset-2">
+
                         <i class="fa fa-eraser text-[14px]"></i>
                         <span>@Model.ResetText</span>
                     </button>

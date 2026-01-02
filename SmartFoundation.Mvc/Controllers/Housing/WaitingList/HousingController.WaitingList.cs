@@ -579,16 +579,22 @@ namespace SmartFoundation.Mvc.Controllers.Housing
                         }
                     },
 
+                    
+
                     Add1 = new TableAction
                     {
                         Label = "إضافة خطاب تسكين جديد",
                         Icon = "fa fa-plus",
                         Color = "success",
+
+                        Placement = TableActionPlacement.ActionsMenu, //   أي زر بعد ما نسويه ونبيه يظهر في الاجراءات نحط هذا السطر فقط عشان ما يصير زحمة في التيبل اكشن
+
                         OpenModal = true,
                         ModalTitle = "إدخال بيانات خطاب تسكين جديد",
                         ModalMessage = "ملاحظة: جميع التعديلات مرصودة",
                         ModalMessageIcon = "fa-solid fa-circle-info",
                         ModalMessageClass = "bg-sky-100 border border-sky-200 text-sky-700",
+
                         OpenForm = new FormConfig
                         {
                             FormId = "BuildingTypeInsertForm",
@@ -596,19 +602,22 @@ namespace SmartFoundation.Mvc.Controllers.Housing
                             Method = "post",
                             ActionUrl = "/crud/insert",
                             Fields = addFields1,
-                            Buttons = new List<FormButtonConfig>
-                          {
-                              new FormButtonConfig { Text = "حفظ", Type = "submit", Color = "success" },
-                              new FormButtonConfig { Text = "إلغاء", Type = "button", Color = "secondary", OnClickJs = "this.     closest('.  sf-   modal').__x.$data.closeModal();" }
-                          }
+                            Buttons =
+                            {
+                                new() { Text = "حفظ", Type = "submit", Color = "success" },
+                                new() { Text = "إلغاء", Type = "button", Color = "secondary",
+                                        OnClickJs = "this.closest('.sf-modal').__x.$data.closeModal();" }
+                            }
                         }
                     },
+
 
                     Edit = new TableAction
                     {
                         Label = "تعديل بيانات انتظار",
                         Icon = "fa fa-pen-to-square",
                         Color = "info",
+                        Placement = TableActionPlacement.ActionsMenu, //   أي زر بعد ما نسويه ونبيه يظهر في الاجراءات نحط هذا السطر فقط عشان ما يصير زحمة في التيبل اكشن
                         IsEdit = true,
                         OpenModal = true,
                         ModalTitle = "تعديل بيانات انتظار",
@@ -632,6 +641,7 @@ namespace SmartFoundation.Mvc.Controllers.Housing
                         Label = "طلب نقل سجل انتظار لادارة اخرى",
                         Icon = "fa fa-paper-plane",
                         Color = "warning",
+                        Placement = TableActionPlacement.ActionsMenu,
                         IsEdit = true,
                         OpenModal = true,
                         ModalTitle = "طلب نقل سجل انتظار لادارة اخرى",
@@ -649,18 +659,20 @@ namespace SmartFoundation.Mvc.Controllers.Housing
                         MinSelection = 1,
                         MaxSelection = 1
                     },
+                    
 
                     Delete = new TableAction
                     {
                         Label = "الغاء بيانات انتظار",
                         Icon = "fa fa-trash",
                         Color = "danger",
+                        Placement = TableActionPlacement.ActionsMenu, //   أي زر بعد ما نسويه ونبيه يظهر في الاجراءات نحط هذا السطر فقط عشان ما يصير زحمة في التيبل اكشن
                         IsEdit = true,
                         OpenModal = true,
                         ModalTitle = "تحذير",
                         ModalMessage = "هل أنت متأكد من الغاء بيانات الانتظار؟",
                         ModalMessageIcon = "fa fa-exclamation-triangle text-red-600",
-                        ModalMessageClass = "bg-sky-100 border border-sky-200 text-sky-700",
+                        ModalMessageClass = "bg-red-50 border border-red-200 text-red-700",
                         OpenForm = new FormConfig
                         {
                             FormId = "BuildingTypeDeleteForm",

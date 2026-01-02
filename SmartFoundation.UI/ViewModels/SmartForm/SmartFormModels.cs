@@ -93,6 +93,9 @@ namespace SmartFoundation.UI.ViewModels.SmartForm
         public string? InlineButtonOnClickJs { get; set; }       // كود JS عند الضغط
         public string InlineButtonPosition { get; set; } = "end"; // end | start (يمين/يسار)
 
+        public bool Select2 { get; set; } = false;          //  تفعيل select2 من الكنترول
+        public int? Select2MinResultsForSearch { get; set; } // اختياري: متى يظهر مربع البحث
+        public string? Select2Placeholder { get; set; }      // اختياري
 
 
         public SmartTable.TableConfig? Table { get; set; }

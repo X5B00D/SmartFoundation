@@ -718,8 +718,8 @@ namespace SmartFoundation.Mvc.Controllers.ControlPanel
                     DependsOn = "p01",
                     DependsUrl = "/crud/DDLFiltered?FK=distributorID_FK&textcol=permissionTypeName_A&ValueCol=distributorPermissionTypeID&PageName=Permission&TableIndex=4"
                 },
-                new FieldConfig { Name = "p03", Label = "تاريخ بداية الصلاحية", Type = "date", ColCss = "3", Required = false, Icon = "fa fa-calendar" },
-                new FieldConfig { Name = "p04", Label = "تاريخ نهاية الصلاحية", Type = "date", ColCss = "3", Required = false, Icon = "fa fa-calendar" },
+                new FieldConfig { Name = "p03", Label = "تاريخ بداية الصلاحية", Type = "date", ColCss = "3", Required = false, /*Icon = "fa fa-calendar"*/ },
+                new FieldConfig { Name = "p04", Label = "تاريخ نهاية الصلاحية", Type = "date", ColCss = "3", Required = false, /*Icon = "fa fa-calendar"*/ },
                 new FieldConfig { Name = "p05", Label = "ملاحظات", Type = "textarea", ColCss = "6", Required = false },
 
                   new FieldConfig { Name = "p06",Value=UserID_, Type = "hidden" },
@@ -771,8 +771,8 @@ namespace SmartFoundation.Mvc.Controllers.ControlPanel
                     Required = true
                 },
 
-                new FieldConfig { Name = "p02", Label = "تاريخ بداية الصلاحية", Type = "date", ColCss = "3", Required = false,Icon = "fa fa-calendar" },
-                new FieldConfig { Name = "p03", Label = "تاريخ نهاية الصلاحية", Type = "date", ColCss = "3", Required = false,Icon = "fa fa-calendar" },
+                new FieldConfig { Name = "p02", Label = "تاريخ بداية الصلاحية", Type = "date", ColCss = "3", Required = false,/*Icon = "fa fa-calendar"*/ },
+                new FieldConfig { Name = "p03", Label = "تاريخ نهاية الصلاحية", Type = "date", ColCss = "3", Required = false,/*Icon = "fa fa-calendar"*/ },
                 new FieldConfig { Name = "p04", Label = "ملاحظات", Type = "textarea", ColCss = "6", Required = false },
 
                   new FieldConfig { Name = "p05",Value=UserID_, Type = "hidden" },
@@ -846,8 +846,8 @@ namespace SmartFoundation.Mvc.Controllers.ControlPanel
                 //    DependsOn = "p02",
                 //    DependsUrl = "/crud/DDLFiltered?FK=distributorID_FK&textcol=permissionTypeName_A&ValueCol=distributorPermissionTypeID&PageName=Permission&TableIndex=4"
                 //},
-                new FieldConfig { Name = "p04", Label = "تاريخ بداية الصلاحية", Type = "date", Required = false, ColCss = "3",Icon = "fa fa-calendar" },
-                 new FieldConfig { Name = "p05", Label = "تاريخ نهاية الصلاحية", Type = "date", Required = false, ColCss = "3",Icon = "fa fa-calendar" },
+                new FieldConfig { Name = "p04", Label = "تاريخ بداية الصلاحية", Type = "date", Required = false, ColCss = "3",/*Icon = "fa fa-calendar"*/ },
+                 new FieldConfig { Name = "p05", Label = "تاريخ نهاية الصلاحية", Type = "date", Required = false, ColCss = "3",/*Icon = "fa fa-calendar"*/ },
                 new FieldConfig { Name = "p06", Label = "ملاحظات",            Type = "textarea",   ColCss = "6" }
             };
 

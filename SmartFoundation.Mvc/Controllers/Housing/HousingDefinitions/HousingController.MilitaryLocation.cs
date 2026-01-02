@@ -287,6 +287,7 @@ namespace SmartFoundation.Mvc.Controllers.Housing
                         Label = "تعديل موقع",
                         Icon = "fa fa-pen-to-square",
                         Color = "info",
+                        Placement = TableActionPlacement.ActionsMenu, //   أي زر بعد ما نسويه ونبيه يظهر في الاجراءات نحط هذا السطر فقط عشان ما يصير زحمة في التيبل اكشن
                         IsEdit = true,
                         OpenModal = true,
                         ModalTitle = "تعديل بيانات موقع",
@@ -310,10 +311,12 @@ namespace SmartFoundation.Mvc.Controllers.Housing
                         Label = "حذف موقع",
                         Icon = "fa fa-trash",
                         Color = "danger",
+                        Placement = TableActionPlacement.ActionsMenu, //   أي زر بعد ما نسويه ونبيه يظهر في الاجراءات نحط هذا السطر فقط عشان ما يصير زحمة في التيبل اكشن
                         IsEdit = true,
                         OpenModal = true,
                         ModalTitle = "<i class='fa fa-exclamation-triangle text-red-600 text-xl mr-2'></i> تحذير",
                         ModalMessage = "هل أنت متأكد من حذف هذا الموقع؟",
+                        ModalMessageClass = "bg-red-50 border border-red-200 text-red-700",
                         OpenForm = new FormConfig
                         {
                             FormId = "buildingClassDeleteForm",

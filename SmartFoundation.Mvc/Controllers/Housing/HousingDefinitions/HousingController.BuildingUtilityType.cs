@@ -284,6 +284,7 @@ namespace SmartFoundation.Mvc.Controllers.Housing
                         Label = "إضافة نوع مرفق جديد",
                         Icon = "fa fa-plus",
                         Color = "success",
+                        
                         OpenModal = true,
                         ModalTitle = "إدخال بيانات نوع المرفق الجديد",
                         OpenForm = new FormConfig
@@ -306,6 +307,7 @@ namespace SmartFoundation.Mvc.Controllers.Housing
                         Label = "تعديل نوع المرفق",
                         Icon = "fa fa-pen-to-square",
                         Color = "info",
+                        Placement = TableActionPlacement.ActionsMenu, //   أي زر بعد ما نسويه ونبيه يظهر في الاجراءات نحط هذا السطر فقط عشان ما يصير زحمة في التيبل اكشن
                         IsEdit = true,
                         OpenModal = true,
                         ModalTitle = "تعديل بيانات نوع المرفق",
@@ -329,10 +331,12 @@ namespace SmartFoundation.Mvc.Controllers.Housing
                         Label = "حذف نوع مباني",
                         Icon = "fa fa-trash",
                         Color = "danger",
+                        Placement = TableActionPlacement.ActionsMenu,
                         IsEdit = true,
                         OpenModal = true,
                         ModalTitle = "<i class='fa fa-exclamation-triangle text-red-600 text-xl mr-2'></i> تحذير",
                         ModalMessage = "هل أنت متأكد من حذف هذا نوع المباني؟",
+                        ModalMessageClass = "bg-red-50 border border-red-200 text-red-700",
                         OpenForm = new FormConfig
                         {
                             FormId = "BuildingTypeDeleteForm",

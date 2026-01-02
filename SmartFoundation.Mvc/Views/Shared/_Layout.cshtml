@@ -1,4 +1,8 @@
-﻿<!DOCTYPE html>
+﻿@using System.Text.Json
+@using SmartFoundation.Mvc.Models
+@using SmartFoundation.Mvc.Helpers
+
+<!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="utf-8" />
@@ -11,6 +15,9 @@
     <link rel="stylesheet" href="~/lib/toastr/css/toastr.min.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/lib/toastr/css/toastr.override.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/vendor/flatpickr/flatpickr.min.css" />
+    <link rel="stylesheet" href="~/lib/select2/css/select2.min.css" />
+
+
     
     
     <!-- CSS Chart -->
@@ -178,6 +185,47 @@
         @* <main class="flex-1 px-4 pt-6"> *@
         <main class="flex-1 px-4 pt-6 overflow-x-hidden">
 
+
+            @{
+                var controller = (ViewContext.RouteData.Values["controller"]?.ToString()) ?? "";
+                var action = (ViewContext.RouteData.Values["action"]?.ToString()) ?? "";
+
+                var crumbs = new List<MenuBreadcrumb.Crumb>();
+
+                var json = Context.Session.GetString("MENU_TREE");
+                if (!string.IsNullOrWhiteSpace(json))
+                {
+                    var tree = JsonSerializer.Deserialize<List<MenuItem>>(json) ?? new List<MenuItem>();
+                    crumbs = MenuBreadcrumb.Get(tree, controller, action);
+                }
+            }
+
+            <nav class="sf-bc" aria-label="Breadcrumb">
+                <i class="fa-solid fa-location-dot sf-bc-icon"></i>
+
+                <ol class="sf-bc-text">
+                    <li><a href="/Home">الرئيسية</a></li>
+
+                    @if (crumbs.Count > 0)
+                    {
+                        foreach (var c in crumbs)
+                        {
+                            @* <li class="sep">/</li> *@
+                            <li class="sep">◂</li>
+
+                            if (!string.IsNullOrWhiteSpace(c.Url))
+                            {
+                                <li><a href="@c.Url">@c.Text</a></li>
+                            }
+                            else
+                            {
+                                <li class="current">@c.Text</li>
+                            }
+                        }
+                    }
+                </ol>
+            </nav>
+
                 @RenderBody()
         </main>
 
@@ -199,26 +247,35 @@
     </div>
 
     <!-- ✅ Scripts -->
-<script src="~/js/jquery-3.7.1.min.js"></script>
-<script src="~/lib/jquery/jquery-3.7.1.min.js"></script>
 
-<!-- ✅ Load toastr EARLY -->
-<script src="~/lib/toastr/js/toastr.min.js" asp-append-version="true"></script>
-<script>
-    toastr.options.positionClass = "toast-top-center";
-</script>
-
-<!-- ✅ Then load other scripts -->
-<script src="~/js/flowbite.min.js" defer></script>
-<script src="~/js/datepicker.min.js"></script>
-<script src="~/js/moment.min.js"></script>
-<script src="~/js/moment-hijri.min.js"></script>
-<script src="~/js/sf-select.js"></script>
-<script src="~/js/sf-date.js" asp-append-version="true" defer></script>
-<script src="~/js/alpinejs.min.js" defer></script>
-<script src="~/js/sf-form.js"></script>
-<script src="~/js/sf-table.js"></script>
+    <!-- 1) jQuery أولاً -->
     <script src="~/lib/jquery/jquery-3.7.1.min.js"></script>
+
+    <!-- 2) select2 بعده -->
+    <script src="~/lib/select2/js/select2.min.js"></script>
+    <script src="~/lib/select2/js/i18n/ar.js"></script>
+
+    <!-- 3) toastr بعد jQuery (أفضل) -->
+    <script src="~/lib/toastr/js/toastr.min.js" asp-append-version="true"></script>
+    <script>
+        toastr.options.positionClass = "toast-top-center";
+    </script>
+
+    <!-- 4) باقي السكربتات -->
+    <script src="~/js/flowbite.min.js" defer></script>
+    <script src="~/js/datepicker.min.js"></script>
+    <script src="~/js/moment.min.js"></script>
+    <script src="~/js/moment-hijri.min.js"></script>
+    <script src="~/js/sf-select.js"></script>
+    <script src="~/js/sf-date.js" asp-append-version="true" defer></script>
+    <script src="~/js/alpinejs.min.js" defer></script>
+    <script src="~/js/sf-form.js"></script>
+
+    <!-- 5) sf-table آخر شيء لأنه يعتمد على jQuery/select2 -->
+    <script src="~/js/sf-table.js"></script>
+
+
+    
     
     <script>
         toastr.options.positionClass = "toast-top-center";
@@ -300,12 +357,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     <script src="~/vendor/flatpickr/flatpickr.min.js"></script>
     <script src="~/vendor/flatpickr/l10n/ar.js"></script>
-    @* <script src="https://unpkg.com/lucide@latest"></script>
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-          lucide.createIcons();
-        });
-    </script> *@
+
 
 
     <!-- Js Chart -->
@@ -326,7 +378,6 @@ document.addEventListener('DOMContentLoaded', function () {
     <script src="~/js/smartcharts.pie3d.js" asp-append-version="true"></script>
     <script src="~/js/smartcharts.opsboard.js" asp-append-version="true"></script>
     <script src="~/js/smartcharts.execwatch.js" asp-append-version="true"></script>
-
 
 
 
