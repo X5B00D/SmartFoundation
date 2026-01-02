@@ -1629,7 +1629,7 @@ textarea[readonly] {
         }
 
 /* =========================
-   Responsive (لا يختفي تحت السايدبار)
+   Responsive 
    ========================= */
 @media (max-width: 1024px) {
     .sf-modal {
@@ -1708,7 +1708,7 @@ textarea[readonly] {
 }*/
 .sf-panel {
     @apply relative mx-auto mt-16 mb-6 w-full overflow-hidden;
-    @apply rounded-md border border-gray-300 bg-gray-100; /* نفس الهيدر/الاكشن بار */
+    @apply rounded-md border border-gray-300 bg-gray-100;   
     @apply shadow-sm;
 }
 
@@ -1864,55 +1864,6 @@ textarea[readonly] {
         opacity: 1;
     }
 }
-
-
-/* =========================
-   Loader – Typing Dots (Classic)
-   ========================= */
-/*.sf-loader-dots {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 6px;
-}
-
-    .sf-loader-dots span {
-        width: 9px;
-        height: 9px;
-        border-radius: 9999px;
-        background: #20876a;
-        animation: sf-typing 1.05s infinite ease-in-out;
-    }
-
-        .sf-loader-dots span:nth-child(1) {
-            animation-delay: 0ms;
-        }
-
-        .sf-loader-dots span:nth-child(2) {
-            animation-delay: 150ms;
-        }
-
-        .sf-loader-dots span:nth-child(3) {
-            animation-delay: 300ms;
-        }
-
-@keyframes sf-typing {
-    0%, 60%, 100% {
-        transform: translateY(0);
-        opacity: .35;
-    }
-
-    30% {
-        transform: translateY(-4px);
-        opacity: 1;
-    }
-}*/
-
-
-
-
-
-
 
 
 
