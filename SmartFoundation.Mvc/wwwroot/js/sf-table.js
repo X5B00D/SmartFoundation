@@ -942,7 +942,7 @@ window.__sfTableGlobalBound = window.__sfTableGlobalBound || false;
                         this.modal.html = this.generateFormHtml(action.openForm, row);
 
                     } else if (row) {
-                        // ✅ يعرض تفاصيل الصف باستخدام أعمدة الجدول نفسها
+                        // يعرض تفاصيل الصف باستخدام أعمدة الجدول نفسها
                         const columns =
                             this.columns ||
                             this.table?.columns ||
@@ -967,26 +967,22 @@ window.__sfTableGlobalBound = window.__sfTableGlobalBound || false;
                     this.$nextTick(() => {
                         this.initModalScripts();
 
-                        //  الصح: المودال غالباً يُحقن خارج this.$el (Root الجدول)، لذلك خذه من document
-                        // ومع ذلك نخلي fallback لـ this.$el لو كان داخلها
                         const modalEl =
                             document.querySelector('.sf-modal') ||
                             this.$el.querySelector('.sf-modal');
 
-                        // لو ما انوجد المودال، لا تكمل (حتى ما يصير null errors)
                         if (!modalEl) return;
 
                         //  datepickers داخل المودال
                         this.initDatePickers(modalEl);
 
-                        //  drag (خله يشتغل على نفس modalEl بدل document.querySelector)
+                        // ===== drag  =====
                         (function () {
                             const modal = modalEl;
                             const header = modal.querySelector('.sf-modal-header');
 
                             if (!modal || !header) return;
 
-                            // منع تكرار الربط إذا فتح المودال أكثر من مرة
                             if (modal.__dragBound) return;
                             modal.__dragBound = true;
 
@@ -997,7 +993,6 @@ window.__sfTableGlobalBound = window.__sfTableGlobalBound || false;
                             let startTop = 0;
 
                             header.addEventListener('mousedown', function (e) {
-                                // لا تسحب إذا ضغطت على زر/حقل داخل الهيدر
                                 if (e.target.closest('.sf-modal-close,[data-modal-close],button,a,input,select,textarea')) return;
 
                                 e.preventDefault();
@@ -1009,7 +1004,6 @@ window.__sfTableGlobalBound = window.__sfTableGlobalBound || false;
                                 startLeft = rect.left;
                                 startTop = rect.top;
 
-                                // أول سحب: فك transform
                                 modal.style.transform = 'none';
                                 modal.style.left = startLeft + 'px';
                                 modal.style.top = startTop + 'px';
@@ -1035,9 +1029,13 @@ window.__sfTableGlobalBound = window.__sfTableGlobalBound || false;
                             }
                         })();
 
-                        // ✅ select2 داخل المودال
+                        //  الجديد: تفعيل التحجيم
+                        this.enableModalResize(modalEl);
+
+                        //  select2 داخل المودال
                         this.initSelect2InModal(modalEl);
                     });
+
 
 
 
@@ -1207,6 +1205,159 @@ window.__sfTableGlobalBound = window.__sfTableGlobalBound || false;
                     document.addEventListener('mouseup', onMouseUp);
                 });
             },
+
+
+
+
+
+            enableModalResize(modalEl) {
+                if (!modalEl) return;
+
+                // منع تكرار الربط
+                if (modalEl.__resizeBound) return;
+                modalEl.__resizeBound = true;
+
+                const computed = getComputedStyle(modalEl);
+                if (computed.position === 'static') modalEl.style.position = 'fixed';
+
+                const addHandle = (dir) => {
+                    const h = document.createElement('div');
+                    h.className = `sf-resize-handle sf-resize-${dir}`;
+                    h.setAttribute('data-resize', dir);
+                    modalEl.appendChild(h);
+                    return h;
+                };
+
+                const dirs = ['n', 'e', 's', 'w', 'ne', 'nw', 'se', 'sw'];
+                dirs.forEach(d => {
+                    if (!modalEl.querySelector(`.sf-resize-handle[data-resize="${d}"]`)) {
+                        addHandle(d);
+                    }
+                });
+
+                const clamp = (v, min, max) => Math.max(min, Math.min(max, v));
+
+                let isResizing = false;
+                let dir = '';
+                let startX = 0, startY = 0;
+                let startW = 0, startH = 0;
+                let startL = 0, startT = 0;
+
+                const minW = parseInt(modalEl.getAttribute('data-min-w') || '520', 10);
+                const minH = parseInt(modalEl.getAttribute('data-min-h') || '260', 10);
+
+                const onMove = (e) => {
+                    if (!isResizing) return;
+
+                    const clientX = e.clientX ?? (e.touches && e.touches[0]?.clientX);
+                    const clientY = e.clientY ?? (e.touches && e.touches[0]?.clientY);
+                    if (clientX == null || clientY == null) return;
+
+                    const dx = clientX - startX;
+                    const dy = clientY - startY;
+
+                    const vw = window.innerWidth;
+                    const vh = window.innerHeight;
+                    const maxW = vw - 32;
+                    const maxH = vh - 32;
+
+                    let newW = startW;
+                    let newH = startH;
+                    let newL = startL;
+                    let newT = startT;
+
+                    // يمين/يسار
+                    if (dir.includes('e')) newW = startW + dx;
+                    if (dir.includes('w')) { newW = startW - dx; newL = startL + dx; }
+
+                    // أعلى/أسفل
+                    if (dir.includes('s')) newH = startH + dy;
+                    if (dir.includes('n')) { newH = startH - dy; newT = startT + dy; }
+
+                    // clamp
+                    newW = clamp(newW, minW, maxW);
+                    newH = clamp(newH, minH, maxH);
+
+                    // تصحيح left/top عند السحب من w/n
+                    if (dir.includes('w')) newL = startL + (startW - newW);
+                    if (dir.includes('n')) newT = startT + (startH - newH);
+
+                    // تثبيت داخل الشاشة
+                    newL = clamp(newL, 16, vw - newW - 16);
+                    newT = clamp(newT, 16, vh - newH - 16);
+
+                    // فك التمركز
+                    modalEl.style.transform = 'none';
+                    modalEl.style.left = newL + 'px';
+                    modalEl.style.top = newT + 'px';
+                    modalEl.style.width = newW + 'px';
+                    modalEl.style.height = newH + 'px';
+                };
+
+                const onUp = () => {
+                    if (!isResizing) return;
+                    isResizing = false;
+
+                    document.removeEventListener('mousemove', onMove);
+                    document.removeEventListener('mouseup', onUp);
+
+                    document.removeEventListener('touchmove', onMove, { passive: false });
+                    document.removeEventListener('touchend', onUp);
+                };
+
+                modalEl.addEventListener('mousedown', (e) => {
+                    const h = e.target.closest('.sf-resize-handle');
+                    if (!h) return;
+
+                    e.preventDefault();
+                    isResizing = true;
+                    dir = h.getAttribute('data-resize') || '';
+
+                    const rect = modalEl.getBoundingClientRect();
+                    startX = e.clientX;
+                    startY = e.clientY;
+                    startW = rect.width;
+                    startH = rect.height;
+                    startL = rect.left;
+                    startT = rect.top;
+
+                    document.addEventListener('mousemove', onMove);
+                    document.addEventListener('mouseup', onUp);
+                });
+
+                // لمس (اختياري)
+                modalEl.addEventListener('touchstart', (e) => {
+                    const h = e.target.closest('.sf-resize-handle');
+                    if (!h) return;
+
+                    e.preventDefault();
+                    const t = e.touches[0];
+                    if (!t) return;
+
+                    isResizing = true;
+                    dir = h.getAttribute('data-resize') || '';
+
+                    const rect = modalEl.getBoundingClientRect();
+                    startX = t.clientX;
+                    startY = t.clientY;
+                    startW = rect.width;
+                    startH = rect.height;
+                    startL = rect.left;
+                    startT = rect.top;
+
+                    document.addEventListener('touchmove', onMove, { passive: false });
+                    document.addEventListener('touchend', onUp);
+                }, { passive: false });
+            },
+
+
+
+
+
+
+
+
+
 
 
 

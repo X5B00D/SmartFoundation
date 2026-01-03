@@ -283,41 +283,44 @@
         </div>
     </div>
 
+
     @* ================= MODAL ================= *@
-    <template x-if="modal.open">
-        <div class="sf-modal-backdrop" x-transition.opacity>
-            <div class="sf-modal" role="dialog" aria-modal="true" x-transition>
-                <div class="sf-modal-header">
-                    <h3 x-html="modal.title"></h3>
-                    <button type="button" class="sf-modal-close" x-on:click="closeModal()">✕</button>
-                </div>
+    <template x-teleport="body">
+        <template x-if="modal.open">
+            <div class="sf-modal-backdrop" x-transition.opacity>
+                <div class="sf-modal" role="dialog" aria-modal="true" x-transition>
+                    <div class="sf-modal-header">
+                        <h3 x-html="modal.title"></h3>
+                        <button type="button" class="sf-modal-close" x-on:click="closeModal()">✕</button>
+                    </div>
 
-                <div class="sf-modal-body">
+                    <div class="sf-modal-body">
 
-                    <template x-if="modal.message">
-                        <div class="mb-7 rounded-sm border px-4 py-2 flex items-center justify-center gap-2 text-center"
-                             :class="modal.messageClass || 'border border-sky-200 bg-sky-50 text-sky-700'">
-                            <i x-show="modal.messageIcon"
-                               :class="modal.messageIcon"
-                               class="text-lg opacity-90"></i>
-                            <span x-text="modal.message"></span>
-                        </div>
+                        <template x-if="modal.message">
+                            <div class="mb-7 rounded-sm border px-4 py-2 flex items-center justify-center gap-2 text-center"
+                                 :class="modal.messageClass || 'border border-sky-200 bg-sky-50 text-sky-700'">
+                                <i x-show="modal.messageIcon"
+                                   :class="modal.messageIcon"
+                                   class="text-lg opacity-90"></i>
+                                <span x-text="modal.message"></span>
+                            </div>
+                        </template>
 
-                    </template>
+                        <template x-if="modal.loading">
+                            <div class="td-loading">
+                                <i class="fa fa-spinner animate-spin"></i> جاري التحميل...
+                            </div>
+                        </template>
 
-                    <template x-if="modal.loading">
-                        <div class="td-loading">
-                            <i class="fa fa-spinner animate-spin"></i> جاري التحميل...
-                        </div>
-                    </template>
+                        <template x-if="!modal.loading && !modal.error && modal.html">
+                            <div x-html="modal.html"></div>
+                        </template>
 
-                    <template x-if="!modal.loading && !modal.error && modal.html">
-                        <div x-html="modal.html"></div>
-                    </template>
-
+                    </div>
                 </div>
             </div>
-        </div>
+        </template>
     </template>
+
 
 </div>

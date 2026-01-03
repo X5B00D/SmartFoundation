@@ -134,15 +134,10 @@ namespace SmartFoundation.Mvc.Controllers.Housing
             {
                 new FieldConfig { Name = rowIdField, Type = "hidden" },
 
-                new FieldConfig { Name = "p01", Label = "رمز نوع المباني", Type = "text", ColCss = "6", },
-                new FieldConfig { Name = "p02", Label = "اسم نوع المباني بالعربي", Type = "text", Required = true,
-                    Placeholder = "حقل عربي فقط",
-                    Icon = "fa-solid fa-user",
-                    ColCss = "6",
-                    MaxLength = 50,
-                    TextMode = "arabic",},
-                new FieldConfig { Name = "p03", Label = "اسم نوع المباني بالانجليزي", Type = "text", ColCss = "6" , Required = true, TextMode = "english"},
-                new FieldConfig { Name = "p04", Label = "ملاحظات", Type = "textarea", ColCss = "12", Required = false }
+                new FieldConfig { Name = "p01", Label = "رمز نوع المباني", Type ="text", ColCss ="3", },
+                new FieldConfig { Name = "p02", Label = "اسم نوع المباني بالعربي", Type = "text", Required = true,Placeholder = "حقل عربي فقط",Icon = "fa-solid fa-user",ColCss = "3",MaxLength = 50,TextMode = "arabic",},
+                new FieldConfig { Name = "p03", Label = "اسم نوع المباني بالانجليزي", Type = "text", ColCss = "3" , Required = true, TextMode = "english"},
+                new FieldConfig { Name = "p04", Label = "ملاحظات", Type = "textarea", ColCss = "6", Required = false }
             };
 
             // hidden fields
@@ -168,12 +163,11 @@ namespace SmartFoundation.Mvc.Controllers.Housing
                 new FieldConfig { Name = "__RequestVerificationToken", Type = "hidden", Value = (Request.Headers["RequestVerificationToken"].FirstOrDefault() ?? "") },
                 new FieldConfig { Name = rowIdField,            Type = "hidden" },
 
-                new FieldConfig { Name = "p01", Label = "الرقم المرجعي",             Type = "hidden", Readonly = true, ColCss = "3" },
-                new FieldConfig { Name = "p02", Label = "رمز نوع المباني",         Type = "text", Required = true,  ColCss = "6" },
-                new FieldConfig { Name = "p03", Label = "اسم نوع المباني بالعربي", Type = "text",
-                    ColCss = "6", Required = true, TextMode = "arabic" },
-                new FieldConfig { Name = "p04", Label = "اسم نوع المباني بالانجليزي", Type = "text", Required = true, ColCss = "6",TextMode = "english" },
-                new FieldConfig { Name = "p05", Label = "ملاحظات",            Type = "textarea",   ColCss = "6" }
+                new FieldConfig { Name = "p01", Label = "الرقم المرجعي",Type ="hidden", Readonly = true, ColCss = "3" },
+                new FieldConfig { Name = "p02", Label = "رمز نوع المباني",Type ="text", Required = true,  ColCss = "3" },
+                new FieldConfig { Name = "p03", Label = "اسم نوع المباني بالعربي", Type ="text",ColCss = "3", Required = true, TextMode = "arabic" },
+                new FieldConfig { Name = "p04", Label = "اسم نوع المباني بالانجليزي", Type ="text", Required = true, ColCss = "3",TextMode = "english" },
+                new FieldConfig { Name = "p05", Label = "ملاحظات",Type ="textarea",ColCss = "6" }
             };
 
             // DELETE fields
