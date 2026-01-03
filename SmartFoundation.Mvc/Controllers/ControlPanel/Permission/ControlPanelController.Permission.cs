@@ -709,7 +709,7 @@ namespace SmartFoundation.Mvc.Controllers.ControlPanel
                     Name = "p01",
                     Label = "الموزع",
                     Type = "select",
-                    Select2=true,
+                    //Select2=true,
                     Options = distributorOptions,
                     ColCss = "3",
                     Required = true
@@ -720,7 +720,7 @@ namespace SmartFoundation.Mvc.Controllers.ControlPanel
                     Name = "p02",
                     Label = "الصلاحية",
                     Type = "select",
-                    Select2=true,
+                    //Select2=true,
                     Options = new List<OptionItem> { new OptionItem { Value = "-1", Text = "اختر الموزع أولاً"     } }, //       Initial empty state
                     ColCss = "3",
 
