@@ -386,6 +386,23 @@ namespace SmartFoundation.Mvc.Controllers.Housing
                     ShowBulkDelete = false,
 
 
+                    CustomActions = new List<TableAction>   //عرظ تفاصيل الصف 
+                    {
+                        new TableAction   
+                        {
+                            Label = "عرض التفاصيل",
+                            ModalTitle="تفاصيل المستفيد",
+                            Icon = "fa fa-eye",
+                            OpenModal = true,
+                            RequireSelection = true,
+                            MinSelection = 1,
+                            MaxSelection = 1,
+                        }
+                    },
+
+
+
+
                     Add = new TableAction
                     {
                         Label = "إضافة مستفيد جديد",
@@ -432,6 +449,7 @@ namespace SmartFoundation.Mvc.Controllers.Housing
                         MaxSelection = 1
                     },
 
+                  
                     Delete = new TableAction
                     {
                         Label = "حذف بيانات مستفيد",

@@ -172,17 +172,6 @@ window.__sfTableGlobalBound = window.__sfTableGlobalBound || false;
             // Selection State
             selectedKeys: new Set(),
             selectAll: false,
-
-            // Modal State
-            //modal: {
-            //    open: false,
-            //    title: "",
-            //    html: "",
-            //    action: null,
-            //    loading: false,
-            //    error: null
-            //},
-            // Modal State
             modal: {
                 open: false,
                 title: "",
@@ -455,7 +444,7 @@ window.__sfTableGlobalBound = window.__sfTableGlobalBound || false;
                             if (dependentSelect.classList.contains('js-select2')) {
                                 const modalEl = dependentSelect.closest('.sf-modal') || document.body;
 
-                                // ✅ إذا كان متفعل select2 على العنصر: أعد تهيئته بعد تغيير الخيارات
+                                //  إذا كان متفعل select2 على العنصر: أعد تهيئته بعد تغيير الخيارات
                                 if (window.jQuery && jQuery.fn.select2) {
                                     const $sel = $(dependentSelect);
 
@@ -574,19 +563,14 @@ window.__sfTableGlobalBound = window.__sfTableGlobalBound || false;
                         .split(/\s+/)
                         .filter(Boolean);
 
-                    //const fields = (this.quickSearchFields && this.quickSearchFields.length)
-                    //    ? this.quickSearchFields
-                    //    : this.visibleColumns().map(c => c.field);
+                    
 
 
                     const fields = this.columns
                         .filter(c => c.visible !== false && c.field)
                         .map(c => c.field);
 
-                    //const fields = this.columns
-                    //    .filter(c => c.field)
-                    //    .map(c => c.field);
-
+               
 
 
                     if (tokens.length) {
@@ -947,6 +931,7 @@ window.__sfTableGlobalBound = window.__sfTableGlobalBound || false;
                 this.modal.html = "";
 
                 try {
+                    
                     if (action.formUrl) {
                         const url = this.fillUrl(action.formUrl, row);
                         const resp = await fetch(url);
@@ -956,6 +941,16 @@ window.__sfTableGlobalBound = window.__sfTableGlobalBound || false;
                     } else if (action.openForm) {
                         this.modal.html = this.generateFormHtml(action.openForm, row);
 
+                    } else if (row) {
+                        // ✅ يعرض تفاصيل الصف باستخدام أعمدة الجدول نفسها
+                        const columns =
+                            this.columns ||
+                            this.table?.columns ||
+                            this.$data?.columns ||
+                            [];
+
+                        this.modal.html = this.formatDetailView(row, columns);
+
                     } else if (action.modalSp) {
                         const body = {
                             Component: "Table",
@@ -964,82 +959,15 @@ window.__sfTableGlobalBound = window.__sfTableGlobalBound || false;
                             Params: row || {}
                         };
                         const json = await this.postJson(this.endpoint, body);
-                        this.modal.html = this.formatDetailView(json.data, action.modalColumns);
+                        this.modal.html = this.formatDetailView(json.data, columns);
                     }
 
-
-                    //this.$nextTick(() => {
-                    //    this.initModalScripts();
-
-                    //    const modalEl = this.$el.querySelector('.sf-modal'); // الأفضل من document
-                    //    this.initDatePickers(modalEl);
-
-
-
-                    //    (function () {
-                    //        const modal = document.querySelector('.sf-modal');
-                    //        const header = document.querySelector('.sf-modal-header');
-
-                    //        if (!modal || !header) return;
-
-                    //        let isDragging = false;
-                    //        let startX = 0;
-                    //        let startY = 0;
-                    //        let startLeft = 0;
-                    //        let startTop = 0;
-
-                    //        header.addEventListener('mousedown', function (e) {
-                    //            e.preventDefault();
-
-                    //            isDragging = true;
-
-                    //            const rect = modal.getBoundingClientRect();
-
-                    //            startX = e.clientX;
-                    //            startY = e.clientY;
-
-                    //            startLeft = rect.left;
-                    //            startTop = rect.top;
-
-                    //            // أول سحب: فك transform
-                    //            modal.style.transform = 'none';
-                    //            modal.style.left = startLeft + 'px';
-                    //            modal.style.top = startTop + 'px';
-
-                    //            document.addEventListener('mousemove', onMouseMove);
-                    //            document.addEventListener('mouseup', onMouseUp);
-                    //        });
-
-                    //        function onMouseMove(e) {
-                    //            if (!isDragging) return;
-
-                    //            const dx = e.clientX - startX;
-                    //            const dy = e.clientY - startY;
-
-                    //            modal.style.left = startLeft + dx + 'px';
-                    //            modal.style.top = startTop + dy + 'px';
-                    //        }
-
-                    //        function onMouseUp() {
-                    //            isDragging = false;
-
-                    //            document.removeEventListener('mousemove', onMouseMove);
-                    //            document.removeEventListener('mouseup', onMouseUp);
-                    //        }
-                    //    })();
-
-
-
-
-                    //    /*initModalSelect2(modalEl);*/
-                    //    this.initSelect2InModal(modalEl);
-                    //});
 
 
                     this.$nextTick(() => {
                         this.initModalScripts();
 
-                        // ✅ الصح: المودال غالباً يُحقن خارج this.$el (Root الجدول)، لذلك خذه من document
+                        //  الصح: المودال غالباً يُحقن خارج this.$el (Root الجدول)، لذلك خذه من document
                         // ومع ذلك نخلي fallback لـ this.$el لو كان داخلها
                         const modalEl =
                             document.querySelector('.sf-modal') ||
@@ -1048,17 +976,17 @@ window.__sfTableGlobalBound = window.__sfTableGlobalBound || false;
                         // لو ما انوجد المودال، لا تكمل (حتى ما يصير null errors)
                         if (!modalEl) return;
 
-                        // ✅ datepickers داخل المودال
+                        //  datepickers داخل المودال
                         this.initDatePickers(modalEl);
 
-                        // ✅ drag (خله يشتغل على نفس modalEl بدل document.querySelector)
+                        //  drag (خله يشتغل على نفس modalEl بدل document.querySelector)
                         (function () {
                             const modal = modalEl;
                             const header = modal.querySelector('.sf-modal-header');
 
                             if (!modal || !header) return;
 
-                            // ✅ منع تكرار الربط إذا فتح المودال أكثر من مرة
+                            // منع تكرار الربط إذا فتح المودال أكثر من مرة
                             if (modal.__dragBound) return;
                             modal.__dragBound = true;
 
@@ -1152,7 +1080,7 @@ window.__sfTableGlobalBound = window.__sfTableGlobalBound || false;
                 //const formId = formConfig.formId || "modalForm";
                 //const method = formConfig.method || "POST";
 
-                //// ✅ امنع أي submit طبيعي يسبب Reload كامل
+                ////  امنع أي submit طبيعي يسبب Reload كامل
                 //let html = `<form id="${formId}" method="${method}" action="#" onsubmit="return false;" class="sf-modal-form">`;
 
                 
@@ -1224,24 +1152,6 @@ window.__sfTableGlobalBound = window.__sfTableGlobalBound || false;
 
 
 
-            //initDatePickers(rootEl) {
-            //    if (typeof flatpickr === "undefined") return;
-
-            //    (rootEl || document)
-            //        .querySelectorAll("input.js-date")
-            //        .forEach(el => {
-            //            if (el._flatpickr) return;
-
-            //            flatpickr(el, {
-            //                locale: flatpickr.l10ns.ar,
-            //                dateFormat: el.dataset.dateFormat || "Y-m-d",
-            //                defaultDate: null,
-            //                allowInput: true,
-            //                disableMobile: true
-            //            });
-            //        });
-            //},
-
 
 
 
@@ -1251,7 +1161,7 @@ window.__sfTableGlobalBound = window.__sfTableGlobalBound || false;
                 const header = modalEl.querySelector('.sf-modal-header');
                 if (!header) return;
 
-                // ✅ منع تكرار الربط لو فتحته أكثر من مرة
+                //  منع تكرار الربط لو فتحته أكثر من مرة
                 if (modalEl.__dragBound) return;
                 modalEl.__dragBound = true;
 
@@ -1516,7 +1426,7 @@ window.__sfTableGlobalBound = window.__sfTableGlobalBound || false;
                         // =========================
                         let onChangeHandler = field.onChangeJs || "";
 
-                        // إذا يعتمد على قائمة أخرى: لا تضف onchange (لأن listener العام يتولى)
+                        //  onchange (لأن listener العام يتولى)
                         if (!(field.dependsUrl && field.dependsOn) && onChangeHandler && !field.dependsUrl) {
                             onChangeHandler = `${onChangeHandler}`;
                         }
@@ -1526,7 +1436,7 @@ window.__sfTableGlobalBound = window.__sfTableGlobalBound || false;
                         const dependsUrlAttr = field.dependsUrl ? `data-depends-url="${this.escapeHtml(field.dependsUrl)}"` : "";
 
                         // =========================
-                        // 3) ✅ Select2 switch (من الكنترول)
+                        // 3)  Select2 switch (من الكنترول)
                         // =========================
                         // يدعم camelCase و PascalCase
                         const useSelect2 = !!(field.select2 ?? field.Select2);
@@ -1548,31 +1458,31 @@ window.__sfTableGlobalBound = window.__sfTableGlobalBound || false;
                         // 4) HTML
                         // =========================
                         fieldHtml = `
-<div class="form-group ${colCss}">
-    <label class="block text-sm font-medium text-gray-700 mb-1">
-        ${this.escapeHtml(field.label)} ${(field.required ?? field.Required) ? '<span class="text-red-500">*</span>' : ''}
-    </label>
+                        <div class="form-group ${colCss}">
+                            <label class="block text-sm font-medium text-gray-700 mb-1">
+                                ${this.escapeHtml(field.label)} ${(field.required ?? field.Required) ? '<span class="text-red-500">*</span>' : ''}
+                            </label>
 
-    <div class="sf-select-wrap">
-        <select
-            name="${this.escapeHtml(field.name)}"
-            class="sf-modal-input sf-modal-select ${select2Class}"
-            ${required}
-            ${disabled}
-            ${onChangeAttr}
-            ${dependsOnAttr}
-            ${dependsUrlAttr}
-            ${s2MinAttr}
-            ${s2PhAttr}
-        >
-            ${options}
-        </select>
-    </div>
+                            <div class="sf-select-wrap">
+                                <select
+                                    name="${this.escapeHtml(field.name)}"
+                                    class="sf-modal-input sf-modal-select ${select2Class}"
+                                    ${required}
+                                    ${disabled}
+                                    ${onChangeAttr}
+                                    ${dependsOnAttr}
+                                    ${dependsUrlAttr}
+                                    ${s2MinAttr}
+                                    ${s2PhAttr}
+                                >
+                                    ${options}
+                                </select>
+                            </div>
 
-    ${field.helpText ? `<p class="mt-1 text-xs text-gray-500">${this.escapeHtml(field.helpText)}</p>` : ''}
-</div>`;
-                        break;
-                    }
+                            ${field.helpText ? `<p class="mt-1 text-xs text-gray-500">${this.escapeHtml(field.helpText)}</p>` : ''}
+                        </div>`;
+                                                break;
+                                            }
 
 
 
@@ -1679,7 +1589,7 @@ window.__sfTableGlobalBound = window.__sfTableGlobalBound || false;
                                     `oninput="` +
                                     `this.value=this.value.replace(/\\D/g,'');` +
                                     `if(this.value.length>10)this.value=this.value.slice(0,10);` +
-                                    `"`; // ملاحظة: هذا سيشتغل حتى لو readonly (لا يضر)
+                                    `"`; 
 
                                 const nidOnKeyDown =
                                     `onkeydown="if(['-','e','E','+','.'].includes(event.key)) event.preventDefault()"`;
@@ -1793,9 +1703,7 @@ window.__sfTableGlobalBound = window.__sfTableGlobalBound || false;
                         const onBlur = `onblur="${validateFn}"`;
                         const onInvalid = `oninvalid="${validateFn}"`;
 
-                        // الأهم: قبل الإرسال مباشرة (يغطي أي validator عام)
-                        // نستخدم onsubmit على الفورم عبر formaction؟ لا. لذلك نضيف onchange + blur كافي عادة
-                        // لكن لضمان 100% أضف onkeyup أيضًا (اختياري)
+                        
                         const onChange = `onchange="${normalizeFn}"`;
 
                         const onKeyDown =
@@ -1891,19 +1799,7 @@ window.__sfTableGlobalBound = window.__sfTableGlobalBound || false;
                 return colCss.includes('col-span') ? colCss : `col-span-12 ${colCss}`;
             },
 
-            //initModalScripts() {
-            //    // Set up form submission
-            //    const form = this.$el.querySelector('.sf-modal form');
-            //    if (form) {
-            //        form.addEventListener('submit', (e) => {
-            //            e.preventDefault();
-            //            this.saveModalChanges();
-            //        });
-
-            //        // Set up dependent dropdowns
-            //        this.setupDependentDropdowns(form);
-            //    }
-            //},
+            
 
             initModalScripts() {
                 const form = this.$el.querySelector('.sf-modal form');
@@ -2029,11 +1925,7 @@ window.__sfTableGlobalBound = window.__sfTableGlobalBound || false;
 
                     const formData = this.serializeForm(form);
 
-                    //const success = await this.executeSp(
-                    //    this.modal.action.saveSp,
-                    //    this.modal.action.saveOp || (this.modal.action.isEdit ? "update" : "insert"),
-                    //    formData
-                    //);
+                    
 
                     const result = await this.executeSp(
                         this.modal.action.saveSp,
@@ -2080,31 +1972,58 @@ window.__sfTableGlobalBound = window.__sfTableGlobalBound || false;
             },
 
 
-            
+           
 
 
-            formatDetailView(data, columns) {
-                if (!data) return "<p>لا توجد بيانات</p>";
-                
-                let html = '<div class="detail-view space-y-2">';
-                const fields = columns?.length ? columns : Object.keys(data);
-                
-                fields.forEach(field => {
-                    const key = typeof field === 'string' ? field : (field.field || field.Field);
-                    const label = typeof field === 'string' ? key : (field.label || field.Label || key);
-                    
-                    if (data[key] != null) {
-                        html += `
-                        <div class="detail-row flex">
-                            <strong class="min-w-32 text-gray-600">${this.escapeHtml(label)}:</strong>
-                            <span class="flex-1 mr-2">${this.escapeHtml(data[key])}</span>
-                        </div>`;
+            formatDetailView(row, columns) {
+                if (!row || !Array.isArray(columns)) {
+                    return `<div class="sf-detail-empty">لا توجد بيانات</div>`;
+                }
+
+                let html = `<div class="sf-detail-grid">`;
+
+                columns.forEach(col => {
+                    if (col.visible === false || !col.field) return;
+
+                    const value = row[col.field];
+                    if (value == null || value === "") return;
+
+                    let displayValue = value;
+
+                    switch (col.type) {
+                        case "date":
+                            displayValue = new Date(value).toLocaleDateString("ar-SA");
+                            break;
+                        case "datetime":
+                            displayValue = new Date(value).toLocaleString("ar-SA");
+                            break;
+                        case "bool":
+                            displayValue = value ? "نعم" : "لا";
+                            break;
+                        case "money":
+                            displayValue = new Intl.NumberFormat("ar-SA", {
+                                style: "currency",
+                                currency: "SAR"
+                            }).format(value);
+                            break;
                     }
+
+                    html += `
+        <div class="sf-detail-row">
+            <div class="sf-detail-label">
+                ${this.escapeHtml(col.label || col.field)}
+            </div>
+            <div class="sf-detail-value">
+                ${this.escapeHtml(displayValue)}
+            </div>
+        </div>`;
                 });
-                
-                html += '</div>';
+
+                html += `</div>`;
                 return html;
             },
+
+
 
             // ===== Form Serialization =====
             serializeForm(form) {
@@ -2279,55 +2198,7 @@ window.__sfTableGlobalBound = window.__sfTableGlobalBound || false;
                 });
             },
 
-            // ===== Cell Formatting =====
-            //formatCell(row, col) {
-            //    let value = row[col.field];
-            //    if (value == null) return "";
-
-            //    switch (col.type) {
-            //        case "date":
-            //            try {
-            //                return new Date(value).toLocaleDateString('ar-SA');
-            //            } catch {
-            //                return value;
-            //            }
-            //        case "datetime":
-            //            try {
-            //                return new Date(value).toLocaleString('ar-SA');
-            //            } catch {
-            //                return value;
-            //            }
-            //        case "bool":
-            //            return value ? '<span class="text-green-600">✓</span>' : '<span class="text-red-600">✗</span>';
-            //        case "money":
-            //            try {
-            //                return new Intl.NumberFormat('ar-SA', {
-            //                    style: 'currency',
-            //                    currency: 'SAR'
-            //                }).format(value);
-            //            } catch {
-            //                return value;
-            //            }
-            //        case "badge":
-            //            const badgeClass = col.badge?.map?.[value] || col.badge?.defaultClass || "bg-gray-100 text-gray-800";
-            //            return `<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${badgeClass}">${this.escapeHtml(value)}</span>`;
-            //        case "link":
-            //            if (col.linkTemplate) {
-            //                const href = this.fillUrl(col.linkTemplate, row);
-            //                return `<a href="${this.escapeHtml(href)}" class="text-blue-600 hover:text-blue-800 hover:underline">${this.escapeHtml(value)}</a>`;
-            //            }
-            //            return this.escapeHtml(value);
-            //        case "image":
-            //            if (col.imageTemplate) {
-            //                const src = this.fillUrl(col.imageTemplate, row);
-            //                return `<img src="${this.escapeHtml(src)}" alt="${this.escapeHtml(value)}" class="h-8 w-8 rounded object-cover">`;
-            //            }
-            //            return this.escapeHtml(value);
-            //        default:
-            //            return this.escapeHtml(String(value));
-            //    }
-            //},
-
+            
 
             formatCell(row, col) {
                 let value = row[col.field];
@@ -2449,14 +2320,7 @@ window.__sfTableGlobalBound = window.__sfTableGlobalBound || false;
                 }));
             },
 
-            // ===== Pagination =====
-            //goToPage(page) {
-            //    const newPage = Math.max(1, Math.min(page, this.pages));
-            //    if (newPage !== this.page) {
-            //        this.page = newPage;
-            //        this.applyFiltersAndSort();
-            //    }
-            //},
+            
 
             goToPage(page) {
                 const newPage = Math.max(1, Math.min(page, this.pages || 1));
@@ -2468,12 +2332,6 @@ window.__sfTableGlobalBound = window.__sfTableGlobalBound || false;
             },
 
 
-            //nextPage() {
-            //    if (this.page < this.pages) {
-            //        this.page++;
-            //        this.applyFiltersAndSort();
-            //    }
-            //},
 
             nextPage() {
                 if (this.page < (this.pages || 1)) {
@@ -2484,12 +2342,7 @@ window.__sfTableGlobalBound = window.__sfTableGlobalBound || false;
             },
 
 
-            //prevPage() {
-            //    if (this.page > 1) {
-            //        this.page--;
-            //        this.applyFiltersAndSort();
-            //    }
-            //},
+            
 
             prevPage() {
                 if (this.page > 1) {
@@ -2500,14 +2353,7 @@ window.__sfTableGlobalBound = window.__sfTableGlobalBound || false;
             },
 
 
-            //firstPage() {
-            //    this.goToPage(1);
-            //},
-
-            //lastPage() {
-            //    this.goToPage(this.pages);
-            //},
-
+            
             firstPage() {
                 this.goToPage(1);
             },

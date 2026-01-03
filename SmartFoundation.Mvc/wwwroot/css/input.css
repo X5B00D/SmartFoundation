@@ -2187,6 +2187,78 @@ body.sf-navigating .sf-select-panel {
 
 
 
+
+
+/* ===== Detail View (Formal / Clean)  مودال التفاصيل ===== */
+.sf-detail-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px 20px;
+}
+
+/* Row */
+.sf-detail-row {
+    display: grid;
+    grid-template-columns: 140px 1fr;
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 6px;
+}
+
+/* Label */
+.sf-detail-label {
+    background: #f3f4f6;
+    color: #374151;
+    font-size: 13px;
+    font-weight: 600;
+    padding: 10px 12px;
+    border-left: 1px solid #e5e7eb;
+    text-align: right;
+    white-space: nowrap;
+}
+
+/* Value */
+.sf-detail-value {
+    padding: 10px 14px;
+    font-size: 14px;
+    font-weight: 400;
+    color: #111827;
+    line-height: 1.6;
+    word-break: break-word;
+}
+
+/* Mobile */
+@media (max-width: 768px) {
+    .sf-detail-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .sf-detail-row {
+        grid-template-columns: 1fr;
+    }
+
+    .sf-detail-label {
+        border-left: none;
+        border-bottom: 1px solid #e5e7eb;
+    }
+}
+
+/* Empty */
+.sf-detail-empty {
+    padding: 24px;
+    text-align: center;
+    color: #6b7280;
+    font-size: 14px;
+}
+
+
+
+
+
+
+
+
+
 /* =========================
    Breadcrumb – Arabic RTL
    Light Gray BG + Green Text (#20876a)
