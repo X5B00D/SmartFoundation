@@ -1,129 +1,76 @@
-﻿/* Make toasts larger and darker */
+﻿/* =================================================
+   Toastr – Clean Override (RTL Friendly)
+   
+   ================================================= */
 
-/* Width now based on viewport (≈ 33% of user screen) */
-:root {
-  --toast-width: 33vw;        /* 33% of viewport width */
-  --toast-width-xl: 33vw;      /* Keep XL same unless you want a larger % */
+/* الحاوية */
+#toast-container > .toast {
+    border-radius: 14px;
+    box-shadow: 0 8px 24px rgba(0,0,0,.18);
+    opacity: 1;
+    font-family: inherit;
 }
 
-/* Ensure container is on top */
-#toast-container {
-  z-index: 200000 !important;
+    /* RTL */
+    #toast-container > .toast.rtl {
+        direction: rtl;
+    }
+
+/* العنوان */
+.toast-title {
+    font-size: 14px;
+    font-weight: 800;
+    margin-bottom: 4px;
+    letter-spacing: -.2px;
 }
 
-/* Bigger toast box - now fluid width */
-#toast-container > div {
-  width: var(--toast-width);   /* 33% of screen */
-  max-width: 92vw;
-  padding: 16px 16px 16px 56px;
-  border-radius: 10px;
-  font-size: 16px;
-  opacity: 1 !important;
-  box-shadow: 0 6px 24px rgba(0,0,0,0.35);
+/* الرسالة */
+.toast-message {
+    font-size: 13px;
+    line-height: 1.5;
+    opacity: .95;
 }
 
-/* Slightly taller toasts */
-#toast-container > div {
-  min-height: 64px;
-  padding-top: 20px;
-  padding-bottom: 20px;
+/* زر الإغلاق */
+.toast-close-button {
+    font-size: 18px;
+    opacity: .6;
+    transition: opacity 120ms ease;
 }
 
-/* Larger text */
-#toast-container .toast-title {
-  font-size: 1.05rem;
-  margin-bottom: 4px;
-}
-#toast-container .toast-message {
-  font-size: 1rem;
-  line-height: 1.5;
-}
+    .toast-close-button:hover {
+        opacity: .9;
+    }
 
-/* Subtle spacing tweaks */
-#toast-container .toast-title { margin-bottom: 6px; }
-#toast-container .toast-message { line-height: 1.6; }
+/* ===== الألوان ===== */
 
-/* Darker backgrounds per type */
-#toast-container .toast-success { background-color: #059c1b !important; }
-#toast-container .toast-error   { background-color: #cf0c1d !important; }
-#toast-container .toast-warning { background-color: #92400e !important; color: #fff !important; }
-#toast-container .toast-info    { background-color: #0f172a !important; }
-
-/* Progress bar brighter and thicker */
-#toast-container .toast-progress {
-  background-color: rgba(255,255,255,0.9) !important;
-  height: 3px;
+/* Success */
+.toast.toast-success {
+    background-color: #059C1B;
 }
 
-/* RTL container alignment stays top-left per your page script options */
-html[dir="rtl"] #toast-container > div {
-  padding: 16px 56px 16px 16px;
-  background-position: right 15px center;
+/* Error */
+.toast.toast-error {
+    background-color: #C0392B;
 }
 
-/* Optional: darker scheme when site is in dark mode */
-html.dark #toast-container > div { color: #e5e7eb; }
-html.dark #toast-container .toast-success { background-color: #059c1b !important; }
-html.dark #toast-container .toast-error   { background-color: #cf0c1d !important; }
-html.dark #toast-container .toast-warning { background-color: #92400e !important; }
-html.dark #toast-container .toast-info    { background-color: #0b1220 !important; }
-
-/* Optional size variant if you set toastClass: 'toast toast-xl' in JS */
-#toast-container .toast-xl {
-  width: var(--toast-width-xl);  /* also 33% of screen */
-  max-width: 95vw;
-  padding: 18px 18px 18px 60px;
-  font-size: 17px;
-  border-radius: 12px;
+/* Info */
+.toast.toast-info {
+    background-color: #2980B9;
 }
 
-/* Optional: enforce a reasonable minimum so 33vw isn't too narrow on small phones */
-@media (max-width: 600px) {
-  #toast-container > div,
-  #toast-container .toast-xl {
-    width: 90vw; /* override to nearly full width on very small screens */
-  }
+/* Warning */
+.toast.toast-warning {
+    background-color: #F39C12;
 }
 
-/* --- Toastr color overrides (final applied set) --- */
-#toast-container .toast-info {
-  background-color: #236ddb !important;
-  color: #ffffff !important;
+/* شريط التقدم */
+.toast-progress {
+    height: 3px;
+    opacity: .35;
 }
 
-#toast-container .toast-warning {
-  background-color: #f2c249 !important;
-  color: #1f2937 !important;
-}
-
-html.dark #toast-container .toast-warning {
-  color: #0b1220 !important;
-}
-
-/* Scoped styles for inactivity warning toast only */
-#sf-session-toast {
-  z-index: 200000 !important;
-}
-
-/* Force true center for this container */
-#sf-session-toast.toast-top-center {
-  left: 0 !important;
-  right: 0 !important;
-  margin-left: auto !important;
-  margin-right: auto !important;
-  transform: none !important;
-  top: 20px !important;
-}
-
-/* Width = 33% of viewport for this specific toast */
-#sf-session-toast > div.toast-session-warning {
-  width: 33vw !important;
-  max-width: 95vw;
-}
-
-/* Friendlier on very small screens */
-@media (max-width: 600px) {
-  #sf-session-toast > div.toast-session-warning {
-    width: 90vw !important;
-  }
+/* Hover  */
+#toast-container > .toast:hover {
+    box-shadow: 0 12px 30px rgba(0,0,0,.25);
 }

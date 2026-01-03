@@ -392,7 +392,7 @@ namespace SmartFoundation.Mvc.Controllers.Housing
                         {
                             Label = "عرض التفاصيل",
                             ModalTitle="تفاصيل المستفيد",
-                            Icon = "fa fa-eye",
+                            Icon = "fa-regular fa-file",
                             OpenModal = true,
                             RequireSelection = true,
                             MinSelection = 1,

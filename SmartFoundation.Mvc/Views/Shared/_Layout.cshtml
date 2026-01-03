@@ -208,7 +208,7 @@
                 }
             }
 
-            <nav class="sf-bc" aria-label="Breadcrumb">
+            @* <nav class="sf-bc" aria-label="Breadcrumb">
                 <i class="fa-solid fa-location-dot sf-bc-icon"></i>
 
                 <ol class="sf-bc-text">
@@ -218,7 +218,7 @@
                     {
                         foreach (var c in crumbs)
                         {
-                            @* <li class="sep">/</li> *@
+                            
                             <li class="sep">◂</li>
 
                             if (!string.IsNullOrWhiteSpace(c.Url))
@@ -232,7 +232,35 @@
                         }
                     }
                 </ol>
+            </nav> *@
+            <nav class="sf-bc" aria-label="Breadcrumb">
+                <i class="fa-solid fa-location-dot sf-bc-icon" aria-hidden="true"></i>
+
+                <ol class="sf-bc-text">
+                    <li><a href="/Home">الرئيسية</a></li>
+
+                    @if (crumbs.Count > 0)
+                    {
+                        for (int i = 0; i < crumbs.Count; i++)
+                        {
+                            var c = crumbs[i];
+                            var isLast = i == crumbs.Count - 1;
+
+                            <li class="sep" aria-hidden="true">◂</li>
+
+                            if (!isLast && !string.IsNullOrWhiteSpace(c.Url))
+                            {
+                                <li><a href="@c.Url">@c.Text</a></li>
+                            }
+                            else
+                            {
+                                <li class="current" aria-current="page">@c.Text</li>
+                            }
+                        }
+                    }
+                </ol>
             </nav>
+
 
                 @RenderBody()
         </main>
