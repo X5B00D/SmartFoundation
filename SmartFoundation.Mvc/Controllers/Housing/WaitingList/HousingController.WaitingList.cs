@@ -57,6 +57,14 @@ namespace SmartFoundation.Mvc.Controllers.Housing
                 return RedirectToAction("Index", "Home");
             }
 
+
+            if (!string.IsNullOrWhiteSpace(NationalID_) && (dt1 == null || dt1.Rows.Count == 0))
+            {
+                TempData["Error"] = "لم يتم العثور على نتائج لرقم الهوية: " + NationalID_;
+                
+            }
+
+
             string? residentInfoID_ = null;
             if (dt1 != null && dt1.Columns.Contains("NationalID") && dt1.Columns.Contains("residentInfoID"))
             {
@@ -159,7 +167,7 @@ namespace SmartFoundation.Mvc.Controllers.Housing
                          Type = "nationalid",
                          ColCss = "3",
                          Value = NationalID_,
-                         Placeholder = "اختر نوع البحث",
+                         Placeholder = "1xxxxxxxxx",
                          Icon = "fa-solid fa-id-card",
                          MaxLength=10,
 
@@ -181,7 +189,7 @@ namespace SmartFoundation.Mvc.Controllers.Housing
                                 + "var hidden=document.querySelector('input[name=NationalID]');"
                                 + "if(!hidden){toastr.error('لا يوجد حقل مستخدم');return;}"
                                 + "var NationalID = (hidden.value||'').trim();"
-                                + "if(!NationalID){toastr.info('الرجاء كتابة رقم الهوية الوطنية');return;}"
+                                + "if(!NationalID){toastr.error('الرجاء كتابة رقم الهوية الوطنية');return;}"
                                 + "var url = '/Housing/WaitingList?NID=' + encodeURIComponent(NationalID);"
                                 + "window.location.href = url;"
                                 + "})();"
@@ -621,6 +629,9 @@ namespace SmartFoundation.Mvc.Controllers.Housing
                         IsEdit = true,
                         OpenModal = true,
                         ModalTitle = "تعديل بيانات انتظار",
+                        ModalMessage = "ملاحظة: جميع التعديلات مرصودة",
+                        ModalMessageIcon = "fa-solid fa-circle-info",
+                        ModalMessageClass = "bg-sky-100 border border-sky-200 text-sky-700",
                         OpenForm = new FormConfig
                         {
                             FormId = "BuildingTypeEditForm",
