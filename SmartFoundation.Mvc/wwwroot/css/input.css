@@ -180,6 +180,8 @@ input, textarea, select, button {
         @apply mt-0 w-full rounded-sm border border-gray-300 bg-white shadow-sm;
         max-height: 50vh;
         overflow-y: auto;
+        position: absolute; /* لازم */
+        z-index: 9999;
     }
 
         .sf-select-panel ul {
@@ -292,7 +294,7 @@ textarea[readonly] {
    Table
    ========================= */
 
- Wrapper 
+
 .sf-table-wrapper {
     @apply mx-auto w-full max-w-7xl;
     @apply rounded-md border border-gray-300 bg-gray-50;
@@ -712,7 +714,7 @@ textarea[readonly] {
 }
 
 
- Select 
+
 .select-sm {
     @apply h-10 w-20;
     @apply rounded-md border border-gray-300 bg-white px-2;
@@ -1310,6 +1312,7 @@ textarea[readonly] {
 .sf-modal .sf-select-wrap {
     position: relative;
     width: 100%;
+    z-index: 80;
 }
 
     /* =========================================================
@@ -1516,6 +1519,70 @@ textarea[readonly] {
     color: #111827 !important;
 }
 
+/*.select2-container--open {
+    z-index: 1000000 !important;
+}
+
+.select2-dropdown {
+    z-index: 1000000 !important;
+}*/
+
+/* 1) خلي الـ dropdown تحت أي overlay/loader */
+/*.select2-container--open,
+.select2-dropdown {
+    z-index: 5000 !important;
+}*/
+
+/* اللودر يغطي main فقط */
+/*#main-loading {
+    position: absolute !important;
+    inset: 0 !important;*/ /* داخل حدود parent فقط */
+    /*z-index: 2000000 !important;
+    pointer-events: all !important;
+}
+
+header,
+.sf-header,
+.navbar {
+    position: relative;
+    z-index: 3000000;
+}*/
+
+
+/* dropdown تحت اللودر */
+.select2-container--open,
+.select2-dropdown {
+    z-index: 50 !important;
+}
+
+/* اعزل طبقات المحتوى (هذا هو المفتاح) */
+.sf-main,
+main {
+    position: relative !important;
+    isolation: isolate !important; /* يمنع أي عنصر داخل main يتجاوز الهيدر */
+    z-index: 0 !important;
+}
+
+    /* اللودر يغطي main فقط */
+    .sf-main #main-loading,
+    main #main-loading {
+        position: absolute !important;
+        inset: 0 !important;
+        z-index: 40 !important; /* داخل main فقط */
+        pointer-events: all !important;
+    }
+
+/* الهيدر فوق أي شيء */
+header,
+.sf-header,
+.navbar {
+    position: relative !important;
+    z-index: 9999999 !important;
+}
+
+
+
+
 /* =========================================================
    4) Fix: native select + select2 داخل نفس wrap بدون اختلافات
    ========================================================= */
@@ -1685,18 +1752,6 @@ textarea[readonly] {
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
 /* =========================
    Panel (صفحة الرندر)
    ========================= */
@@ -1708,7 +1763,8 @@ textarea[readonly] {
 }*/
 .sf-panel {
     @apply relative mx-auto mt-16 mb-6 w-full overflow-hidden;
-    @apply rounded-md border border-gray-300 bg-gray-100;   
+    @apply rounded-md border border-gray-300 bg-gray-100;
+    overflow: visible !important;
     @apply shadow-sm;
 }
 
@@ -1934,6 +1990,198 @@ textarea[readonly] {
     -ms-user-select: none;
     cursor: pointer;
 }
+
+
+
+
+
+
+
+
+
+/* =========================
+   SF Form – Select + Select2 (Reuse Modal Styles)
+   ========================= */
+
+:where(.sf-modal, .sf-form) .sf-select-wrap {
+    position: relative;
+    width: 100%;
+    z-index: 80;
+}
+
+    :where(.sf-modal, .sf-form) .sf-select-wrap select {
+        width: 100%;
+        min-height: 40px;
+        height: 40px;
+        border: 1px solid #d1d5db;
+        background-color: #fff;
+        border-radius: 0.400rem;
+        direction: rtl;
+        text-align: right;
+        padding: 8px 12px 8px 12px;
+        color: #111827;
+        line-height: 1.3;
+        transition: border-color 160ms ease, box-shadow 160ms ease;
+        box-sizing: border-box;
+        outline: none;
+        -webkit-appearance: none;
+        -moz-appearance: none;
+        appearance: none;
+    }
+
+    /* سهم native */
+    :where(.sf-modal, .sf-form) .sf-select-wrap::after {
+        content: "";
+        position: absolute;
+        left: 14px;
+        top: 50%;
+        width: 8px;
+        height: 8px;
+        pointer-events: none;
+        transform: translateY(-50%) rotate(45deg);
+        border-right: 2.5px solid #6b7280;
+        border-bottom: 2.5px solid #6b7280;
+    }
+
+    /* Focus native */
+    :where(.sf-modal, .sf-form) .sf-select-wrap select:focus {
+        border-color: var(--sf-focus-border);
+        box-shadow: 0 0 0 0px var(--sf-focus-ring);
+    }
+
+/* options */
+:where(.sf-modal, .sf-form) select option {
+    direction: rtl;
+    text-align: right;
+}
+
+/* ===== Select2 ===== */
+
+/* لا تعرض سهم ::after لما يكون select2 شغال */
+:where(.sf-modal, .sf-form) .sf-select-wrap:has(select.select2-hidden-accessible)::after {
+    display: none !important;
+}
+
+/* container */
+:where(.sf-modal, .sf-form) .select2-container {
+    width: 100% !important;
+    direction: rtl;
+}
+
+/* selection */
+:where(.sf-modal, .sf-form) .select2-container--default .select2-selection--single {
+    height: 40px !important;
+    min-height: 40px !important;
+    border: 1px solid #d1d5db !important;
+    background-color: #fff !important;
+    border-radius: 0.400rem !important;
+    box-sizing: border-box !important;
+    outline: none !important;
+}
+
+    :where(.sf-modal, .sf-form) .select2-container--default .select2-selection--single .select2-selection__rendered {
+        height: 40px !important;
+        line-height: 40px !important;
+        padding: 0 12px 0 44px !important;
+        text-align: right !important;
+        direction: rtl !important;
+        color: #111827 !important;
+        font-size: 0.95rem;
+    }
+
+    :where(.sf-modal, .sf-form) .select2-container--default .select2-selection--single .select2-selection__arrow {
+        position: absolute !important;
+        left: 0px !important;
+        right: auto !important;
+        top: 40% !important;
+        transform: translateY(-50%) !important;
+        height: 40px !important;
+        width: 30px !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+    }
+
+        :where(.sf-modal, .sf-form) .select2-container--default .select2-selection--single .select2-selection__arrow b {
+            border: none !important;
+            width: 8px !important;
+            height: 8px !important;
+            display: inline-block !important;
+            margin: 0 !important;
+            transform: rotate(45deg) !important;
+            border-right: 2.5px solid #6b7280 !important;
+            border-bottom: 2.5px solid #6b7280 !important;
+        }
+
+/* focus select2 */
+:where(.sf-modal, .sf-form) .select2-container--default.select2-container--focus .select2-selection--single,
+:where(.sf-modal, .sf-form) .select2-container--default.select2-container--open .select2-selection--single {
+    border-color: var(--sf-focus-border) !important;
+    box-shadow: 0 0 0 0px var(--sf-focus-ring) !important;
+}
+
+/* placeholder */
+:where(.sf-modal, .sf-form) .select2-container--default .select2-selection--single .select2-selection__placeholder {
+    color: #6b7280 !important;
+}
+
+/* dropdown */
+:where(.sf-modal, .sf-form) .select2-dropdown {
+    border: 1px solid #d1d5db !important;
+    border-radius: 0.400rem !important;
+    overflow: hidden;
+    direction: rtl;
+}
+
+    :where(.sf-modal, .sf-form) .select2-dropdown .select2-results__options {
+        max-height: 160px;
+        overflow-y: auto;
+    }
+
+:where(.sf-modal, .sf-form) .select2-results__option {
+    padding: 6px 10px;
+    line-height: 1.2;
+    font-size: 0.90rem;
+    direction: rtl;
+    text-align: right;
+}
+
+/* search field */
+:where(.sf-modal, .sf-form) .select2-container--default .select2-search--dropdown .select2-search__field {
+    height: 34px;
+    padding: 6px 10px;
+    border: 1px solid #d1d5db;
+    border-radius: 0.25rem;
+    direction: rtl;
+    text-align: right;
+    font-size: 0.90rem;
+    color: #111827;
+    outline: none;
+    box-sizing: border-box;
+}
+
+    :where(.sf-modal, .sf-form) .select2-container--default .select2-search--dropdown .select2-search__field:focus {
+        border-color: var(--sf-focus-border);
+        box-shadow: 0 0 0 0px var(--sf-focus-ring);
+    }
+
+/* Fix: prevent double arrow on native select (Tailwind/Flowbite adds bg arrow) */
+:where(.sf-modal, .sf-form) .sf-select-wrap select:not(.select2-hidden-accessible) {
+    background-image: none !important;
+}
+    :where(.sf-modal, .sf-form) .sf-select-wrap select:not(.select2-hidden-accessible)::-ms-expand {
+        display: none;
+    }
+
+body.sf-navigating .select2-dropdown,
+body.sf-navigating .sf-select-panel {
+    display: none !important;
+}
+
+
+
+
+
 
 
 

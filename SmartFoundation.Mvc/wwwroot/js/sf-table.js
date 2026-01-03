@@ -351,12 +351,13 @@ window.__sfTableGlobalBound = window.__sfTableGlobalBound || false;
                     $sel.select2({
                         width: "100%",
                         dir: "rtl",
-                        dropdownParent: $modal,         
+                        dropdownParent: jQuery(document.body), //  يرسم dropdown فوق المودال
                         placeholder: ph,
                         allowClear: false,
                         minimumResultsForSearch:
                             (minResults === undefined || minResults === null) ? 0 : Number(minResults)
                     });
+
                 });
             },
 

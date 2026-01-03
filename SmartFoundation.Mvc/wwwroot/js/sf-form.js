@@ -145,3 +145,78 @@ async function submitForm(actionUrl = "/smart/execute", method = "POST", formId 
 function cancelForm() { if (window.history.length > 1) history.back(); }
 function editForm() { console.log("editForm: افتح وضع التعديل"); }
 function deleteForm() { console.log("deleteForm: نفّذ تأكيد ثم submitForm('/smart/execute', 'POST', 'myFormId')"); }
+
+
+
+// =========================
+// Select2 init (SmartForm)
+// =========================
+function sfInitSelect2(root = document) {
+    if (!window.jQuery || !jQuery.fn || !jQuery.fn.select2) return;
+
+    jQuery(root).find('select.js-select2').each(function () {
+        const $s = jQuery(this);
+        if ($s.data('select2')) return;
+
+        const ph = $s.data('s2-placeholder') || '';
+        const min = $s.data('s2-min-results');
+
+        $s.select2({
+            width: '100%',
+            dir: 'rtl',
+            placeholder: ph,
+            minimumResultsForSearch:
+                (min !== undefined && min !== null && min !== '')
+                    ? parseInt(min, 10)
+                    : 0
+        });
+    });
+}
+
+// أول تحميل
+document.addEventListener('DOMContentLoaded', () => sfInitSelect2());
+
+// بعد ما Alpine يجهز (مهم)
+document.addEventListener('alpine:init', () => {
+    queueMicrotask(() => sfInitSelect2());
+});
+
+// إذا عندك تحديث ديناميكي للحقول/الخيارات
+document.addEventListener('form-rendered', (e) => {
+    sfInitSelect2(e.target || document);
+});
+
+
+(function () {
+    function closeAllDropdowns() {
+        // 1) Select2
+        if (window.jQuery && jQuery.fn && jQuery.fn.select2) {
+            jQuery("select.select2-hidden-accessible").each(function () {
+                try { jQuery(this).select2("close"); } catch (e) { }
+            });
+        }
+
+        // 2) لو عندك dropdown مخصص (panel) مثل .sf-select-panel
+        document.querySelectorAll(".sf-select-panel").forEach(p => p.remove());
+
+        // 3) تنظيف أي بقايا dropdown في DOM (احتياط)
+        document.querySelectorAll(".select2-container--open").forEach(el => el.classList.remove("select2-container--open"));
+        document.querySelectorAll(".select2-dropdown").forEach(el => el.style.display = "none");
+    }
+
+    // اقفل قبل التنقل (التقاط الحدث قبل ما يشتغل الراوتر/التحميل)
+    document.addEventListener("click", function (e) {
+        const a = e.target.closest("a[href]");
+        if (!a) return;
+
+        // تجاهل الروابط اللي ما تنقل صفحة فعليًا
+        const href = a.getAttribute("href") || "";
+        if (href === "#" || href.startsWith("javascript:")) return;
+
+        closeAllDropdowns();
+    }, true);
+
+    // لو عندك Turbo/HTMX (اختياري ومفيد)
+    document.addEventListener("turbo:before-visit", closeAllDropdowns);
+    document.addEventListener("htmx:beforeRequest", closeAllDropdowns);
+})();

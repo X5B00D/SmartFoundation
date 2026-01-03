@@ -19,7 +19,7 @@
       data-sp="@Model.StoredProcedureName"
       data-operation="@Model.Operation"
       autocomplete="off"
-      class="w-full">
+      class="w-full sf-form">
 
     @* Show LabelText if provided *@
     @if (!string.IsNullOrWhiteSpace(Model.LabelText))
@@ -82,7 +82,7 @@
 
             @switch (field.Type.ToLower())
             {
-                case "select":
+                @* case "select":
                     {
                         var selectConfig = new
                         {
@@ -104,11 +104,11 @@
                              class="relative"
                              x-on:keydown.escape.window="open=false">
 
-                            <!-- Hidden input -->
+                           
                             <input type="hidden" x-ref="hidden" name="@field.Name" :value="serialize()"
                                    @(field.Required ? "required" : null) @(field.Disabled ? "disabled" : null) />
 
-                            <!-- Select button -->
+                            
                             <button type="button"
                                     x-ref="anchor"
                                     class="sf-select @field.ExtraCss"
@@ -117,11 +117,12 @@
                                     x-on:click="togglePanel()"
                                     x-on:keydown.enter="togglePanel()">
                                 <span class="truncate" x-text="displayText()"></span>
-                                <span class="pointer-events-none absolute inset-y-0 end-0 flex items-center pe-2">
-                                    <svg class="h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                                        <path fill-rule="evenodd" d="M10 3a.75.75 0 01.53.22l3.5 3.5a.75.75 0 01-1.06 1.06L10 4.81 6.53 8.28a.75.75 0 01-1.06-1.06l3.5-3.5A.75.75 0 0110 3zm-3.72 9.28a.75.75 0 011.06 0L10 15.19l2.67-2.91a.75.75 0 111.06 1.06l-3.5 3.5a.75.75 0 01-1.06 0l-3.5-3.5a.75.75 0 010-1.06z" clip-rule="evenodd" />
-                                    </svg>
-                                </span>
+                                <span class="pointer-events-none absolute inset-y-0 end-0 flex items-center pe-3">
+                                <svg class="h-5 w-5 text-gray-500" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                                <path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 10.94l3.71-3.71a.75.75 0 011.08 1.04l-4.25 4.25a.75.75 0 01-1.06 0L5.21 8.27a.75.75 0 01.02-1.06z" clip-rule="evenodd"/>
+                                </svg>
+                                 </span>
+
                             </button>
 
                             <!-- Dropdown panel -->
@@ -166,7 +167,75 @@
                             </template>
                         </div>
                     }
-                    break;
+                    break; *@
+
+
+
+                                    case "select":
+{
+                                    var name = field.Name;
+                                    var value = field.Value ?? "";
+                                    var placeholder = field.Placeholder ?? "الرجاء الاختيار";
+
+                                    // Select2 flags
+                                    var useSelect2 = field.Select2;
+                                    var minResults = field.Select2MinResultsForSearch;
+                                    var s2Placeholder = string.IsNullOrWhiteSpace(field.Select2Placeholder)
+                                        ? placeholder
+                                        : field.Select2Placeholder;
+
+                                    // depends / onchange
+                                    var hasDepends =
+                                        !string.IsNullOrWhiteSpace(field.DependsOn) &&
+                                        !string.IsNullOrWhiteSpace(field.DependsUrl);
+
+                                    var onchangeJs =
+                                        (!hasDepends && !string.IsNullOrWhiteSpace(field.OnChangeJs))
+                                            ? field.OnChangeJs
+                                            : null;
+    
+                                    <div class="sf-select-wrap">
+                                        <select
+                                    id="@name"
+                                    name="@name"
+                                    class="sf-modal-input sf-modal-select @(useSelect2 ? "js-select2" : "") @field.ExtraCss"
+                                    @(field.Required ? "required" : null)
+                                    @(field.Disabled ? "disabled" : null)
+                                    data-depends-on="@(string.IsNullOrWhiteSpace(field.DependsOn) ? null : field.DependsOn)"
+                                    data-depends-url="@(string.IsNullOrWhiteSpace(field.DependsUrl) ? null : field.DependsUrl)"
+                                    data-s2-min-results="@(useSelect2 && minResults.HasValue ? minResults : null)"
+                                    data-s2-placeholder="@(useSelect2 ? s2Placeholder : null)"
+                                    onchange="@(onchangeJs)"
+                                >
+
+                                            <option value="" disabled selected="@(string.IsNullOrWhiteSpace(value))">
+                                                @placeholder
+                                            </option>
+
+                                            @foreach (var opt in field.Options)
+                                            {
+                                                var optValue = opt.Value ?? "";
+                                                var optText = opt.Text ?? "";
+
+                                                var isSelected =
+                                                    opt.Selected ||
+                                                    string.Equals(value, optValue, StringComparison.OrdinalIgnoreCase);
+
+                                                <option value="@optValue"
+                                                        @(opt.Disabled ? "disabled" : null)
+                                                        @(isSelected ? "selected" : null)>
+                                                    @optText
+                                                </option>
+                                            }
+                                        </select>
+                                    </div>
+                                }
+                                break;
+
+
+
+
+
 
                 case "checkbox":
                     <div class="form-group @field.GetResolvedColCss()">
