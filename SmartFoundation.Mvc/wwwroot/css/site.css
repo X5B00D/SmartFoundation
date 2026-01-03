@@ -1260,6 +1260,9 @@ body, h1, h2, h3, h4, h5, h6, input, textarea, select, button {
   .pt-6 {
     padding-top: calc(var(--spacing) * 6);
   }
+  .pt-10 {
+    padding-top: calc(var(--spacing) * 10);
+  }
   .pt-16 {
     padding-top: calc(var(--spacing) * 16);
   }
@@ -12338,7 +12341,6 @@ input[readonly], textarea[readonly] {
 }
 .sf-main, main {
   position: relative !important;
-  isolation: isolate !important;
   z-index: 0 !important;
 }
 .sf-main #main-loading, main #main-loading {

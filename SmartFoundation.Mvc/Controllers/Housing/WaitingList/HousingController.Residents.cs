@@ -465,56 +465,56 @@ namespace SmartFoundation.Mvc.Controllers.Housing
 
 
 
-            dsModel.StyleRules = new List<TableStyleRule>
-                {
+            //dsModel.StyleRules = new List<TableStyleRule>
+            //    {
                    
-                    new TableStyleRule
-                    {
-                        Target = "row",
-                        Field = "rankNameA",
-                        Op = "eq",
-                        Value = "جندي اول",
-                        CssClass = "row-blue",
-                        Priority = 1
-                    },
-                    new TableStyleRule
-                    {
-                        Target = "cell",
-                        Field = "nationalityName_A",
-                        Op = "neq",
-                        Value = "سعودي",
-                        CssClass = "cell-green",
-                        Priority = 1
-                    },
+            //        new TableStyleRule
+            //        {
+            //            Target = "row",
+            //            Field = "rankNameA",
+            //            Op = "eq",
+            //            Value = "جندي اول",
+            //            CssClass = "row-blue",
+            //            Priority = 1
+            //        },
+            //        new TableStyleRule
+            //        {
+            //            Target = "cell",
+            //            Field = "nationalityName_A",
+            //            Op = "neq",
+            //            Value = "سعودي",
+            //            CssClass = "cell-green",
+            //            Priority = 1
+            //        },
 
-                    new TableStyleRule
-                    {
-                        Target = "cell",
-                        Field = "dependinceCounter",
-                        Op = "gt",            // أكبر من
-                        Value = 2,            
-                        CssClass = "cell-orange",
-                        Priority = 1
-                    },
-                    new TableStyleRule
-                    {
-                        Target = "cell",                    
-                        Field = "maritalStatusName_A",    
-                        Op = "eq",                         
-                        Value = "أعزب",                   
-                        CssClass = "cell-red",            
-                        Priority = 1
-                    },
-                     new TableStyleRule
-                    {
-                        Target = "column",
-                        Field = "note",
-                        Op = "contains",
-                        CssClass = "col-pink",
-                        Priority = 1
-                    }
+            //        new TableStyleRule
+            //        {
+            //            Target = "cell",
+            //            Field = "dependinceCounter",
+            //            Op = "gt",            // أكبر من
+            //            Value = 2,            
+            //            CssClass = "cell-orange",
+            //            Priority = 1
+            //        },
+            //        new TableStyleRule
+            //        {
+            //            Target = "cell",                    
+            //            Field = "maritalStatusName_A",    
+            //            Op = "eq",                         
+            //            Value = "أعزب",                   
+            //            CssClass = "cell-red",            
+            //            Priority = 1
+            //        },
+            //         new TableStyleRule
+            //        {
+            //            Target = "column",
+            //            Field = "note",
+            //            Op = "contains",
+            //            CssClass = "col-pink",
+            //            Priority = 1
+            //        }
 
-                };
+            //    };
 
             //return View("HousingDefinitions/BuildingType", dsModel);
 

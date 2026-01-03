@@ -1559,7 +1559,7 @@ header,
 .sf-main,
 main {
     position: relative !important;
-    isolation: isolate !important; /* يمنع أي عنصر داخل main يتجاوز الهيدر */
+   /* isolation: isolate !important;*/ /* يمنع أي عنصر داخل main يتجاوز الهيدر */
     z-index: 0 !important;
 }
 
