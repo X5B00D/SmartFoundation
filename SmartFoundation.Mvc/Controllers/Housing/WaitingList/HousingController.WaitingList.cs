@@ -876,6 +876,7 @@ namespace SmartFoundation.Mvc.Controllers.Housing
                         Label = "إضافة سجل انتظار جديد",
                         Icon = "fa fa-plus",
                         Color = "success",
+                        Placement = TableActionPlacement.ActionsMenu,
                         OpenModal = true,
                         ModalTitle = "إدخال بيانات سجل انتظار جديد",
                         //ModalMessage = "ملاحظة: جميع التعديلات مرصودة",
@@ -908,7 +909,7 @@ namespace SmartFoundation.Mvc.Controllers.Housing
                         Label = "تعديل بيانات انتظار",
                         Icon = "fa fa-pen-to-square",
                         Color = "info",
-                        //Placement = TableActionPlacement.ActionsMenu, //   أي زر بعد ما نسويه ونبيه يظهر في الاجراءات نحط هذا السطر فقط عشان ما يصير زحمة في التيبل اكشن
+                        Placement = TableActionPlacement.ActionsMenu,
                         IsEdit = true,
                         OpenModal = true,
                         ModalTitle = "تعديل بيانات انتظار",
@@ -935,7 +936,7 @@ namespace SmartFoundation.Mvc.Controllers.Housing
                         Label = "طلب نقل سجل انتظار لادارة اخرى",
                         Icon = "fa fa-paper-plane",
                         Color = "warning",
-                        //Placement = TableActionPlacement.ActionsMenu,
+                        Placement = TableActionPlacement.ActionsMenu,
                         IsEdit = true,
                         OpenModal = true,
                         ModalTitle = "طلب نقل سجل انتظار لادارة اخرى",
@@ -960,7 +961,7 @@ namespace SmartFoundation.Mvc.Controllers.Housing
                         Label = "الغاء بيانات انتظار",
                         Icon = "fa fa-trash",
                         Color = "danger",
-                        //Placement = TableActionPlacement.ActionsMenu, //   أي زر بعد ما نسويه ونبيه يظهر في الاجراءات نحط هذا السطر فقط عشان ما يصير زحمة في التيبل اكشن
+                        Placement = TableActionPlacement.ActionsMenu,
                         IsEdit = true,
                         OpenModal = true,
                         ModalTitle = "تحذير",
@@ -1025,9 +1026,7 @@ namespace SmartFoundation.Mvc.Controllers.Housing
                         Label = "إضافة خطاب تسكين جديد",
                         Icon = "fa fa-plus",
                         Color = "success",
-
-                        //Placement = TableActionPlacement.ActionsMenu, //   أي زر بعد ما نسويه ونبيه يظهر في الاجراءات نحط هذا السطر فقط عشان ما يصير زحمة في التيبل اكشن
-
+                        Placement = TableActionPlacement.ActionsMenu,
                         OpenModal = true,
                         ModalTitle = "إدخال بيانات خطاب تسكين جديد",
                         ModalMessage = "ملاحظة: جميع التعديلات مرصودة",
@@ -1056,7 +1055,7 @@ namespace SmartFoundation.Mvc.Controllers.Housing
                         Label = "تعديل خطاب تسكين",
                         Icon = "fa fa-pen-to-square",
                         Color = "info",
-                        //Placement = TableActionPlacement.ActionsMenu, //   أي زر بعد ما نسويه ونبيه يظهر في الاجراءات نحط هذا السطر فقط عشان ما يصير زحمة في التيبل اكشن
+                        Placement = TableActionPlacement.ActionsMenu, 
                         IsEdit = true,
                         OpenModal = true,
                         ModalTitle = "تعديل خطاب تسكين",
@@ -1085,7 +1084,7 @@ namespace SmartFoundation.Mvc.Controllers.Housing
                         Label = "الغاء خطاب تسكين",
                         Icon = "fa fa-trash",
                         Color = "danger",
-                        //Placement = TableActionPlacement.ActionsMenu, //   أي زر بعد ما نسويه ونبيه يظهر في الاجراءات نحط هذا السطر فقط عشان ما يصير زحمة في التيبل اكشن
+                        Placement = TableActionPlacement.ActionsMenu,
                         IsEdit = true,
                         OpenModal = true,
                         ModalTitle = "تحذير",
@@ -1145,7 +1144,7 @@ namespace SmartFoundation.Mvc.Controllers.Housing
                         Label = "الغاء طلب نقل سجل انتظار",
                         Icon = "fa fa-trash",
                         Color = "danger",
-                        //Placement = TableActionPlacement.ActionsMenu, //   أي زر بعد ما نسويه ونبيه يظهر في الاجراءات نحط هذا السطر فقط عشان ما يصير زحمة في التيبل اكشن
+                        Placement = TableActionPlacement.ActionsMenu,
                         IsEdit = true,
                         OpenModal = true,
                         ModalTitle = "تحذير",
