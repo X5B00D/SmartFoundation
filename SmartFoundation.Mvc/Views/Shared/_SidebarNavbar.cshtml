@@ -60,9 +60,10 @@
                         <input id="topbar-search" type="text"
                                autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false"
                                class="block w-full rounded-md border p-2.5 ps-10 text-sm
-                                bg-slate-100 text-slate-900 placeholder-slate-500
-                                border-emerald-300 focus:border-emerald-500 focus:ring-emerald-400"
+                               bg-slate-100 text-slate-900 placeholder-slate-500
+                               border-slate-300 focus:border-emerald-800 focus:ring-emerald-800"
                                placeholder="بحث..">
+
                     </div>
                 </form>
 
@@ -132,9 +133,18 @@
 </nav>
 
 
-<aside id="logo-sidebar"
+@* <aside id="logo-sidebar"
        class="fixed top-0 right-0 z-40 w-64 h-screen translate-x-full border-l pt-24 sm:translate-x-0 bg-slate-800 text-slate-200 border-emerald-900"
-       aria-label="Sidebar">
+       aria-label="Sidebar"> *@
+
+    <aside id="logo-sidebar"
+           data-drawer-placement="right"
+           data-drawer-backdrop="true"
+           data-drawer-body-scrolling="false"
+           class="fixed top-0 right-0 z-40 w-64 h-screen pt-24 transition-transform translate-x-full lg:translate-x-0 border-l bg-slate-800 text-slate-200 border-emerald-900"
+           aria-label="Sidebar">
+
+
 
 
     <div class="relative flex flex-col flex-1 h-full min-h-0 pt-3 bg-transparent">
@@ -322,7 +332,7 @@
                     /* focus */
                     #topbar-search:focus {
                         background: #e5e7eb !important;
-                        border-color: #047857 !important; 
+                        border-color: #065f46 !important;
                         box-shadow: 0 0 0 2px rgba(5,150,105,.35) !important;
                     }
 
@@ -847,6 +857,8 @@
         }
 
         main.innerHTML = newMain.innerHTML;
+        if (window.initFlowbite) window.initFlowbite();
+
         window.history.pushState({}, "", url);
 
         const titleEl = doc.querySelector("title");

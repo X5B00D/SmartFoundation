@@ -147,7 +147,7 @@ input, textarea, select, button {
         }
 
     .section-box {
-        @apply /*shadow-sm*/ col-span-12 rounded-sm border border-gray-300 bg-gray-100 p-4 md:p-5;
+        @apply /*shadow-sm*/ col-span-12 rounded-sm border border-gray-300 bg-gray-50 p-4 md:p-5;
     }
 
     .section-legend {
@@ -180,6 +180,8 @@ input, textarea, select, button {
         @apply mt-0 w-full rounded-sm border border-gray-300 bg-white shadow-sm;
         max-height: 50vh;
         overflow-y: auto;
+        position: absolute; /* لازم */
+        z-index: 9999;
     }
 
         .sf-select-panel ul {
@@ -292,7 +294,7 @@ textarea[readonly] {
    Table
    ========================= */
 
- Wrapper 
+
 .sf-table-wrapper {
     @apply mx-auto w-full max-w-7xl;
     @apply rounded-md border border-gray-300 bg-gray-50;
@@ -453,11 +455,14 @@ textarea[readonly] {
 }
 
     .td-cell.truncate-cell > * {
-        display: block;
+        display: inline-block; /* بدل block */
+        max-width: 100%;
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
+        vertical-align: top;
     }
+
 
 
 
@@ -674,27 +679,42 @@ textarea[readonly] {
 /* =========================
    Toolbar (Classic + Matched)
    ========================= */
-.toolbar {
+/*.toolbar {
     @apply mb-3 flex flex-col gap-3 md:flex-row md:items-center md:justify-between;
     @apply rounded-sm border border-gray-200 bg-gray-50;
     @apply px-3 py-3;
+}*/
+
+/* =========================
+   Toolbar – Match Table Head / Panel Header
+   ========================= */
+.toolbar {
+    @apply mb-3 flex flex-col gap-3 md:flex-row md:items-center md:justify-between;
+    @apply relative; /* مهم للـ ::before */
+    @apply rounded-sm border border-gray-300;
+    @apply bg-gray-50; /* نفس table-head */
+    @apply px-3 py-3;
+    box-shadow: inset 0 -1px 0 rgba(0,0,0,0.06), 0 2px 6px rgba(0,0,0,0.05); /* نفس الظل */
 }
 
- Search block 
-.toolbar-search {
-    @apply flex w-full items-center gap-2 md:w-auto;
+    /* لمعان داخلي مثل table-head::before */
+    .toolbar::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+        background: linear-gradient( to bottom, rgba(255,255,255,0.35), rgba(255,255,255,0.0) );
+    }
+
+
+.search-input,
+.select-sm {
+    @apply border-gray-300 bg-white;
+    @apply focus:border-emerald-600 focus:ring-0 focus:outline-none;
 }
 
- Search input 
-.search-input {
-    @apply h-10 w-full md:w-72;
-    @apply rounded-md border border-gray-300 bg-white;
-    @apply px-3 text-sm text-gray-700 placeholder:text-gray-400;
-    @apply transition duration-100;
-    @apply focus:border-emerald-600 focus:ring-2 focus:ring-emerald-100 focus:outline-none;
-}
 
- Select 
+
 .select-sm {
     @apply h-10 w-20;
     @apply rounded-md border border-gray-300 bg-white px-2;
@@ -706,19 +726,14 @@ textarea[readonly] {
 
 
 
-
-
-
-
-
 /* =========================
-   Actions (Classic buttons)
+   Actions (Classic buttons) + Actions Dropdown + Tooltip (FINAL FIX)
    ========================= */
+
+/* ========== الأساسيات (كما هي) ========== */
 .actions-list {
     @apply flex flex-wrap items-center justify-start gap-2;
 }
-
-
 
 .toolbar-search {
     @apply flex w-full items-center gap-2 md:w-auto;
@@ -732,32 +747,31 @@ textarea[readonly] {
     @apply focus:border-emerald-700 focus:ring-0 focus:ring-emerald-700 focus:outline-none;
 }
 
-    .actions-list .btn {
-        @apply inline-flex h-9 items-center justify-center gap-2;
-        @apply rounded-md border px-3;
-        @apply text-sm font-semibold;
-        @apply transition duration-100;
-        @apply focus:ring-2 focus:outline-none;
-    }
+.actions-list .btn {
+    @apply inline-flex h-9 items-center justify-center gap-2;
+    @apply rounded-md border px-3;
+    @apply text-sm font-semibold;
+    @apply transition duration-100;
+    @apply focus:ring-2 focus:outline-none;
+}
 
-     
-    .actions-list .btn-edit {
-        @apply border-sky-300 bg-sky-100 text-sky-800;
-        @apply hover:bg-sky-200;
-        @apply focus:ring-sky-200;
-    }
+.actions-list .btn-edit {
+    @apply border-sky-300 bg-sky-100 text-sky-800;
+    @apply hover:bg-sky-200;
+    @apply focus:ring-sky-200;
+}
 
-    .actions-list .btn-delete {
-        @apply border-red-300 bg-red-100 text-red-800;
-        @apply hover:bg-red-200;
-        @apply focus:ring-red-200;
-    }
+.actions-list .btn-delete {
+    @apply border-red-300 bg-red-100 text-red-800;
+    @apply hover:bg-red-200;
+    @apply focus:ring-red-200;
+}
 
-    .actions-list .btn-view {
-        @apply border-emerald-300 bg-emerald-100 text-emerald-900;
-        @apply hover:bg-emerald-200;
-        @apply focus:ring-emerald-200;
-    }
+.actions-list .btn-view {
+    @apply border-emerald-300 bg-emerald-100 text-emerald-900;
+    @apply hover:bg-emerald-200;
+    @apply focus:ring-emerald-200;
+}
 
 .select-sm {
     @apply h-9 w-20;
@@ -767,11 +781,224 @@ textarea[readonly] {
     @apply focus:border-emerald-600 focus:ring-1 focus:ring-emerald-700 focus:outline-none;
 }
 
-
 .toolbar .actions-list,
 .toolbar .toolbar-actions {
     @apply flex flex-wrap items-center gap-2;
 }
+
+.toolbar-actions {
+    position: relative;
+}
+
+/* =========================
+   Dropdown Actions (Menu)
+   ========================= */
+
+/* مهم: تأكد القائمة ما تنقص (تظهر فوق الجدول) */
+.toolbar {
+    position: relative;
+    z-index: 30;
+    overflow: visible !important;
+}
+
+    .toolbar-actions,
+    .toolbar .actions-list {
+        overflow: visible !important;
+    }
+
+        /* الحاوية اللي عليها relative */
+        .toolbar-actions .relative {
+            position: relative !important;
+            z-index: 60; /* فوق العناصر اللي حولها */
+        }
+
+            /* زر الإجراءات */
+            .toolbar-actions .relative > button.btn.btn-outline-secondary,
+            .toolbar-actions .relative > button.btn-outline-secondary,
+            .toolbar-actions .btn-outline-secondary {
+                @apply border border-gray-300 bg-white text-gray-800;
+                @apply hover:bg-gray-50 hover:text-gray-900;
+                /* الأخضر فقط وقت الضغط */
+                @apply focus:ring-2 focus:ring-emerald-600 focus:outline-none;
+                @apply focus:border-emerald-700;
+
+                @apply h-9 rounded-sm px-3;
+                @apply inline-flex items-center gap-2;
+                position: relative;
+                z-index: 70;
+            }
+
+                /* أيقونة النقاط */
+                .toolbar-actions .relative > button.btn.btn-outline-secondary i,
+                .toolbar-actions .btn-outline-secondary i {
+                    @apply text-gray-600;
+                }
+
+            /* صندوق القائمة */
+            .toolbar-actions .relative > div.absolute {
+                position: absolute !important;
+                top: calc(100% + 8px) !important;
+                left: 0 !important;
+                right: auto !important;
+
+                @apply rounded-md border border-gray-200 bg-white;
+                @apply shadow-xl;
+                z-index: 99999 !important;
+                min-width: 260px;
+                max-width: min(520px, calc(100vw - 16px));
+                width: max-content;
+                overflow: visible !important;
+                direction: rtl;
+                text-align: right;
+            }
+
+                /* عناصر القائمة */
+                .toolbar-actions .relative > div.absolute > button {
+                    width: 100%;
+                    padding: 10px 12px;
+                    font-size: 14px;
+                    font-weight: 700;
+                    color: #374151;
+                    background: #fff;
+                    transition: background-color 120ms ease, color 120ms ease;
+                    display: flex;
+                    align-items: center;
+                    justify-content: flex-start;
+                    gap: 10px;
+                    direction: rtl;
+                    text-align: right;
+                    white-space: normal !important;
+                    overflow-wrap: anywhere !important;
+                    word-break: break-word !important;
+                    line-height: 1.35;
+                }
+
+                    .toolbar-actions .relative > div.absolute > button:hover {
+                        background: rgba(5, 150, 105, .10);
+                        color: #064e3b;
+                    }
+
+                    .toolbar-actions .relative > div.absolute > button + button {
+                        border-top: 1px solid rgba(0, 0, 0, 0.06);
+                    }
+
+                    .toolbar-actions .relative > div.absolute > button i {
+                        width: 18px;
+                        text-align: center;
+                        opacity: .85;
+                        flex: 0 0 18px;
+                    }
+
+                    /* Disabled */
+                    .toolbar-actions .relative > div.absolute > button:disabled {
+                        opacity: .5;
+                        cursor: not-allowed;
+                    }
+
+                        .toolbar-actions .relative > div.absolute > button:disabled:hover {
+                            background: #fff;
+                            color: #374151;
+                        }
+
+/* موبايل */
+@media (max-width: 640px) {
+    .toolbar-actions .relative > div.absolute {
+        left: 0 !important;
+        right: 0 !important;
+        max-width: calc(100vw - 12px);
+        width: calc(100vw - 12px);
+    }
+}
+
+/* =========================
+   Disabled Action Tooltip (FIX: فوق كل شيء + صغير)
+   ========================= */
+
+/* مهم: لازم inline-block عشان التولتب ما تصير بعرض القائمة */
+.sf-tipwrap {
+    position: relative;
+    display: inline-block; /* كان block ويسبب مشاكل */
+}
+
+/* خلي اللفافة ما توسّع العرض */
+.toolbar-actions .relative > div.absolute .sf-tipwrap {
+    display: block; /* داخل القائمة خله block فقط للصف */
+}
+
+/* زر مقفل */
+.sf-tipwrap > button[disabled] {
+    opacity: .55;
+}
+
+/* التولتب: نخليها فوق الكل فعليًا */
+.sf-tipwrap[data-tip] {
+    z-index: 1000000;
+}
+
+    /* فقاعة التولتب (صغيرة + لطيفة بدون سهم ولا شادو) */
+    .sf-tipwrap[data-tip]::after {
+        content: attr(data-tip);
+        position: absolute;
+        /* فوق العنصر + أقصى اليمين */
+        bottom: calc(100% + 6px);
+        right: 0; /* <-- هذا يثبتها نهاية الصندوق يمين */
+
+        transform: translateY(0);
+        background: #f3f4f6; /* رمادي فاتح */
+        color: #111827; /* نص داكن */
+        border: 1px solid #e5e7eb;
+        font-size: 11px;
+        font-weight: 700;
+        padding: 5px 8px;
+        border-radius: 4px; /* rounded-sm */
+
+        white-space: nowrap;
+        max-width: 220px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        box-shadow: none; /* شيل الشادو */
+
+        z-index: 1000001;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 120ms ease;
+    }
+
+    /* شيل السهم نهائياً */
+    .sf-tipwrap[data-tip]::before {
+        display: none !important;
+    }
+
+
+
+    /* سهم صغير (فوق العنصر) */
+    .sf-tipwrap[data-tip]::before {
+        content: "";
+        position: absolute;
+        bottom: calc(100% + 2px);
+        right: 14px;
+        border: 6px solid transparent;
+        border-top-color: rgba(17, 24, 39, .96);
+        z-index: 1000001;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 120ms ease;
+    }
+
+/* إظهار */
+.sf-tipwrap:hover::after,
+.sf-tipwrap:hover::before,
+.sf-tipwrap:focus-within::after,
+.sf-tipwrap:focus-within::before {
+    opacity: 1;
+    transform: translateY(-2px);
+}
+
+
+
+
+
+
 
 
 /* =========================
@@ -836,115 +1063,608 @@ textarea[readonly] {
 
 
 
-/* =========================
-   Modal Backdrop
-   ========================= */
+
+
+
+
+
+
+/* =========================================================
+   MODAL — Compatibility + Sidebar-safe
+   Fixes applied:
+   - Dropdown icon restored (native select arrow)
+   - Dropdown opens downward (where supported) + avoid being clipped
+   - Focus green darker (border + ring)
+   - Labels text softer (not too black)
+   ========================================================= */
+
+/* Backdrop (أعلى من السايدبار) */
 .sf-modal-backdrop {
-    @apply fixed inset-0 z-40 flex items-center justify-center;
-    @apply bg-black/70;
-}
-
-/* =========================
-   Modal
-   ========================= */
-.sf-modal {
-    @apply z-50 mx-2 w-full overflow-hidden rounded-sm bg-gray-100 md:mx-0;
-    @apply flex flex-col;
-    @apply transition-transform duration-50 ease-out;
-    width: calc(100vw - 24px);
-    max-width: 1000px; /* على الديسكتوب */
-    max-height: 80vh;
-}
-
-/* =========================
-   Modal Header
-   ========================= */
-.sf-modal-header {
-    @apply relative flex items-center justify-center border-b px-5 py-3;
-    background-color: #064e3b;
-}
-
-.sf-modal-title {
-    @apply text-2xl font-semibold tracking-normal;
-    color: #fff;
-}
-
-/* close */
-.sf-modal-close {
-    @apply absolute top-1/2 right-4 -translate-y-1/2;
-    @apply flex h-8 w-8 items-center justify-center rounded-full;
-    @apply cursor-pointer transition-colors;
-    @apply cursor-pointer text-gray-100 hover:text-gray-700;
-}
-
-.dark .sf-modal-close {
-    @apply text-gray-100 hover:text-gray-300;
-}
-
-/* =========================
-   Dark Mode (Modal)
-   ========================= */
-.dark .sf-modal-title {
-    @apply text-gray-100;
-    color: #fff;
-}
-
-/* =========================
-   Modal Body / Footer / Table
-   ========================= */
-.sf-modal-body {
-    @apply max-h-[80vh] overflow-y-auto p-6;
-}
-
-.sf-modal-footer {
-    @apply flex items-center justify-end gap-2 border-t border-gray-200 px-4 py-3;
-}
-
-.sf-modal-table {
-    @apply w-full border-collapse;
-}
-
-    .sf-modal-table th {
-        @apply border-b border-gray-200 px-3 py-2 text-sm font-medium text-gray-600;
-    }
-
-    .sf-modal-table td {
-        @apply border-b border-gray-100 px-3 py-2 text-sm;
-    }
-
-/* =========================
-   Modal Buttons - SAFE OVERRIDE
-   ========================= */
-.sf-modal-actions,
-.sf-modal .actions-bar .actions-inner {
+    position: fixed !important;
+    inset: 0 !important;
     display: flex;
-    justify-content: flex-end;
-    gap: 10px;
-    margin-top: 16px;
+    align-items: center;
+    justify-content: center;
+    z-index: 99990 !important;
+    isolation: isolate;
+    background: rgba(0,0,0,.70);
+    padding: 12px;
+    overscroll-behavior: contain;
+
+    
 }
 
-/* توحيد المقاس داخل المودال فقط (بدون unset) */
-.sf-modal .sf-modal-actions button,
-.sf-modal .actions-bar button,
-.sf-modal .btn {
+/* Modal Frame */
+.sf-modal {
+    position: fixed !important; /* كان relative */
+    z-index: 99991 !important;
+    display: flex;
+    flex-direction: column;
+    width: min(1000px, calc(100vw - 24px));
+    max-height: calc(100vh - 24px);
+    background: #f3f4f6; /* gray-100 */
+    border: 1px solid #064e3b;
+    border-radius: 0.500rem; /* rounded-sm */
+    overflow: hidden;
+    /* تمركز افتراضي بالمنتصف */
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    box-shadow: inset 0 -1px 0 rgba(0,0,0,0.06), 0 10px 30px rgba(0,0,0,0.20);
+
+    
+
+}
+
+/* Header */
+.sf-modal-header {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 12px 20px;
+    border-bottom: 1px solid #d1d5db;
+    background-color: #064e3b;
+    color: #fff !important;
+    box-shadow: inset 0 -1px 0 rgba(0,0,0,0.22);
+    /* للسحب بالماوس */
+    cursor: move;
+    user-select: none;
+}
+
+
+    .sf-modal-header::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+        background: linear-gradient(to bottom, rgba(255,255,255,0.07), rgba(255,255,255,0.00));
+    }
+
+/* Title */
+.sf-modal-title {
+    font-size: 0.95rem;
+    font-weight: 700;
+    letter-spacing: 0;
+    color: #fff !important;
+}
+
+/* Close */
+.sf-modal-close {
+    position: absolute;
+    top: 50%;
+    right: 14px;
+    transform: translateY(-50%);
+    width: 22px;
+    height: 22px;
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    padding: 8px 18px !important;
-    height: auto !important;
-    min-height: 34px !important;
-    font-size: 13px !important;
-    border-radius: 4px !important;
-    border: 1px solid transparent !important;
-    cursor: pointer;
-    line-height: 1.2;
+    border-radius: 0.300rem; /* rounded-sm */
+    border: 1px solid rgba(255,255,255,0.22);
+    background: rgba(255,255,255,0.04);
+    color: #fff;
+    transition: background-color 150ms ease, border-color 150ms ease, transform 120ms ease;
 }
 
-    /* ألوان الحفظ (يدعم sf-modal-btn-save و btn-success) */
+    .sf-modal-close:hover {
+        background: rgba(255,255,255,0.08);
+        border-color: rgba(255,255,255,0.30);
+    }
+
+    .sf-modal-close:active {
+        transform: translateY(-50%) translateY(1px);
+        box-shadow: inset 0 2px 3px rgba(0,0,0,0.18);
+    }
+
+/* Body */
+.sf-modal-body {
+    background: #ffffff;
+    padding: 16px 20px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    border-top: 1px solid rgba(0,0,0,0.04);
+    max-height: calc(100vh - 24px - 48px - 56px);
+}
+
+/* Footer */
+.sf-modal-footer {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 8px;
+    padding: 12px 16px;
+    background: #f9fafb; /* gray-50 */
+    border-top: 1px solid #d1d5db;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.55);
+}
+
+/* =========================
+   Inputs / Focus + Labels
+   ========================= */
+
+/* امنع outline الافتراضي */
+.sf-modal input,
+.sf-modal select,
+.sf-modal textarea {
+    outline: none;
+}
+
+/* ألوان فوكس أخضر أغمق */
+:root {
+    --sf-focus-border: rgba(4,120,87,0.95); /* emerald-700-ish */
+    --sf-focus-ring: rgba(4,120,87,0.22); /* ring subtle */
+}
+
+/* Input */
+.sf-modal .input,
+.sf-modal .sf-modal-input {
+    width: 100%;
+    height: 40px;
+    border-radius: 0.400rem;
+    border: 1px solid #d1d5db;
+    background: #ffffff;
+    padding: 8px 12px;
+    color: #1f2937;
+    box-shadow: none;
+    transition: border-color 160ms ease, box-shadow 160ms ease;
+}
+
+    .sf-modal .input:focus,
+    .sf-modal .sf-modal-input:focus {
+        border-color: var(--sf-focus-border);
+        box-shadow: 0 0 0 0px var(--sf-focus-ring);
+    }
+
+/* Labels — أخف للعين */
+.sf-modal .form-group > label,
+.sf-modal .form-label,
+.sf-modal .sf-label {
+    margin-bottom: 6px;
+    display: block;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: #4b5563; /* gray-600 بدل الأسود */
+}
+
+
+
+/* =========================
+   Readonly fields (Modal)
+   ========================= */
+
+/* =========================
+   Readonly / Disabled fields (Modal)
+   ========================= */
+
+/* أي عنصر إدخال عليه readonly أو disabled */
+.sf-modal input[readonly],
+.sf-modal input:disabled,
+.sf-modal textarea[readonly],
+.sf-modal textarea:disabled,
+.sf-modal select[readonly],
+.sf-modal select:disabled,
+/* مكوناتك المخصصة */
+.sf-modal .input[readonly],
+.sf-modal .input:disabled,
+.sf-modal .sf-modal-input[readonly],
+.sf-modal .sf-modal-input:disabled,
+.sf-modal .sf-textarea[readonly],
+.sf-modal .sf-textarea:disabled,
+.sf-modal .sf-date[readonly],
+.sf-modal .sf-date:disabled,
+/* select المخصص */
+.sf-modal .sf-select[aria-disabled="true"],
+.sf-modal .sf-select[disabled] {
+    background-color: #f3f4f6; /* gray-100 */
+    color: #6b7280; /* gray-500 */
+    border-color: #d1d5db; /* gray-300 */
+    cursor: not-allowed;
+}
+
+    /* امنع أي فوكس أو ring للـ readonly / disabled */
+    .sf-modal input[readonly]:focus,
+    .sf-modal input:disabled:focus,
+    .sf-modal textarea[readonly]:focus,
+    .sf-modal textarea:disabled:focus,
+    .sf-modal select[readonly]:focus,
+    .sf-modal select:disabled:focus,
+    .sf-modal .input[readonly]:focus,
+    .sf-modal .input:disabled:focus,
+    .sf-modal .sf-modal-input[readonly]:focus,
+    .sf-modal .sf-modal-input:disabled:focus,
+    .sf-modal .sf-textarea[readonly]:focus,
+    .sf-modal .sf-textarea:disabled:focus,
+    .sf-modal .sf-date[readonly]:focus,
+    .sf-modal .sf-date:disabled:focus,
+    .sf-modal .sf-select[aria-disabled="true"]:focus {
+        border-color: #d1d5db;
+        box-shadow: none;
+    }
+
+
+
+/* =========================================================
+   SF Modal – Select + Select2 (RTL) – Unified Look
+   ========================================================= */
+
+/* ===== Wrapper ===== */
+.sf-modal .sf-select-wrap {
+    position: relative;
+    width: 100%;
+    z-index: 80;
+}
+
+    /* =========================================================
+   1) Native Select (بدون Select2)
+   ========================================================= */
+    .sf-modal .sf-select-wrap select {
+        width: 100%;
+        min-height: 40px;
+        height: 40px;
+        border: 1px solid #d1d5db;
+        background-color: #fff;
+        border-radius: 0.400rem;
+        direction: rtl;
+        text-align: right;
+        /* مساحة للسهم (يسار) */
+        padding: 8px 12px 8px 12px;
+        color: #111827;
+        line-height: 1.3;
+        transition: border-color 160ms ease, box-shadow 160ms ease;
+        box-sizing: border-box;
+        outline: none;
+        -webkit-appearance: none;
+        -moz-appearance: none;
+        appearance: none;
+    }
+
+
+
+        /*  لو استخدمت size (Listbox) */
+        .sf-modal .sf-select-wrap select[size] {
+            height: auto;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+    /* سهم native */
+    .sf-modal .sf-select-wrap::after {
+        content: "";
+        position: absolute;
+        left: 14px;
+        top: 50%;
+        width: 8px;
+        height: 8px;
+        pointer-events: none;
+        transform: translateY(-50%) rotate(45deg);
+        border-right: 2.5px solid #6b7280;
+        border-bottom: 2.5px solid #6b7280;
+    }
+
+    /* Focus native */
+    .sf-modal .sf-select-wrap select:focus {
+        border-color: var(--sf-focus-border);
+        box-shadow: 0 0 0 0px var(--sf-focus-ring);
+    }
+
+/* options */
+.sf-modal select option {
+    direction: rtl;
+    text-align: right;
+}
+
+
+/* =========================================================
+   2) Base Input class (توحيد شكل الحقول داخل المودال)
+   ========================================================= */
+.sf-modal .sf-modal-input {
+    width: 100%;
+    min-height: 40px;
+    height: 40px;
+    border: 1px solid #d1d5db;
+    background-color: #fff;
+    border-radius: 0.400rem;
+    direction: rtl;
+    text-align: right;
+    color: #111827;
+    line-height: 1.2;
+    transition: border-color 160ms ease, box-shadow 160ms ease;
+    box-sizing: border-box;
+    outline: none;
+}
+
+    /* focus عام */
+    .sf-modal .sf-modal-input:focus {
+        border-color: var(--sf-focus-border);
+        box-shadow: 0 0 0 0px var(--sf-focus-ring);
+    }
+
+
+/* =========================================================
+   3) Select2 – Make it look exactly like native select
+   ========================================================= */
+
+/* اخفِ سهم native فقط إذا كان select2 مفعّل */
+.sf-modal .sf-select-wrap select.select2-hidden-accessible ~ .sf-select-arrow,
+.sf-modal .sf-select-wrap select.select2-hidden-accessible + .sf-select-arrow {
+    display: none !important;
+}
+
+/* أهم نقطة: لا نعرض سهم ::after إذا كان select2 مفعّل (لأن select2 عنده سهم) */
+.sf-modal .sf-select-wrap:has(select.select2-hidden-accessible)::after {
+    display: none !important;
+}
+
+/* container بعرض كامل */
+.sf-modal .select2-container {
+    width: 100% !important;
+    direction: rtl;
+}
+
+/* selection (المربع الظاهر) */
+.sf-modal .select2-container--default .select2-selection--single {
+    height: 40px !important;
+    min-height: 40px !important;
+    border: 1px solid #d1d5db !important;
+    background-color: #fff !important;
+    border-radius: 0.400rem !important;
+    box-sizing: border-box !important;
+    outline: none !important;
+}
+
+    /* النص داخل select2 */
+    .sf-modal .select2-container--default .select2-selection--single .select2-selection__rendered {
+        height: 40px !important;
+        line-height: 40px !important;
+        padding: 0 12px 0 44px !important; /* مساحة للسهم (يسار) */
+        text-align: right !important;
+        direction: rtl !important;
+        color: #111827 !important;
+        font-size: 0.95rem;
+    }
+
+    /* زر السهم داخل select2 */
+    .sf-modal .select2-container--default .select2-selection--single .select2-selection__arrow {
+        position: absolute !important;
+        left: 0px !important; /* RTL */
+        right: auto !important;
+        top: 40% !important;
+        transform: translateY(-50%) !important;
+        height: 40px !important;
+        width: 30px !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+    }
+
+        /* شكل السهم (chevron) */
+        .sf-modal .select2-container--default .select2-selection--single .select2-selection__arrow b {
+            border: none !important;
+            width: 8px !important;
+            height: 8px !important;
+            display: inline-block !important;
+            /* تمركز + شكل */
+            margin: 0 !important; 
+            transform: rotate(45deg) !important; 
+
+            border-right: 2.5px solid #6b7280 !important;
+            border-bottom: 2.5px solid #6b7280 !important;
+        }
+
+
+/* focus select2 */
+.sf-modal .select2-container--default.select2-container--focus .select2-selection--single,
+.sf-modal .select2-container--default.select2-container--open .select2-selection--single {
+    border-color: var(--sf-focus-border) !important;
+    box-shadow: 0 0 0 0px var(--sf-focus-ring) !important;
+}
+
+/* placeholder */
+.sf-modal .select2-container--default .select2-selection--single .select2-selection__placeholder {
+    color: #6b7280 !important;
+}
+
+/* dropdown */
+.sf-modal .select2-dropdown {
+    border: 1px solid #d1d5db !important;
+    border-radius: 0.400rem !important;
+    overflow: hidden;
+    direction: rtl;
+}
+
+    /* خيارات dropdown - حد ارتفاع + سكرول */
+    .sf-modal .select2-dropdown .select2-results__options {
+        max-height: 160px; /* حد الارتفاع */
+        overflow-y: auto;
+    }
+
+.sf-modal .select2-results__option {
+    padding: 6px 10px;
+    line-height: 1.2;
+    font-size: 0.90rem;
+    direction: rtl;
+    text-align: right;
+}
+
+/* تمييز الخيار */
+.sf-modal .select2-container--default .select2-results__option--highlighted.select2-results__option--selectable {
+    background-color: #eef2ff !important;
+    color: #111827 !important;
+}
+
+/* الخيار المحدد */
+.sf-modal .select2-container--default .select2-results__option--selected {
+    background-color: #e5e7eb !important;
+    color: #111827 !important;
+}
+
+/*.select2-container--open {
+    z-index: 1000000 !important;
+}
+
+.select2-dropdown {
+    z-index: 1000000 !important;
+}*/
+
+/* 1) خلي الـ dropdown تحت أي overlay/loader */
+/*.select2-container--open,
+.select2-dropdown {
+    z-index: 5000 !important;
+}*/
+
+/* اللودر يغطي main فقط */
+/*#main-loading {
+    position: absolute !important;
+    inset: 0 !important;*/ /* داخل حدود parent فقط */
+    /*z-index: 2000000 !important;
+    pointer-events: all !important;
+}
+
+header,
+.sf-header,
+.navbar {
+    position: relative;
+    z-index: 3000000;
+}*/
+
+
+/* dropdown تحت اللودر */
+.select2-container--open,
+.select2-dropdown {
+    z-index: 50 !important;
+}
+
+/* اعزل طبقات المحتوى (هذا هو المفتاح) */
+.sf-main,
+main {
+    position: relative !important;
+   /* isolation: isolate !important;*/ /* يمنع أي عنصر داخل main يتجاوز الهيدر */
+    z-index: 0 !important;
+}
+
+    /* اللودر يغطي main فقط */
+    .sf-main #main-loading,
+    main #main-loading {
+        position: absolute !important;
+        inset: 0 !important;
+        z-index: 40 !important; /* داخل main فقط */
+        pointer-events: all !important;
+    }
+
+/* الهيدر فوق أي شيء */
+header,
+.sf-header,
+.navbar {
+    position: relative !important;
+    z-index: 9999999 !important;
+}
+
+
+
+
+/* =========================================================
+   4) Fix: native select + select2 داخل نفس wrap بدون اختلافات
+   ========================================================= */
+
+/* لو عنصر select عليه js-select2، خلِ padding حقه ما يهم لأن select2 يخفيه */
+.sf-modal .sf-select-wrap select.js-select2 {
+    padding: 8px 44px 8px 12px;
+}
+
+/* منع أي هوامش غريبة من select2 */
+.sf-modal .select2-container .select2-selection--single {
+    margin: 0 !important;
+}
+
+/* مربع البحث داخل Select2 */
+.sf-modal .select2-container--default .select2-search--dropdown .select2-search__field {
+    height: 34px;
+    padding: 6px 10px;
+    border: 1px solid #d1d5db;
+    border-radius: 0.25rem; /* ✅ rounded-sm */
+
+    direction: rtl;
+    text-align: right;
+    font-size: 0.90rem;
+    color: #111827;
+    outline: none;
+    box-sizing: border-box;
+}
+
+    /* focus لحقل البحث */
+    .sf-modal .select2-container--default .select2-search--dropdown .select2-search__field:focus {
+        border-color: var(--sf-focus-border);
+        box-shadow: 0 0 0 0px var(--sf-focus-ring);
+    }
+
+
+
+/* Textarea */
+.sf-modal textarea,
+.sf-modal .sf-textarea {
+    width: 100%;
+    min-height: 100px;
+    border-radius: 0.400rem;
+    border: 1px solid #d1d5db;
+    background: #f9fafb;
+    padding: 10px 12px;
+    color: #111827;
+    transition: border-color 160ms ease, box-shadow 160ms ease;
+    box-shadow: none;
+}
+
+    .sf-modal textarea:focus,
+    .sf-modal .sf-textarea:focus {
+        border-color: var(--sf-focus-border);
+        box-shadow: 0 0 0 2px var(--sf-focus-ring);
+    }
+
+/* =========================
+   Buttons
+   ========================= */
+.sf-modal .btn {
+    height: 33px;
+    padding: 0 25px;
+    border-radius: 0.300rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    font-size: 0.700rem;
+    font-weight: 400;
+    transition: filter 120ms ease, box-shadow 160ms ease;
+}
+
+    .sf-modal .btn:focus-visible {
+        box-shadow: 0 0 0 2px rgba(4,120,87,0.18);
+    }
+
+    /* Save */
     .sf-modal .sf-modal-btn-save,
     .sf-modal .btn.btn-success {
-        background: #059669 !important;
-        color: #fff !important;
+        background: #136b54;
+        color: #fff;
     }
 
         .sf-modal .sf-modal-btn-save:hover,
@@ -952,97 +1672,145 @@ textarea[readonly] {
             filter: brightness(0.95);
         }
 
-    /* ألوان الإلغاء (يدعم sf-modal-btn-cancel و btn-secondary) */
+    /* Cancel */
     .sf-modal .sf-modal-btn-cancel,
     .sf-modal .btn.btn-secondary {
-        background: #e5e7eb !important;
-        color: #111827 !important;
-        border-color: #d1d5db !important;
+        background: #e5e7eb;
+        color: #111827;
+        border: 1px solid #d1d5db;
     }
 
         .sf-modal .sf-modal-btn-cancel:hover,
         .sf-modal .btn.btn-secondary:hover {
-            filter: brightness(0.97);
+            filter: brightness(0.98);
         }
 
-    /* ألوان الحذف (إن كان زر الحذف btn-danger) */
+    /* Danger */
     .sf-modal .btn.btn-danger {
-        background: #b91c1c !important;
-        color: #fff !important;
+        background: #b91c1c;
+        color: #fff;
     }
 
         .sf-modal .btn.btn-danger:hover {
             filter: brightness(0.95);
         }
 
-.sf-modal .form-group > label {
-    font-size: 16px !important;
-    margin-bottom: 10px;
-    display: block;
+/* =========================
+   Responsive 
+   ========================= */
+@media (max-width: 1024px) {
+    .sf-modal {
+        width: calc(100vw - 24px);
+        max-height: calc(100vh - 24px);
+    }
 }
 
-/* select داخل المودال */
-.sf-modal-select {
-    height: 44px;
-    font-size: 16px;
-    border-radius: 5px;
-    padding-inline: 12px;
-}
-
-    .sf-modal-select option {
-        background-color: #ffffff;
-        color: #0f172a;
+@media (max-width: 768px) {
+    .sf-modal-backdrop {
+        padding: 10px;
     }
 
-        .sf-modal-select option:hover,
-        .sf-modal-select option:focus {
-            background-color: #e2e8f0 !important; /* slate-200 */
-            color: #064e3b;
-        }
+    .sf-modal {
+        width: calc(100vw - 20px);
+        max-height: calc(100vh - 20px);
+        border-radius: 0.125rem; /* rounded-sm */
+    }
 
-        .sf-modal-select option:checked {
-            background-color: #064e3b;
-            color: #ffffff;
-        }
+    .sf-modal-body {
+        max-height: calc(100vh - 20px - 48px - 56px);
+    }
+
+    .sf-modal .form-row {
+        grid-template-columns: 1fr !important;
+        gap: 12px !important;
+    }
+
+    .sf-modal .form-group {
+        grid-column: 1 / -1 !important;
+    }
+}
+
+@media (max-width: 420px) {
+    .sf-modal-header {
+        padding: 10px 14px;
+    }
+
+    .sf-modal-close {
+        right: 10px;
+        width: 20px;
+        height: 20px;
+    }
+
+    .sf-modal-body {
+        padding: 12px 14px;
+    }
+
+    .sf-modal-footer {
+        padding: 10px 12px;
+    }
+}
+
+
 
 /* =========================
    Panel (صفحة الرندر)
    ========================= */
 
+/*.sf-panel {
+    @apply relative mx-auto mt-16 mb-6 w-full overflow-hidden;
+    @apply rounded-md border border-gray-300 bg-gray-50;
+    @apply shadow-sm;
+}*/
 .sf-panel {
     @apply relative mx-auto mt-16 mb-6 w-full overflow-hidden;
     @apply rounded-md border border-gray-300 bg-gray-100;
-    @apply shadow-none;
+    overflow: visible !important;
+    @apply shadow-sm;
 }
 
 
-/* Header:*/
+/* Header = نفس .table-head */
 .sf-panel-header {
+    @apply sticky top-0 z-20; /* نفس الجدول (لو تبغاه ثابت) */
     @apply relative flex items-center justify-between;
     @apply px-5 py-3;
-    @apply bg-gray-200;
-    @apply border-b border-gray-300;
-    /* خط علوي خفيف  */
-    box-shadow: inset 0 0px 0 rgba(255,255,255,0.65), 0 3px 3px rgba(0,0,0,0.06);
+
+    @apply bg-gray-100; /* نفس الجدول */
+    @apply border-b border-gray-300; /* نفس راس الجدول */
+    border-bottom-width: 1px;
+    /* نفس الظل */
+    box-shadow: inset 0 -1px 0 rgba(0,0,0,0.06), 0 2px 6px rgba(0,0,0,0.05);
 }
 
-/* Title */
-.sf-panel-title {
-    @apply flex items-center gap-2;
-    @apply text-base font-semibold text-gray-600 md:text-base;
-    letter-spacing: 0.2px;
-}
-
-    /* Icon:   */
-    .sf-panel-title i {
-        @apply text-emerald-700;
-        font-size: 15px;
+    /* لمعان داخلي مثل table-head::before */
+    .sf-panel-header::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+        background: linear-gradient( to bottom, rgba(255,255,255,0.35), rgba(255,255,255,0.0) );
     }
 
-/* Body */
+/* Title مثل TH */
+.sf-panel-title {
+    @apply flex items-center gap-2;
+    @apply text-sm font-semibold text-gray-800; /* مثل .th-cell */
+    @apply whitespace-nowrap;
+    letter-spacing: 0;
+}
+
+    /* Icon بنفس روح الهيدر */
+    .sf-panel-title i {
+        color: #374151; /* gray-700 مثل ألوان الجدول */
+        font-size: 14px;
+        opacity: .9;
+    }
+
+/* Body (يفصل نفس tbody border-top) */
 .sf-panel-body {
-    @apply bg-gray-50;
-    @apply p-2.5 md:p-3;
+    @apply bg-white;
+    @apply p-3 md:p-3;
+    border-top: 1px solid rgba(0,0,0,0.04);
 }
 
 /* =========================
@@ -1053,19 +1821,27 @@ textarea[readonly] {
 }
 
 
+
 .sf-panel-btn {
-    @apply inline-flex h-5 w-5 items-center justify-center;
-
-    @apply rounded-full; 
-    @apply border border-gray-300 bg-white;
-    @apply text-gray-900;
-
+    @apply inline-flex h-6 w-6 items-center justify-center;
+    @apply rounded-sm border border-gray-300 bg-white;
+    @apply text-gray-700;
     @apply transition duration-150;
-    @apply hover:bg-gray-100 hover:text-gray-900;
+    @apply hover:bg-gray-50 hover:text-gray-900;
     @apply focus:ring-1 focus:ring-emerald-600 focus:outline-none;
-    
-    box-shadow: inset 0 1px 0 rgba(255,255,255,0.75), 0 1px 2px rgba(0,0,0,0.06);
+    box-shadow: none;
 }
+
+    .sf-panel-btn i,
+    .sf-panel-btn svg {
+        opacity: .85;
+    }
+
+    .sf-panel-btn:hover i,
+    .sf-panel-btn:hover svg {
+        opacity: 1;
+    }
+
 
     
     .sf-panel-btn:active {
@@ -1104,38 +1880,48 @@ textarea[readonly] {
 
 
 
+
 /* =========================
-   Loader – Bouncing Dots
+   Loader – Pulse Dots (Premium)
    ========================= */
 .sf-loader-dots {
-    @apply flex items-center justify-center gap-1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
 }
 
     .sf-loader-dots span {
-        @apply h-3 w-3 rounded-full bg-emerald-600;
-        animation: sf-bounce 0.8s infinite ease-in-out;
+        width: 10px;
+        height: 10px;
+        border-radius: 9999px;
+        background: #20876a;
+        opacity: .35;
+        transform: scale(.75);
+        animation: sf-pulse 900ms infinite ease-in-out;
     }
 
         .sf-loader-dots span:nth-child(2) {
-            animation-delay: 0.15s;
+            animation-delay: 150ms;
         }
 
         .sf-loader-dots span:nth-child(3) {
-            animation-delay: 0.3s;
+            animation-delay: 300ms;
         }
 
-/* الحركة */
-@keyframes sf-bounce {
-    0%, 80%, 100% {
-        transform: translateY(0);
-        opacity: 0.4;
+@keyframes sf-pulse {
+    0%, 100% {
+        transform: scale(.75);
+        opacity: .35;
     }
 
-    40% {
-        transform: translateY(-20px);
+    50% {
+        transform: scale(1.15);
         opacity: 1;
     }
 }
+
+
 
 /* =========================
    Modal Responsive
@@ -1206,6 +1992,364 @@ textarea[readonly] {
 }
 
 
+
+
+
+
+
+
+
+/* =========================
+   SF Form – Select + Select2 (Reuse Modal Styles)
+   ========================= */
+
+:where(.sf-modal, .sf-form) .sf-select-wrap {
+    position: relative;
+    width: 100%;
+    z-index: 80;
+}
+
+    :where(.sf-modal, .sf-form) .sf-select-wrap select {
+        width: 100%;
+        min-height: 40px;
+        height: 40px;
+        border: 1px solid #d1d5db;
+        background-color: #fff;
+        border-radius: 0.400rem;
+        direction: rtl;
+        text-align: right;
+        padding: 8px 12px 8px 12px;
+        color: #111827;
+        line-height: 1.3;
+        transition: border-color 160ms ease, box-shadow 160ms ease;
+        box-sizing: border-box;
+        outline: none;
+        -webkit-appearance: none;
+        -moz-appearance: none;
+        appearance: none;
+    }
+
+    /* سهم native */
+    :where(.sf-modal, .sf-form) .sf-select-wrap::after {
+        content: "";
+        position: absolute;
+        left: 14px;
+        top: 50%;
+        width: 8px;
+        height: 8px;
+        pointer-events: none;
+        transform: translateY(-50%) rotate(45deg);
+        border-right: 2.5px solid #6b7280;
+        border-bottom: 2.5px solid #6b7280;
+    }
+
+    /* Focus native */
+    :where(.sf-modal, .sf-form) .sf-select-wrap select:focus {
+        border-color: var(--sf-focus-border);
+        box-shadow: 0 0 0 0px var(--sf-focus-ring);
+    }
+
+/* options */
+:where(.sf-modal, .sf-form) select option {
+    direction: rtl;
+    text-align: right;
+}
+
+/* ===== Select2 ===== */
+
+/* لا تعرض سهم ::after لما يكون select2 شغال */
+:where(.sf-modal, .sf-form) .sf-select-wrap:has(select.select2-hidden-accessible)::after {
+    display: none !important;
+}
+
+/* container */
+:where(.sf-modal, .sf-form) .select2-container {
+    width: 100% !important;
+    direction: rtl;
+}
+
+/* selection */
+:where(.sf-modal, .sf-form) .select2-container--default .select2-selection--single {
+    height: 40px !important;
+    min-height: 40px !important;
+    border: 1px solid #d1d5db !important;
+    background-color: #fff !important;
+    border-radius: 0.400rem !important;
+    box-sizing: border-box !important;
+    outline: none !important;
+}
+
+    :where(.sf-modal, .sf-form) .select2-container--default .select2-selection--single .select2-selection__rendered {
+        height: 40px !important;
+        line-height: 40px !important;
+        padding: 0 12px 0 44px !important;
+        text-align: right !important;
+        direction: rtl !important;
+        color: #111827 !important;
+        font-size: 0.95rem;
+    }
+
+    :where(.sf-modal, .sf-form) .select2-container--default .select2-selection--single .select2-selection__arrow {
+        position: absolute !important;
+        left: 0px !important;
+        right: auto !important;
+        top: 40% !important;
+        transform: translateY(-50%) !important;
+        height: 40px !important;
+        width: 30px !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+    }
+
+        :where(.sf-modal, .sf-form) .select2-container--default .select2-selection--single .select2-selection__arrow b {
+            border: none !important;
+            width: 8px !important;
+            height: 8px !important;
+            display: inline-block !important;
+            margin: 0 !important;
+            transform: rotate(45deg) !important;
+            border-right: 2.5px solid #6b7280 !important;
+            border-bottom: 2.5px solid #6b7280 !important;
+        }
+
+/* focus select2 */
+:where(.sf-modal, .sf-form) .select2-container--default.select2-container--focus .select2-selection--single,
+:where(.sf-modal, .sf-form) .select2-container--default.select2-container--open .select2-selection--single {
+    border-color: var(--sf-focus-border) !important;
+    box-shadow: 0 0 0 0px var(--sf-focus-ring) !important;
+}
+
+/* placeholder */
+:where(.sf-modal, .sf-form) .select2-container--default .select2-selection--single .select2-selection__placeholder {
+    color: #6b7280 !important;
+}
+
+/* dropdown */
+:where(.sf-modal, .sf-form) .select2-dropdown {
+    border: 1px solid #d1d5db !important;
+    border-radius: 0.400rem !important;
+    overflow: hidden;
+    direction: rtl;
+}
+
+    :where(.sf-modal, .sf-form) .select2-dropdown .select2-results__options {
+        max-height: 160px;
+        overflow-y: auto;
+    }
+
+:where(.sf-modal, .sf-form) .select2-results__option {
+    padding: 6px 10px;
+    line-height: 1.2;
+    font-size: 0.90rem;
+    direction: rtl;
+    text-align: right;
+}
+
+/* search field */
+:where(.sf-modal, .sf-form) .select2-container--default .select2-search--dropdown .select2-search__field {
+    height: 34px;
+    padding: 6px 10px;
+    border: 1px solid #d1d5db;
+    border-radius: 0.25rem;
+    direction: rtl;
+    text-align: right;
+    font-size: 0.90rem;
+    color: #111827;
+    outline: none;
+    box-sizing: border-box;
+}
+
+    :where(.sf-modal, .sf-form) .select2-container--default .select2-search--dropdown .select2-search__field:focus {
+        border-color: var(--sf-focus-border);
+        box-shadow: 0 0 0 0px var(--sf-focus-ring);
+    }
+
+/* Fix: prevent double arrow on native select (Tailwind/Flowbite adds bg arrow) */
+:where(.sf-modal, .sf-form) .sf-select-wrap select:not(.select2-hidden-accessible) {
+    background-image: none !important;
+}
+    :where(.sf-modal, .sf-form) .sf-select-wrap select:not(.select2-hidden-accessible)::-ms-expand {
+        display: none;
+    }
+
+body.sf-navigating .select2-dropdown,
+body.sf-navigating .sf-select-panel {
+    display: none !important;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+/* ===== Detail View (Formal / Clean)  مودال التفاصيل ===== */
+.sf-detail-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px 20px;
+}
+
+/* Row */
+.sf-detail-row {
+    display: grid;
+    grid-template-columns: 140px 1fr;
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 6px;
+}
+
+/* Label */
+.sf-detail-label {
+    background: #f3f4f6;
+    color: #374151;
+    font-size: 13px;
+    font-weight: 600;
+    padding: 10px 12px;
+    border-left: 1px solid #e5e7eb;
+    text-align: right;
+    white-space: nowrap;
+}
+
+/* Value */
+.sf-detail-value {
+    padding: 10px 14px;
+    font-size: 14px;
+    font-weight: 400;
+    color: #111827;
+    line-height: 1.6;
+    word-break: break-word;
+}
+
+/* Mobile */
+@media (max-width: 768px) {
+    .sf-detail-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .sf-detail-row {
+        grid-template-columns: 1fr;
+    }
+
+    .sf-detail-label {
+        border-left: none;
+        border-bottom: 1px solid #e5e7eb;
+    }
+}
+
+/* Empty */
+.sf-detail-empty {
+    padding: 24px;
+    text-align: center;
+    color: #6b7280;
+    font-size: 14px;
+}
+
+
+
+
+
+
+
+
+
+/* =========================
+   Breadcrumb – Arabic RTL
+   Light Gray BG + Green Text (#20876a)
+   Font Size = 14px
+   ========================= */
+.sf-bc {
+    margin: 50px 0 12px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 10px !important;
+    direction: rtl !important;
+    padding: 3px 10px !important;
+    background-color: #f3f4f6 !important; 
+    border: 0.8px solid #e5e7eb !important;
+    border-radius: 6px !important; /* rounded-sm */
+
+    color: #20876a !important;
+    font-size: 14px !important; 
+}
+
+    /* الأيقونة */
+    .sf-bc .sf-bc-icon {
+        font-size: 14px !important; 
+        color: #20876a !important;
+        line-height: 1 !important;
+        opacity: .95 !important;
+    }
+
+    /* القائمة */
+    .sf-bc .sf-bc-text {
+        list-style: none !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        display: flex !important;
+        flex-wrap: wrap !important;
+        align-items: center !important;
+        gap: 0px !important;
+        font-size: 14px !important;
+        font-weight: 700 !important;
+        color: #20876a !important;
+    }
+
+        /* عناصر */
+        .sf-bc .sf-bc-text > li {
+            display: inline-flex !important;
+            align-items: center !important;
+            white-space: nowrap !important;
+        }
+
+        /* الروابط */
+        .sf-bc .sf-bc-text a {
+            color: #20876a !important;
+            text-decoration: none !important;
+            padding: 4px 4px !important;
+            border-radius: 3px !important; 
+            font-size: 12px !important;
+        }
+
+            /* hover خفيف */
+            .sf-bc .sf-bc-text a:hover {
+                background: rgba(32,135,106,.12) !important;
+            }
+
+        /* الفاصل ◂ */
+        .sf-bc .sf-bc-text .sep {
+            color: #20876a !important;
+            opacity: .55 !important;
+            font-weight: 600 !important;
+            font-size: 18px !important; 
+            line-height: 1 !important;
+            user-select: none;
+            margin:  1px !important;
+        }
+
+        /* العنصر الحالي */
+        .sf-bc .sf-bc-text .current {
+            padding: 2px 6px !important;
+            border-radius: 4px !important;
+            background: rgba(32,135,106,.12) !important;
+            color: #20876a !important;
+            font-size: 14px !important;
+        }
+
+/* FORCE حتى مع Dark Mode */
+html.dark .sf-bc,
+html.dark .sf-bc * {
+    background-color: #f3f4f6 !important;
+    border-color: #e5e7eb !important;
+    color: #20876a !important;
+    font-size: 14px !important;
+}
 
 
 

@@ -434,11 +434,11 @@ namespace SmartFoundation.Mvc.Controllers.Housing
     new FieldConfig { Name = "p03", Label = "عدد الطوابق", Type = "number", ColCss = "3", Required = true },
     new FieldConfig { Name = "p04", Label = "مساحة المبنى", Type = "number", ColCss = "3", Required = true },
     new FieldConfig { Name = "p05", Label = "احداثيات المبنى", Type = "text", ColCss = "3", Required = true },
-    new FieldConfig { Name = "p06", Label = "نوع المبنى", Type = "select", ColCss = "3", Required = true, Options = BuildingTypeOptions },
-    new FieldConfig { Name = "p07", Label = "موقع المبنى", Type = "select", ColCss = "6", Required = true, Options = MilitaryLocationOptions },
-    new FieldConfig { Name = "p08", Label = "فئة المبنى", Type = "select", ColCss = "6", Required = true, Options = BuildingClassOptions },
-    new FieldConfig { Name = "p09", Label = "تيلفون المبنى 1", Type = "number", ColCss = "3", Required = false },
-    new FieldConfig { Name = "p10", Label = "تيلفون المبنى 2", Type = "number", ColCss = "3", Required = false },
+    new FieldConfig { Name = "p06", Label = "نوع المبنى", Type = "select", ColCss = "3", Required = true, Options = BuildingTypeOptions, Select2=true  },
+    new FieldConfig { Name = "p07", Label = "موقع المبنى", Type = "select", ColCss = "6", Required = true, Options = MilitaryLocationOptions, Select2=true },
+    new FieldConfig { Name = "p08", Label = "فئة المبنى", Type = "select", ColCss = "6", Required = true, Options = BuildingClassOptions, Select2=true  },
+    new FieldConfig { Name = "p09", Label = "تيلفون المبنى 1", Type = "tel", ColCss = "3", Required = false },
+    new FieldConfig { Name = "p10", Label = "تيلفون المبنى 2", Type = "tel", ColCss = "3", Required = false },
 
     new FieldConfig { Name = "p13", Label = "تاريخ بداية المبنى", Type = "date", ColCss = "3", Required = true },
     new FieldConfig { Name = "p14", Label = "ملاحظات", Type = "text", ColCss = "3", Required = true },
@@ -618,6 +618,7 @@ namespace SmartFoundation.Mvc.Controllers.Housing
                         Label = "تعديل مبنى",
                         Icon = "fa fa-pen-to-square",
                         Color = "info",
+                        Placement = TableActionPlacement.ActionsMenu, //   أي زر بعد ما نسويه ونبيه يظهر في الاجراءات نحط هذا السطر فقط عشان ما يصير زحمة في التيبل اكشن
                         IsEdit = true,
                         OpenModal = true,
                         ModalTitle = "تعديل بيانات المبنى",
@@ -644,11 +645,13 @@ namespace SmartFoundation.Mvc.Controllers.Housing
                         Label = "حذف مبنى",
                         Icon = "fa fa-trash",
                         Color = "danger",
+                        Placement = TableActionPlacement.ActionsMenu, //   أي زر بعد ما نسويه ونبيه يظهر في الاجراءات نحط هذا السطر فقط عشان ما يصير زحمة في التيبل اكشن
                         IsEdit = true,
                         OpenModal = true,
                         //ModalTitle = "رسالة تحذيرية",
                         ModalTitle = "<i class='fa fa-exclamation-triangle text-red-600 text-xl mr-2'></i> تحذير",
                         ModalMessage = "هل أنت متأكد من حذف هذا المبنى؟",
+                        ModalMessageClass = "bg-red-50 border border-red-200 text-red-700",
                         OpenForm = new FormConfig
                         {
                             FormId = "employeeDeleteForm",

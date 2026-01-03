@@ -47,6 +47,7 @@ namespace SmartFoundation.UI.ViewModels.SmartTable
         public bool ClientSideMode { get; set; } = false;
         public bool VirtualScrolling { get; set; } = false;
 
+        public TableActionPlacement Placement { get; set; } = TableActionPlacement.Button;
         public bool ResponsiveMode { get; set; } = true;
         public string? ResponsiveBreakpoint { get; set; } = "md";
 

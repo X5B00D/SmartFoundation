@@ -278,10 +278,10 @@ namespace SmartFoundation.Mvc.Controllers.Housing
                 new FieldConfig { Name = "p09", Label = "اسم الجد بالانجليزي", Type = "text", Placeholder = "حقل انجليزي فقط",  Icon = "fa-solid fa-user", ColCss = "3", MaxLength = 50, TextMode = "english",},
                 new FieldConfig { Name = "p10", Label = "الاسم الاخير بالانجليزي", Type = "text", Placeholder = "حقل انجليزي فقط",  Icon = "fa-solid fa-user", ColCss = "3", MaxLength = 50, TextMode = "english",},
 
-                new FieldConfig { Name = "p11", Label = "الرتبة", Type = "select", ColCss = "3", Required = true, Options= rankOptions },
-                new FieldConfig { Name = "p12", Label = "الوحدة", Type = "select", ColCss = "6", Required = true, Options= militaryUnitOptions },
+                new FieldConfig { Name = "p11", Label = "الرتبة", Type = "select", ColCss = "3", Required = true, Options= rankOptions,Select2 = true },
+                new FieldConfig { Name = "p12", Label = "الوحدة", Type = "select", ColCss = "6", Required = true, Options= militaryUnitOptions,Select2 = true },
                 new FieldConfig { Name = "p13", Label = "الحالة الاجتماعية", Type = "select", ColCss = "3", Required = true, Options= MaritalStatusOptions },
-                new FieldConfig { Name = "p14", Label = "الجنسية", Type = "select", ColCss = "3", Required = true, Options= NationalityOptions },
+                new FieldConfig { Name = "p14", Label = "الجنسية", Type = "select", ColCss = "3", Required = true, Options= NationalityOptions,Select2 = true },
 
                 new FieldConfig { Name = "p15", Label = "عدد التابعين", Type = "number", ColCss = "3" },
                 new FieldConfig { Name = "p16", Label = "الجنس", Type = "select", ColCss = "3", Required = true, Options= GenderOptions },
@@ -331,10 +331,10 @@ namespace SmartFoundation.Mvc.Controllers.Housing
                 new FieldConfig { Name = "p10", Label = "اسم الجد بالانجليزي", Type = "text", Placeholder = "حقل انجليزي فقط",  Icon = "fa-solid fa-user", ColCss = "3", MaxLength = 50, TextMode = "english",},
                 new FieldConfig { Name = "p11", Label = "الاسم الاخير بالانجليزي", Type = "text", Placeholder = "حقل انجليزي فقط",  Icon = "fa-solid fa-user", ColCss = "3", MaxLength = 50, TextMode = "english",},
 
-                new FieldConfig { Name = "p14", Label = "الرتبة", Type = "select", ColCss = "3", Required = true, Options= rankOptions },
-                new FieldConfig { Name = "p16", Label = "الوحدة", Type = "select", ColCss = "6", Required = true, Options= militaryUnitOptions },
+                new FieldConfig { Name = "p14", Label = "الرتبة", Type = "select", ColCss = "3", Required = true, Options= rankOptions,Select2 = true },
+                new FieldConfig { Name = "p16", Label = "الوحدة", Type = "select", ColCss = "6", Required = true, Options= militaryUnitOptions,Select2 = true },
                 new FieldConfig { Name = "p18", Label = "الحالة الاجتماعية", Type = "select", ColCss = "3", Required = true, Options= MaritalStatusOptions },
-                new FieldConfig { Name = "p21", Label = "الجنسية", Type = "select", ColCss = "3", Required = true, Options= NationalityOptions },
+                new FieldConfig { Name = "p21", Label = "الجنسية", Type = "select", ColCss = "3", Required = true, Options= NationalityOptions,Select2 = true },
 
                 new FieldConfig { Name = "p20", Label = "عدد التابعين", Type = "number", ColCss = "3" },
                 new FieldConfig { Name = "p23", Label = "الجنس", Type = "select", ColCss = "3", Required = true, Options= GenderOptions },
@@ -386,6 +386,23 @@ namespace SmartFoundation.Mvc.Controllers.Housing
                     ShowBulkDelete = false,
 
 
+                    CustomActions = new List<TableAction>   //عرظ تفاصيل الصف 
+                    {
+                        new TableAction   
+                        {
+                            Label = "عرض التفاصيل",
+                            ModalTitle="تفاصيل المستفيد",
+                            Icon = "fa fa-eye",
+                            OpenModal = true,
+                            RequireSelection = true,
+                            MinSelection = 1,
+                            MaxSelection = 1,
+                        }
+                    },
+
+
+
+
                     Add = new TableAction
                     {
                         Label = "إضافة مستفيد جديد",
@@ -413,6 +430,7 @@ namespace SmartFoundation.Mvc.Controllers.Housing
                         Label = "تعديل بيانات مستفيد",
                         Icon = "fa fa-pen-to-square",
                         Color = "info",
+                        Placement = TableActionPlacement.ActionsMenu, //  أي زر بعد ما نسويه ونبيه يظهر في الاجراءات نحطه هذا السطر فقط 
                         IsEdit = true,
                         OpenModal = true,
                         ModalTitle = "تعديل بيانات مستفيد",
@@ -431,15 +449,18 @@ namespace SmartFoundation.Mvc.Controllers.Housing
                         MaxSelection = 1
                     },
 
+                  
                     Delete = new TableAction
                     {
                         Label = "حذف بيانات مستفيد",
                         Icon = "fa fa-trash",
                         Color = "danger",
+                        Placement = TableActionPlacement.ActionsMenu, //   أي زر بعد ما نسويه ونبيه يظهر في الاجراءات نحط هذا السطر فقط عشان ما يصير زحمة في التيبل اكشن
                         IsEdit = true,
                         OpenModal = true,
                         ModalTitle = "<i class='fa fa-exclamation-triangle text-red-600 text-xl mr-2'></i> تحذير",
                         ModalMessage = "هل أنت متأكد من حذف بيانات المستفيد؟",
+                        ModalMessageClass = "bg-red-100 border border-red-200 text-red-700",
                         OpenForm = new FormConfig
                         {
                             FormId = "BuildingTypeDeleteForm",
@@ -462,56 +483,56 @@ namespace SmartFoundation.Mvc.Controllers.Housing
 
 
 
-            dsModel.StyleRules = new List<TableStyleRule>
-                {
+            //dsModel.StyleRules = new List<TableStyleRule>
+            //    {
                    
-                    new TableStyleRule
-                    {
-                        Target = "row",
-                        Field = "rankNameA",
-                        Op = "eq",
-                        Value = "جندي اول",
-                        CssClass = "row-blue",
-                        Priority = 1
-                    },
-                    new TableStyleRule
-                    {
-                        Target = "cell",
-                        Field = "nationalityName_A",
-                        Op = "neq",
-                        Value = "سعودي",
-                        CssClass = "cell-green",
-                        Priority = 1
-                    },
+            //        new TableStyleRule
+            //        {
+            //            Target = "row",
+            //            Field = "rankNameA",
+            //            Op = "eq",
+            //            Value = "جندي اول",
+            //            CssClass = "row-blue",
+            //            Priority = 1
+            //        },
+            //        new TableStyleRule
+            //        {
+            //            Target = "cell",
+            //            Field = "nationalityName_A",
+            //            Op = "neq",
+            //            Value = "سعودي",
+            //            CssClass = "cell-green",
+            //            Priority = 1
+            //        },
 
-                    new TableStyleRule
-                    {
-                        Target = "cell",
-                        Field = "dependinceCounter",
-                        Op = "gt",            // أكبر من
-                        Value = 2,            
-                        CssClass = "cell-orange",
-                        Priority = 1
-                    },
-                    new TableStyleRule
-                    {
-                        Target = "cell",                    
-                        Field = "maritalStatusName_A",    
-                        Op = "eq",                         
-                        Value = "أعزب",                   
-                        CssClass = "cell-red",            
-                        Priority = 1
-                    },
-                     new TableStyleRule
-                    {
-                        Target = "column",
-                        Field = "note",
-                        Op = "contains",
-                        CssClass = "col-pink",
-                        Priority = 1
-                    }
+            //        new TableStyleRule
+            //        {
+            //            Target = "cell",
+            //            Field = "dependinceCounter",
+            //            Op = "gt",            // أكبر من
+            //            Value = 2,            
+            //            CssClass = "cell-orange",
+            //            Priority = 1
+            //        },
+            //        new TableStyleRule
+            //        {
+            //            Target = "cell",                    
+            //            Field = "maritalStatusName_A",    
+            //            Op = "eq",                         
+            //            Value = "أعزب",                   
+            //            CssClass = "cell-red",            
+            //            Priority = 1
+            //        },
+            //         new TableStyleRule
+            //        {
+            //            Target = "column",
+            //            Field = "note",
+            //            Op = "contains",
+            //            CssClass = "col-pink",
+            //            Priority = 1
+            //        }
 
-                };
+            //    };
 
             //return View("HousingDefinitions/BuildingType", dsModel);
 

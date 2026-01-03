@@ -108,6 +108,15 @@ namespace SmartFoundation.UI.ViewModels.SmartTable
         public Dictionary<string, object> CustomProperties { get; set; } = new();
     }
 
+
+
+    public enum TableActionPlacement
+    {
+        Button,       // زر مباشر في التولبار (الافتراضي)
+        ActionsMenu   // داخل قائمة "الإجراءات"
+    }
+
+
     public class TableAction
     {
 
@@ -117,6 +126,9 @@ namespace SmartFoundation.UI.ViewModels.SmartTable
         public string Label { get; set; } = "";
         public string Icon { get; set; } = "";
         public string Color { get; set; } = "secondary";
+
+        public TableActionPlacement Placement { get; set; } = TableActionPlacement.Button;
+
         public string? OnClickJs { get; set; }
         public bool Show { get; set; } = true;
         public bool OpenModal { get; set; } = false;

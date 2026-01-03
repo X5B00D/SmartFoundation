@@ -346,6 +346,7 @@ namespace SmartFoundation.Mvc.Controllers.ControlPanel
                          Icon = "fa fa-user",
                          Value = UserID_,
                          IsHidden = !showUsers,
+                         Select2=true,
                          OnChangeJs = @"
                                        var UserID_ = value.trim();
                                        if (!UserID_) {
@@ -368,6 +369,7 @@ namespace SmartFoundation.Mvc.Controllers.ControlPanel
                          Options = distributorToGivepermissionOptions,
                          ColCss = "3",
                          Placeholder = "اختر الموزع",
+                         Select2=true,
                          Icon = "fa fa-user",
                          Value =distributorID_,
                          IsHidden = !showDistributors,
@@ -391,6 +393,7 @@ namespace SmartFoundation.Mvc.Controllers.ControlPanel
                          Options = RoleOptions,
                          ColCss = "3",
                          Placeholder = "اختر الدور",
+                         Select2=true,
                          Icon = "fa fa-user",
                          Value=RoleID_,
                           IsHidden = !showRoles,
@@ -414,6 +417,7 @@ namespace SmartFoundation.Mvc.Controllers.ControlPanel
                          Options = idarasOptions,
                          ColCss = "3",
                          Placeholder = "اختر الادارة",
+                         Select2=true,
                          Icon = "fa fa-user",
                          Value = Idara_,
                           IsHidden = !showIdara,
@@ -436,6 +440,7 @@ namespace SmartFoundation.Mvc.Controllers.ControlPanel
                          Type = "select",
                          Options = DeptOptions,
                          ColCss = "3",
+                         Select2=true,
                          Placeholder = "اختر القسم",
                          Icon = "fa fa-user",
                          Value = Dept_,
@@ -463,6 +468,7 @@ namespace SmartFoundation.Mvc.Controllers.ControlPanel
                             Options = secOptions, 
                             ColCss = "3",
                             Placeholder = "اختر الفرع",
+                            Select2=true,
                             Icon = "fa fa-user",
                             Value = Section_,
                             IsHidden = !showDeptFields,
@@ -489,6 +495,7 @@ namespace SmartFoundation.Mvc.Controllers.ControlPanel
                             Options = divOptions, 
                             ColCss = "3",
                             Placeholder = "اختر الشعبة",
+                            Select2=true,
                             Icon = "fa fa-user",
                             Value = Divison_,
                             IsHidden = !showDeptFields,
@@ -702,6 +709,7 @@ namespace SmartFoundation.Mvc.Controllers.ControlPanel
                     Name = "p01",
                     Label = "الموزع",
                     Type = "select",
+                    //Select2=true,
                     Options = distributorOptions,
                     ColCss = "3",
                     Required = true
@@ -712,14 +720,16 @@ namespace SmartFoundation.Mvc.Controllers.ControlPanel
                     Name = "p02",
                     Label = "الصلاحية",
                     Type = "select",
+                    //Select2=true,
                     Options = new List<OptionItem> { new OptionItem { Value = "-1", Text = "اختر الموزع أولاً"     } }, //       Initial empty state
                     ColCss = "3",
+
                     Required = true,
                     DependsOn = "p01",
                     DependsUrl = "/crud/DDLFiltered?FK=distributorID_FK&textcol=permissionTypeName_A&ValueCol=distributorPermissionTypeID&PageName=Permission&TableIndex=4"
                 },
-                new FieldConfig { Name = "p03", Label = "تاريخ بداية الصلاحية", Type = "date", ColCss = "3", Required = false, Icon = "fa fa-calendar" },
-                new FieldConfig { Name = "p04", Label = "تاريخ نهاية الصلاحية", Type = "date", ColCss = "3", Required = false, Icon = "fa fa-calendar" },
+                new FieldConfig { Name = "p03", Label = "تاريخ بداية الصلاحية", Type = "date", ColCss = "3", Required = false, /*Icon = "fa fa-calendar"*/ },
+                new FieldConfig { Name = "p04", Label = "تاريخ نهاية الصلاحية", Type = "date", ColCss = "3", Required = false, /*Icon = "fa fa-calendar"*/ },
                 new FieldConfig { Name = "p05", Label = "ملاحظات", Type = "textarea", ColCss = "6", Required = false },
 
                   new FieldConfig { Name = "p06",Value=UserID_, Type = "hidden" },
@@ -771,8 +781,8 @@ namespace SmartFoundation.Mvc.Controllers.ControlPanel
                     Required = true
                 },
 
-                new FieldConfig { Name = "p02", Label = "تاريخ بداية الصلاحية", Type = "date", ColCss = "3", Required = false,Icon = "fa fa-calendar" },
-                new FieldConfig { Name = "p03", Label = "تاريخ نهاية الصلاحية", Type = "date", ColCss = "3", Required = false,Icon = "fa fa-calendar" },
+                new FieldConfig { Name = "p02", Label = "تاريخ بداية الصلاحية", Type = "date", ColCss = "3", Required = false,/*Icon = "fa fa-calendar"*/ },
+                new FieldConfig { Name = "p03", Label = "تاريخ نهاية الصلاحية", Type = "date", ColCss = "3", Required = false,/*Icon = "fa fa-calendar"*/ },
                 new FieldConfig { Name = "p04", Label = "ملاحظات", Type = "textarea", ColCss = "6", Required = false },
 
                   new FieldConfig { Name = "p05",Value=UserID_, Type = "hidden" },
@@ -846,8 +856,8 @@ namespace SmartFoundation.Mvc.Controllers.ControlPanel
                 //    DependsOn = "p02",
                 //    DependsUrl = "/crud/DDLFiltered?FK=distributorID_FK&textcol=permissionTypeName_A&ValueCol=distributorPermissionTypeID&PageName=Permission&TableIndex=4"
                 //},
-                new FieldConfig { Name = "p04", Label = "تاريخ بداية الصلاحية", Type = "date", Required = false, ColCss = "3",Icon = "fa fa-calendar" },
-                 new FieldConfig { Name = "p05", Label = "تاريخ نهاية الصلاحية", Type = "date", Required = false, ColCss = "3",Icon = "fa fa-calendar" },
+                new FieldConfig { Name = "p04", Label = "تاريخ بداية الصلاحية", Type = "date", Required = false, ColCss = "3",/*Icon = "fa fa-calendar"*/ },
+                 new FieldConfig { Name = "p05", Label = "تاريخ نهاية الصلاحية", Type = "date", Required = false, ColCss = "3",/*Icon = "fa fa-calendar"*/ },
                 new FieldConfig { Name = "p06", Label = "ملاحظات",            Type = "textarea",   ColCss = "6" }
             };
 
