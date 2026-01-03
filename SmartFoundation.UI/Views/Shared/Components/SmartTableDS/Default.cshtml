@@ -116,80 +116,86 @@
 
                 @* ===== أزرار مباشرة: Placement غير ActionsMenu ===== *@
                 <template x-for="act in [
-                          toolbar.add, toolbar.add1, toolbar.add2,
-                          toolbar.edit, toolbar.edit1, toolbar.edit2,
-                          toolbar.delete, toolbar.delete1, toolbar.delete2,
-                          ...(toolbar.customActions || [])
-                          ].filter(a=>
-                    a && a.show !== false && (a.placement ?? 'Button') !== 'ActionsMenu')"
-                    :key="act.label">
+          ...(toolbar.showAdd !== false && toolbar.add ? [toolbar.add] : []),
+          ...(toolbar.showAdd1 !== false && toolbar.add1 ? [toolbar.add1] : []),
+          ...(toolbar.showAdd2 !== false && toolbar.add2 ? [toolbar.add2] : []),
+          ...(toolbar.showEdit !== false && toolbar.edit ? [toolbar.edit] : []),
+          ...(toolbar.showEdit1 !== false && toolbar.edit1 ? [toolbar.edit1] : []),
+          ...(toolbar.showEdit2 !== false && toolbar.edit2 ? [toolbar.edit2] : []),
+          ...(toolbar.showDelete !== false && toolbar.delete ? [toolbar.delete] : []),
+          ...(toolbar.showDelete1 !== false && toolbar.delete1 ? [toolbar.delete1] : []),
+          ...(toolbar.showDelete2 !== false && toolbar.delete2 ? [toolbar.delete2] : []),
+          ...(toolbar.customActions || [])
+          ].filter(a => a && a.show !== false && (a.placement ?? 'Button') !== 'ActionsMenu')"
+    :key="act.label">
+
+    <button type="button"
+            class="btn"
+            :class="'btn-' + (act.color ?? 'secondary')"
+            x-on:click="doAction(act, act.requireSelection ? getSingleSelection() : null)"
+            :disabled="act.requireSelection && selectedKeys.size !== 1">
+        <i :class="act.icon"></i>
+        <span x-text="act.label"></span>
+    </button>
+</template>
+
+                @* ===== زر الإجراءات: يظهر إذا فيه أي Action Placement=ActionsMenu ===== *@
+                <template x-if="[
+          ...(toolbar.showAdd !== false && toolbar.add ? [toolbar.add] : []),
+          ...(toolbar.showAdd1 !== false && toolbar.add1 ? [toolbar.add1] : []),
+          ...(toolbar.showAdd2 !== false && toolbar.add2 ? [toolbar.add2] : []),
+          ...(toolbar.showEdit !== false && toolbar.edit ? [toolbar.edit] : []),
+          ...(toolbar.showEdit1 !== false && toolbar.edit1 ? [toolbar.edit1] : []),
+          ...(toolbar.showEdit2 !== false && toolbar.edit2 ? [toolbar.edit2] : []),
+          ...(toolbar.showDelete !== false && toolbar.delete ? [toolbar.delete] : []),
+          ...(toolbar.showDelete1 !== false && toolbar.delete1 ? [toolbar.delete1] : []),
+          ...(toolbar.showDelete2 !== false && toolbar.delete2 ? [toolbar.delete2] : []),
+          ...(toolbar.customActions || [])
+          ].some(a => a && a.show !== false && a.placement === 'ActionsMenu')">
+
+    <div class="relative" x-data="{ open:false }">
+        <button type="button"
+                class="btn btn-outline-secondary"
+                x-on:click="open = !open">
+            <i class="fa fa-ellipsis-v"></i>
+            الإجراءات
+        </button>
+
+        <div x-show="open"
+             x-transition
+             x-on:click.outside="open=false"
+             class="absolute right-0 mt-2 w-56 bg-white border rounded shadow z-50">
+
+            <template x-for="act in [
+                      ...(toolbar.showAdd !== false && toolbar.add ? [toolbar.add] : []),
+                      ...(toolbar.showAdd1 !== false && toolbar.add1 ? [toolbar.add1] : []),
+                      ...(toolbar.showAdd2 !== false && toolbar.add2 ? [toolbar.add2] : []),
+                      ...(toolbar.showEdit !== false && toolbar.edit ? [toolbar.edit] : []),
+                      ...(toolbar.showEdit1 !== false && toolbar.edit1 ? [toolbar.edit1] : []),
+                      ...(toolbar.showEdit2 !== false && toolbar.edit2 ? [toolbar.edit2] : []),
+                      ...(toolbar.showDelete !== false && toolbar.delete ? [toolbar.delete] : []),
+                      ...(toolbar.showDelete1 !== false && toolbar.delete1 ? [toolbar.delete1] : []),
+                      ...(toolbar.showDelete2 !== false && toolbar.delete2 ? [toolbar.delete2] : []),
+                      ...(toolbar.customActions || [])
+                      ].filter(a => a && a.show !== false && a.placement === 'ActionsMenu')"
+                :key="act.label">
+
+                <span class="sf-tipwrap"
+                      :data-tip="(act.requireSelection && selectedKeys.size !== 1) ? 'يتطلب اختيار صف' : null">
 
                     <button type="button"
-                            class="btn"
-                            :class="'btn-' + (act.color ?? 'secondary')"
-                            x-on:click="doAction(act, act.requireSelection ? getSingleSelection() : null)"
+                            class="w-full text-right px-3 py-2 hover:bg-gray-100"
+                            x-on:click="doAction(act, act.requireSelection ? getSingleSelection() : null); open=false"
                             :disabled="act.requireSelection && selectedKeys.size !== 1">
                         <i :class="act.icon"></i>
                         <span x-text="act.label"></span>
                     </button>
-                </template>
 
-                @* ===== زر الإجراءات: يظهر إذا فيه أي Action Placement=ActionsMenu ===== *@
-                <template x-if="[
-                          toolbar.add, toolbar.add1, toolbar.add2,
-                          toolbar.edit, toolbar.edit1, toolbar.edit2,
-                          toolbar.delete, toolbar.delete1, toolbar.delete2,
-                          ...(toolbar.customActions || [])
-                          ].some(a=>
-                    a && a.show !== false && a.placement === 'ActionsMenu')">
-
-                    <div class="relative" x-data="{ open:false }">
-                        <button type="button"
-                                class="btn btn-outline-secondary"
-                                x-on:click="open = !open">
-                            <i class="fa fa-ellipsis-v"></i>
-                            الإجراءات
-                        </button>
-
-                        <div x-show="open"
-                             x-transition
-                             x-on:click.outside="open=false"
-                             class="absolute right-0 mt-2 w-56 bg-white border rounded shadow z-50">
-
-                            <template x-for="act in [
-                                      toolbar.add, toolbar.add1, toolbar.add2,
-                                      toolbar.edit, toolbar.edit1, toolbar.edit2,
-                                      toolbar.delete, toolbar.delete1, toolbar.delete2,
-                                      ...(toolbar.customActions || [])
-                                      ].filter(a=>
-                                a && a.show !== false && a.placement === 'ActionsMenu')"
-                                :key="act.label">
-
-                                @* <button type="button"
-                                        class="w-full text-right px-3 py-2 hover:bg-gray-100"
-                                        x-on:click="doAction(act, act.requireSelection ? getSingleSelection() : null); open=false"
-                                        :disabled="act.requireSelection && selectedKeys.size !== 1">
-                                    <i :class="act.icon"></i>
-                                    <span x-text="act.label"></span>
-                                </button> *@
-                                <span class="sf-tipwrap"
-                                      :data-tip="(act.requireSelection && selectedKeys.size !== 1) ? 'يتطلب اختيار صف' : null">
-
-                                    <button type="button"
-                                            class="w-full text-right px-3 py-2 hover:bg-gray-100"
-                                            x-on:click="doAction(act, act.requireSelection ? getSingleSelection() : null); open=false"
-                                            :disabled="act.requireSelection && selectedKeys.size !== 1">
-                                        <i :class="act.icon"></i>
-                                        <span x-text="act.label"></span>
-                                    </button>
-
-                                </span>
-
-
-                            </template>
-                        </div>
-                    </div>
-                </template>
+                </span>
+            </template>
+        </div>
+    </div>
+</template>
 
             </div>
         </div>

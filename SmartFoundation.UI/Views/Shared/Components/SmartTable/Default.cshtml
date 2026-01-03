@@ -40,8 +40,14 @@
         toolbar = new
         {
             showAdd = Model.Toolbar?.ShowAdd ?? false,
+            showAdd1 = Model.Toolbar?.ShowAdd1 ?? false,
+            showAdd2 = Model.Toolbar?.ShowAdd2 ?? false,
             showEdit = Model.Toolbar?.ShowEdit ?? false,
+            showEdit1 = Model.Toolbar?.ShowEdit1 ?? false,
+            showEdit2 = Model.Toolbar?.ShowEdit2 ?? false,
             shoedelete = Model.Toolbar?.ShowDelete ?? false,
+            shoedelete1 = Model.Toolbar?.ShowDelete1 ?? false,
+            shoedelete2 = Model.Toolbar?.ShowDelete2 ?? false,
             showRefresh = Model.Toolbar?.ShowRefresh ?? true,
             showColumns = Model.Toolbar?.ShowColumns ?? true,
             showExportCsv = Model.Toolbar?.ShowExportCsv ?? true,
@@ -55,8 +61,14 @@
             showSearch = Model.Toolbar?.ShowSearch ?? true,
             searchPosition = Model.Toolbar?.SearchPosition ?? "left",
             add = Model.Toolbar?.Add,
+            add1 = Model.Toolbar?.Add1,
+            add2 = Model.Toolbar?.Add2,
             edit = Model.Toolbar?.Edit,
+            edit1 = Model.Toolbar?.Edit1,
+            edit2 = Model.Toolbar?.Edit2,
             delete = Model.Toolbar?.Delete,
+            delete1 = Model.Toolbar?.Delete1,
+            delete2 = Model.Toolbar?.Delete2,
             customActions = Model.Toolbar?.CustomActions ?? new List<TableAction>()
         }
     };
@@ -115,6 +127,28 @@
                 </button>
             </template>
 
+            <!-- Add1 -->
+            <template x-if="toolbar.showAdd1 && toolbar.add1">
+                <button type="button"
+                        class="btn"
+                        :class="'btn-' + (toolbar.add1?.color ?? 'success')"
+                        x-on:click="doAction(toolbar.add1, null)">
+                    <i :class="toolbar.add1?.icon ?? ''"></i>
+                    <span x-text="toolbar.add1?.label ?? 'إضافة'"></span>
+                </button>
+            </template>
+
+            <!-- Add -->
+            <template x-if="toolbar.showAdd2 && toolbar.add2">
+                <button type="button"
+                        class="btn"
+                        :class="'btn-' + (toolbar.add2?.color ?? 'success')"
+                        x-on:click="doAction(toolbar.add2, null)">
+                    <i :class="toolbar.add2?.icon ?? ''"></i>
+                    <span x-text="toolbar.add2?.label ?? 'إضافة'"></span>
+                </button>
+            </template>
+
             <!-- Edit -->
             <template x-if="toolbar.showEdit && toolbar.edit">
                 <button type="button"
@@ -140,6 +174,21 @@
                     <span x-text="toolbar.edit1?.label ?? 'تعديل'"></span>
                 </button>
             </template>
+
+            <!-- Edit2 -->
+             
+            <template x-if="toolbar.showEdit2 && toolbar.edit2">
+                <button type="button"
+                        class="btn"
+                        :class="'btn-' + (toolbar.edit2?.color ?? 'info')"
+                        x-on:click="doAction(toolbar.edit2, getSingleSelection())"
+                        :disabled="selectedKeys.size !== 1">
+                    <i :class="toolbar.edit2?.icon ?? ''"></i>
+                    <span x-text="toolbar.edit2?.label ?? 'تعديل'"></span>
+                </button>
+            </template>
+
+
             <!-- delete -->
              
             <template x-if="toolbar.showDelete && toolbar.delete">
@@ -152,6 +201,34 @@
                     <span x-text="toolbar.delete?.label ?? 'حذف'"></span>
                 </button>
             </template>
+
+            <!-- delete1 -->
+             
+            <template x-if="toolbar.showDelete1 && toolbar.delete1">
+                <button type="button"
+                        class="btn"
+                        :class="'btn-' + (toolbar.delete1?.color ?? 'info')"
+                        x-on:click="doAction(toolbar.delete1, getSingleSelection())"
+                        :disabled="selectedKeys.size !== 1">
+                    <i :class="toolbar.delete1?.icon ?? ''"></i>
+                    <span x-text="toolbar.delete1?.label ?? 'حذف'"></span>
+                </button>
+            </template>
+
+            <!-- delete2 -->
+             
+            <template x-if="toolbar.showDelete2 && toolbar.delete2">
+                <button type="button"
+                        class="btn"
+                        :class="'btn-' + (toolbar.delete2?.color ?? 'info')"
+                        x-on:click="doAction(toolbar.delete2, getSingleSelection())"
+                        :disabled="selectedKeys.size !== 1">
+                    <i :class="toolbar.delete2?.icon ?? ''"></i>
+                    <span x-text="toolbar.delete2?.label ?? 'حذف'"></span>
+                </button>
+            </template>
+
+
 
             <!-- Bulk Delete -->
             <template x-if="toolbar.showBulkDelete && selectable">
