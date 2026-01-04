@@ -14,11 +14,16 @@
 
 
 /* ================= Top Header ================= */
+
 #top-header {
+    position: fixed;
+    top: 0;
+    right: 0;
+    left: 0;
     height: var(--top-header-h);
     background-color: #064E3B;
     color: #ffffff;
-    box-shadow: 0 0px 10px rgba(0,0,0,.30);
+    z-index: 50;
 }
 
 /* ================= Page Header ================= */
@@ -28,22 +33,22 @@
     right: 0;
     left: 0;
     height: var(--page-header-h);
-    background: #f8fafc; /* أخف من rgba */
-    border-bottom: 1px solid rgba(15,23,42,.06); /* أخف */
-    box-shadow: 0 1px 4px rgba(0,0,0,.05); /* ظل خفيف جدًا */
-
+    background: #f8fafc; 
+    border-bottom: 1px solid rgba(15,23,42,.06); 
+    box-shadow: 0 1px 4px rgba(0,0,0,.05); 
     z-index: 40;
     display: flex;
     align-items: center;
 }
 
 
-/* السايدبار يبدأ تحت الهيدر + page-header */
+/*  السايدبار يبدأ من أعلى الشاشة (الشعار فوق) */
 #logo-sidebar {
-    padding-top: calc(var(--top-header-h) + var(--page-header-h));
+    padding-top: 0 !important;
 }
 
-/* محتوى الصفحة لا يطلع تحت الهيدر/الهيدر الفرعي */
+
+/* الهيدر الفرعي */
 #main-content {
     padding-top: calc(var(--top-header-h) + var(--page-header-h) + 12px);
 }
@@ -248,7 +253,7 @@ button[data-dropdown-toggle="notification-dropdown"] svg {
     /* background: #1f2937; */
     background: #064E3B; /* لون السايد بار */
     border-top: 0 !important;
-    border-left-color: #1a4129;
+    /*border-left-color: #1a4129;*/
 }
 
     #logo-sidebar .bg-white {
@@ -405,6 +410,7 @@ button[data-dropdown-toggle="notification-dropdown"] svg {
         padding: 0.80rem;
         text-align: center;
         border-radius: 0.375rem;
+        margin-top: 30px;
     }
 
         /* لون النصوص داخل الكارد */
@@ -463,8 +469,8 @@ button[data-dropdown-toggle="notification-dropdown"] svg {
         margin: 0 !important;
     }
 }
-
-/* ===== Make page-header follow main-content width on desktop ===== */
+ 
+/* ===== Make page-header follow main-content width on desktop ===== */    /*جديد*/
 @media (min-width: 640px) {
     body.sidebar-pinned #page-header {
         right: var(--sidebar-w);
@@ -474,6 +480,22 @@ button[data-dropdown-toggle="notification-dropdown"] svg {
     body.sidebar-collapsed #page-header {
         right: var(--sidebar-w-collapsed);
         left: 0;
+    }
+}
+
+
+/* ===== Make top-header follow main-content width on desktop ===== */
+@media (min-width: 640px) {
+    body.sidebar-pinned #top-header {
+        right: var(--sidebar-w);
+        left: 0;
+        width: auto;
+    }
+
+    body.sidebar-collapsed #top-header {
+        right: var(--sidebar-w-collapsed);
+        left: 0;
+        width: auto;
     }
 }
 
@@ -507,11 +529,12 @@ body.sidebar-collapsed #pin-sidebar i {
 
 
 /* زر تصغير/تكبير السايدبار ) */
+
 .sf-sidebar-toggle {
     width: 40px;
     height: 40px;
     background-color: transparent;
-    color: #047857; /* emerald-700 */
+    color: #064E3B; /* نفس لون السايدبار */
     border: none;
     border-radius: 0.3rem;
     display: inline-flex;
@@ -522,9 +545,10 @@ body.sidebar-collapsed #pin-sidebar i {
 }
 
     .sf-sidebar-toggle:hover {
-        background-color: rgba(4, 120, 87, 0.1); /*  الهوفر */
-        color: #065f46; /* لون أدكن عند الهوفر */
+        background-color: rgba(6, 78, 59, 0.12); /* hover من نفس الأخضر */
+        color: #064E3B; /* يبقى نفس اللون */
     }
+
 
     .sf-sidebar-toggle:focus {
         outline: none;
@@ -550,7 +574,7 @@ body.sidebar-collapsed #pin-sidebar i {
     max-width: 100%;
     overflow: hidden;
     /* لون المسار كامل */
-    color: #374151; /* bg-gray-700 */
+    color: #6b7280; /* bg-gray-700 */
 }
 
     /* tree cue */

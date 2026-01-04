@@ -30,22 +30,7 @@
     <div class="px-3 py-3 lg:px-5 lg:pe-3">
         <div class="flex items-center justify-between">
             <div class="flex items-center gap-2">
-                <!-- زر إظهار السايدبار (موبايل فقط) -->
-                @* <button data-drawer-target="logo-sidebar" data-drawer-toggle="logo-sidebar" aria-controls="logo-sidebar"
-                        type="button"
-                        class="inline-flex items-center p-2 rounded-lg text-slate-300 lg:hidden hover:text-slate-50 hover:bg-slate-700 focus:bg-slate-700 focus:ring-2 focus:ring-slate-600">
-                    <span class="sr-only">Open sidebar</span>
-                    <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
-                        <path fill-rule="evenodd"
-                              d="M3 5a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 10a1 1 0 011-1h6a1 1 0 110 2H4a1 1 0 01-1-1zM3 15a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z"
-                              clip-rule="evenodd"></path>
-                    </svg>
-                </button> *@
-
-
                 
-
-
                 <!-- زر Pin (ديسكتوب فقط) -->
                 <button id="pin-sidebar"
                         type="button"
@@ -55,12 +40,8 @@
                     <i class="fa-solid fa-thumbtack"></i>
                 </button>
 
-                <!-- الشعار -->
-                <a href="/" class="flex items-center ms-1 md:me-10">
-                    <img src="../img/ppng.png" class="h-12 me-2" alt="KFMC Logo" />
-                    <span class="self-center font-semibold text-lg sm:text-1xl whitespace-nowrap text-slate-100">البوابة الموحدة</span>
-                </a>
-
+               
+ 
 
                 <!-- البحث -->
                 @* <form action="#" method="GET" class="block lg:ps-3.5" autocomplete="off">
@@ -222,11 +203,20 @@
        aria-label="Sidebar">
 
 
+    <div class="relative flex flex-col flex-1 h-full min-h-0 pt-0 bg-transparent">
+
+        <!-- Sidebar Brand (ثابت أعلى السايدبار) -->
+        <div class="px-4 pt-3 pb-3">
+            <a href="#" class="flex items-center justify-center gap-3 py-2 rounded-md hover:bg-white/10 transition">
+                <img src="../img/ppng.png" class="h-12" alt="KFMC Logo" />
+                <span class="font-semibold text-lg text-white">البوابة الموحدة</span>
+            </a>
+        </div>
+
+        <div class="mx-4 h-px bg-white/15"></div>
 
 
-
-    <div class="relative flex flex-col flex-1 h-full min-h-0 pt-3 bg-transparent">
-        <div class="flex flex-col flex-1 pt-5 pb-4 overflow-y-auto"
+        <div class="flex flex-col flex-1 pt-[calc(var(--top-header-h)+var(--page-header-h)+12px)] pb-4 overflow-y-auto"
              style="scrollbar-width: none; -ms-overflow-style: none;">
            
              
@@ -234,7 +224,7 @@
 
             <div class="flex-1 px-4 space-y-1">
 
-               
+
                 <!-- بطاقة المستخدم (Card) -->
                
                 <div class="user-card backdrop-blur-sm">
