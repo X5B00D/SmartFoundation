@@ -16,6 +16,7 @@
     <link rel="stylesheet" href="~/lib/toastr/css/toastr.override.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/vendor/flatpickr/flatpickr.min.css" />
     <link rel="stylesheet" href="~/lib/select2/css/select2.min.css" />
+    <link rel="stylesheet" href="~/css/SidebarNavbar.css" />
 
 
     
@@ -39,15 +40,7 @@
     <link rel="stylesheet" href="~/css/smartcharts.opsboard.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/smartcharts.execwatch.css" asp-append-version="true" />
 
-    
-
-
-
-
-
-
-
-
+   
 
     <!-- FontAwesome -->
     <link rel="stylesheet" type="text/css" href="/css/Fontawesome6-5-0.min.css" />
@@ -152,9 +145,9 @@
     </script>
 </head>
 
-@* <body class="text-gray-900 transition-colors duration-300 bg-gray-50 dark:bg-gray-900 dark:text-gray-100"> *@
-@* <body class="text-gray-900 transition-colors duration-300 bg-gray-50 dark:bg-gray-900 dark:text-gray-100 overflow-hidden"> *@
-<body class="text-gray-900 transition-colors duration-300 bg-gray-50 dark:bg-gray-900 dark:text-gray-100">
+
+<body class="sidebar-pinned text-gray-900 transition-colors duration-300 bg-gray-50 dark:bg-gray-900 dark:text-gray-100">
+
 
 
 
@@ -169,8 +162,12 @@
   @*   <div id="main-content"
          class="relative flex flex-col h-screen pt-16 overflow-y-auto overflow-x-hidden transition-all duration-300 bg-gray-100 sm:mr-64"> *@
 
-        <div id="main-content"
-             class="relative flex flex-col h-screen pt-10 overflow-y-auto  transition-all duration-300 bg-gray-100 sm:mr-64">
+       @*  <div id="main-content"
+             class="relative flex flex-col h-screen pt-10 overflow-y-auto  transition-all duration-300 bg-gray-100 sm:mr-64"> *@
+
+    <div id="main-content"
+         class="relative flex flex-col h-screen pt-10 overflow-y-auto transition-all duration-300 bg-gray-100">
+
 
    @*  <div id="main-content"
          class="relative  flex flex-col h-screen pt-16 overflow-y-auto overflow-x-hidden transition-all duration-300 bg-gray-100 sm:mr-64"> *@
@@ -192,75 +189,6 @@
         <!-- Content -->
         @* <main class="flex-1 px-4 pt-6"> *@
         <main class="flex-1 px-4 pt-6 overflow-x-hidden">
-
-
-            @{
-                var controller = (ViewContext.RouteData.Values["controller"]?.ToString()) ?? "";
-                var action = (ViewContext.RouteData.Values["action"]?.ToString()) ?? "";
-
-                var crumbs = new List<MenuBreadcrumb.Crumb>();
-
-                var json = Context.Session.GetString("MENU_TREE");
-                if (!string.IsNullOrWhiteSpace(json))
-                {
-                    var tree = JsonSerializer.Deserialize<List<MenuItem>>(json) ?? new List<MenuItem>();
-                    crumbs = MenuBreadcrumb.Get(tree, controller, action);
-                }
-            }
-
-            @* <nav class="sf-bc" aria-label="Breadcrumb">
-                <i class="fa-solid fa-location-dot sf-bc-icon"></i>
-
-                <ol class="sf-bc-text">
-                    <li><a href="/Home">الرئيسية</a></li>
-
-                    @if (crumbs.Count > 0)
-                    {
-                        foreach (var c in crumbs)
-                        {
-                            
-                            <li class="sep">◂</li>
-
-                            if (!string.IsNullOrWhiteSpace(c.Url))
-                            {
-                                <li><a href="@c.Url">@c.Text</a></li>
-                            }
-                            else
-                            {
-                                <li class="current">@c.Text</li>
-                            }
-                        }
-                    }
-                </ol>
-            </nav> *@
-            <nav class="sf-bc" aria-label="Breadcrumb">
-                <i class="fa-solid fa-location-dot sf-bc-icon" aria-hidden="true"></i>
-
-                <ol class="sf-bc-text">
-                    <li><a href="/Home">الرئيسية</a></li>
-
-                    @if (crumbs.Count > 0)
-                    {
-                        for (int i = 0; i < crumbs.Count; i++)
-                        {
-                            var c = crumbs[i];
-                            var isLast = i == crumbs.Count - 1;
-
-                            <li class="sep" aria-hidden="true">◂</li>
-
-                            if (!isLast && !string.IsNullOrWhiteSpace(c.Url))
-                            {
-                                <li><a href="@c.Url">@c.Text</a></li>
-                            }
-                            else
-                            {
-                                <li class="current" aria-current="page">@c.Text</li>
-                            }
-                        }
-                    }
-                </ol>
-            </nav>
-
 
                 @RenderBody()
         </main>

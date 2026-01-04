@@ -4,6 +4,9 @@
 @using System.Text
 @using System.Text.Encodings.Web
 @using SmartFoundation.Mvc.Models
+@using SmartFoundation.Mvc.Helpers
+
+
 @model List<MenuItem>
 
 
@@ -26,27 +29,41 @@
 
     <div class="px-3 py-3 lg:px-5 lg:pe-3">
         <div class="flex items-center justify-between">
-            <div class="flex items-center justify-start">
-                <!-- زر إظهار السايدبار -->
-                <button data-drawer-target="logo-sidebar" data-drawer-toggle="logo-sidebar" aria-controls="logo-sidebar"
+            <div class="flex items-center gap-2">
+                <!-- زر إظهار السايدبار (موبايل فقط) -->
+                @* <button data-drawer-target="logo-sidebar" data-drawer-toggle="logo-sidebar" aria-controls="logo-sidebar"
                         type="button"
                         class="inline-flex items-center p-2 rounded-lg text-slate-300 lg:hidden hover:text-slate-50 hover:bg-slate-700 focus:bg-slate-700 focus:ring-2 focus:ring-slate-600">
                     <span class="sr-only">Open sidebar</span>
-                    <svg id="toggleSidebarMobileHamburger" class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
+                    <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
                         <path fill-rule="evenodd"
                               d="M3 5a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 10a1 1 0 011-1h6a1 1 0 110 2H4a1 1 0 01-1-1zM3 15a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z"
                               clip-rule="evenodd"></path>
                     </svg>
+                </button> *@
+
+
+                
+
+
+                <!-- زر Pin (ديسكتوب فقط) -->
+                <button id="pin-sidebar"
+                        type="button"
+                        class="hidden lg:inline-flex items-center justify-center w-9 h-9 rounded-md text-slate-200 hover:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-slate-300/30"
+                        aria-label="تثبيت/طي القائمة"
+                        aria-pressed="false">
+                    <i class="fa-solid fa-thumbtack"></i>
                 </button>
 
                 <!-- الشعار -->
-                <a href="/" class="flex ms-1 md:me-10">
+                <a href="/" class="flex items-center ms-1 md:me-10">
                     <img src="../img/ppng.png" class="h-12 me-2" alt="KFMC Logo" />
                     <span class="self-center font-semibold text-lg sm:text-1xl whitespace-nowrap text-slate-100">البوابة الموحدة</span>
                 </a>
 
+
                 <!-- البحث -->
-                <form action="#" method="GET" class="block lg:ps-3.5" autocomplete="off">
+                @* <form action="#" method="GET" class="block lg:ps-3.5" autocomplete="off">
                     <label for="topbar-search" class="sr-only">بحث</label>
                     <div class="relative mt-1 lg:w-96" dir="rtl">
                         <div class="absolute inset-y-0 left-0 flex items-center pointer-events-none ps-3">
@@ -60,14 +77,13 @@
                         <input id="topbar-search" type="text"
                                autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false"
                                class="block w-full rounded-md border p-2.5 ps-10 text-sm
-                               bg-slate-100 text-slate-900 placeholder-slate-500
-                               border-slate-300 focus:border-emerald-800 focus:ring-emerald-800"
+                   bg-slate-100 text-slate-900 placeholder-slate-500
+                   border-slate-300 focus:border-emerald-800 focus:ring-emerald-800"
                                placeholder="بحث..">
-
                     </div>
-                </form>
-
+                </form> *@
             </div>
+
 
             <!-- جهة اليمين -->
             <div class="flex items-center gap-0">
@@ -127,22 +143,84 @@
                     </div>
                 </div>
             </div>
-
         </div>
     </div>
 </nav>
 
+<!-- Page Header (Breadcrumb / Page tools) -->
+<div id="page-header" class="fixed z-40">
+    <div class="px-3 py-2 lg:px-5" dir="rtl">
+        <div id="page-header-content" class="flex items-center justify-between gap-3">
 
-@* <aside id="logo-sidebar"
-       class="fixed top-0 right-0 z-40 w-64 h-screen translate-x-full border-l pt-24 sm:translate-x-0 bg-slate-800 text-slate-200 border-emerald-900"
-       aria-label="Sidebar"> *@
+            <!-- زر تصغير وتكبير السايدبار داخل الهيدر بجانب البريدكامب -->
+            <button id="toggle-sidebar"
+                    type="button"
+                    class="sf-sidebar-toggle"
+                    aria-label="Toggle sidebar">
+                <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd"
+                          d="M3 5a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 10a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 15a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z"
+                          clip-rule="evenodd"></path>
+                </svg>
+            </button>
 
-    <aside id="logo-sidebar"
-           data-drawer-placement="right"
-           data-drawer-backdrop="true"
-           data-drawer-body-scrolling="false"
-           class="fixed top-0 right-0 z-40 w-64 h-screen pt-24 transition-transform translate-x-full lg:translate-x-0 border-l bg-slate-800 text-slate-200 border-emerald-900"
-           aria-label="Sidebar">
+
+            @{
+                var controller = (ViewContext.RouteData.Values["controller"]?.ToString()) ?? "";
+                var action = (ViewContext.RouteData.Values["action"]?.ToString()) ?? "";
+
+                var crumbs = new List<MenuBreadcrumb.Crumb>();
+
+                var json = Context.Session.GetString("MENU_TREE");
+                if (!string.IsNullOrWhiteSpace(json))
+                {
+                    var tree = JsonSerializer.Deserialize<List<MenuItem>>(json) ?? new List<MenuItem>();
+                    crumbs = MenuBreadcrumb.Get(tree, controller, action);
+                }
+            }
+
+            <nav class="sf-bc" aria-label="Breadcrumb">
+                <i class="fa-solid fa-location-dot sf-bc-icon" aria-hidden="true"></i>
+
+                <ol class="sf-bc-text">
+                    <li><a href="/Home">الرئيسية</a></li>
+
+                    @if (crumbs.Count > 0)
+                    {
+                        for (int i = 0; i < crumbs.Count; i++)
+                        {
+                            var c = crumbs[i];
+                            var isLast = i == crumbs.Count - 1;
+
+                            <li class="sep" aria-hidden="true">◂</li>
+
+                            if (!isLast && !string.IsNullOrWhiteSpace(c.Url))
+                            {
+                                <li><a href="@c.Url">@c.Text</a></li>
+                            }
+                            else
+                            {
+                                <li class="current" aria-current="page">@c.Text</li>
+                            }
+                        }
+                    }
+                </ol>
+            </nav>
+            <div class="flex items-center gap-2"></div>
+        </div>
+    </div>
+</div>
+
+
+
+<aside id="logo-sidebar"
+       data-drawer-placement="right"
+       data-drawer-backdrop="true"
+       data-drawer-body-scrolling="false"
+       class="fixed top-0 right-0 z-40 h-screen transition-all duration-300 border-l bg-slate-800 text-slate-200 border-emerald-900
+       w-64 lg:translate-x-0 translate-x-full"
+       aria-label="Sidebar">
+
 
 
 
@@ -150,381 +228,9 @@
     <div class="relative flex flex-col flex-1 h-full min-h-0 pt-3 bg-transparent">
         <div class="flex flex-col flex-1 pt-5 pb-4 overflow-y-auto"
              style="scrollbar-width: none; -ms-overflow-style: none;">
-            <style>
-
-
-
-                /* ================= Header (Top Navbar) ================= */
-                #top-header{
-                    background-color: #064E3B;                 
-                    color: #ffffff;                            
-                    border-bottom: 0px solid rgba(255,255,255,.25); 
-                    box-shadow: 0 0px 10px rgba(0,0,0,.30);
-                    
-                }
-                
-              
-                /* ===========================
-                   Header Hover (Unified)
-                   =========================== */
-
-                /* 1)  الروابط في الهيدر */
-                nav[aria-label="روابط سريعة"] a:hover {
-                    background: #0b6b52 !important;
-                    color: #fff !important;
-                }
-
-                /*  */
-                #notification-bell-btn:hover,
-                #notification-bell-btn:focus,
-                #notification-bell-btn:focus-visible,
-                button[data-dropdown-toggle="notification-dropdown"]:hover,
-                button[data-dropdown-toggle="notification-dropdown"]:focus,
-                button[data-dropdown-toggle="notification-dropdown"]:focus-visible {
-                    background: #0b6b52 !important;
-                    color: #fff !important;
-                    box-shadow: none !important;
-                    outline: none !important;
-                }
-
-                /* 3) زر المستخدم/الإعدادات (عندك id واضح) */
-                #user-menu-button:hover,
-                #user-menu-button:focus,
-                #user-menu-button:focus-visible {
-                    background: #0b6b52 !important;
-                    color: #fff !important;
-                    box-shadow: none !important;
-                    outline: none !important;
-                }
-
-                    /* 4) الأيقونات داخل الأزرار تتحول أبيض وقت الهوفر */
-                    #user-menu-button:hover i,
-                    #notification-bell-btn:hover i,
-                    #notification-bell-btn:hover svg,
-                    button[data-dropdown-toggle="notification-dropdown"]:hover i {
-                        color: #fff !important;
-                    }
-
-                /* إخفاء شريط التمرير */
-                #logo-sidebar .overflow-y-auto::-webkit-scrollbar {
-                    display: none;
-                }
-
-
-                /*  تدوير سهم القوائم عند الفتح/الإغلاق */
-                #logo-sidebar button .menu-chevron {
-                    transform: rotate(0deg);
-                    transition: transform 0.2s ease;
-                }
-
-                #logo-sidebar button[aria-expanded="true"] .menu-chevron {
-                    transform: rotate(90deg);
-                }
-
-
-                /* ===== Notifications dropdown ===== */
-                #notification-dropdown {
-                    background: #0b6b52 !important; 
-                    border: 1px solid rgba(255,255,255,.25) !important;
-                    box-shadow: 0 12px 24px rgba(0,0,0,.3) !important;
-                    color: #fff !important;
-                }
-
-                    /* العنوان */
-                    #notification-dropdown .px-4.py-2 {
-                        background: rgba(0,0,0,.25) !important;
-                        font-weight: 900;
-                    }
-
-                    /* المحتوى */
-                    #notification-dropdown * {
-                        color: #fff !important;
-                        opacity: 1 !important;
-                    }
-
-                    /* زر عرض الكل */
-                    #notification-dropdown a.block {
-                        background: rgba(0,0,0,.25) !important;
-                    }
-
-                        #notification-dropdown a.block:hover {
-                            background: rgba(0,0,0,.35) !important;
-                        }
-
-                /* ===== Bell icon (no fade) ===== */
-                button[data-dropdown-toggle="notification-dropdown"],
-                button[data-dropdown-toggle="notification-dropdown"] i,
-                button[data-dropdown-toggle="notification-dropdown"] svg {
-                    color: #fff !important;
-                    fill: #fff !important;
-                    opacity: 1 !important;
-                }
-
-                /* خط تحت عنوان الإشعارات */
-                #notification-dropdown .px-4.py-2 {
-                    border-bottom: 1px solid rgba(255,255,255,.12) !important;
-                    font-weight: 700; 
-                }
-
-                /* خط فوق "عرض الكل" */
-                #notification-dropdown a.block {
-                    border-top: 1px solid rgba(255,255,255,.12) !important;
-                }
-
-                /* نفس هوفر الإعدادات على الإشعارات */
-                #notification-dropdown a.notification-item:hover {
-                    background: rgba(0,0,0,.25) !important;
-                }
-
-                /* فواصل أنحف بصريًا بين الإشعارات */
-                #notification-scroll-container .notification-item + .notification-item {
-                    border-top: 1px solid rgba(255,255,255,.10) !important; /* غيّر .10 حسب اللي يعجبك */
-                }
-
-
-
-                /*     Dropdown الإعدادات */
-                #user-dropdown {
-                    background: #0b6b52 !important;
-                    border: 1px solid rgba(255,255,255,.25) !important;
-                    box-shadow: 0 12px 24px rgba(0,0,0,.3) !important;
-                    color: #fff !important;
-                }
-
-                    /* عنوان/خط فاصل + عناصر القائمة */
-                    #user-dropdown hr {
-                        border-color: rgba(255,255,255,.20) !important;
-                    }
-
-                    #user-dropdown a {
-                        color: #fff !important;
-                    }
-
-                        #user-dropdown a:hover {
-                            background: rgba(0,0,0,.25) !important;
-                        }
-
-                    /* أيقونات داخل القائمة + أيقونة زر الإعدادات */
-                    #user-menu-button, #user-menu-button i,
-                    #user-dropdown i {
-                        color: #fff !important;
-                        opacity: 1 !important;
-                    }
-
-
-
-                /* ===== Search box FIX ===== */
-                #topbar-search {
-                    background: #e5e7eb !important; 
-                    color: #111827 !important;
-                    
-                }
-
-                    #topbar-search::placeholder {
-                        color: #6b7280 !important;
-                    }
-
-                    /* hover */
-                    #topbar-search:hover {
-                        background: #d1d5db !important; 
-                    }
-
-                    /* focus */
-                    #topbar-search:focus {
-                        background: #e5e7eb !important;
-                        border-color: #065f46 !important;
-                        box-shadow: 0 0 0 2px rgba(5,150,105,.35) !important;
-                    }
-
-
-                /* خلفية وألوان */
-                #logo-sidebar {
-                    /* background: #1f2937; */ 
-                    background: #064E3B; /*لون السايد بار*/
-                    border-top: 0 !important;
-                    border-left-color: #1a4129 
-                }
-
-                    #logo-sidebar .bg-white {
-                        background: transparent !important;
-                    }
-
-                    #logo-sidebar .text-gray-900 {
-                        color: #e2e8f0 !important;
-                    }
-
-                    #logo-sidebar .divide-y > :not([hidden]) ~ :not([hidden]) {
-                        border-color: #334155 !important;
-                    }
-
-                    #logo-sidebar .menu-sep {
-                        height: 0.5px; 
-                        margin: 8px 0;
-                        background: rgba(255,255,255,.14);
-
-                    }
-
-                        #logo-sidebar .menu-sep.sm {
-                            margin: 4px 0;
-                        }
-
-
-
-                    /* روابط وأزرار */
-                    #logo-sidebar a,
-                    #logo-sidebar button {
-                        
-                        color: #fff;
-                        display: flex;
-                        align-items: center;
-                        gap: 0rem;
-                        white-space: normal !important; 
-                        word-break: break-word !important; 
-                        overflow: visible !important;
-                        text-overflow: unset !important;
-                        line-height: 1.25; 
-                        font-size: 15px; 
-                        padding-top: 0.60rem !important;
-                        padding-bottom: 0.45rem !important;
-                    }
-
-                        /*  hover */
-                        #logo-sidebar a:hover,
-                        #logo-sidebar button:hover,
-                        #logo-sidebar .hover\:bg-white:hover {
-                            background: #0b6b52 !important; /*تحديد الماوس*/
-                            color: #f8fafc !important;
-                        }
-
-                    
-                    #logo-sidebar ul > li > ul {
-                        padding-right: 0.75rem;
-                        margin-top: 0.10rem;
-                        border-right: none;
-                    }
-
-                        /* إلغاء الخط العمودي القديم */
-                        #logo-sidebar ul > li > ul::before {
-                            content: none;
-                            border-right: none;
-                        }
-
-                    /* إلغاء أي نقاط قديمة */
-                    #logo-sidebar ul li ul li a::after,
-                    #logo-sidebar ul li ul li button::after {
-                        content: none;
-                    }
-
-                    /* العناصر الفرعية (المستوى الثاني) */
-                    #logo-sidebar ul > li > ul > li > a,
-                    #logo-sidebar ul > li > ul > li > button {
-                        position: relative;
-                        padding-top: 0.40rem !important;
-                        padding-bottom: 0.40rem !important;
-                        padding-right: 0.75rem !important;
-                        padding-left: 0.75rem !important;
-                        margin-inline: 0.25rem;
-                        border-radius: 0.3rem;
-                        font-size: 14px;
-                        line-height: 1.4;
-                        opacity: 0.9;                       
-                        background: transparent;
-                        box-shadow: 0 0 0 0 rgba(15, 23, 42, 0);
-                        transform: translateX(0);
-                        transition: background-color 0.18s ease, color 0.18s ease, box-shadow 0.18s ease, transform 0.14s ease, opacity 0.18s ease;
-                    }
-
-                        #logo-sidebar ul > li > ul > li > a:hover,
-                        #logo-sidebar ul > li > ul > li > button:hover {
-                            background: #0b6b52 !important;          
-                            color: #f0fdf4 !important;               
-                            opacity: 1;
-                            transform: translateX(-4px);
-                            box-shadow: none !important; 
-                              
-                        }
-
-
-                        
-                        #logo-sidebar ul > li > ul > li > a.bg-slate-700,
-                        #logo-sidebar ul > li > ul > li > button.bg-slate-700 {
-                            background: #0b6b52 !important;
-                            color: #f9fafb !important;
-                            box-shadow: none !important;
-                            opacity: 1;
-                            transform: translateX(-2px);
-                        }
-
-                        /* مؤشر على يمين العنصر    */
-                        #logo-sidebar ul > li > ul > li > a::before,
-                        #logo-sidebar ul > li > ul > li > button::before {
-                            content: "";
-                            position: absolute;
-                            right: 0.15rem;
-                            top: 50%;
-                            transform: translateY(-50%);
-                            width: 3px;
-                            height: 10px; 
-                            border-radius: 999px;
-                            background: transparent;
-                            transition: background 0.18s ease, height 0.18s ease, transform 0.14s ease;
-                        }
-
-                        #logo-sidebar ul > li > ul > li > a:hover::before,
-                        #logo-sidebar ul > li > ul > li > button:hover::before,
-                        #logo-sidebar ul > li > ul > li > a.bg-slate-700::before,
-                        #logo-sidebar ul > li > ul > li > button.bg-slate-700::before {
-                            background: #3c6; 
-                            height: 26px; 
-                            transform: translateY(-50%) scaleX(1.2);
-                        }
-
-                        
-                        #logo-sidebar ul > li > ul > li > a:focus-visible,
-                        #logo-sidebar ul > li > ul > li > button:focus-visible {
-                            outline: none;
-                            box-shadow: 0 0 0 2px rgba(21, 128, 61, 0.75);
-                            transform: translateX(-2px);
-                            opacity: 1;
-                        }
-
-                        /*الخط الفاصل بين القوائم*/
-                        #logo-sidebar hr {
-                            border: 0 !important;
-                            border-top: 1px solid rgba(255,255,255,0.25) !important;
-                            margin: 4px 0 !important;
-                        }
-
-                       /* ================= User Card ================= */
-                        #logo-sidebar .user-card{
-                          border: none !important;
-
-                          box-shadow:
-                            0 0 0 0.5px rgba(255,255,255,.18),
-                            0 0px 1px rgba(0,0,0,.18);
-
-                          background: #064E3B !important;
-                          backdrop-filter: blur(6px);
-                          -webkit-backdrop-filter: blur(6px);
-
-                          margin-bottom: 2.25rem;
-                          padding: 0.80rem;
-                          text-align: center;
-                          border-radius: 0.375rem;
-                        }
-
-                        /* لون النصوص داخل الكارد */
-                        #logo-sidebar .user-card,
-                        #logo-sidebar .user-card *{
-                            color: #dcdcdc !important; 
-                        }
-
-
-
-                        
-            </style>
-
-
+           
+             
+             
 
             <div class="flex-1 px-4 space-y-1">
 
@@ -570,14 +276,9 @@
                 <!-- قائمة المنيو -->
                
                 <ul class="pt-2 pb-2 space-y-0" style="margin-top:-6px;">
-
                     <li id="menu-container"></li>
                 </ul>
             </div>
-
-
-
-
         </div>
     </div>
 </aside>
@@ -813,74 +514,78 @@
             return html;
         }
 
-            
-            function setActiveSidebar(url) {
+                function setActiveSidebar(url) {
         const path = (url || "").split("?")[0].toLowerCase();
 
-        
         document.querySelectorAll("a.sidebar-link").forEach(a => {
             a.classList.remove("bg-slate-700", "text-slate-50");
 
             const itemUrl = (a.getAttribute("data-url") || "").split("?")[0].toLowerCase();
             if (itemUrl === path) {
-                
                 a.classList.add("bg-slate-700", "text-slate-50");
             }
         });
     }
 
-             
-        function loadPageIntoMainContent(url) {
+    function loadPageIntoMainContent(url) {
         const main = document.getElementById("main-content");
-        
-            if (!main) {
-        hideMainLoading();
-        window.location.href = url;
-        return;
-    }
 
-
-        fetch(url, { headers: { "X-Requested-With": "XMLHttpRequest" } })
-            .then(function (response) { return response.text(); })
-
-
-        .then(function (html) {
-        const parser = new DOMParser();
-        const doc = parser.parseFromString(html, "text/html");
-
-        const newMain = doc.getElementById("main-content");
-        if (!newMain) {
+        if (!main) {
             hideMainLoading();
-            document.body.style.pointerEvents = "auto"; 
             window.location.href = url;
             return;
         }
 
-        main.innerHTML = newMain.innerHTML;
-        if (window.initFlowbite) window.initFlowbite();
+        fetch(url, { headers: { "X-Requested-With": "XMLHttpRequest" } })
+            .then(function (response) { return response.text(); })
+            .then(function (html) {
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(html, "text/html");
 
-        window.history.pushState({}, "", url);
+                // ====== 1) تحديث main-content ======
+                const newMain = doc.getElementById("main-content");
+                if (!newMain) {
+                    hideMainLoading();
+                    document.body.style.pointerEvents = "auto";
+                    window.location.href = url;
+                    return;
+                }
+                main.innerHTML = newMain.innerHTML;
 
-        const titleEl = doc.querySelector("title");
-        if (titleEl && titleEl.textContent) document.title = titleEl.textContent;
-
-        setActiveSidebar(url);
-        hideMainLoading();
-        document.body.style.pointerEvents = "auto"; 
-    })
-    .catch(function (err) {
-        console.error("Error loading page", err);
-        hideMainLoading();
-        document.body.style.pointerEvents = "auto"; 
-        window.location.href = url;
-    });
-
-
+                // ====== 2) تحديث breadcrumb (page-header) لأنه خارج main ======
+                    // ====== 2) تحديث breadcrumb فقط (بدون استبدال الهيدر كامل) ======
+    const currentBc = document.querySelector("#page-header .sf-bc-text");
+    const newBc = doc.querySelector("#page-header .sf-bc-text");
+    if (currentBc && newBc) {
+        currentBc.innerHTML = newBc.innerHTML;
     }
 
 
+                // ====== 3) تهيئة Flowbite بعد التحديث ======
+                if (window.initFlowbite) window.initFlowbite();
 
-        document.addEventListener("DOMContentLoaded", () => {
+                // ====== 4) تحديث الـ URL + title ======
+                window.history.pushState({}, "", url);
+
+                const titleEl = doc.querySelector("title");
+                if (titleEl && titleEl.textContent) {
+                    document.title = titleEl.textContent;
+                }
+
+                // ====== 5) تفعيل السايدبار + إنهاء التحميل ======
+                setActiveSidebar(url);
+                hideMainLoading();
+                document.body.style.pointerEvents = "auto";
+            })
+            .catch(function (err) {
+                console.error("Error loading page", err);
+                hideMainLoading();
+                document.body.style.pointerEvents = "auto";
+                window.location.href = url;
+            });
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
         const container = document.getElementById("menu-container");
         if (container && Array.isArray(menuData)) {
             const uniqueMenuData = removeDuplicateMenuItems(menuData);
@@ -892,7 +597,7 @@
         // تفعيل العنصر الحالي
         setActiveSidebar(window.location.pathname + window.location.search);
 
-        // (هنا بالضبط) تحديث aria-expanded للسهم فقط
+        // تحديث aria-expanded للقوائم (بعد فتح/إغلاق Flowbite)
         document.body.addEventListener("click", function (e) {
             const btn = e.target.closest('button[data-collapse-toggle]');
             if (!btn) return;
@@ -901,18 +606,18 @@
             const target = document.getElementById(id);
             if (!target) return;
 
-            // بعد ما Flowbite يفتح/يقفل القائمة
             requestAnimationFrame(() => {
                 const isOpenNow = !target.classList.contains("hidden");
                 btn.setAttribute("aria-expanded", isOpenNow ? "true" : "false");
             });
         });
 
-        // كود الضغط على روابط القائمة (AJAX)
+        // الضغط على روابط القائمة (AJAX)
         document.body.addEventListener("click", function (e) {
             const link = e.target.closest("a.sidebar-link");
             if (!link) return;
 
+            // السماح بفتح تبويب جديد/نفس خيارات المتصفح
             if (e.button !== 0 || e.ctrlKey || e.shiftKey || e.metaKey || e.altKey) {
                 return;
             }
@@ -930,12 +635,113 @@
             }, 1000);
         });
 
+        // الرجوع/التقدم بالمتصفح
         window.addEventListener("popstate", function () {
             loadPageIntoMainContent(window.location.pathname + window.location.search);
         });
     });
 
+    </script>
 
+
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const body = document.body;
+        const sidebar = document.getElementById('logo-sidebar');
+        const pinBtn = document.getElementById('pin-sidebar');
+        const toggleSidebarBtn = document.getElementById("toggle-sidebar");
+        const mobileToggleBtn = document.querySelector('[data-drawer-toggle="logo-sidebar"]');
+
+        let isHoverTriggered = false; //  نستخدمه نعرف إذا الفتح كان بالماوس
+
+        //  زر القائمة (موبايل)
+        if (mobileToggleBtn) {
+            mobileToggleBtn.addEventListener('click', () => {
+                const isOpen = !sidebar.classList.contains('translate-x-full');
+                if (isOpen) {
+                    sidebar.classList.add('translate-x-full');
+                    const backdrop = document.querySelector('[drawer-backdrop]');
+                    if (backdrop) backdrop.remove();
+                } else {
+                    sidebar.classList.remove('translate-x-full');
+                    if (!document.querySelector('[drawer-backdrop]')) {
+                        const backdrop = document.createElement('div');
+                        backdrop.className = 'fixed inset-0 z-30 bg-black/50 lg:hidden';
+                        backdrop.setAttribute('drawer-backdrop', '');
+                        backdrop.addEventListener('click', () => {
+                            sidebar.classList.add('translate-x-full');
+                            backdrop.remove();
+                        });
+                        document.body.appendChild(backdrop);
+                    }
+                }
+            });
+        }
+
+        //  زر التثبيت داخل السايدبار
+        if (pinBtn) {
+            pinBtn.addEventListener('click', () => {
+                if (body.classList.contains('sidebar-collapsed')) {
+                    body.classList.remove('sidebar-collapsed');
+                    body.classList.add('sidebar-pinned');
+                } else if (body.classList.contains('sidebar-pinned')) {
+                    body.classList.remove('sidebar-pinned');
+                    body.classList.add('sidebar-collapsed');
+                } else {
+                    body.classList.add('sidebar-collapsed');
+                }
+            });
+        }
+
+        //  زر الهيدر (بجانب البريدكامب)
+        if (toggleSidebarBtn) {
+            toggleSidebarBtn.addEventListener("click", () => {
+                if (body.classList.contains("sidebar-pinned")) {
+                    body.classList.remove("sidebar-pinned");
+                    body.classList.add("sidebar-collapsed");
+                } else if (body.classList.contains("sidebar-collapsed")) {
+                    body.classList.remove("sidebar-collapsed");
+                    body.classList.add("sidebar-pinned");
+                } else {
+                    body.classList.add("sidebar-collapsed");
+                }
+            });
+        }
+
+        //  روابط السايدبار (موبايل)
+        document.querySelectorAll('#logo-sidebar a').forEach(link => {
+            link.addEventListener('click', () => {
+                if (window.innerWidth < 1024) {
+                    sidebar.classList.add('translate-x-full');
+                    const backdrop = document.querySelector('[drawer-backdrop]');
+                    if (backdrop) backdrop.remove();
+                }
+            });
+        });
+
+        //  RTL
+        if (document.documentElement.getAttribute('dir') === 'rtl') {
+            sidebar.classList.add('right-0');
+            sidebar.classList.remove('left-0');
+        }
+
+        // فتح مؤقت بالماوس إذا السايدبار مصغر
+        sidebar.addEventListener("mouseenter", () => {
+            if (window.innerWidth >= 1024 && body.classList.contains("sidebar-collapsed")) {
+                isHoverTriggered = true;
+                body.classList.remove("sidebar-collapsed");
+                body.classList.add("sidebar-pinned");
+            }
+        });
+
+        //  يرجع يقفل إذا خرج الماوس منه فقط إذا الفتح كان Hover
+        sidebar.addEventListener("mouseleave", () => {
+            if (window.innerWidth >= 1024 && isHoverTriggered) {
+                body.classList.remove("sidebar-pinned");
+                body.classList.add("sidebar-collapsed");
+                isHoverTriggered = false;
+            }
+        });
+    });
 </script>
-
-

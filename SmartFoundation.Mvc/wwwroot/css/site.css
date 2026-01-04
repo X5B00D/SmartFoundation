@@ -669,6 +669,9 @@ body, h1, h2, h3, h4, h5, h6, input, textarea, select, button {
   .h-8 {
     height: calc(var(--spacing) * 8);
   }
+  .h-9 {
+    height: calc(var(--spacing) * 9);
+  }
   .h-10 {
     height: calc(var(--spacing) * 10);
   }
@@ -710,6 +713,9 @@ body, h1, h2, h3, h4, h5, h6, input, textarea, select, button {
   }
   .w-8 {
     width: calc(var(--spacing) * 8);
+  }
+  .w-9 {
+    width: calc(var(--spacing) * 9);
   }
   .w-10 {
     width: calc(var(--spacing) * 10);
@@ -805,6 +811,9 @@ body, h1, h2, h3, h4, h5, h6, input, textarea, select, button {
   }
   .flex-col {
     flex-direction: column;
+  }
+  .flex-wrap {
+    flex-wrap: wrap;
   }
   .items-center {
     align-items: center;
@@ -1015,6 +1024,12 @@ body, h1, h2, h3, h4, h5, h6, input, textarea, select, button {
       border-color: color-mix(in oklab, var(--color-white) 30%, transparent);
     }
   }
+  .bg-black\/50 {
+    background-color: color-mix(in srgb, #000 50%, transparent);
+    @supports (color: color-mix(in lab, red, red)) {
+      background-color: color-mix(in oklab, var(--color-black) 50%, transparent);
+    }
+  }
   .bg-blue-100 {
     background-color: var(--color-blue-100);
   }
@@ -1035,6 +1050,9 @@ body, h1, h2, h3, h4, h5, h6, input, textarea, select, button {
   }
   .bg-gray-200 {
     background-color: var(--color-gray-200);
+  }
+  .bg-gray-700 {
+    background-color: var(--color-gray-700);
   }
   .bg-gray-900\/50 {
     background-color: color-mix(in srgb, oklch(21% 0.034 264.665) 50%, transparent);
@@ -2065,6 +2083,14 @@ body, h1, h2, h3, h4, h5, h6, input, textarea, select, button {
       --tw-ring-color: var(--color-gray-200);
     }
   }
+  .focus\:ring-slate-300\/30 {
+    &:focus {
+      --tw-ring-color: color-mix(in srgb, oklch(86.9% 0.022 252.894) 30%, transparent);
+      @supports (color: color-mix(in lab, red, red)) {
+        --tw-ring-color: color-mix(in oklab, var(--color-slate-300) 30%, transparent);
+      }
+    }
+  }
   .focus\:ring-slate-400 {
     &:focus {
       --tw-ring-color: var(--color-slate-400);
@@ -2124,6 +2150,11 @@ body, h1, h2, h3, h4, h5, h6, input, textarea, select, button {
       margin-right: calc(var(--spacing) * 64);
     }
   }
+  .sm\:block {
+    @media (width >= 40rem) {
+      display: block;
+    }
+  }
   .sm\:w-3\/4 {
     @media (width >= 40rem) {
       width: calc(3/4 * 100%);
@@ -2181,9 +2212,19 @@ body, h1, h2, h3, h4, h5, h6, input, textarea, select, button {
       padding-inline: calc(var(--spacing) * 6);
     }
   }
+  .lg\:block {
+    @media (width >= 64rem) {
+      display: block;
+    }
+  }
   .lg\:hidden {
     @media (width >= 64rem) {
       display: none;
+    }
+  }
+  .lg\:inline-flex {
+    @media (width >= 64rem) {
+      display: inline-flex;
     }
   }
   .lg\:w-2\/4 {
@@ -2426,6 +2467,11 @@ body, h1, h2, h3, h4, h5, h6, input, textarea, select, button {
   .dark\:text-gray-100 {
     &:where(.dark, .dark *) {
       color: var(--color-gray-100);
+    }
+  }
+  .dark\:text-gray-300 {
+    &:where(.dark, .dark *) {
+      color: var(--color-gray-300);
     }
   }
   .dark\:text-gray-400 {
@@ -13019,136 +13065,6 @@ body.sf-navigating .select2-dropdown, body.sf-navigating .sf-select-panel {
   text-align: center;
   color: #6b7280;
   font-size: 14px;
-}
-.sf-bc {
-  --bc-accent: #20876a;
-  --bc-text: #374151;
-  --bc-muted: rgba(55, 65, 81, .62);
-  --bc-bg: rgba(243, 244, 246, .55);
-  --bc-border: rgba(17, 24, 39, .06);
-  --bc-line: rgba(32, 135, 106, .16);
-  --bc-hover: rgba(32, 135, 106, .08);
-  --bc-current: rgba(32, 135, 106, .10);
-  --bc-radius: 10px;
-  --bc-h: 30px;
-  --bc-pad-x: 10px;
-  direction: rtl;
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  min-height: var(--bc-h);
-  padding: 0 var(--bc-pad-x);
-  margin: 50px 0 12px;
-  background: var(--bc-bg);
-  border: 1px solid var(--bc-border);
-  border-radius: var(--bc-radius);
-  box-shadow: 0 1px 0 rgba(17, 24, 39, .03);
-  font-size: 13px;
-  line-height: 1;
-  color: var(--bc-text);
-  -webkit-font-smoothing: antialiased;
-  text-rendering: optimizeLegibility;
-}
-.sf-bc::before {
-  content: "";
-  width: 2px;
-  height: 14px;
-  border-radius: 999px;
-  background: var(--bc-line);
-  flex: 0 0 auto;
-  opacity: .9;
-}
-.sf-bc .sf-bc-icon {
-  color: var(--bc-muted);
-  opacity: .8;
-  font-size: 10px;
-  line-height: 4;
-  flex: 0 0 auto;
-}
-.sf-bc .sf-bc-text {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 0;
-  font-size: 13px;
-  line-height: 1.2;
-}
-.sf-bc .sf-bc-text > li {
-  display: inline-flex;
-  align-items: center;
-  white-space: nowrap;
-}
-.sf-bc .sf-bc-text a {
-  color: var(--bc-muted);
-  text-decoration: none;
-  display: inline-flex;
-  align-items: center;
-  padding: 5px 6px;
-  border-radius: 8px;
-  font-size: 13px;
-  font-weight: 600;
-  transition: background-color 140ms ease, color 140ms ease;
-}
-.sf-bc .sf-bc-text a:hover {
-  background: var(--bc-hover);
-  color: var(--bc-accent);
-}
-.sf-bc .sf-bc-text a:focus-visible {
-  outline: 2px solid rgba(32, 135, 106, .22);
-  outline-offset: 2px;
-  background: rgba(32, 135, 106, .10);
-  color: var(--bc-accent);
-}
-.sf-bc .sf-bc-text .sep {
-  position: relative;
-  width: 14px;
-  height: 12px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  user-select: none;
-  margin: 0 2px;
-}
-.sf-bc .sf-bc-text .sep::before {
-  content: "";
-  width: 4px;
-  height: 4px;
-  border-radius: 999px;
-  background: rgba(32, 135, 106, .28);
-}
-.sf-bc .sf-bc-text .current, .sf-bc .sf-bc-text a[aria-current="page"] {
-  color: var(--bc-accent);
-  font-weight: 750;
-  padding: 5px 6px;
-  border-radius: 8px;
-  background: var(--bc-current);
-}
-.sf-bc .sf-bc-text a, .sf-bc .sf-bc-text .current {
-  white-space: normal;
-  overflow-wrap: anywhere;
-  word-break: break-word;
-}
-@media (prefers-reduced-motion: reduce) {
-  .sf-bc .sf-bc-text a {
-    transition: none;
-  }
-}
-html.dark .sf-bc {
-  background: rgba(243, 244, 246, .55);
-  border-color: rgba(17, 24, 39, .10);
-  color: var(--bc-text);
-}
-html.dark .sf-bc .sf-bc-icon {
-  color: var(--bc-muted);
-}
-html.dark .sf-bc .sf-bc-text a {
-  color: var(--bc-muted);
-}
-html.dark .sf-bc .sf-bc-text a:hover, html.dark .sf-bc .sf-bc-text a:focus-visible, html.dark .sf-bc .sf-bc-text .current, html.dark .sf-bc .sf-bc-text a[aria-current="page"] {
-  color: var(--bc-accent);
 }
 @property --tw-translate-x {
   syntax: "*";
