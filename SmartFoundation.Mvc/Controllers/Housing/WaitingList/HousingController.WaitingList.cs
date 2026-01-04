@@ -1,12 +1,10 @@
-﻿using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using SmartFoundation.UI.ViewModels.SmartForm;
 using SmartFoundation.UI.ViewModels.SmartPage;
 using SmartFoundation.UI.ViewModels.SmartTable;
 using System.Data;
 using System.Linq;
 using System.Text.Json;
-using static System.Collections.Specialized.BitVector32;
 
 
 namespace SmartFoundation.Mvc.Controllers.Housing
@@ -15,46 +13,58 @@ namespace SmartFoundation.Mvc.Controllers.Housing
     {
         public async Task<IActionResult> WaitingList()
         {
-            //  قراءة السيشن والكونتكست
-            if (!InitPageContext(out var redirect))
-                return redirect!;
+
+            if (!InitPageContext(out IActionResult? redirectResult))
+                return redirectResult!;
 
             if (string.IsNullOrWhiteSpace(usersId))
             {
                 return RedirectToAction("Index", "Login", new { logout = 4 });
             }
 
-            string? NationalID_ = Request.Query["NID"].FirstOrDefault();
+            string? waitingClassID_ = Request.Query["U"].FirstOrDefault();
 
-            ControllerName = nameof(Housing);
-            PageName = string.IsNullOrWhiteSpace(PageName) ? "WaitingList" : PageName;
+            waitingClassID_ = string.IsNullOrWhiteSpace(waitingClassID_) ? null : waitingClassID_.Trim();
 
-            var spParameters = new object?[]
-            {
-             PageName ?? "WaitingList",
-             IdaraId,
-             usersId,
-             HostName,
-             NationalID_
-            };
+            bool ready = false;
 
-           
+            ready = !string.IsNullOrWhiteSpace(waitingClassID_);
+
+
+
+
+            // Sessions 
+
+            ControllerName = nameof(ControlPanel);
+            PageName = nameof(BuildingDetails);
+
+            var spParameters = new object?[] { "WaitingList", IdaraId, usersId, HostName, waitingClassID_ };
+
+            DataSet ds;
+
 
             var rowsList = new List<Dictionary<string, object?>>();
-            var rowsList_dt2 = new List<Dictionary<string, object?>>();
-            var rowsList_dt3 = new List<Dictionary<string, object?>>();
-            var rowsList_dt4 = new List<Dictionary<string, object?>>();
             var dynamicColumns = new List<TableColumn>();
-            var dynamicColumns_dt2 = new List<TableColumn>();
-            var dynamicColumns_dt3 = new List<TableColumn>();
-            var dynamicColumns_dt4 = new List<TableColumn>();
 
-            DataSet ds = await _mastersServies.GetDataLoadDataSetAsync(spParameters);
 
-            //  تقسيم الداتا سيت للجدول الأول + جداول أخرى
-            SplitDataSet(ds);
+            ds = await _mastersServies.GetDataLoadDataSetAsync(spParameters);
 
-            //  التحقق من الصلاحيات
+
+
+
+
+            DataTable? permissionTable = (ds?.Tables?.Count ?? 0) > 0 ? ds.Tables[0] : null;
+
+            dt1 = (ds?.Tables?.Count ?? 0) > 1 ? ds.Tables[1] : null;
+            dt2 = (ds?.Tables?.Count ?? 0) > 2 ? ds.Tables[2] : null;
+            dt3 = (ds?.Tables?.Count ?? 0) > 3 ? ds.Tables[3] : null;
+            dt4 = (ds?.Tables?.Count ?? 0) > 4 ? ds.Tables[4] : null;
+            dt5 = (ds?.Tables?.Count ?? 0) > 5 ? ds.Tables[5] : null;
+            dt6 = (ds?.Tables?.Count ?? 0) > 6 ? ds.Tables[6] : null;
+            dt7 = (ds?.Tables?.Count ?? 0) > 7 ? ds.Tables[7] : null;
+            dt8 = (ds?.Tables?.Count ?? 0) > 8 ? ds.Tables[8] : null;
+            dt9 = (ds?.Tables?.Count ?? 0) > 9 ? ds.Tables[9] : null;
+
             if (permissionTable is null || permissionTable.Rows.Count == 0)
             {
                 TempData["Error"] = "تم رصد دخول غير مصرح به انت لاتملك صلاحية للوصول الى هذه الصفحة";
@@ -62,107 +72,55 @@ namespace SmartFoundation.Mvc.Controllers.Housing
             }
 
 
-            if (!string.IsNullOrWhiteSpace(NationalID_) && (dt1 == null || dt1.Rows.Count == 0))
-            {
-                TempData["Error"] = "لم يتم العثور على نتائج لرقم الهوية: " + NationalID_;
-                
-            }
-
-
-            string? residentInfoID_ = null;
-            if (dt1 != null && dt1.Columns.Contains("NationalID") && dt1.Columns.Contains("residentInfoID"))
-            {
-                var row = dt1.AsEnumerable()
-                    .FirstOrDefault(r => r["NationalID"] != DBNull.Value && r["NationalID"].ToString() == NationalID_);
-                if (row != null)
-                {
-                    var val = row["residentInfoID"];
-                    residentInfoID_ = val == DBNull.Value ? null : val.ToString();
-                }
-            }
-
-            string? generalNo_FK_ = null;
-            if (dt1 != null && dt1.Columns.Contains("NationalID") && dt1.Columns.Contains("generalNo_FK"))
-            {
-                var row = dt1.AsEnumerable()
-                    .FirstOrDefault(r => r["NationalID"] != DBNull.Value && r["NationalID"].ToString() == NationalID_);
-                if (row != null)
-                {
-                    var val = row["generalNo_FK"];
-                    generalNo_FK_ = val == DBNull.Value ? null : val.ToString();
-                }
-            }
 
 
 
             string rowIdField = "";
-            string rowIdField_dt2 = "";
-            string rowIdField_dt3 = "";
-            string rowIdField_dt4 = "";
-            bool canInsertWaitingList = false;
-            bool canInsertOCCUBENTLETTER = false;
-            bool canUpdateWaitingList = false;
-            bool canUpdateOCCUBENTLETTER = false;
-            bool canMoveWaitingList = false;
-            bool canDeleteWaitingList = false;
-            bool canDeleteOCCUBENTLETTER = false;
-            bool candeleteMoveWaitingList = false;
+            bool canMOVETOCUSTOMIZATIONLIST = false;
+
+
+
+
+            List<OptionItem> WaitingListOptions = new();
+
+
 
 
             FormConfig form = new();
 
 
-            List<OptionItem> waitingClassOptions = new();
-            List<OptionItem> waitingOrderTypeOptions = new();
-            List<OptionItem> idaraOptions = new();
-           
-
-            // ---------------------- DDLValues ----------------------
-
-
-
-
-            JsonResult? result;
-            string json;
-
-
-
-
-            //// ---------------------- WaitingClass ----------------------
-            result = await _CrudController.GetDDLValues(
-                "waitingClassName_A", "waitingClassID", "5", nameof(WaitingList), usersId, IdaraId, HostName
-           ) as JsonResult;
-
-
-            json = JsonSerializer.Serialize(result!.Value);
-
-            waitingClassOptions = JsonSerializer.Deserialize<List<OptionItem>>(json)!;
-            //// ---------------------- militaryUnitOptions ----------------------
-            result = await _CrudController.GetDDLValues(
-                "waitingOrderTypeName_A", "waitingOrderTypeID", "6", nameof(WaitingList), usersId, IdaraId, HostName
-           ) as JsonResult;
-
-
-            json = JsonSerializer.Serialize(result!.Value);
-
-            waitingOrderTypeOptions = JsonSerializer.Deserialize<List<OptionItem>>(json)!;
-            
-            //// ---------------------- idaraOptions ----------------------
-            result = await _CrudController.GetDDLValues(
-                "idaraLongName_A", "idaraID", "7", nameof(WaitingList), usersId, IdaraId, HostName
-           ) as JsonResult;
-
-
-            json = JsonSerializer.Serialize(result!.Value);
-
-            idaraOptions = JsonSerializer.Deserialize<List<OptionItem>>(json)!;
-            
-
-            //// ---------------------- END DDL ----------------------
-
             try
             {
 
+                // ---------------------- DDLValues ----------------------
+
+
+
+
+                JsonResult? result;
+                string json;
+
+
+
+
+                //// ---------------------- BuildingUtilityType ----------------------
+                result = await _CrudController.GetDDLValues(
+                    "waitingClassName_A", "waitingClassID", "2", nameof(WaitingList), usersId, IdaraId, HostName
+               ) as JsonResult;
+
+
+                json = JsonSerializer.Serialize(result!.Value);
+
+                WaitingListOptions = JsonSerializer.Deserialize<List<OptionItem>>(json)!;
+
+
+                // ----------------------END DDLValues ----------------------
+
+
+
+
+
+                // Determine which fields should be visible based on SearchID_
 
                 form = new FormConfig
                 {
@@ -170,6 +128,8 @@ namespace SmartFoundation.Mvc.Controllers.Housing
                     Title = "نموذج الإدخال",
                     Method = "POST",
                     SubmitText = null,
+
+
                     StoredProcedureName = "sp_SaveDemoForm",
                     Operation = "insert",
                     StoredSuccessMessageField = "Message",
@@ -177,92 +137,107 @@ namespace SmartFoundation.Mvc.Controllers.Housing
 
                     Fields = new List<FieldConfig>
                 {
-                    // ========= البيانات الشخصية =========
+
 
                      new FieldConfig {
-                         SectionTitle = "نوع البحث",
-                         Label="البحث برقم الهوية الوطنية",
-                         Required =true,
-                         Name = "NationalID",
-                         Type = "nationalid",
+                         SectionTitle = "اختيار فئة قائمة الانتظار",
+                         Name = "WaitingList",
+                         Type = "select",
+                         Options = WaitingListOptions,
                          ColCss = "3",
-                         Value = NationalID_,
-                         Placeholder = "1xxxxxxxxx",
-                         Icon = "fa-solid fa-id-card",
-                         MaxLength=10,
+                         Placeholder = "اختر فئة سجلات الانتظار",
+                         Icon = "fa fa-user",
+                         Value = waitingClassID_,
+                         OnChangeJs = @"
+                                       var WaitingClassID_ = value.trim();
+                                       if (!WaitingClassID_) {
+                                           if (typeof toastr !== 'undefined') {
+                                               toastr.info('الرجاء الاختيار اولا');
+                                           }
+                                           return;
+                                       }
+                                         if (value && value !== '-1') {
+                             var url = '/Housing/WaitingList?U=' + encodeURIComponent(WaitingClassID_);
+                            window.location.href = url;
+                        }
 
+                                   "
                      },
 
-                   },
 
-
+                 },
                     Buttons = new List<FormButtonConfig>
                     {
-                                   new FormButtonConfig
-                          {
-                              Text="بحث",
-                              Icon="fa-solid fa-search",
-                              Type="button",
-                              Color="success",
-                              // Replace the OnClickJs of the "تجربة" button with this:
-                              OnClickJs = "(function(){"
-                                + "var hidden=document.querySelector('input[name=NationalID]');"
-                                + "if(!hidden){toastr.error('لا يوجد حقل مستخدم');return;}"
-                                + "var NationalID = (hidden.value||'').trim();"
-                                + "if(!NationalID){toastr.error('الرجاء كتابة رقم الهوية الوطنية');return;}"
-                                + "var url = '/Housing/WaitingList?NID=' + encodeURIComponent(NationalID);"
-                                + "window.location.href = url;"
-                                + "})();"
-                                },
-                            }
-                        };
+                        //           new FormButtonConfig
+                        //  {
+                        //      Text="بحث",
+                        //      Icon="fa-solid fa-search",
+                        //      Type="button",
+                        //      Color="success",
+                        //      // Replace the OnClickJs of the "تجربة" button with this:
+                        //      OnClickJs = "(function(){"
+                        //+ "var hidden=document.querySelector('input[name=Users]');"
+                        //+ "if(!hidden){toastr.error('لا يوجد حقل مستخدم');return;}"
+                        //+ "var userId = (hidden.value||'').trim();"
+                        //+ "var anchor = hidden.parentElement.querySelector('.sf-select');"
+                        //+ "var userName = anchor && anchor.querySelector('.truncate') ? anchor.querySelector('.truncate').textContent.trim() : '';"
+                        //+ "if(!userId){toastr.info('اختر مستخدم أولاً');return;}"
+                        //+ "var url = '/ControlPanel/Permission?Q1=' + encodeURIComponent(userId);"
+                        //+ "window.location.href = url;"
+                        //+ "})();"
+                        //  },
 
 
-                if (ds != null && ds.Tables.Count > 0 && permissionTable!.Rows.Count > 0)
+
+                    }
+
+
+                };
+
+                if (ds != null && ds.Tables.Count > 0 && ds.Tables[0].Rows.Count > 0)
                 {
-                    // صلاحيات
+                    // اقرأ الجدول الأول
+
+
+                    // نبحث عن صلاحيات محددة داخل الجدول
                     foreach (DataRow row in permissionTable.Rows)
                     {
                         var permissionName = row["permissionTypeName_E"]?.ToString()?.Trim().ToUpper();
 
-                        if (permissionName == "INSERTWAITINGLIST") canInsertWaitingList = true;
-                        if (permissionName == "INSERTOCCUBENTLETTER") canInsertOCCUBENTLETTER = true;
-                        if (permissionName == "UPDATEWAITINGLIST") canUpdateWaitingList = true;
-                        if (permissionName == "UPDATEOCCUBENTLETTER") canUpdateOCCUBENTLETTER = true;
-                        if (permissionName == "MOVEWAITINGLIST") canMoveWaitingList = true;
-                        if (permissionName == "DELETEWAITINGLIST") canDeleteWaitingList = true;
-                        if (permissionName == "DELETEOCCUBENTLETTER") canDeleteOCCUBENTLETTER = true;
-                        if (permissionName == "DELETEMOVEWAITINGLIST") candeleteMoveWaitingList = true;
+                        if (permissionName == "MOVETOCUSTOMIZATIONLIST")
+                            canMOVETOCUSTOMIZATIONLIST = true;
+
+                       
                     }
 
-                    if (dt1 != null && dt1.Columns.Count > 0)
+
+                    if (ds != null && ds.Tables.Count > 0)
                     {
-                        // RowId
-                        rowIdField = "residentInfoID";
-                        var possibleIdNames = new[] { "residentInfoID", "ResidentInfoID", "Id", "ID" };
+
+                        // Resolve a correct row id field (case sensitive match to actual DataTable column)
+                        rowIdField = "permissionID";
+                        var possibleIdNames = new[] { "permissionID", "PermissionID", "Id", "ID" };
+
                         rowIdField = possibleIdNames.FirstOrDefault(n => dt1.Columns.Contains(n))
                                      ?? dt1.Columns[0].ColumnName;
 
-                        // عناوين الأعمدة بالعربي
+                        //For change table name to arabic 
                         var headerMap = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
                         {
-                            ["residentInfoID"] = "الرقم المرجعي",
+                            ["ActionID"] = "رقم الاكشن",
                             ["NationalID"] = "رقم الهوية",
-                            ["generalNo_FK"] = "الرقم العام",
-                            ["rankNameA"] = "الرتبة",
-                            ["militaryUnitName_A"] = "الوحدة",
-                            ["maritalStatusName_A"] = "الحالة الاجتماعية",
-                            ["dependinceCounter"] = "عدد التابعين",
-                            ["nationalityName_A"] = "الجنسية",
-                            ["genderName_A"] = "الجنس",
-                            ["FullName_A"] = "الاسم بالعربي",
-                            ["FullName_E"] = "الاسم بالانجليزي",
-                            ["birthdate"] = "تاريخ الميلاد",
-                            ["residentcontactDetails"] = "رقم الجوال",
-                            ["note"] = "ملاحظات"
+                            ["GeneralNo"] = "الرقم العام",
+                            ["ActionDecisionNo"] = "رقم الطلب",
+                            ["ActionDecisionDate"] = "تاريخ الطلب",
+                            ["WaitingClassName"] = "فئة سجل الانتظار",
+                            ["WaitingOrderTypeName"] = "نوع سجل الانتظار",
+                            ["ActionNote"] = "ملاحظات",
+                            ["FullName_A"] = "الاسم",
+                            ["WaitingListOrder"] = "الترتيب"
                         };
 
-                        // الأعمدة
+
+                        // build columns from DataTable schema
                         foreach (DataColumn c in dt1.Columns)
                         {
                             string colType = "text";
@@ -273,24 +248,13 @@ namespace SmartFoundation.Mvc.Controllers.Housing
                                      || t == typeof(float) || t == typeof(double) || t == typeof(decimal))
                                 colType = "number";
 
-                            bool isfirstName_A = c.ColumnName.Equals("firstName_A", StringComparison.OrdinalIgnoreCase);
-                            bool issecondName_A = c.ColumnName.Equals("secondName_A", StringComparison.OrdinalIgnoreCase);
-                            bool isthirdName_A = c.ColumnName.Equals("thirdName_A", StringComparison.OrdinalIgnoreCase);
-                            bool islastName_A = c.ColumnName.Equals("lastName_A", StringComparison.OrdinalIgnoreCase);
-                            bool isfirstName_E = c.ColumnName.Equals("firstName_E", StringComparison.OrdinalIgnoreCase);
-                            bool issecondName_E = c.ColumnName.Equals("secondName_E", StringComparison.OrdinalIgnoreCase);
-                            bool isthirdName_E = c.ColumnName.Equals("thirdName_E", StringComparison.OrdinalIgnoreCase);
-                            bool islastName_E = c.ColumnName.Equals("lastName_E", StringComparison.OrdinalIgnoreCase);
-                            bool isrankID_FK = c.ColumnName.Equals("rankID_FK", StringComparison.OrdinalIgnoreCase);
-                            bool ismilitaryUnitID_FK = c.ColumnName.Equals("militaryUnitID_FK", StringComparison.OrdinalIgnoreCase);
-                            bool ismartialStatusID_FK = c.ColumnName.Equals("martialStatusID_FK", StringComparison.OrdinalIgnoreCase);
-                            bool isnationalityID_FK = c.ColumnName.Equals("nationalityID_FK", StringComparison.OrdinalIgnoreCase);
-                            bool isgenderID_FK = c.ColumnName.Equals("genderID_FK", StringComparison.OrdinalIgnoreCase);
-                            bool isresidentInfoID = c.ColumnName.Equals("residentInfoID", StringComparison.OrdinalIgnoreCase);
-                            bool isFullName_E = c.ColumnName.Equals("FullName_E", StringComparison.OrdinalIgnoreCase);
-                            bool isbirthdate = c.ColumnName.Equals("birthdate", StringComparison.OrdinalIgnoreCase);
-                            bool isnote = c.ColumnName.Equals("note", StringComparison.OrdinalIgnoreCase);
-                          
+                            bool isActionID = c.ColumnName.Equals("ActionID", StringComparison.OrdinalIgnoreCase);
+                            bool isWaitingClassID = c.ColumnName.Equals("WaitingClassID", StringComparison.OrdinalIgnoreCase);
+                            bool isWaitingOrderTypeID = c.ColumnName.Equals("WaitingOrderTypeID", StringComparison.OrdinalIgnoreCase);
+                            bool iswaitingClassSequence = c.ColumnName.Equals("waitingClassSequence", StringComparison.OrdinalIgnoreCase);
+                            bool isresidentInfoID_FK = c.ColumnName.Equals("residentInfoID_FK", StringComparison.OrdinalIgnoreCase);
+                            bool isIdaraId_FK = c.ColumnName.Equals("IdaraId_FK", StringComparison.OrdinalIgnoreCase);
+                            
 
                             dynamicColumns.Add(new TableColumn
                             {
@@ -298,12 +262,16 @@ namespace SmartFoundation.Mvc.Controllers.Housing
                                 Label = headerMap.TryGetValue(c.ColumnName, out var label) ? label : c.ColumnName,
                                 Type = colType,
                                 Sortable = true
-                                 ,
-                                Visible = !(isfirstName_A || isfirstName_E || issecondName_A || issecondName_E || isthirdName_A || isthirdName_E || islastName_A || islastName_E || isrankID_FK || ismilitaryUnitID_FK || ismartialStatusID_FK || isnationalityID_FK || isgenderID_FK || isFullName_E || isbirthdate || isnote )
+                                //if u want to hide any column 
+                                ,
+                                Visible = !(isActionID || isWaitingClassID || isWaitingOrderTypeID || iswaitingClassSequence
+                                || isresidentInfoID_FK || isIdaraId_FK)
                             });
                         }
 
-                        // الصفوف
+
+
+                        // build rows (plain dictionaries) so JSON serialization is clean
                         foreach (DataRow r in dt1.Rows)
                         {
                             var dict = new Dictionary<string, object?>(StringComparer.OrdinalIgnoreCase);
@@ -313,856 +281,146 @@ namespace SmartFoundation.Mvc.Controllers.Housing
                                 dict[c.ColumnName] = val == DBNull.Value ? null : val;
                             }
 
-                            // p01..p05
+                            // Ensure the row id key actually exists with correct casing
+                            if (!dict.ContainsKey(rowIdField))
+                            {
+                                // Try to copy from a differently cased variant
+                                if (rowIdField.Equals("permissionID", StringComparison.OrdinalIgnoreCase) &&
+                                    dict.TryGetValue("permissionID", out var alt))
+                                    dict["permissionID"] = alt;
+                                else if (rowIdField.Equals("permissionID", StringComparison.OrdinalIgnoreCase) &&
+                                         dict.TryGetValue("permissionID", out var alt2))
+                                    dict["permissionID"] = alt2;
+                            }
+
+                            // Prefill pXX fields on the row so Edit form (which uses pXX names) loads the selected row values
                             object? Get(string key) => dict.TryGetValue(key, out var v) ? v : null;
-                            dict["p01"] = Get("residentInfoID") ?? Get("ResidentInfoID");
-                            dict["p02"] = Get("NationalID");
-                            dict["p03"] = Get("generalNo_FK");
-                            dict["p04"] = Get("firstName_A");
-                            dict["p05"] = Get("secondName_A");
-                            dict["p06"] = Get("thirdName_A");
-                            dict["p07"] = Get("lastName_A");
-                            dict["p08"] = Get("firstName_E");
-                            dict["p09"] = Get("secondName_E");
-                            dict["p10"] = Get("thirdName_E");
-                            dict["p11"] = Get("lastName_E");
-                            dict["p12"] = Get("FullName_A");
-                            dict["p13"] = Get("FullName_E");
-                            dict["p14"] = Get("rankID_FK");
-                            dict["p15"] = Get("rankNameA");
-                            dict["p16"] = Get("militaryUnitID_FK");
-                            dict["p17"] = Get("militaryUnitName_A");
-                            dict["p18"] = Get("martialStatusID_FK");
-                            dict["p19"] = Get("maritalStatusName_A");
-                            dict["p20"] = Get("dependinceCounter");
-                            dict["p21"] = Get("nationalityID_FK");
-                            dict["p22"] = Get("nationalityName_A");
-                            dict["p23"] = Get("genderID_FK");
-                            dict["p24"] = Get("genderName_A");
-                            dict["p25"] = Get("birthdate");
-                            dict["p26"] = Get("residentcontactDetails");
-                            dict["p27"] = Get("note");
+                            dict["p01"] = Get("ActionID") ?? Get("actionID");
+                            dict["p02"] = Get("WaitingListOrder");
+                            dict["p03"] = Get("FullName_A");
+                            dict["p04"] = Get("NationalID");
+                            dict["p05"] = Get("GeneralNo");
+                            dict["p06"] = Get("ActionDecisionNo");
+                            dict["p07"] = Get("ActionDecisionDate");
+                            dict["p08"] = Get("WaitingClassID");
+                            dict["p09"] = Get("WaitingClassName");
+                            dict["p10"] = Get("WaitingOrderTypeID");
+                            dict["p11"] = Get("buildingClassID_FK");
+                            dict["p12"] = Get("WaitingOrderTypeName");
+                            dict["p13"] = Get("waitingClassSequence");
+                            dict["p14"] = Get("residentInfoID_FK");
+                            dict["p15"] = Get("ActionNote");
+                            dict["p16"] = Get("IdaraId_FK");
 
                             rowsList.Add(dict);
                         }
                     }
 
-                    if (dt2 != null && dt2.Columns.Count > 0)
-                    {
-                        // RowId
-                        rowIdField_dt2 = "ActionID";
-                        var possibleIdNames2 = new[] { "ActionID", "actionID", "Id", "ID" };
-                        rowIdField_dt2 = possibleIdNames2.FirstOrDefault(n => dt2.Columns.Contains(n))
-                                     ?? dt2.Columns[0].ColumnName;
 
-                        // عناوين الأعمدة بالعربي
-                        var headerMap2 = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
-                        {
-                            ["ActionID"] = "الرقم المرجعي",
-                            ["NationalID"] = "رقم الهوية",
-                            ["GeneralNo"] = "الرقم العام",
-                            ["ActionDecisionNo"] = "رقم القرار",
-                            ["ActionDecisionDate"] = "تاريخ القرار",
-                            ["WaitingClassName"] = "فئة الانتظار",
-                            ["WaitingOrderTypeName"] = "النوع",
-                            ["ActionNote"] = "ملاحظات",
-                        };
-
-                        // الأعمدة
-                        foreach (DataColumn c in dt2.Columns)
-                        {
-                            string colType = "text";
-                            var t = c.DataType;
-                            if (t == typeof(bool)) colType = "bool";
-                            else if (t == typeof(DateTime)) colType = "date";
-                            else if (t == typeof(byte) || t == typeof(short) || t == typeof(int) || t == typeof(long)
-                                     || t == typeof(float) || t == typeof(double) || t == typeof(decimal))
-                                colType = "number";
-
-                            bool isWaitingClassID = c.ColumnName.Equals("WaitingClassID", StringComparison.OrdinalIgnoreCase);
-                            bool isWaitingOrderTypeID = c.ColumnName.Equals("WaitingOrderTypeID", StringComparison.OrdinalIgnoreCase);
-                            bool iswaitingClassSequence = c.ColumnName.Equals("waitingClassSequence", StringComparison.OrdinalIgnoreCase);
-                            bool isresidentInfoID_FK = c.ColumnName.Equals("residentInfoID_FK", StringComparison.OrdinalIgnoreCase);
-                            bool isresidentInfoID = c.ColumnName.Equals("residentInfoID", StringComparison.OrdinalIgnoreCase);
-                            bool isActionID = c.ColumnName.Equals("ActionID", StringComparison.OrdinalIgnoreCase);
-                            bool isNationalID = c.ColumnName.Equals("NationalID", StringComparison.OrdinalIgnoreCase);
-
-
-
-                            dynamicColumns_dt2.Add(new TableColumn
-                            {
-                                Field = c.ColumnName,
-                                Label = headerMap2.TryGetValue(c.ColumnName, out var label) ? label : c.ColumnName,
-                                Type = colType,
-                                Sortable = true
-                                 ,
-                                Visible = !(isWaitingClassID || isWaitingOrderTypeID || iswaitingClassSequence || isresidentInfoID_FK || isActionID || isNationalID)
-                            });
-                        }
-
-                        // الصفوف
-                        foreach (DataRow r in dt2.Rows)
-                        {
-                            var dict2 = new Dictionary<string, object?>(StringComparer.OrdinalIgnoreCase);
-                            foreach (DataColumn c in dt2.Columns)
-                            {
-                                var val = r[c];
-                                dict2[c.ColumnName] = val == DBNull.Value ? null : val;
-                            }
-
-                            // p01..p05
-                            object? Get(string key) => dict2.TryGetValue(key, out var v) ? v : null;
-                            dict2["p01"] = Get("ActionID") ?? Get("actionID");
-                            dict2["p02"] = Get("residentInfoID_FK");
-                            dict2["p03"] = Get("NationalID");
-                            dict2["p04"] = Get("GeneralNo");
-                            dict2["p05"] = Get("ActionDecisionNo");
-                            dict2["p06"] = Get("ActionDecisionDate");
-                            dict2["p07"] = Get("WaitingClassID");
-                            dict2["p08"] = Get("WaitingOrderTypeID");
-                            dict2["p09"] = Get("ActionNote");
-
-                            rowsList_dt2.Add(dict2);
-                        }
-                    }
-
-                    if (dt3 != null && dt3.Columns.Count > 0)
-                    {
-                        // RowId
-                        rowIdField_dt3 = "ActionID";
-                        var possibleIdNames3 = new[] { "ActionID", "actionID", "Id", "ID" };
-                        rowIdField_dt3 = possibleIdNames3.FirstOrDefault(n => dt3.Columns.Contains(n))
-                                     ?? dt3.Columns[0].ColumnName;
-
-                        // عناوين الأعمدة بالعربي
-                        var headerMap3 = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
-                        {
-                            ["ActionID"] = "الرقم المرجعي",
-                            ["NationalID"] = "رقم الهوية",
-                            ["GeneralNo"] = "الرقم العام",
-                            ["ActionDecisionNo"] = "رقم القرار",
-                            ["ActionDecisionDate"] = "تاريخ القرار",
-                            ["WaitingClassName"] = "فئة الانتظار",
-                            ["WaitingOrderTypeName"] = "النوع",
-                            ["ActionNote"] = "ملاحظات",
-                        };
-
-                        // الأعمدة
-                        foreach (DataColumn c in dt3.Columns)
-                        {
-                            string colType = "text";
-                            var t = c.DataType;
-                            if (t == typeof(bool)) colType = "bool";
-                            else if (t == typeof(DateTime)) colType = "date";
-                            else if (t == typeof(byte) || t == typeof(short) || t == typeof(int) || t == typeof(long)
-                                     || t == typeof(float) || t == typeof(double) || t == typeof(decimal))
-                                colType = "number";
-
-                            bool isWaitingClassID = c.ColumnName.Equals("WaitingClassID", StringComparison.OrdinalIgnoreCase);
-                            bool isWaitingOrderTypeID = c.ColumnName.Equals("WaitingOrderTypeID", StringComparison.OrdinalIgnoreCase);
-                            bool iswaitingClassSequence = c.ColumnName.Equals("waitingClassSequence", StringComparison.OrdinalIgnoreCase);
-                            bool isresidentInfoID_FK = c.ColumnName.Equals("residentInfoID_FK", StringComparison.OrdinalIgnoreCase);
-                            bool isresidentInfoID = c.ColumnName.Equals("residentInfoID", StringComparison.OrdinalIgnoreCase);
-                            bool isActionID = c.ColumnName.Equals("ActionID", StringComparison.OrdinalIgnoreCase);
-                            bool isNationalID = c.ColumnName.Equals("NationalID", StringComparison.OrdinalIgnoreCase);
-                            bool isWaitingClassName = c.ColumnName.Equals("WaitingClassName", StringComparison.OrdinalIgnoreCase);
-                            bool isWaitingOrderTypeName = c.ColumnName.Equals("WaitingOrderTypeName", StringComparison.OrdinalIgnoreCase);
-
-
-
-                            dynamicColumns_dt3.Add(new TableColumn
-                            {
-                                Field = c.ColumnName,
-                                Label = headerMap3.TryGetValue(c.ColumnName, out var label) ? label : c.ColumnName,
-                                Type = colType,
-                                Sortable = true
-                                 ,
-                                Visible = !(isWaitingClassID || isWaitingOrderTypeID || iswaitingClassSequence || isresidentInfoID_FK || isActionID || isNationalID || isWaitingClassName || isWaitingOrderTypeName)
-                            });
-                        }
-
-                        // الصفوف
-                        foreach (DataRow r in dt3.Rows)
-                        {
-                            var dict3 = new Dictionary<string, object?>(StringComparer.OrdinalIgnoreCase);
-                            foreach (DataColumn c in dt3.Columns)
-                            {
-                                var val = r[c];
-                                dict3[c.ColumnName] = val == DBNull.Value ? null : val;
-                            }
-
-                            // p01..p05
-                            object? Get(string key) => dict3.TryGetValue(key, out var v) ? v : null;
-                            dict3["p01"] = Get("ActionID") ?? Get("actionID");
-                            dict3["p02"] = Get("residentInfoID_FK");
-                            dict3["p03"] = Get("NationalID");
-                            dict3["p04"] = Get("GeneralNo");
-                            dict3["p05"] = Get("ActionDecisionNo");
-                            dict3["p06"] = Get("ActionDecisionDate");
-                            dict3["p07"] = Get("WaitingClassID");
-                            dict3["p08"] = Get("WaitingOrderTypeID");
-                            dict3["p09"] = Get("ActionNote");
-
-                            rowsList_dt3.Add(dict3);
-                        }
-                    }
-
-                    if (dt4 != null && dt4.Columns.Count > 0)
-                    {
-                        // RowId
-                        rowIdField_dt4 = "ActionID";
-                        var possibleIdNames4 = new[] { "ActionID", "actionID", "Id", "ID" };
-                        rowIdField_dt4 = possibleIdNames4.FirstOrDefault(n => dt4.Columns.Contains(n))
-                                     ?? dt4.Columns[0].ColumnName;
-
-                        // عناوين الأعمدة بالعربي
-                        var headerMap4 = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
-                        {
-                            ["ActionID"] = "الرقم المرجعي",
-                            ["NationalID"] = "رقم الهوية",
-                            ["GeneralNo"] = "الرقم العام",
-                            ["ActionDecisionNo"] = "رقم القرار",
-                            ["ActionDecisionDate"] = "تاريخ القرار",
-                            ["WaitingClassName"] = "فئة الانتظار",
-                            ["WaitingOrderTypeName"] = "النوع",
-                            ["ActionNote"] = "ملاحظات",
-                            ["currentIdaraName"] = "الادارة المنقول منها",
-                            ["MoveToIdaraName"] = "الادارة المراد النقل اليها",
-                        };
-
-                        // الأعمدة
-                        foreach (DataColumn c in dt4.Columns)
-                        {
-                            string colType = "text";
-                            var t = c.DataType;
-                            if (t == typeof(bool)) colType = "bool";
-                            else if (t == typeof(DateTime)) colType = "date";
-                            else if (t == typeof(byte) || t == typeof(short) || t == typeof(int) || t == typeof(long)
-                                     || t == typeof(float) || t == typeof(double) || t == typeof(decimal))
-                                colType = "number";
-
-
-                            bool isActionID = c.ColumnName.Equals("ActionID", StringComparison.OrdinalIgnoreCase);
-                            bool isNationalID = c.ColumnName.Equals("NationalID", StringComparison.OrdinalIgnoreCase);
-
-                            bool isWaitingClassID = c.ColumnName.Equals("WaitingClassID", StringComparison.OrdinalIgnoreCase);
-                            bool isWaitingOrderTypeID = c.ColumnName.Equals("WaitingOrderTypeID", StringComparison.OrdinalIgnoreCase);
-
-                            bool iswaitingClassSequence = c.ColumnName.Equals("waitingClassSequence", StringComparison.OrdinalIgnoreCase);
-                            bool isresidentInfoID_FK = c.ColumnName.Equals("residentInfoID_FK", StringComparison.OrdinalIgnoreCase);
-                            bool isresidentInfoID = c.ColumnName.Equals("residentInfoID", StringComparison.OrdinalIgnoreCase);
-                           
-                            bool isWaitingClassName = c.ColumnName.Equals("WaitingClassName", StringComparison.OrdinalIgnoreCase);
-                            bool isWaitingOrderTypeName = c.ColumnName.Equals("WaitingOrderTypeName", StringComparison.OrdinalIgnoreCase);
-                            bool isIdaraId_FK = c.ColumnName.Equals("IdaraId_FK", StringComparison.OrdinalIgnoreCase);
-                            bool isMoveToIdaraID = c.ColumnName.Equals("MoveToIdaraID", StringComparison.OrdinalIgnoreCase);
-
-
-
-                            dynamicColumns_dt4.Add(new TableColumn
-                            {
-                                Field = c.ColumnName,
-                                Label = headerMap4.TryGetValue(c.ColumnName, out var label) ? label : c.ColumnName,
-                                Type = colType,
-                                Sortable = true
-                                 ,
-                                Visible = !(isWaitingClassID || isWaitingOrderTypeID || iswaitingClassSequence || isresidentInfoID_FK || isActionID || isNationalID || isWaitingClassName || isWaitingOrderTypeName || isIdaraId_FK || isMoveToIdaraID)
-                            });
-                        }
-
-                        // الصفوف
-                        foreach (DataRow r in dt4.Rows)
-                        {
-                            var dict4 = new Dictionary<string, object?>(StringComparer.OrdinalIgnoreCase);
-                            foreach (DataColumn c in dt4.Columns)
-                            {
-                                var val = r[c];
-                                dict4[c.ColumnName] = val == DBNull.Value ? null : val;
-                            }
-
-                            // p01..p05
-                            object? Get(string key) => dict4.TryGetValue(key, out var v) ? v : null;
-                            dict4["p01"] = Get("ActionID") ?? Get("actionID");
-                            dict4["p02"] = Get("residentInfoID_FK");
-                            dict4["p03"] = Get("NationalID");
-                            dict4["p04"] = Get("GeneralNo");
-                            dict4["p05"] = Get("ActionDecisionNo");
-                            dict4["p06"] = Get("ActionDecisionDate");
-                            dict4["p07"] = Get("WaitingClassID");
-                            dict4["p08"] = Get("WaitingOrderTypeID");
-                            dict4["p09"] = Get("ActionNote");
-                            dict4["p10"] = Get("currentIdaraID");
-                            dict4["p11"] = Get("currentIdaraName");
-                            dict4["p12"] = Get("MoveToIdaraID");
-                            dict4["p13"] = Get("MoveToIdaraName");
-                                
-                            rowsList_dt4.Add(dict4);
-                        }
-                    }
                 }
             }
             catch (Exception ex)
             {
-                ViewBag.BuildingTypeDataSetError = ex.Message;
+                ViewBag.DataSetError = ex.Message;
+                //TempData["info"] = ex.Message;
             }
+
+            //ADD
 
             var currentUrl = Request.Path + Request.QueryString;
 
 
-            // ADD fields
-            var addFieldsWaitingList = new List<FieldConfig>
+            //Delete fields: show confirmation as a label(not textbox) and show ID as label while still posting p01
+
+            var MoveToCustomizationListFields = new List<FieldConfig>
             {
-                new FieldConfig { Name = rowIdField_dt2, Type = "hidden" },
-                new FieldConfig { Name = "p01", Label = "الرقم المرجعي", Type = "hidden", ColCss = "6", Required = true,Value=residentInfoID_ },
-                new FieldConfig { Name = "p02", Label = "رقم الهوية", Type = "hidden", ColCss = "6",Placeholder="1xxxxxxxxx",Value= NationalID_ },
-                new FieldConfig { Name = "p03", Label = "الرقم العام", Type = "hidden", ColCss = "6", Required = true,Value=generalNo_FK_ },
-                
-                
 
+                new FieldConfig { Name = "pageName_",          Type = "hidden", Value = PageName },
+                new FieldConfig { Name = "ActionType",         Type = "hidden", Value = "DELETE" },
+                new FieldConfig { Name = "idaraID",            Type = "hidden", Value = IdaraId },
+                new FieldConfig { Name = "entrydata",          Type = "hidden", Value = usersId },
+                new FieldConfig { Name = "hostname",           Type = "hidden", Value = HostName },
 
-              
-                new FieldConfig { Name = "p04", Label = "رقم القرار", Type = "text", ColCss = "3", MaxLength = 50, TextMode = "number",Required=true},
-                new FieldConfig { Name = "p05", Label = "تاريخ القرار", Type = "date", ColCss = "3", MaxLength = 50, TextMode = "number",Required=true,Placeholder="YYYY-MM-DD"},
-
-                new FieldConfig { Name = "p06", Label = "فئة سجل الانتظار", Type = "select", ColCss = "3", Required = true, Options= waitingClassOptions },
-                new FieldConfig { Name = "p07", Label = "نوع سجل الانتظار", Type = "select", ColCss = "3", Required = true, Options= waitingOrderTypeOptions },
-                new FieldConfig { Name = "p08", Label = "ملاحظات", Type = "textarea", ColCss = "6", Required = false },
-                
-            };
-
-            // hidden fields
-            addFieldsWaitingList.Insert(0, new FieldConfig { Name = "__RequestVerificationToken", Type = "hidden", Value = (Request.Headers["RequestVerificationToken"].FirstOrDefault() ?? "") });
-            addFieldsWaitingList.Insert(0, new FieldConfig { Name = "hostname", Type = "hidden", Value = Request.Host.Value });
-            addFieldsWaitingList.Insert(0, new FieldConfig { Name = "entrydata", Type = "hidden", Value = usersId.ToString() });
-            addFieldsWaitingList.Insert(0, new FieldConfig { Name = "idaraID", Type = "hidden", Value = IdaraId.ToString() });
-            addFieldsWaitingList.Insert(0, new FieldConfig { Name = "ActionType", Type = "hidden", Value = "INSERTWAITINGLIST" });
-            addFieldsWaitingList.Insert(0, new FieldConfig { Name = "pageName_", Type = "hidden", Value = PageName });
-            addFieldsWaitingList.Insert(0, new FieldConfig { Name = "redirectAction", Type = "hidden", Value = PageName });
-            addFieldsWaitingList.Insert(0, new FieldConfig { Name = "redirectController", Type = "hidden", Value = ControllerName });
-            addFieldsWaitingList.Insert(0, new FieldConfig { Name = "redirectUrl", Type = "hidden", Value = currentUrl });
-
-
-            // ADD fields
-            var addFieldsMoveWaitingList = new List<FieldConfig>
-            {
-                new FieldConfig { Name = rowIdField_dt2, Type = "hidden" },
-                new FieldConfig { Name = "p01", Label = "رقم اكشن السراء", Type = "hidden", ColCss = "6", Required = true},
-                new FieldConfig { Name = "p02", Label = "residentInfoID", Type = "hidden", ColCss = "6",Placeholder="1xxxxxxxxx"},
-                new FieldConfig { Name = "p03", Label = "NationalID", Type = "hidden", ColCss = "6",Placeholder="1xxxxxxxxx"},
-                new FieldConfig { Name = "p04", Label = "GeneralNo", Type = "hidden", ColCss = "6", Required = true},
-
-                new FieldConfig { Name = "p07", Label = "فئة سجل الانتظار", Type = "hidden", ColCss = "3", Required = true, Options= waitingClassOptions },
-                new FieldConfig { Name = "p08", Label = "نوع سجل الانتظار", Type = "hidden", ColCss = "3", Required = true, Options= waitingOrderTypeOptions },
-
-
-                new FieldConfig { Name = "p10", Label = "رقم قرار النقل", Type = "text", ColCss = "3", MaxLength = 50, TextMode = "number",Required=true},
-                new FieldConfig { Name = "p11", Label = "تاريخ قرار النقل", Type = "date", ColCss = "3", MaxLength = 50, TextMode = "number",Required=true,Placeholder="YYYY-MM-DD"},
-
-                
-                new FieldConfig { Name = "p12", Label = "الادارة المراد نقل السراء اليها", Type = "select", ColCss = "6", Required = true, Options= idaraOptions },
-                new FieldConfig { Name = "p13", Label = "ملاحظات", Type = "textarea", ColCss = "6", Required = false },
-
-
-            };
-
-            // hidden fields
-            addFieldsMoveWaitingList.Insert(0, new FieldConfig { Name = "__RequestVerificationToken", Type = "hidden", Value = (Request.Headers["RequestVerificationToken"].FirstOrDefault() ?? "") });
-            addFieldsMoveWaitingList.Insert(0, new FieldConfig { Name = "hostname", Type = "hidden", Value = Request.Host.Value });
-            addFieldsMoveWaitingList.Insert(0, new FieldConfig { Name = "entrydata", Type = "hidden", Value = usersId.ToString() });
-            addFieldsMoveWaitingList.Insert(0, new FieldConfig { Name = "idaraID", Type = "hidden", Value = IdaraId.ToString() });
-            addFieldsMoveWaitingList.Insert(0, new FieldConfig { Name = "ActionType", Type = "hidden", Value = "MOVEWAITINGLIST" });
-            addFieldsMoveWaitingList.Insert(0, new FieldConfig { Name = "pageName_", Type = "hidden", Value = PageName });
-            addFieldsMoveWaitingList.Insert(0, new FieldConfig { Name = "redirectAction", Type = "hidden", Value = PageName });
-            addFieldsMoveWaitingList.Insert(0, new FieldConfig { Name = "redirectController", Type = "hidden", Value = ControllerName });
-            addFieldsMoveWaitingList.Insert(0, new FieldConfig { Name = "redirectUrl", Type = "hidden", Value = currentUrl });
-
-
-
-
-            // ADD fields
-            var addFieldsOccubentLetter = new List<FieldConfig>
-            {
-                new FieldConfig { Name = rowIdField_dt2, Type = "hidden" },
-                new FieldConfig { Name = "p01", Label = "الرقم المرجعي", Type = "hidden", ColCss = "6", Required =          true,Value=residentInfoID_ },
-                new FieldConfig { Name = "p02", Label = "رقم الهوية", Type = "hidden", ColCss = "6",Placeholder="1xxxxxxxxx",   Value=     NationalID_ },
-                new FieldConfig { Name = "p03", Label = "الرقم العام", Type = "hidden", ColCss = "6", Required =        true,Value=generalNo_FK_ },
-
-                new FieldConfig { Name = "p04", Label = "رقم القرار", Type = "text", ColCss = "3", MaxLength = 50, TextMode =       "number",Required=true},
-                new FieldConfig { Name = "p05", Label = "تاريخ القرار", Type = "date", ColCss = "3", MaxLength = 50, TextMode =         "number",Required=true,Placeholder="YYYY-MM-DD"},
-
- 
-                new FieldConfig { Name = "p08", Label = "ملاحظات", Type = "textarea", ColCss = "6", Required = false },
-
-            };
-
-            // hidden fields
-            addFieldsOccubentLetter.Insert(0, new FieldConfig { Name = "__RequestVerificationToken", Type = "hidden", Value = (Request.Headers["RequestVerificationToken"].FirstOrDefault() ?? "") });
-            addFieldsOccubentLetter.Insert(0, new FieldConfig { Name = "hostname", Type = "hidden", Value = Request.Host.Value });
-            addFieldsOccubentLetter.Insert(0, new FieldConfig { Name = "entrydata", Type = "hidden", Value = usersId.ToString() });
-            addFieldsOccubentLetter.Insert(0, new FieldConfig { Name = "idaraID", Type = "hidden", Value = IdaraId.ToString() });
-            addFieldsOccubentLetter.Insert(0, new FieldConfig { Name = "ActionType", Type = "hidden", Value = "INSERTOCCUBENTLETTER" });
-            addFieldsOccubentLetter.Insert(0, new FieldConfig { Name = "pageName_", Type = "hidden", Value = PageName });
-            addFieldsOccubentLetter.Insert(0, new FieldConfig { Name = "redirectAction", Type = "hidden", Value = PageName });
-            addFieldsOccubentLetter.Insert(0, new FieldConfig { Name = "redirectController", Type = "hidden", Value = ControllerName });
-            addFieldsOccubentLetter.Insert(0, new FieldConfig { Name = "redirectUrl", Type = "hidden", Value = currentUrl });
-
-            // UPDATE fields
-            var updateFieldsWaitingList = new List<FieldConfig>
-            {
-                new FieldConfig { Name = "redirectAction",      Type = "hidden", Value = PageName },
-                new FieldConfig { Name = "redirectController",  Type = "hidden", Value = ControllerName},
-                new FieldConfig { Name = "redirectUrl",  Type = "hidden", Value = currentUrl},
-                new FieldConfig { Name = "pageName_",           Type = "hidden", Value = PageName },
-                new FieldConfig { Name = "ActionType",          Type = "hidden", Value = "UPDATEWAITINGLIST" },
-                new FieldConfig { Name = "idaraID",             Type = "hidden", Value = IdaraId.ToString() },
-                new FieldConfig { Name = "entrydata",           Type = "hidden", Value = usersId.ToString() },
-                new FieldConfig { Name = "hostname",            Type = "hidden", Value = Request.Host.Value },
-                new FieldConfig { Name = "__RequestVerificationToken", Type = "hidden", Value = (Request.Headers["RequestVerificationToken"].FirstOrDefault() ?? "") },
-                new FieldConfig { Name = rowIdField_dt2,            Type = "hidden" },
-
-
-
-
-                new FieldConfig { Name = "p01", Label = "الرقم المرجعي", Type = "hidden", ColCss = "6", Required = true,Value=residentInfoID_ },
-                new FieldConfig { Name = "p02", Label = "الرقم المرجعي", Type = "hidden", ColCss = "6", Required = true,Value=residentInfoID_ },
-                new FieldConfig { Name = "p03", Label = "رقم الهوية", Type = "hidden", ColCss = "6",Placeholder="1xxxxxxxxx",Value= NationalID_ },
-                new FieldConfig { Name = "p04", Label = "الرقم العام", Type = "hidden", ColCss = "6", Required = true,Value=generalNo_FK_ },
-
-
-
-
-
-                new FieldConfig { Name = "p05", Label = "رقم القرار", Type = "text", ColCss = "3", MaxLength = 50, TextMode = "number",Required=true},
-                new FieldConfig { Name = "p06", Label = "تاريخ القرار", Type = "date", ColCss = "3", MaxLength = 50, TextMode = "number",Required=true,Placeholder="YYYY-MM-DD"},
-
-                new FieldConfig { Name = "p07", Label = "فئة سجل الانتظار", Type = "hidden", ColCss = "3", Required = true, Options= waitingClassOptions },
-                new FieldConfig { Name = "p08", Label = "نوع سجل الانتظار", Type = "select", ColCss = "3", Required = true, Options= waitingOrderTypeOptions },
-                new FieldConfig { Name = "p09", Label = "ملاحظات", Type = "textarea", ColCss = "6", Required = false },
-            };
-
-              var updateFieldsOccubentLetter = new List<FieldConfig>
-            {
-                new FieldConfig { Name = "redirectAction",      Type = "hidden", Value = PageName },
-                new FieldConfig { Name = "redirectController",  Type = "hidden", Value = ControllerName},
-                new FieldConfig { Name = "redirectUrl",  Type = "hidden", Value = currentUrl},
-                new FieldConfig { Name = "pageName_",           Type = "hidden", Value = PageName },
-                new FieldConfig { Name = "ActionType",          Type = "hidden", Value = "UPDATEOCCUBENTLETTER" },
-                new FieldConfig { Name = "idaraID",             Type = "hidden", Value = IdaraId.ToString() },
-                new FieldConfig { Name = "entrydata",           Type = "hidden", Value = usersId.ToString() },
-                new FieldConfig { Name = "hostname",            Type = "hidden", Value = Request.Host.Value },
-                new FieldConfig { Name = "__RequestVerificationToken", Type = "hidden", Value = (Request.Headers["RequestVerificationToken"].FirstOrDefault() ?? "") },
-                new FieldConfig { Name = rowIdField_dt3,            Type = "hidden" },
-
-
-
-
-                new FieldConfig { Name = "p01", Label = "الرقم المرجعي", Type = "hidden", ColCss = "6", Required = true,Value=residentInfoID_ },
-                new FieldConfig { Name = "p02", Label = "الرقم المرجعي", Type = "hidden", ColCss = "6", Required = true,Value=residentInfoID_ },
-                new FieldConfig { Name = "p03", Label = "رقم الهوية", Type = "hidden", ColCss = "6",Placeholder="1xxxxxxxxx",Value= NationalID_ },
-                new FieldConfig { Name = "p04", Label = "الرقم العام", Type = "hidden", ColCss = "6", Required = true,Value=generalNo_FK_ },
-
-
-
-
-
-                new FieldConfig { Name = "p05", Label = "رقم القرار", Type = "text", ColCss = "3", MaxLength = 50, TextMode = "number",Required=true},
-                new FieldConfig { Name = "p06", Label = "تاريخ القرار", Type = "date", ColCss = "3", MaxLength = 50, TextMode = "number",Required=true,Placeholder="YYYY-MM-DD"},
-
-                new FieldConfig { Name = "p09", Label = "ملاحظات", Type = "textarea", ColCss = "6", Required = false },
-            };
-
-            // DELETE fields
-            var deleteFieldsWaitingList = new List<FieldConfig>
-            {
+                new FieldConfig { Name = "redirectUrl",     Type = "hidden", Value = currentUrl },
                 new FieldConfig { Name = "redirectAction",     Type = "hidden", Value = PageName },
                 new FieldConfig { Name = "redirectController", Type = "hidden", Value = ControllerName },
-                new FieldConfig { Name = "redirectUrl",  Type = "hidden", Value = currentUrl},
-                new FieldConfig { Name = "pageName_",          Type = "hidden", Value = PageName },
-                new FieldConfig { Name = "ActionType",         Type = "hidden", Value = "DELETEWAITINGLIST" },
-                new FieldConfig { Name = "idaraID",            Type = "hidden", Value = IdaraId.ToString() },
-                new FieldConfig { Name = "entrydata",          Type = "hidden", Value = usersId.ToString() },
-                new FieldConfig { Name = "hostname",           Type = "hidden", Value = Request.Host.Value },
-                new FieldConfig { Name = "__RequestVerificationToken", Type = "hidden", Value = (Request.Headers["RequestVerificationToken"].FirstOrDefault() ?? "") },
-                new FieldConfig { Name = rowIdField_dt2, Type = "hidden" },
-                new FieldConfig { Name = "p01", Type = "hidden", MirrorName = "ActionID" }
-            };
 
-            var deleteFieldsOccubentLetter = new List<FieldConfig>
-            {
-                new FieldConfig { Name = "redirectAction",     Type = "hidden", Value = PageName },
-                new FieldConfig { Name = "redirectController", Type = "hidden", Value = ControllerName },
-                new FieldConfig { Name = "redirectUrl",  Type = "hidden", Value = currentUrl},
-                new FieldConfig { Name = "pageName_",          Type = "hidden", Value = PageName },
-                new FieldConfig { Name = "ActionType",         Type = "hidden", Value = "DELETEOCCUBENTLETTER" },
-                new FieldConfig { Name = "idaraID",            Type = "hidden", Value = IdaraId.ToString() },
-                new FieldConfig { Name = "entrydata",          Type = "hidden", Value = usersId.ToString() },
-                new FieldConfig { Name = "hostname",           Type = "hidden", Value = Request.Host.Value },
-                new FieldConfig { Name = "__RequestVerificationToken", Type = "hidden", Value = (Request.Headers["RequestVerificationToken"].FirstOrDefault() ?? "") },
-                new FieldConfig { Name = rowIdField_dt3, Type = "hidden" },
-                new FieldConfig { Name = "p01", Type = "hidden", MirrorName = "ActionID" }
-            };
 
-            var deleteFieldsMoveWaitingList = new List<FieldConfig>
-            {
-                new FieldConfig { Name = "redirectAction",     Type = "hidden", Value = PageName },
-                new FieldConfig { Name = "redirectController", Type = "hidden", Value = ControllerName },
-                new FieldConfig { Name = "redirectUrl",  Type = "hidden", Value = currentUrl},
-                new FieldConfig { Name = "pageName_",          Type = "hidden", Value = PageName },
-                new FieldConfig { Name = "ActionType",         Type = "hidden", Value = "DELETEMOVEWAITINGLIST" },
-                new FieldConfig { Name = "idaraID",            Type = "hidden", Value = IdaraId.ToString() },
-                new FieldConfig { Name = "entrydata",          Type = "hidden", Value = usersId.ToString() },
-                new FieldConfig { Name = "hostname",           Type = "hidden", Value = Request.Host.Value },
                 new FieldConfig { Name = "__RequestVerificationToken", Type = "hidden", Value = (Request.Headers["RequestVerificationToken"].FirstOrDefault() ?? "") },
-                new FieldConfig { Name = rowIdField_dt4, Type = "hidden" },
-                new FieldConfig { Name = "p01", Type = "hidden", MirrorName = "ActionID" }
+
+                // selection context
+                new FieldConfig { Name = rowIdField, Type = "hidden" },
+
+                // hidden p01 actually posted to SP
+                new FieldConfig { Name = "p01", Type = "hidden", MirrorName = "ActionID" },
+                new FieldConfig { Name = "p02", Label = "الترتيب", Type = "text", ColCss = "3", Readonly = true },
+                new FieldConfig { Name = "p03", Label = "الاسم", Type = "text", ColCss = "3", Readonly = true },
+                new FieldConfig { Name = "p04", Label = "رقم الهوية الوطنية", Type = "text", ColCss = "3", Readonly = true },
+                new FieldConfig { Name = "p05", Label = "الرقم العام", Type = "text", ColCss = "3", Readonly = true },
+                new FieldConfig { Name = "p06", Label = "رقم الخطاب", Type = "text", ColCss = "3", Readonly = true  },
+                new FieldConfig { Name = "p07", Label = "تاريخ الخطاب", Type = "text", ColCss = "3", Readonly = true },
+                new FieldConfig { Name = "p09", Label = "فئة سجل الانتظار", Type = "text", ColCss = "3", Readonly = true },
+                new FieldConfig { Name = "p12", Label = "نوع سجل الانتظار", Type = "text", ColCss = "3", Readonly = true },
+                new FieldConfig { Name = "p14", Label = "residentInfoID_FK", Type = "hidden", ColCss = "3", Readonly = true },
+                new FieldConfig { Name = "p16", Label = "IdaraId_FK", Type = "hidden", ColCss = "3", Readonly = true },
+                new FieldConfig { Name = "p15", Label = "ملاحظات", Type = "text", ColCss = "6", Readonly = true },
+
+
             };
 
 
+         
+
+            // then create dsModel (snippet shows toolbar parts that use the dynamic lists)
             var dsModel = new SmartTableDsModel
             {
-                PageTitle = "المستفيدين",
+
                 Columns = dynamicColumns,
                 Rows = rowsList,
                 RowIdField = rowIdField,
                 PageSize = 10,
-                PageSizes = new List<int> { 10, 25, 50, 100, },
+                PageSizes = new List<int> { 10, 25, 50, 100 },
                 QuickSearchFields = dynamicColumns.Select(c => c.Field).Take(4).ToList(),
-                Searchable = false,
-                AllowExport = false,
-                PanelTitle = "المستفيدين",
-                ShowFooter = false,
-                Selectable = false,
-                TabelLabel = "بيانات المستفيد",
-                TabelLabelIcon = "fa-solid fa-user",
-                ShowToolbar = false,
-                EnableCellCopy = true, // تفعيل نسخ الخلايا 
-
-
-
-            };
-
-            var dsModel1 = new SmartTableDsModel
-            {
-                PageTitle = "قوائم الانتظار",
-                Columns = dynamicColumns_dt2,
-                Rows = rowsList_dt2,
-                RowIdField = rowIdField_dt2,
-                PageSize = 10,
-                PageSizes = new List<int> { 10, 25, 50, 200, },
-                QuickSearchFields = dynamicColumns_dt2.Select(c => c.Field).Take(4).ToList(),
                 Searchable = true,
                 AllowExport = true,
-                ShowRowBorders = false,
-                PanelTitle = "قوائم الانتظار",
-                TabelLabel= "قوائم الانتظار",
-                TabelLabelIcon = "fa-solid fa-list",
-                ShowToolbar =true,
+                PageTitle = "نقل لقائمة التخصيص",
+                PanelTitle = "نقل لقائمة التخصيص ",
                 EnableCellCopy = false,
+
                 Toolbar = new TableToolbarConfig
                 {
                     ShowRefresh = false,
                     ShowColumns = true,
                     ShowExportCsv = false,
                     ShowExportExcel = false,
-                    ShowAdd = canInsertWaitingList,
-                    ShowEdit = canUpdateWaitingList,
-                    ShowEdit1 = canMoveWaitingList,
-                    ShowDelete = canDeleteWaitingList,
+                    ShowDelete = canMOVETOCUSTOMIZATIONLIST,
                     ShowBulkDelete = false,
-                    
-
-                    Add = new TableAction
-                    {
-                        Label = "إضافة سجل انتظار جديد",
-                        Icon = "fa fa-plus",
-                        Color = "success",
-                        Placement = TableActionPlacement.ActionsMenu,
-                        OpenModal = true,
-                        ModalTitle = "إدخال بيانات سجل انتظار جديد",
-                        //ModalMessage = "ملاحظة: جميع التعديلات مرصودة",
-                        ModalMessage = "ملاحظة: جميع التعديلات مرصودة",
-                        ModalMessageIcon = "fa-solid fa-circle-info",
-                        ModalMessageClass = "bg-sky-100 border border-sky-200 text-sky-700",
-
-
-
-                        OpenForm = new FormConfig
-                        {
-                            FormId = "BuildingTypeInsertForm",
-                            Title = "بيانات سجل انتظار جديد",
-                            Method = "post",
-                            ActionUrl = "/crud/insert",
-                            Fields = addFieldsWaitingList,
-                            Buttons = new List<FormButtonConfig>
-                            {
-                                new FormButtonConfig { Text = "حفظ", Type = "submit", Color = "success" },
-                                new FormButtonConfig { Text = "إلغاء", Type = "button", Color = "secondary", OnClickJs = "this.closest('.sf-modal').__x.$data.closeModal();" }
-                            }
-                        }
-                    },
-
-                    
 
                    
-                    Edit = new TableAction
-                    {
-                        Label = "تعديل بيانات انتظار",
-                        Icon = "fa fa-pen-to-square",
-                        Color = "info",
-                        Placement = TableActionPlacement.ActionsMenu,
-                        IsEdit = true,
-                        OpenModal = true,
-                        ModalTitle = "تعديل بيانات انتظار",
-                        ModalMessage = "ملاحظة: جميع التعديلات مرصودة",
-                        ModalMessageIcon = "fa-solid fa-circle-info",
-                        ModalMessageClass = "bg-sky-100 border border-sky-200 text-sky-700",
-                        OpenForm = new FormConfig
-                        {
-                            FormId = "BuildingTypeEditForm",
-                            Title = "تعديل بيانات انتظار",
-                            Method = "post",
-                            ActionUrl = "/crud/update",
-                            SubmitText = "حفظ التعديلات",
-                            CancelText = "إلغاء",
-                            Fields = updateFieldsWaitingList
-                        },
-                        RequireSelection = true,
-                        MinSelection = 1,
-                        MaxSelection = 1
-                    },
-
-                    Edit1 = new TableAction
-                    {
-                        Label = "طلب نقل سجل انتظار لادارة اخرى",
-                        Icon = "fa fa-paper-plane",
-                        Color = "warning",
-                        Placement = TableActionPlacement.ActionsMenu,
-                        IsEdit = true,
-                        OpenModal = true,
-                        ModalTitle = "طلب نقل سجل انتظار لادارة اخرى",
-                        OpenForm = new FormConfig
-                        {
-                            FormId = "BuildingTypeEditForm",
-                            Title = "طلب نقل سجل انتظار لادارة اخرى",
-                            Method = "post",
-                            ActionUrl = "/crud/update",
-                            SubmitText = "حفظ التعديلات",
-                            CancelText = "إلغاء",
-                            Fields = addFieldsMoveWaitingList
-                        },
-                        RequireSelection = true,
-                        MinSelection = 1,
-                        MaxSelection = 1
-                    },
-                    
-
                     Delete = new TableAction
                     {
-                        Label = "الغاء بيانات انتظار",
-                        Icon = "fa fa-trash",
-                        Color = "danger",
-                        Placement = TableActionPlacement.ActionsMenu,
-                        IsEdit = true,
-                        OpenModal = true,
-                        ModalTitle = "تحذير",
-                        ModalMessage = "هل أنت متأكد من الغاء بيانات الانتظار؟",
-                        ModalMessageIcon = "fa fa-exclamation-triangle text-red-600",
-                        ModalMessageClass = "bg-red-50 border border-red-200 text-red-700",
-                        OpenForm = new FormConfig
-                        {
-                            FormId = "BuildingTypeDeleteForm",
-                            Title = "تأكيد الغاء بيانات الانتظار",
-                            Method = "post",
-                            ActionUrl = "/crud/delete",
-                            Buttons = new List<FormButtonConfig>
-                            {
-                                new FormButtonConfig { Text = "حذف", Type = "submit", Color = "danger", },
-                                new FormButtonConfig { Text = "إلغاء", Type = "button", Color = "secondary", OnClickJs = "this.closest('.sf-modal').__x.$data.closeModal();" }
-                            },
-                            Fields = deleteFieldsWaitingList
-                        },
-                        RequireSelection = true,
-                        MinSelection = 1,
-                        MaxSelection = 1
-                    },
-                }
-            };
-
-            var dsModel2 = new SmartTableDsModel
-            {
-                PageTitle = "خطابات التسكين",
-                Columns = dynamicColumns_dt3,
-                Rows = rowsList_dt3,
-                RowIdField = rowIdField_dt3,
-                PageSize = 10,
-                PageSizes = new List<int> { 10, 25, 50, 200, },
-                QuickSearchFields = dynamicColumns_dt3.Select(c => c.Field).Take(4).ToList(),
-                Searchable = true,
-                AllowExport = false,
-                ShowRowBorders = false,
-                PanelTitle = "خطابات التسكين",
-                TabelLabel = "خطابات التسكين",
-                TabelLabelIcon = "fa-solid fa-list",
-                ShowToolbar = true,
-                EnableCellCopy = false,
-
-                Toolbar = new TableToolbarConfig
-                {
-                    ShowRefresh = false,
-                    ShowColumns = true,
-                    ShowExportCsv = false,
-                    ShowExportExcel = false,
-                    ShowAdd2 = canInsertOCCUBENTLETTER,
-                    ShowEdit2 = canUpdateOCCUBENTLETTER,
-                    ShowDelete2 = canDeleteOCCUBENTLETTER,
-                    ShowBulkDelete = false,
-
-
-
-
-
-                    Add2 = new TableAction
-                    {
-                        Label = "إضافة خطاب تسكين جديد",
-                        Icon = "fa fa-plus",
+                        Label = "نقل لقائمة التخصيص",
+                        Icon = "fa fa-check",
                         Color = "success",
-                        Placement = TableActionPlacement.ActionsMenu,
-                        OpenModal = true,
-                        ModalTitle = "إدخال بيانات خطاب تسكين جديد",
-                        ModalMessage = "ملاحظة: جميع التعديلات مرصودة",
-                        ModalMessageIcon = "fa-solid fa-circle-info",
-                        ModalMessageClass = "bg-sky-100 border border-sky-200 text-sky-700",
-
-                        OpenForm = new FormConfig
-                        {
-                            FormId = "BuildingTypeInsertForm",
-                            Title = "بيانات خطاب تسكين جديد",
-                            Method = "post",
-                            ActionUrl = "/crud/insert",
-                            Fields = addFieldsOccubentLetter,
-                            Buttons =
-                            {
-                                new() { Text = "حفظ", Type = "submit", Color = "success" },
-                                new() { Text = "إلغاء", Type = "button", Color = "secondary",
-                                        OnClickJs = "this.closest('.sf-modal').__x.$data.closeModal();" }
-                            }
-                        }
-                    },
-
-
-                    Edit2 = new TableAction
-                    {
-                        Label = "تعديل خطاب تسكين",
-                        Icon = "fa fa-pen-to-square",
-                        Color = "info",
-                        Placement = TableActionPlacement.ActionsMenu, 
+                       // Placement = TableActionPlacement.ActionsMenu, //   أي زر بعد ما نسويه ونبيه يظهر في الاجراءات نحط هذا السطر فقط عشان ما يصير زحمة في التيبل اكشن
                         IsEdit = true,
                         OpenModal = true,
-                        ModalTitle = "تعديل خطاب تسكين",
-                        ModalMessage = "ملاحظة: جميع التعديلات مرصودة",
-                        ModalMessageIcon = "fa-solid fa-circle-info",
-                        ModalMessageClass = "bg-sky-100 border border-sky-200 text-sky-700",
-                        OpenForm = new FormConfig
-                        {
-                            FormId = "BuildingTypeEditForm",
-                            Title = "تعديل خطاب تسكين",
-                            Method = "post",
-                            ActionUrl = "/crud/update",
-                            SubmitText = "حفظ التعديلات",
-                            CancelText = "إلغاء",
-                            Fields = updateFieldsOccubentLetter
-                        },
-                        RequireSelection = true,
-                        MinSelection = 1,
-                        MaxSelection = 1
-                    },
-
-
-
-                    Delete2 = new TableAction
-                    {
-                        Label = "الغاء خطاب تسكين",
-                        Icon = "fa fa-trash",
-                        Color = "danger",
-                        Placement = TableActionPlacement.ActionsMenu,
-                        IsEdit = true,
-                        OpenModal = true,
-                        ModalTitle = "تحذير",
-                        ModalMessage = "هل أنت متأكد من الغاء بيانات خطاب تسكين؟",
-                        ModalMessageIcon = "fa fa-exclamation-triangle text-red-600",
+                        //ModalTitle = "رسالة تحذيرية",
+                        ModalTitle = "<i class='fa fa-exclamation-triangle text-red-600 text-xl mr-2'></i> نقل المستفيد لقائمة التخصيص <i class='fa fa-exclamation-triangle text-red-600 text-xl mr-2'></i>",
+                        ModalMessage = "ملاحظة : سيتم رفض نقل المستفيد في حال لم يكن في رأس القائمة من قبل النظام",
                         ModalMessageClass = "bg-red-50 border border-red-200 text-red-700",
                         OpenForm = new FormConfig
                         {
-                            FormId = "BuildingTypeDeleteForm",
-                            Title = "تأكيد الغاء خطاب تسكين",
+                            FormId = "employeeDeleteForm",
+                            Title = "تأكيد نقل المستفيد لقائمة التخصيص",
                             Method = "post",
                             ActionUrl = "/crud/delete",
                             Buttons = new List<FormButtonConfig>
                             {
-                                new FormButtonConfig { Text = "حذف", Type = "submit", Color = "danger", },
-                                new FormButtonConfig { Text = "إلغاء", Type = "button", Color = "secondary", OnClickJs = "this.closest('.sf-modal').__x.$data.closeModal();" }
+                                new FormButtonConfig { Text = "نقل المستفيد", Type = "submit", Color = "success", Icon = "fa fa-check" },
+                                new FormButtonConfig { Text = "إلغاء", Type = "button", Color = "secondary", Icon = "fa fa-times", OnClickJs = "this.closest('.sf-modal').__x.$data.closeModal();" }
                             },
-                            Fields = deleteFieldsOccubentLetter
-                        },
-                        RequireSelection = true,
-                        MinSelection = 1,
-                        MaxSelection = 1
-                    },
-                }
-
-            };
-
-            var dsModel3 = new SmartTableDsModel
-            {
-                PageTitle = "طلبات نقل سجلات الانتظار",
-                Columns = dynamicColumns_dt4,
-                Rows = rowsList_dt4,
-                RowIdField = rowIdField_dt4,
-                PageSize = 10,
-                PageSizes = new List<int> { 10, 25, 50, 200, },
-                QuickSearchFields = dynamicColumns_dt4.Select(c => c.Field).Take(4).ToList(),
-                Searchable = true,
-                AllowExport = true,
-                ShowRowBorders = false,
-                PanelTitle = "طلبات نقل سجلات الانتظار",
-                TabelLabel = "طلبات نقل سجلات الانتظار",
-                TabelLabelIcon = "fa-solid fa-list",
-                ShowToolbar = true,
-                EnableCellCopy = false,
-                Toolbar = new TableToolbarConfig
-                {
-                    ShowRefresh = false,
-                    ShowColumns = true,
-                    ShowExportCsv = false,
-                    ShowExportExcel = false,
-                    ShowDelete = candeleteMoveWaitingList,
-                    ShowBulkDelete = false,
-
-
-                    Delete = new TableAction
-                    {
-                        Label = "الغاء طلب نقل سجل انتظار",
-                        Icon = "fa fa-trash",
-                        Color = "danger",
-                        Placement = TableActionPlacement.ActionsMenu,
-                        IsEdit = true,
-                        OpenModal = true,
-                        ModalTitle = "تحذير",
-                        ModalMessage = "هل أنت متأكد من الغاء طلب نقل سجل انتظار؟",
-                        ModalMessageIcon = "fa fa-exclamation-triangle text-red-600",
-                        ModalMessageClass = "bg-red-50 border border-red-200 text-red-700",
-                        OpenForm = new FormConfig
-                        {
-                            FormId = "BuildingTypeDeleteForm",
-                            Title = "تأكيد الغاء طلب نقل سجل انتظار",
-                            Method = "post",
-                            ActionUrl = "/crud/delete",
-                            Buttons = new List<FormButtonConfig>
-                            {
-                                new FormButtonConfig { Text = "حذف", Type = "submit", Color = "danger", },
-                                new FormButtonConfig { Text = "إلغاء", Type = "button", Color = "secondary", OnClickJs = "this.closest('.sf-modal').__x.$data.closeModal();" }
-                            },
-                            Fields = deleteFieldsMoveWaitingList
+                            Fields = MoveToCustomizationListFields
                         },
                         RequireSelection = true,
                         MinSelection = 1,
@@ -1171,36 +429,16 @@ namespace SmartFoundation.Mvc.Controllers.Housing
                 }
             };
 
-
-
-            bool dsModelHasRows = dt1 != null && dt1.Rows.Count > 0;
-            bool dsModel1HasRows = dt2 != null && dt2.Rows.Count > 0;
-            bool dsModel2HasRows = dt3 != null && dt3.Rows.Count > 0;
-            bool dsModel3HasRows = dt4 != null && dt4.Rows.Count > 0;
-
-            
-                ViewBag.dsModelHasRows = dsModelHasRows;
-                ViewBag.dsModel1HasRows = dsModel1HasRows;
-                ViewBag.dsModel2HasRows = dsModel2HasRows;
-                ViewBag.dsModel3HasRows = dsModel3HasRows;
-            
-            //return View("HousingDefinitions/BuildingType", dsModel);
-
-            var page = new SmartPageViewModel
+            var vm = new SmartPageViewModel
             {
-                PageTitle = dsModel1.PageTitle,
-                PanelTitle = dsModel1.PanelTitle,
-                PanelIcon = "fa fa-list",
-                Form =form,
-                TableDS = dsModelHasRows ? dsModel : null,
-                TableDS2 = dsModelHasRows ? dsModel1 : null,
-                TableDS3 = dsModelHasRows ? dsModel2 : null,
-                TableDS1 = dsModel3HasRows ? dsModel3 : null
-
+                PageTitle = dsModel.PageTitle,
+                PanelTitle = dsModel.PanelTitle,
+                PanelIcon = "fa-home",
+                Form = form,
+                TableDS = ready ? dsModel : null
             };
 
-            return View("WaitingList/WaitingList", page);
-
+            return View("WaitingList/WaitingList", vm);
         }
     }
 }
