@@ -873,7 +873,7 @@ namespace SmartFoundation.Mvc.Controllers.Housing
 
 
                 new FieldConfig { Name = "p05", Label = "رقم قرار النقل", Type = "text", ColCss = "6", MaxLength = 50, TextMode = "number",Required=true ,Readonly =true},
-                new FieldConfig { Name = "p06", Label = "تاريخ قرار النقل", Type = "date", ColCss = "6", MaxLength = 50, TextMode = "number",Required=true,Placeholder="YYYY-MM-DD" ,Readonly =true},
+                new FieldConfig { Name = "p06", Label = "تاريخ قرار النقل", Type = "text", ColCss = "6", MaxLength = 50, TextMode = "number",Required=true,Placeholder="YYYY-MM-DD" ,Readonly =true},
 
 
                 new FieldConfig { Name = "p11", Label = "الادارة المراد نقل السراء منها", Type = "text", ColCss = "6", Required = true ,Readonly =true },
@@ -1236,7 +1236,30 @@ namespace SmartFoundation.Mvc.Controllers.Housing
                 }
             };
 
+            dsModel3.StyleRules = new List<TableStyleRule>
+                {
 
+                    new TableStyleRule
+                    {
+                        Target = "row",
+                        Field = "ActionStatus",
+                        Op = "eq",
+                        Value = "مرفوض",
+                        CssClass = "row-red",
+                        Priority = 1
+
+                    },
+                      new TableStyleRule
+                    {
+                        Target = "row",
+                        Field = "ActionStatus",
+                        Op = "eq",
+                        Value = "مقبول",
+                        CssClass = "row-green",
+                        Priority = 1
+                    },
+
+                };
 
             bool dsModelHasRows = dt1 != null && dt1.Rows.Count > 0;
             bool dsModel1HasRows = dt2 != null && dt2.Rows.Count > 0;
