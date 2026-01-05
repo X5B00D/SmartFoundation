@@ -415,4 +415,3 @@ docs/PRD.md
 .taskmaster/reports/
 .taskmaster/.initialized
 /SmartFoundation.Mvc/Controllers/MastersCrudController.cs
-/SmartFoundation.Mvc/appsettings.json
