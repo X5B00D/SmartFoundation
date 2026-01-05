@@ -164,7 +164,7 @@
         <div x-show="open"
              x-transition
              x-on:click.outside="open=false"
-             class="absolute right-0 mt-2 w-56 bg-white border rounded shadow z-50">
+             class="absolute right-0 z-50 mt-2 w-56 rounded border bg-white shadow">
 
             <template x-for="act in [
                       ...(toolbar.showAdd !== false && toolbar.add ? [toolbar.add] : []),
@@ -184,7 +184,7 @@
                       :data-tip="(act.requireSelection && selectedKeys.size !== 1) ? 'يتطلب اختيار صف' : null">
 
                     <button type="button"
-                            class="w-full text-right px-3 py-2 hover:bg-gray-100"
+                            class="w-full px-3 py-2 text-right hover:bg-gray-100"
                             x-on:click="doAction(act, act.requireSelection ? getSingleSelection() : null); open=false"
                             :disabled="act.requireSelection && selectedKeys.size !== 1">
                         <i :class="act.icon"></i>
@@ -233,6 +233,26 @@
                         </td>
                     </tr>
                 </template>
+
+
+
+
+
+                <template x-if="!loading && error">
+                    <tr>
+                        <td :colspan="Math.max(1, visibleColumns().length + (selectable ? 1 : 0))"
+                            class="td-empty">
+                            <div class="flex items-center justify-center py-6">
+                                <span x-text="error"></span>
+                            </div>
+                        </td>
+                    </tr>
+                </template>
+
+
+
+
+
 
                 <template x-if="!loading && !error && rows.length===0">
                     <tr>
@@ -297,7 +317,7 @@
                     <div class="sf-modal-body">
 
                         <template x-if="modal.message">
-                            <div class="mb-7 rounded-sm border px-4 py-2 flex items-center justify-center gap-2 text-center"
+                            <div class="mb-7 flex items-center justify-center gap-2 rounded-sm border px-4 py-2 text-center"
                                  :class="modal.messageClass || 'border border-sky-200 bg-sky-50 text-sky-700'">
                                 <i x-show="modal.messageIcon"
                                    :class="modal.messageIcon"

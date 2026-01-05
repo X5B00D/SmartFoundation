@@ -2,7 +2,8 @@
 @{
     ViewData["Title"] = Model.PageTitle;
 }
-@await Component.InvokeAsync("SmartRenderer", new { model = Model })
+
+    @await Component.InvokeAsync("SmartRenderer", new { model = Model })
 
 <script>
     (function () {

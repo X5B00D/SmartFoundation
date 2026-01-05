@@ -763,46 +763,361 @@ window.__sfTableGlobalBound = window.__sfTableGlobalBound || false;
             },
 
            
-            // ===== Export Functions =====
-            exportData(type, scope = 'page') {
+
+
+
+
+            // ===== Export Functions (XLSX true) =====
+            exportData(type) {
                 if (!this.allowExport) return;
 
+                if (type !== "excel") {
+                    this.showToast("التصدير الحالي يدعم Excel فقط هنا", "error");
+                    return;
+                }
+
+                this.openExportExcelModal();
+            },
+
+            openExportExcelModal() {
+                if (!window.XLSX) {
+                    this.showToast("مكتبة XLSX غير موجودة. أضف xlsx.full.min.js قبل sf-table.js", "error");
+                    return;
+                }
+
+                const selectedRow = this.getSelectedRowFromCurrentData();
+                if (!selectedRow) {
+                    this.showToast("اختر صف واحد على الأقل قبل التصدير", "error");
+                    return;
+                }
+
+                this.modal.open = true;
+                window.__sfTableActive = this;
+                this.modal.title = "تصدير Excel";
+                this.modal.message = "";
+                this.modal.messageClass = "";
+                this.modal.messageIcon = "";
+                this.modal.messageIsHtml = false;
+                this.modal.loading = false;
+                this.modal.error = null;
+
+                const defaultCount = 1;
+
+
+                // تحريك الدالة خارج الـ innerHTML وتثبيتها على window
+                window.toggleExportCount = function () {
+                    const scope = document.getElementById("exportScope")?.value;
+                    const countContainer = document.getElementById("countContainer");
+                    if (!countContainer) return;
+                    countContainer.style.display = (scope === "from_selected_count") ? "" : "none";
+                };
+
+
+                this.modal.html = `
+                                <form id="sfExportExcelForm" class="sf-modal-form" onsubmit="return false;">
+                                    <div class="grid grid-cols-12 gap-4">
+
+                                        <!-- نطاق التصدير -->
+                                        <div class="col-span-12 md:col-span-6">
+                                            <label class="block text-sm font-medium mb-1">نطاق التصدير</label>
+                                            <div class="sf-select-wrap">
+                                                    <select
+                                                        name="scope"
+                                                        id="exportScope"
+                                                        onchange="toggleExportCount()"
+                                                        class="sf-modal-input"
+                                                        required
+                                                    >
+                                                        <option value="all" selected>تصدير الكل</option>
+                                                        <option value="from_selected_count">ابدأ من الصف المحدد وصدّر عدد</option>
+                                                    </select>
+                                                </div>
+                                            <p class="mt-1 text-xs text-gray-500">
+                                                "ابدأ من الصف المحدد" يعتمد على ترتيب البيانات الحالي (بحث/فرز/فلترة).
+                                            </p>
+                                        </div>
+
+                                        <!-- خيار العناوين -->
+                                        <div class="col-span-12 md:col-span-6 flex items-center justify-start md:justify-end">
+                                            <label class="flex flex-row-reverse items-center gap-2">
+                                                <input type="checkbox" name="includeHeaders" checked class="sf-checkbox" />
+                                                <span class="text-sm">تضمين العناوين (Header) كأول صف في Excel</span>
+                                            </label>
+                                        </div>
+
+                                        <!-- عدد الصفوف -->
+                                        <div class="col-span-12 md:col-span-6" id="countContainer" style="display: none;">
+                                            <label class="block text-sm font-medium mb-1">عدد الصفوف</label>
+                                            <input name="count" type="number" min="1" value="1" class="sf-modal-input" />
+                                            <p class="mt-1 text-xs text-gray-500">مثال: 1 لتصدير صف واحد، أو 100 لتصدير 100 صف.</p>
+                                        </div>
+
+                                           <!-- أزرار -->
+                                            <!-- اختيار الأعمدة -->
+                                            <div class="col-span-12">
+                                                <label class="block text-base font-medium mb-2">اختر الأعمدة المراد تصديرها :</label>
+                                                <div class="grid grid-cols-2 gap-2" id="columnsCheckboxes">
+                                                    <!-- سيتم تعبئة الأعمدة هنا عبر JavaScript -->
+                                                </div>
+                                            </div>
+
+
+                                        <div class="col-span-12 flex justify-end gap-2 mt-4 sf-modal-actions">
+                                            <button type="button" class="btn btn-secondary sf-modal-cancel">إلغاء</button>
+                                            <button type="button" class="btn btn-success" data-export-excel-confirm>تصدير</button>
+                                        </div>
+                                    </div>
+                                </form>
+
+                                <script>
+                                window.toggleExportCount = function () {
+                                    const scope = document.getElementById("exportScope")?.value;
+                                    const countContainer = document.getElementById("countContainer");
+                                    if (!countContainer) return;
+                                    countContainer.style.display = (scope === "from_selected_count") ? "" : "none";
+                                };
+                                </script>
+                                `;
+
+
+
+
+
+                this.$nextTick(() => {
+                    const checkboxContainer = document.getElementById("columnsCheckboxes");
+                    if (!checkboxContainer) return;
+
+                    const visibleCols = this.visibleColumns().filter(c => c.showInExport !== false);
+                    checkboxContainer.innerHTML = visibleCols.map((col, i) => `
+                    <label class="flex items-center gap-2">
+                        <input type="checkbox" name="exportCols" value="${col.field}" checked class="sf-checkbox" />
+                        <span>${col.label || col.field}</span>
+                    </label>
+                    `).join("");
+
+
+                });
+
+
+
+                this.$nextTick(() => {
+                    window.toggleExportCount(); // ← يظهر أو يخفي خانة عدد الصفوف حسب الخيار الحالي
+                });
+
+
+
+                this.$nextTick(() => {
+                    if (window.toggleExportCount) {
+                        window.toggleExportCount(); // ← عشان يختفي أو يظهر عدد الصفوف مباشرة حسب الاختيار
+                    }
+
+                    const btn = document.querySelector('[data-export-excel-confirm]');
+                    if (btn) {
+                        btn.addEventListener('click', () => this.confirmExportExcelFromModal(), { once: true });
+                    }
+                });
+
+                this.$nextTick(() => {
+                    const btn = document.querySelector('[data-export-excel-confirm]');
+                    if (!btn) return;
+                    btn.addEventListener('click', () => this.confirmExportExcelFromModal(), { once: true });
+                });
+            },
+
+            getSelectedRowFromCurrentData() {
+                const ids = Array.from(this.selectedKeys || []);
+                if (!ids.length) return null;
+
+                const firstId = ids[0];
+
+                const hay = (Array.isArray(this.filteredRows) && this.filteredRows.length) ? this.filteredRows
+                    : (Array.isArray(this.allRows) && this.allRows.length) ? this.allRows
+                        : (Array.isArray(this.rows) ? this.rows : []);
+
+                return hay.find(r => String(r?.[this.rowIdField]) === String(firstId)) || null;
+            },
+
+            confirmExportExcelFromModal() {
                 try {
-                    const dataToExport = scope === 'filtered' ? this.filteredRows : this.rows;
-                    const visibleCols = this.visibleColumns().filter(col => col.showInExport !== false);
+                    const form = document.getElementById("sfExportExcelForm");
+                    if (!form) return;
 
-                    let content = "\uFEFF"; // UTF-8 BOM
+                    const fd = new FormData(form);
+                    const scope = String(fd.get("scope") || "from_selected_count");
+                    const count = Math.max(1, Number(fd.get("count") || 1));
+                    const rtl = true;
+                    const includeHeaders = fd.get("includeHeaders") === "on";
+                    const exportVisibleOnly = true;
 
-                    // Headers
-                    const headers = visibleCols.map(col => `"${col.label || col.field}"`).join(",");
-                    content += headers + "\r\n";
+                    const dataView = (Array.isArray(this.filteredRows) && this.filteredRows.length)
+                        ? this.filteredRows
+                        : (Array.isArray(this.allRows) ? this.allRows : []);
 
-                    // Rows
-                    dataToExport.forEach(row => {
-                        const rowData = visibleCols.map(col => {
-                            let value = this.formatCellForExport(row, col);
-                            // Escape quotes and wrap in quotes if contains comma
-                            if (typeof value === 'string') {
-                                value = value.replace(/"/g, '""');
-                                if (value.includes(',') || value.includes('\n') || value.includes('\r')) {
-                                    value = `"${value}"`;
-                                }
-                            }
-                            return value;
-                        }).join(",");
-                        content += rowData + "\r\n";
-                    });
+                    if (!dataView.length && Array.isArray(this.rows)) {
+                        dataView.push(...this.rows);
+                    }
 
-                    const mimeType = type === "excel" ? "application/vnd.ms-excel" : "text/csv;charset=utf-8";
-                    const extension = type === "excel" ? "xls" : "csv";
+                    const selectedIds = new Set(Array.from(this.selectedKeys || []).map(String));
+                    if (!selectedIds.size && scope !== "all") {
+                        this.showToast("لا يوجد صف محدد", "error");
+                        return;
+                    }
 
-                    this.downloadFile(content, `export_${new Date().toISOString().slice(0, 10)}.${extension}`, mimeType);
+                    let rowsToExport = [];
+
+                    if (scope === "all") {
+                        rowsToExport = dataView.slice();
+
+                    } else if (scope === "from_selected_count") {
+                        const startRow = this.getSelectedRowFromCurrentData();
+                        if (!startRow) {
+                            this.showToast("تعذر تحديد الصف المحدد كبداية", "error");
+                            return;
+                        }
+
+                        const startIdx = dataView.findIndex(r => String(r?.[this.rowIdField]) === String(startRow?.[this.rowIdField]));
+                        if (startIdx < 0) {
+                            this.showToast("تعذر إيجاد الصف المحدد داخل البيانات الحالية", "error");
+                            return;
+                        }
+
+                        const maxCount = dataView.length - startIdx;
+                        const finalCount = Math.min(count, maxCount);
+
+                        rowsToExport = dataView.slice(startIdx, startIdx + finalCount);
+                    }
+
+                    if (!rowsToExport.length) {
+                        this.showToast("لا توجد بيانات للتصدير", "error");
+                        return;
+                    }
+
+                    // قراءة الأعمدة المختارة
+                    const selectedFields = Array.from(document.querySelectorAll("input[name=exportCols]:checked")).map(i => i.value);
+
+                    const allCols = exportVisibleOnly
+                        ? this.visibleColumns().filter(c => c.showInExport !== false)
+                        : (this.columns || []).filter(c => c.field && c.showInExport !== false);
+
+                    // فلترة الأعمدة بناء على اختيار المستخدم
+                    const cols = allCols.filter(c => selectedFields.includes(c.field));
+
+
+                    if (!cols.length) {
+                        this.showToast("لا توجد أعمدة للتصدير", "error");
+                        return;
+                    }
+
+                    this.exportXlsx({ rows: rowsToExport, cols, includeHeaders, rtl });
+                    this.closeModal();
 
                 } catch (e) {
-                    console.error("Export error:", e);
-                    this.showToast("فشل في التصدير: " + e.message, 'error');
+                    console.error(e);
+                    this.showToast("فشل التصدير: " + (e.message || e), "error");
                 }
             },
+
+            exportXlsx({ rows, cols, includeHeaders, rtl }) {
+                const aoa = [];
+
+                if (includeHeaders) {
+                    aoa.push(cols.map(c => c.label || c.field));
+                }
+
+                const forceText = col => {
+                    const t = String(col.type || "").toLowerCase();
+                    return ["phone", "tel", "nationalid", "nid", "identity"].includes(t);
+                };
+
+                rows.forEach(r => {
+                    const rowArr = cols.map(c => {
+                        let v = r?.[c.field];
+                        if (v == null) return "";
+                        const ct = String(c.type || "").toLowerCase();
+                        if (["date", "datetime"].includes(ct)) {
+                            try {
+                                const d = new Date(v);
+                                if (!Number.isNaN(d.getTime())) {
+                                    return ct === "date"
+                                        ? d.toISOString().slice(0, 10)
+                                        : d.toISOString().replace("T", " ").slice(0, 19);
+                                }
+                            } catch { }
+                            return String(v);
+                        }
+                        return (forceText(c) ? String(v) : v);
+                    });
+                    aoa.push(rowArr);
+                });
+
+                const ws = XLSX.utils.aoa_to_sheet(aoa);
+
+                const range = XLSX.utils.decode_range(ws["!ref"] || "A1");
+                for (let R = range.s.r; R <= range.e.r; ++R) {
+                    for (let C = range.s.c; C <= range.e.c; ++C) {
+                        const cellAddress = XLSX.utils.encode_cell({ r: R, c: C });
+                        const cell = ws[cellAddress];
+                        if (!cell) continue;
+                        if (!cell.s) cell.s = {};
+                        cell.s.alignment = { vertical: "center", horizontal: "center", wrapText: true };
+                    }
+                }
+
+                const headerOffset = includeHeaders ? 1 : 0;
+                cols.forEach((c, colIdx) => {
+                    const t = String(c.type || "").toLowerCase();
+                    if (["phone", "tel", "nationalid", "nid", "identity"].includes(t)) {
+                        for (let r = 0; r < rows.length; r++) {
+                            const cellAddress = XLSX.utils.encode_cell({ r: r + headerOffset, c: colIdx });
+                            const cell = ws[cellAddress];
+                            if (!cell) continue;
+                            cell.t = "s";
+                            cell.v = String(cell.v || "");
+                        }
+                    }
+                });
+
+                if (rtl) {
+                    ws["!sheetViews"] = [{ rightToLeft: true, tabSelected: 1, workbookViewId: 0 }];
+                    /*ws["!cols"] = cols.map(() => ({ wpx: 150 }));*/
+
+                    ws["!cols"] = cols.map((col, idx) => {
+                        try {
+                            const th = document.querySelector(`.sf-table thead tr th:nth-child(${idx + 1})`);
+                            if (th) {
+                                const rect = th.getBoundingClientRect();
+                                // نحول من px إلى wpx تقريبًا (تقدير XLSX.js)
+                                const width = Math.ceil(rect.width);
+                                return { wpx: width };
+                            }
+                        } catch (e) {
+                            console.warn('فشل استخراج عرض العمود:', e);
+                        }
+                        return { wpx: 150 }; // fallback
+                    });
+
+
+                    ws["!direction"] = "rtl";
+                }
+
+                ws["!autofilter"] = {
+                    ref: XLSX.utils.encode_range({
+                        s: { c: 0, r: 0 },
+                        e: { c: cols.length - 1, r: 0 }
+                    })
+                };
+
+                const wb = XLSX.utils.book_new();
+                XLSX.utils.book_append_sheet(wb, ws, "Export");
+                XLSX.writeFile(wb, `export_${new Date().toISOString().slice(0, 10)}.xlsx`);
+            },
+
+
+
+             /*===== نهاية تصدير اكسل =====*/
+
+
+
 
             formatCellForExport(row, col) {
                 let value = row[col.field];

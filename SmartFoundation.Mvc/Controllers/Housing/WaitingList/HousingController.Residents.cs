@@ -379,7 +379,7 @@ namespace SmartFoundation.Mvc.Controllers.Housing
                     ShowRefresh = false,
                     ShowColumns = true,
                     ShowExportCsv = false,
-                    ShowExportExcel = false,
+                    ShowExportExcel = true,
                     ShowAdd = canInsert,
                     ShowEdit = canUpdate,
                     ShowDelete = canDelete,
