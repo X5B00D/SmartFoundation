@@ -1,102 +1,716 @@
-﻿@model SmartFoundation.UI.ViewModels.SmartPage.SmartPageViewModel
+@model SmartFoundation.UI.ViewModels.SmartPage.SmartPageViewModel
 
 @await Component.InvokeAsync("SmartRenderer", new { model = Model })
 
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.css" />
+<link rel="stylesheet" href="/css/codemirror-5.65.16.min.css" />
 
 <style>
-    /* A4 preview requirements (explicit mm sizing) */
-    .a4 {
-        width: 210mm;
-        height: 297mm;
-        background: white;
-        padding: 15mm;
-        box-shadow: 0 0 10px rgba(0,0,0,0.3);
+    /* -----------------------------------------------------------------------
+       RESPONSIVE REPORT DESIGNER LAYOUT
+       ----------------------------------------------------------------------- */
+
+    /* CSS Custom Properties for easy theming */
+    :root {
+        --rd-gap: 16px;
+        --rd-panel-bg: #f8fafc;
+        --rd-border: #e2e8f0;
+        --rd-primary: #3b82f6;
+        --rd-primary-hover: #2563eb;
+        --rd-text: #334155;
+        --rd-text-muted: #64748b;
     }
 
-    /* Keep the iframe fully controlled and scroll-free */
-    .a4-frame {
+    /* -------------------------------------------------------------------------
+       MAIN LAYOUT CONTAINER
+       ----------------------------------------------------------------------- */
+    .rd-layout {
+        display: grid;
+        gap: var(--rd-gap);
+        width: 100%;
+        max-width: 100%;
+        overflow-x: hidden;
+    }
+
+    /* Mobile First: Single column stack */
+    .rd-layout {
+        grid-template-columns: 1fr;
+        grid-template-areas:
+            "editor"
+            "preview"
+            "helpers";
+    }
+
+    /* Tablet (768px+): Two columns */
+    @@media (min-width: 768px) {
+        .rd-layout {
+            grid-template-columns: 1fr 1fr;
+            grid-template-areas:
+                "editor preview"
+                "helpers helpers";
+        }
+    }
+
+    /* Desktop (1024px+): Three columns - Editor, Preview, Helpers */
+    @@media (min-width: 1024px) {
+        .rd-layout {
+            grid-template-columns: minmax(300px, 1fr) minmax(300px, 1.2fr) minmax(220px, 280px);
+            grid-template-areas: "editor preview helpers";
+        }
+    }
+
+    /* Large Desktop (1440px+): More space for preview */
+    @@media (min-width: 1440px) {
+        .rd-layout {
+            grid-template-columns: minmax(350px, 1fr) minmax(400px, 1.5fr) 300px;
+        }
+    }
+
+    .rd-editor-section { grid-area: editor; }
+    .rd-preview-section { grid-area: preview; }
+    .rd-helpers-section { grid-area: helpers; }
+
+    /* -------------------------------------------------------------------------
+       EDITOR PANEL
+       ----------------------------------------------------------------------- */
+    .rd-editor-section {
+        display: flex;
+        flex-direction: column;
+        min-width: 0; /* Prevent overflow */
+    }
+
+    .rd-editor-section .section-header {
+        margin-bottom: 8px;
+    }
+
+    .rd-editor-section .section-header h2 {
+        font-size: 1rem;
+        font-weight: 600;
+        margin: 0 0 4px 0;
+    }
+
+    .rd-editor-section .section-header p {
+        font-size: 0.8rem;
+        color: var(--rd-text-muted);
+        margin: 0;
+    }
+
+    #reportDesignerEditor {
+        width: 100%;
+        min-height: 300px;
+        height: 50vh;
+        max-height: calc(100vh - 280px);
+        font-family: monospace;
+        font-size: 13px;
+        padding: 12px;
+        border: 1px solid var(--rd-border);
+        border-radius: 8px;
+        resize: vertical;
+    }
+
+    /* CodeMirror responsive height */
+    .CodeMirror {
+        height: 50vh !important;
+        min-height: 300px !important;
+        max-height: calc(100vh - 280px) !important;
+        border-radius: 8px;
+        font-size: 13px;
+    }
+
+    @@media (min-width: 1024px) {
+        #reportDesignerEditor,
+        .CodeMirror {
+            height: calc(100vh - 300px) !important;
+            min-height: 400px !important;
+        }
+    }
+
+    /* -------------------------------------------------------------------------
+       A4 PREVIEW PANEL (Responsive Scaling)
+       ----------------------------------------------------------------------- */
+    .rd-preview-section {
+        display: flex;
+        flex-direction: column;
+        min-width: 0;
+    }
+
+    .rd-preview-section .section-header {
+        margin-bottom: 8px;
+    }
+
+    .rd-preview-section .section-header h2 {
+        font-size: 1rem;
+        font-weight: 600;
+        margin: 0 0 4px 0;
+    }
+
+    .rd-preview-section .section-header p {
+        font-size: 0.8rem;
+        color: var(--rd-text-muted);
+        margin: 0;
+    }
+
+    /* Preview container with scaling wrapper */
+    .rd-preview-wrapper {
+        flex: 1;
+        display: flex;
+        align-items: flex-start;
+        justify-content: center;
+        overflow: auto;
+        background: #e5e7eb;
+        border-radius: 8px;
+        padding: 16px;
+        min-height: 400px;
+    }
+
+    /* A4 scaling container */
+    .rd-a4-scaler {
+        transform-origin: top center;
+        transition: transform 0.3s ease;
+    }
+
+    /* A4 Paper - always use mm for accuracy, scale via wrapper */
+    .a4 {
+        background: white;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+        transition: width 0.3s, height 0.3s;
+    }
+
+    .a4.portrait {
         width: 210mm;
         height: 297mm;
+    }
+
+    .a4.landscape {
+        width: 297mm;
+        height: 210mm;
+    }
+
+    .a4-frame {
         border: 0;
         background: white;
         display: block;
+        width: 100%;
+        height: 100%;
     }
 
-    /* Match the textarea sizing when CodeMirror is enabled */
-    .CodeMirror {
-        height: calc(100vh - 260px);
-        min-height: 360px;
+    .a4-frame.portrait {
+        width: 210mm;
+        height: 297mm;
+    }
+
+    .a4-frame.landscape {
+        width: 297mm;
+        height: 210mm;
+    }
+
+    /* Responsive A4 scaling based on viewport */
+    @@media (max-width: 767px) {
+        .rd-a4-scaler { transform: scale(0.35); }
+        .rd-preview-wrapper { min-height: 320px; padding: 8px; }
+    }
+
+    @@media (min-width: 768px) and (max-width: 1023px) {
+        .rd-a4-scaler { transform: scale(0.45); }
+        .rd-preview-wrapper { min-height: 380px; }
+    }
+
+    @@media (min-width: 1024px) and (max-width: 1279px) {
+        .rd-a4-scaler { transform: scale(0.5); }
+        .rd-preview-wrapper { min-height: 450px; }
+    }
+
+    @@media (min-width: 1280px) and (max-width: 1535px) {
+        .rd-a4-scaler { transform: scale(0.55); }
+        .rd-preview-wrapper { min-height: 500px; }
+    }
+
+    @@media (min-width: 1536px) {
+        .rd-a4-scaler { transform: scale(0.65); }
+        .rd-preview-wrapper { min-height: 550px; }
+    }
+
+    /* -------------------------------------------------------------------------
+       HELPERS PANEL (Collapsible on Mobile)
+       ----------------------------------------------------------------------- */
+    .rd-helpers-section {
+        min-width: 0;
+    }
+
+    /* Mobile toggle button */
+    .rd-helpers-toggle {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        width: 100%;
+        padding: 12px 16px;
+        background: var(--rd-panel-bg);
+        border: 1px solid var(--rd-border);
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 14px;
+        font-weight: 600;
+        color: var(--rd-text);
+        margin-bottom: 8px;
+    }
+
+    .rd-helpers-toggle i {
+        transition: transform 0.2s;
+    }
+
+    .rd-helpers-toggle.expanded i {
+        transform: rotate(180deg);
+    }
+
+    /* Show toggle only on small screens */
+    .rd-helpers-toggle {
+        display: flex;
+    }
+
+    @@media (min-width: 1024px) {
+        .rd-helpers-toggle {
+            display: none;
+        }
+    }
+
+    /* Helper panel content */
+    .helper-panel {
+        background: var(--rd-panel-bg);
+        border: 1px solid var(--rd-border);
+        border-radius: 8px;
+        padding: 12px;
+        max-height: calc(100vh - 280px);
+        overflow-y: auto;
+    }
+
+    /* Collapsed by default on mobile, shown on desktop */
+    @@media (max-width: 1023px) {
+        .helper-panel {
+            display: none;
+            max-height: 400px;
+        }
+
+        .helper-panel.expanded {
+            display: block;
+        }
+    }
+
+    @@media (min-width: 1024px) {
+        .helper-panel {
+            display: block !important;
+        }
+    }
+
+    .helper-section {
+        margin-bottom: 16px;
+    }
+
+    .helper-section:last-child {
+        margin-bottom: 0;
+    }
+
+    .helper-section h4 {
+        font-size: 13px;
+        font-weight: 600;
+        color: var(--rd-text);
+        margin: 0 0 8px 0;
+        padding-bottom: 4px;
+        border-bottom: 1px solid var(--rd-border);
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .helper-section h4 i {
+        font-size: 12px;
+        color: var(--rd-text-muted);
+    }
+
+    .placeholder-chip {
+        display: inline-block;
+        background: #e0f2fe;
+        color: #0369a1;
+        font-family: monospace;
+        font-size: 11px;
+        padding: 4px 8px;
+        border-radius: 4px;
+        margin: 2px;
+        cursor: pointer;
+        transition: background 0.2s, transform 0.1s;
+    }
+
+    .placeholder-chip:hover {
+        background: #bae6fd;
+        transform: translateY(-1px);
+    }
+
+    .preset-btn, .action-btn {
+        display: block;
+        width: 100%;
+        text-align: right;
+        padding: 8px 12px;
+        margin-bottom: 4px;
+        background: white;
+        border: 1px solid var(--rd-border);
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 13px;
+        transition: background 0.2s, border-color 0.2s;
+    }
+
+    .preset-btn:hover, .action-btn:hover {
+        background: #f1f5f9;
+        border-color: #cbd5e1;
+    }
+
+    .action-btn.primary {
+        background: var(--rd-primary);
+        color: white;
+        border-color: var(--rd-primary);
+    }
+
+    .action-btn.primary:hover {
+        background: var(--rd-primary-hover);
+    }
+
+    .validation-msg {
+        font-size: 12px;
+        padding: 6px 8px;
+        border-radius: 4px;
+        margin-top: 4px;
+    }
+
+    .validation-msg.error {
+        background: #fef2f2;
+        color: #dc2626;
+        border: 1px solid #fecaca;
+    }
+
+    .validation-msg.warning {
+        background: #fffbeb;
+        color: #d97706;
+        border: 1px solid #fde68a;
+    }
+
+    .validation-msg.success {
+        background: #f0fdf4;
+        color: #16a34a;
+        border: 1px solid #bbf7d0;
+    }
+
+    /* -------------------------------------------------------------------------
+       TOOLBAR (Responsive)
+       ----------------------------------------------------------------------- */
+    .rd-toolbar {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 8px;
+        padding: 12px;
+        margin: 16px 0;
+        background: #f1f5f9;
+        border-radius: 8px;
+    }
+
+    .rd-toolbar-group {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        flex-wrap: wrap;
+    }
+
+    .rd-toolbar-divider {
+        width: 1px;
+        height: 24px;
+        background: #cbd5e1;
+        margin: 0 4px;
+    }
+
+    /* Hide dividers on mobile wrap */
+    @@media (max-width: 640px) {
+        .rd-toolbar-divider {
+            display: none;
+        }
+        .rd-toolbar {
+            gap: 6px;
+        }
+    }
+
+    .rd-toolbar .action-btn {
+        width: auto;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        margin: 0;
+        white-space: nowrap;
+        font-size: 12px;
+        padding: 6px 10px;
+    }
+
+    @@media (max-width: 480px) {
+        .rd-toolbar .action-btn span.btn-text {
+            display: none;
+        }
+        .rd-toolbar .action-btn {
+            padding: 8px;
+        }
+    }
+
+    .orientation-toggle {
+        display: inline-flex;
+        border: 1px solid var(--rd-border);
+        border-radius: 6px;
+        overflow: hidden;
+    }
+
+    .orientation-toggle button {
+        padding: 6px 10px;
+        font-size: 12px;
+        background: white;
+        border: none;
+        cursor: pointer;
+        transition: background 0.2s;
+        display: flex;
+        align-items: center;
+        gap: 4px;
+    }
+
+    .orientation-toggle button.active {
+        background: var(--rd-primary);
+        color: white;
+    }
+
+    .orientation-toggle button:not(.active):hover {
+        background: #f1f5f9;
+    }
+
+    @@media (max-width: 480px) {
+        .orientation-toggle button span {
+            display: none;
+        }
+    }
+
+    /* -------------------------------------------------------------------------
+       MODAL (Responsive)
+       ----------------------------------------------------------------------- */
+    #sampleDataModal {
+        padding: 16px;
+    }
+
+    #sampleDataModal > div {
+        max-width: 90vw;
+        max-height: 90vh;
+        overflow-y: auto;
+    }
+
+    @@media (min-width: 640px) {
+        #sampleDataModal > div {
+            max-width: 500px;
+        }
     }
 </style>
 
-<div class="grid grid-cols-1 gap-4 mt-6 lg:grid-cols-2">
-    <section>
-        <div class="mb-2">
-            <div class="flex items-center gap-3">
-                <h2 class="text-lg font-semibold">Report Designer (HTML + CSS)</h2>
+<!-- Designer Toolbar -->
+<div class="rd-toolbar">
+    <div class="rd-toolbar-group">
+        <span class="text-sm font-medium text-slate-700">Orientation:</span>
+        <div class="orientation-toggle">
+            <button type="button" id="orientPortrait" class="active" title="Portrait (210�297mm)">
+                <i class="fa-solid fa-file"></i> <span>Portrait</span>
+            </button>
+            <button type="button" id="orientLandscape" title="Landscape (297�210mm)">
+                <i class="fa-solid fa-file fa-rotate-90"></i> <span>Landscape</span>
+            </button>
+        </div>
+    </div>
 
-                <button
-                    id="copyReportDesignBtn"
-                    type="button"
-                    class="transition duration-200 border shadow-sm inline-flex items-center justify-center rounded-md font-medium cursor-pointer focus:ring-4 focus:ring-primary focus:ring-opacity-20 focus-visible:outline-none dark:focus:ring-slate-700 dark:focus:ring-opacity-50 [&:hover:not(:disabled)]:bg-opacity-90 [&:hover:not(:disabled)]:border-opacity-90 disabled:opacity-70 disabled:cursor-not-allowed bg-primary border-primary text-white px-3 py-2"
-                >
-                    Copy ReportDesign
-                </button>
+    <div class="rd-toolbar-divider"></div>
 
-                <span id="copyReportDesignStatus" class="text-sm text-slate-600"></span>
-            </div>
-            <p class="text-sm text-gray-600">
-                Use inline <code>&lt;style&gt;</code> blocks and placeholders like <code>{{fullName}}</code>.
-            </p>
+    <div class="rd-toolbar-group">
+        <button id="insertBoilerplateBtn" type="button" class="action-btn">
+            <i class="fa-solid fa-file-code"></i> <span class="btn-text">A4 Boilerplate</span>
+        </button>
+
+        <button id="validateTemplateBtn" type="button" class="action-btn">
+            <i class="fa-solid fa-check-circle"></i> <span class="btn-text">Validate</span>
+        </button>
+
+        <button id="copyReportDesignBtn" type="button" class="action-btn primary">
+            <i class="fa-solid fa-copy"></i> <span class="btn-text">Copy Design</span>
+        </button>
+        <span id="copyReportDesignStatus" class="text-sm text-slate-600"></span>
+    </div>
+</div>
+
+<!-- Main Layout Grid -->
+<div class="rd-layout">
+    <!-- LEFT: Code Editor -->
+    <section class="rd-editor-section">
+        <div class="section-header">
+            <h2>Report Designer (HTML + CSS)</h2>
+            <p>Use <code>&lt;style&gt;</code> blocks and <code>{{placeholders}}</code>.</p>
         </div>
 
         <textarea
             id="reportDesignerEditor"
-            class="w-full p-3 font-mono text-sm border rounded"
-            style="height: calc(100vh - 260px); min-height: 360px;"
             spellcheck="false"
-        ><!-- Write HTML/CSS here. This is design-only preview (no saving/printing). -->
+        ><!-- Start with a preset or write your own HTML/CSS -->
 <style>
-  .title { font-size: 20px; font-weight: 700; margin-bottom: 12px; }
-  .row { display: flex; gap: 12px; margin: 6px 0; }
-  .label { width: 120px; color: #444; }
+  .card { border: 2px solid #333; padding: 20px; font-family: Arial, sans-serif; }
+  .title { font-size: 22px; font-weight: bold; text-align: center; margin-bottom: 16px; }
+  .row { display: flex; gap: 12px; margin: 8px 0; }
+  .label { width: 140px; color: #555; font-weight: 500; }
   .value { flex: 1; }
 </style>
 
-<div class="title">Employee Card</div>
-<div class="row"><div class="label">Full Name:</div><div class="value">{{fullName}}</div></div>
-<div class="row"><div class="label">General No:</div><div class="value">{{generalNo}}</div></div>
-<div class="row"><div class="label">Department:</div><div class="value">{{Department}}</div></div>
+<div class="card">
+  <div class="title">بطاقة الموظف</div>
+  <div class="row"><div class="label">الاسم:</div><div class="value">{{fullName}}</div></div>
+  <div class="row"><div class="label">الرقم العام:</div><div class="value">{{generalNo}}</div></div>
+  <div class="row"><div class="label">الإدارة:</div><div class="value">{{Department}}</div></div>
+  <div class="row"><div class="label">الرتبة:</div><div class="value">{{Rank}}</div></div>
+  <div class="row"><div class="label">تاريخ التعيين:</div><div class="value">{{HireDate}}</div></div>
+</div>
 </textarea>
     </section>
 
-    <section>
-        <div class="mb-2">
-            <h2 class="text-lg font-semibold">Live Preview (A4)</h2>
-            <p class="text-sm text-gray-600">Preview updates instantly using sample data replacements.</p>
+    <!-- CENTER: A4 Live Preview -->
+    <section class="rd-preview-section">
+        <div class="section-header">
+            <h2>Live Preview (A4)</h2>
+            <p>Preview uses sample data. Orientation: <span id="currentOrientation">Portrait</span></p>
         </div>
 
-        <div class="overflow-hidden a4">
-            <iframe id="reportDesignerPreview" class="a4-frame" title="A4 Preview"></iframe>
+        <div class="rd-preview-wrapper">
+            <div class="rd-a4-scaler">
+                <div id="a4Container" class="a4 portrait">
+                    <iframe id="reportDesignerPreview" class="a4-frame portrait" title="A4 Preview"></iframe>
+                </div>
+            </div>
         </div>
     </section>
+
+    <!-- RIGHT: Smart Helpers Panel -->
+    <aside class="rd-helpers-section">
+        <!-- Mobile Toggle Button -->
+        <button type="button" class="rd-helpers-toggle" id="helpersToggle">
+            <span><i class="fa-solid fa-toolbox"></i> أدوات المساعدة</span>
+            <i class="fa-solid fa-chevron-down"></i>
+        </button>
+
+        <div class="helper-panel" id="helperPanelContent">
+            <!-- SP Field Loader -->
+            <div class="helper-section">
+                <h4><i class="fa-solid fa-database"></i> تحميل حقول الإجراء</h4>
+                <p class="mb-2 text-xs text-slate-500">أدخل اسم الإجراء لتحميل الحقول</p>
+                <div class="flex gap-2 mb-2">
+                    <input 
+                        type="text" 
+                        id="spNameInput" 
+                        class="flex-1 px-2 py-1 text-xs border rounded"
+                        placeholder="dbo.EmpInfoNew"
+                        value="dbo.EmpInfoNew"
+                    />
+                </div>
+                <button type="button" id="loadSpFieldsBtn" class="action-btn primary" style="font-size:12px;">
+                    <i class="fa-solid fa-download"></i> تحميل الحقول
+                </button>
+                <div id="spLoadStatus" class="mt-2 text-xs"></div>
+            </div>
+
+            <!-- Placeholders -->
+            <div class="helper-section">
+                <h4><i class="fa-solid fa-code"></i> المتغيرات</h4>
+                <p class="mb-2 text-xs text-slate-500">اضغط للإدراج في موقع المؤشر</p>
+                <div id="placeholderList">
+                    <!-- Populated by JS -->
+                </div>
+            </div>
+
+            <!-- Presets -->
+            <div class="helper-section">
+                <h4><i class="fa-solid fa-wand-magic-sparkles"></i> قوالب جاهزة</h4>
+                <button type="button" class="preset-btn" data-preset="employeeCard">
+                    <i class="fa-solid fa-id-card"></i> بطاقة موظف
+                </button>
+                <button type="button" class="preset-btn" data-preset="tableReport">
+                    <i class="fa-solid fa-table"></i> تقرير جدولي
+                </button>
+                <button type="button" class="preset-btn" data-preset="officialLetter">
+                    <i class="fa-solid fa-envelope-open-text"></i> خطاب رسمي
+                </button>
+                <button type="button" class="preset-btn" data-preset="certificate">
+                    <i class="fa-solid fa-certificate"></i> شهادة
+                </button>
+            </div>
+
+            <!-- Database Templates (loaded dynamically) -->
+            <div class="helper-section">
+                <h4><i class="fa-solid fa-database"></i> قوالب محفوظة</h4>
+                <div id="dbPresetsSection">
+                    <p class="text-xs text-slate-500"><i class="fa-solid fa-spinner fa-spin"></i> جاري التحميل...</p>
+                </div>
+                <div id="dbPresetStatus" class="mt-2 text-xs"></div>
+            </div>
+
+            <!-- Sample Data Config -->
+            <div class="helper-section">
+                <h4><i class="fa-solid fa-flask"></i> بيانات تجريبية</h4>
+                <p class="mb-2 text-xs text-slate-500">تستخدم للمعاينة فقط</p>
+                <button type="button" id="editSampleDataBtn" class="action-btn" style="font-size:12px;">
+                    <i class="fa-solid fa-edit"></i> تعديل البيانات
+                </button>
+            </div>
+
+            <!-- Validation Results -->
+            <div class="helper-section">
+                <h4><i class="fa-solid fa-shield-halved"></i> التحقق</h4>
+                <div id="validationResults">
+                    <p class="text-xs text-slate-500">اضغط "تحقق" لفحص القالب</p>
+                </div>
+            </div>
+        </div>
+    </aside>
+</div>
+
+<!-- Sample Data Modal -->
+<div id="sampleDataModal" class="fixed inset-0 z-50 items-center justify-center hidden bg-black bg-opacity-50" style="display:none;">
+    <div class="w-full max-w-lg p-6 mx-4 bg-white rounded-lg shadow-xl">
+        <h3 class="mb-4 text-lg font-semibold">تعديل البيانات التجريبية</h3>
+        <p class="mb-3 text-sm text-slate-600">حدد قيم تجريبية للمتغيرات (للمعاينة فقط، لن تطبع).</p>
+        <textarea id="sampleDataEditor" class="w-full h-48 p-3 font-mono text-sm border rounded" spellcheck="false"></textarea>
+        <div class="flex justify-end gap-2 mt-4">
+            <button type="button" id="cancelSampleDataBtn" class="px-4 py-2 border rounded">إلغاء</button>
+            <button type="button" id="saveSampleDataBtn" class="px-4 py-2 text-white bg-blue-500 rounded">حفظ وتطبيق</button>
+        </div>
+    </div>
 </div>
 
 @section Scripts {
     <script src="/js/printThis.js"></script>
     <script src="/js/printDynamicReport.js"></script>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/xml/xml.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/css/css.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/htmlmixed/htmlmixed.min.js"></script>
+    <script src="/js/codemirror-5.65.16.min.js"></script>
+    <script src="/js/codemirror-xml.min.js"></script>
+    <script src="/js/codemirror-css.min.js"></script>
+    <script src="/js/codemirror-htmlmixed.min.js"></script>
 
     <script src="~/js/reportDesigner.js" asp-append-version="true"></script>
     <script>
+    // Helpers panel toggle for mobile
+    (function() {
+        const toggle = document.getElementById('helpersToggle');
+        const panel = document.getElementById('helperPanelContent');
+        
+        if (toggle && panel) {
+            toggle.addEventListener('click', function() {
+                panel.classList.toggle('expanded');
+                toggle.classList.toggle('expanded');
+            });
+        }
+    })();
+
     // Print Employee Card - uses the generic dynamic report architecture
     async function printEmployeeCard() {
-        // Get generalNo from the form input using form ID
         const generalNo = parseInt($('#reportGenForm input[name="GeneralNo"]').val() || '0', 10);
         if (!generalNo) { 
             alert('الرجاء إدخال رقم عام صحيح');
