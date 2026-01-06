@@ -74,8 +74,6 @@ namespace SmartFoundation.UI.ViewModels.SmartTable
         public bool StopOnMatch { get; set; } = false;
     }
 
-
-
     public class TableColumn
     {
         public string Field { get; set; } = string.Empty;
@@ -102,7 +100,7 @@ namespace SmartFoundation.UI.ViewModels.SmartTable
         public string? AggregateType { get; set; }
         public string? LinkTemplate { get; set; }
         public string? ImageTemplate { get; set; }
-        public bool truncate { get; set; } = false; // جديد 30/12/2025
+        public bool truncate { get; set; } = false; 
         
 
         public Dictionary<string, object> CustomProperties { get; set; } = new();
