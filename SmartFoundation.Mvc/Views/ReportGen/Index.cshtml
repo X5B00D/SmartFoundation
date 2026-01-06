@@ -3,6 +3,7 @@
 @await Component.InvokeAsync("SmartRenderer", new { model = Model })
 
 <link rel="stylesheet" href="/css/codemirror-5.65.16.min.css" />
+<link rel="stylesheet" href="../../wwwroot/img/ppng.png" />
 
 <style>
     /* -----------------------------------------------------------------------
@@ -22,6 +23,7 @@
 
     /* -------------------------------------------------------------------------
        MAIN LAYOUT CONTAINER
+       Dashboard-aware responsive layout: respects sidebar and scales properly
        ----------------------------------------------------------------------- */
     .rd-layout {
         display: grid;
@@ -29,19 +31,31 @@
         width: 100%;
         max-width: 100%;
         overflow-x: hidden;
+        margin: 0 auto;
     }
 
     /* Mobile First: Single column stack */
     .rd-layout {
         grid-template-columns: 1fr;
         grid-template-areas:
-            "editor"
+            "helpers"
             "preview"
-            "helpers";
+            "editor";
     }
 
-    /* Tablet (768px+): Two columns */
-    @@media (min-width: 768px) {
+    /* Small Tablet (640px+): Still stacked but better spacing */
+    @@media (min-width: 640px) {
+        .rd-layout {
+            grid-template-columns: 1fr;
+            grid-template-areas:
+                "editor"
+                "preview"
+                "helpers";
+        }
+    }
+
+    /* Medium Tablet (900px+): Two columns - Editor and Preview side-by-side, Helpers below */
+    @@media (min-width: 900px) {
         .rd-layout {
             grid-template-columns: 1fr 1fr;
             grid-template-areas:
@@ -50,18 +64,20 @@
         }
     }
 
-    /* Desktop (1024px+): Three columns - Editor, Preview, Helpers */
-    @@media (min-width: 1024px) {
+    /* Desktop (1280px+): Three columns - Helpers | Preview | Editor */
+    @@media (min-width: 1280px) {
         .rd-layout {
-            grid-template-columns: minmax(300px, 1fr) minmax(300px, 1.2fr) minmax(220px, 280px);
-            grid-template-areas: "editor preview helpers";
+            grid-template-columns: minmax(240px, 280px) minmax(400px, 1.2fr) minmax(350px, 1fr);
+            grid-template-areas: "helpers preview editor";
+            gap: 20px;
         }
     }
 
-    /* Large Desktop (1440px+): More space for preview */
-    @@media (min-width: 1440px) {
+    /* Large Desktop (1600px+): More breathing room */
+    @@media (min-width: 1600px) {
         .rd-layout {
-            grid-template-columns: minmax(350px, 1fr) minmax(400px, 1.5fr) 300px;
+            grid-template-columns: 300px minmax(500px, 1.4fr) minmax(400px, 1fr);
+            gap: 24px;
         }
     }
 
@@ -80,16 +96,18 @@
 
     .rd-editor-section .section-header {
         margin-bottom: 8px;
+        padding: 8px 0;
     }
 
     .rd-editor-section .section-header h2 {
-        font-size: 1rem;
+        font-size: 0.95rem;
         font-weight: 600;
         margin: 0 0 4px 0;
+        color: var(--rd-text);
     }
 
     .rd-editor-section .section-header p {
-        font-size: 0.8rem;
+        font-size: 0.75rem;
         color: var(--rd-text-muted);
         margin: 0;
     }
@@ -107,20 +125,25 @@
         resize: vertical;
     }
 
-    /* CodeMirror responsive height */
+    /* CodeMirror responsive height - adapts to available space */
     .CodeMirror {
-        height: 50vh !important;
+        height: 400px !important;
         min-height: 300px !important;
-        max-height: calc(100vh - 280px) !important;
+        max-height: calc(100vh - 320px) !important;
         border-radius: 8px;
         font-size: 13px;
     }
 
-    @@media (min-width: 1024px) {
-        #reportDesignerEditor,
+    @@media (min-width: 900px) {
         .CodeMirror {
-            height: calc(100vh - 300px) !important;
-            min-height: 400px !important;
+            height: 500px !important;
+        }
+    }
+
+    @@media (min-width: 1280px) {
+        .CodeMirror {
+            height: calc(100vh - 340px) !important;
+            min-height: 450px !important;
         }
     }
 
@@ -135,37 +158,43 @@
 
     .rd-preview-section .section-header {
         margin-bottom: 8px;
+        padding: 8px 0;
     }
 
     .rd-preview-section .section-header h2 {
-        font-size: 1rem;
+        font-size: 0.95rem;
         font-weight: 600;
         margin: 0 0 4px 0;
+        color: var(--rd-text);
     }
 
     .rd-preview-section .section-header p {
-        font-size: 0.8rem;
+        font-size: 0.75rem;
         color: var(--rd-text-muted);
         margin: 0;
     }
 
-    /* Preview container with scaling wrapper */
+    /* Preview container with scaling wrapper - centered and balanced */
     .rd-preview-wrapper {
         flex: 1;
         display: flex;
-        align-items: flex-start;
+        align-items: center;
         justify-content: center;
         overflow: auto;
         background: #e5e7eb;
         border-radius: 8px;
-        padding: 16px;
+        padding: 20px;
         min-height: 400px;
+        position: relative;
     }
 
-    /* A4 scaling container */
+    /* A4 scaling container - precise centering */
     .rd-a4-scaler {
-        transform-origin: top center;
+        transform-origin: center center;
         transition: transform 0.3s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
     }
 
     /* A4 Paper - always use mm for accuracy, scale via wrapper */
@@ -203,30 +232,30 @@
         height: 210mm;
     }
 
-    /* Responsive A4 scaling based on viewport */
-    @@media (max-width: 767px) {
-        .rd-a4-scaler { transform: scale(0.35); }
-        .rd-preview-wrapper { min-height: 320px; padding: 8px; }
+    /* Responsive A4 scaling - adapts to container width, not viewport */
+    @@media (max-width: 639px) {
+        .rd-a4-scaler { transform: scale(0.3); }
+        .rd-preview-wrapper { min-height: 300px; padding: 12px; }
     }
 
-    @@media (min-width: 768px) and (max-width: 1023px) {
+    @@media (min-width: 640px) and (max-width: 899px) {
+        .rd-a4-scaler { transform: scale(0.4); }
+        .rd-preview-wrapper { min-height: 350px; padding: 16px; }
+    }
+
+    @@media (min-width: 900px) and (max-width: 1279px) {
         .rd-a4-scaler { transform: scale(0.45); }
-        .rd-preview-wrapper { min-height: 380px; }
+        .rd-preview-wrapper { min-height: 420px; padding: 20px; }
     }
 
-    @@media (min-width: 1024px) and (max-width: 1279px) {
+    @@media (min-width: 1280px) and (max-width: 1599px) {
         .rd-a4-scaler { transform: scale(0.5); }
-        .rd-preview-wrapper { min-height: 450px; }
-    }
-
-    @@media (min-width: 1280px) and (max-width: 1535px) {
-        .rd-a4-scaler { transform: scale(0.55); }
         .rd-preview-wrapper { min-height: 500px; }
     }
 
-    @@media (min-width: 1536px) {
-        .rd-a4-scaler { transform: scale(0.65); }
-        .rd-preview-wrapper { min-height: 550px; }
+    @@media (min-width: 1600px) {
+        .rd-a4-scaler { transform: scale(0.6); }
+        .rd-preview-wrapper { min-height: 600px; }
     }
 
     /* -------------------------------------------------------------------------
@@ -266,24 +295,25 @@
         display: flex;
     }
 
-    @@media (min-width: 1024px) {
+    @@media (min-width: 1280px) {
         .rd-helpers-toggle {
             display: none;
         }
     }
 
-    /* Helper panel content */
+    /* Helper panel content - responsive scrolling */
     .helper-panel {
         background: var(--rd-panel-bg);
         border: 1px solid var(--rd-border);
         border-radius: 8px;
         padding: 12px;
-        max-height: calc(100vh - 280px);
+        max-height: 500px;
         overflow-y: auto;
+        overflow-x: hidden;
     }
 
     /* Collapsed by default on mobile, shown on desktop */
-    @@media (max-width: 1023px) {
+    @@media (max-width: 1279px) {
         .helper-panel {
             display: none;
             max-height: 400px;
@@ -294,9 +324,10 @@
         }
     }
 
-    @@media (min-width: 1024px) {
+    @@media (min-width: 1280px) {
         .helper-panel {
             display: block !important;
+            max-height: calc(100vh - 340px);
         }
     }
 
@@ -398,15 +429,15 @@
     }
 
     /* -------------------------------------------------------------------------
-       TOOLBAR (Responsive)
+       TOOLBAR (Responsive & Compact)
        ----------------------------------------------------------------------- */
     .rd-toolbar {
         display: flex;
         flex-wrap: wrap;
         align-items: center;
-        gap: 8px;
-        padding: 12px;
-        margin: 16px 0;
+        gap: 10px;
+        padding: 10px 12px;
+        margin: 12px 0 16px 0;
         background: #f1f5f9;
         border-radius: 8px;
     }
