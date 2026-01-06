@@ -280,7 +280,7 @@ namespace SmartFoundation.Mvc.Controllers.Housing
 
                 new FieldConfig { Name = "p11", Label = "الرتبة", Type = "select", ColCss = "3", Required = true, Options= rankOptions,Select2 = true },
                 new FieldConfig { Name = "p12", Label = "الوحدة", Type = "select", ColCss = "6", Required = true, Options= militaryUnitOptions,Select2 = true },
-                new FieldConfig { Name = "p13", Label = "الحالة الاجتماعية", Type = "select", ColCss = "3", Required = true, Options= MaritalStatusOptions },
+                new FieldConfig { Name = "p13", Label = "الحالة الاجتماعية", Type = "select", ColCss = "3", Required = true, Options= MaritalStatusOptions, },
                 new FieldConfig { Name = "p14", Label = "الجنسية", Type = "select", ColCss = "3", Required = true, Options= NationalityOptions,Select2 = true },
 
                 new FieldConfig { Name = "p15", Label = "عدد التابعين", Type = "number", ColCss = "3" },

@@ -818,10 +818,11 @@ window.__sfTableGlobalBound = window.__sfTableGlobalBound || false;
 
                                         <!-- خيار العناوين -->
                                         <div class="col-span-12 md:col-span-6 flex items-center justify-start md:justify-end">
-                                            <label class="flex flex-row-reverse items-center gap-2">
-                                                <input type="checkbox" name="includeHeaders" checked class="sf-checkbox" />
-                                                <span class="text-sm">تضمين العناوين (Header) كأول صف في Excel</span>
-                                            </label>
+                                            <label class="flex items-center gap-2">
+                                            <input type="checkbox" name="includeHeaders" checked class="sf-checkbox" />
+                                            <span class="text-sm">تضمين العناوين (Header) كأول صف في Excel</span>
+                                        </label>
+
                                         </div>
 
                                         <!-- عدد الصفوف -->
@@ -842,8 +843,8 @@ window.__sfTableGlobalBound = window.__sfTableGlobalBound || false;
 
 
                                         <div class="col-span-12 flex justify-end gap-2 mt-4 sf-modal-actions">
-                                            <button type="button" class="btn btn-secondary sf-modal-cancel">إلغاء</button>
                                             <button type="button" class="btn btn-success" data-export-excel-confirm>تصدير</button>
+                                            <button type="button" class="btn btn-secondary sf-modal-cancel">إلغاء</button>
                                         </div>
                                     </div>
                                 </form>
@@ -2657,3 +2658,4 @@ document.addEventListener("DOMContentLoaded", () => {
     }, true);
 
 });
+

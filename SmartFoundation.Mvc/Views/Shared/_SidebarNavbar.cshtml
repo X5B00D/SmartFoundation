@@ -1,4 +1,4 @@
-@using System.Text.Json
+﻿@using System.Text.Json
 @using Microsoft.AspNetCore.Html
 @using System.Linq
 @using System.Text
@@ -24,7 +24,7 @@
 
 
 
-@* <nav class="fixed z-50 w-full border-bottom" style="background:#064E3B; color:#fff; border-color:#064E3B"> *@
+@* <nav class="border-bottom fixed z-50 w-full" style="background:#064E3B; color:#fff; border-color:#064E3B"> *@
 <nav id="top-header" class="fixed z-50 w-full">
 
     <div class="px-3 py-3 lg:px-5 lg:pe-3">
@@ -34,7 +34,7 @@
                 <!-- زر Pin (ديسكتوب فقط) -->
                 <button id="pin-sidebar"
                         type="button"
-                        class="hidden lg:inline-flex items-center justify-center w-9 h-9 rounded-md text-slate-200 hover:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-slate-300/30"
+                        class="hidden h-9 w-9 items-center justify-center rounded-md text-slate-200 hover:bg-slate-700 focus:ring-2 focus:ring-slate-300/30 focus:outline-none lg:inline-flex"
                         aria-label="تثبيت/طي القائمة"
                         aria-pressed="false">
                     <i class="fa-solid fa-thumbtack"></i>
@@ -47,8 +47,8 @@
                 @* <form action="#" method="GET" class="block lg:ps-3.5" autocomplete="off">
                     <label for="topbar-search" class="sr-only">بحث</label>
                     <div class="relative mt-1 lg:w-96" dir="rtl">
-                        <div class="absolute inset-y-0 left-0 flex items-center pointer-events-none ps-3">
-                            <svg class="w-10 h-5 text-slate-400" fill="currentColor" viewBox="0 0 20 20">
+                        <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center ps-3">
+                            <svg class="h-5 w-10 text-slate-400" fill="currentColor" viewBox="0 0 20 20">
                                 <path fill-rule="evenodd"
                                       d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z"
                                       clip-rule="evenodd"></path>
@@ -57,9 +57,9 @@
 
                         <input id="topbar-search" type="text"
                                autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false"
-                               class="block w-full rounded-md border p-2.5 ps-10 text-sm
-                   bg-slate-100 text-slate-900 placeholder-slate-500
-                   border-slate-300 focus:border-emerald-800 focus:ring-emerald-800"
+                               class="placeholder-slate-500 block w-full rounded-md border border-slate-300 bg-slate-100
+                   p-2.5 ps-10 text-sm
+                   text-slate-900 focus:border-emerald-800 focus:ring-emerald-800"
                                placeholder="بحث..">
                     </div>
                 </form> *@
@@ -69,8 +69,8 @@
             <!-- جهة اليمين -->
             <div class="flex items-center gap-0">
                 <!-- روابط سريعة -->
-                <nav class="flex items-center gap-0.5 me-4 flex-none" dir="rtl" aria-label="روابط سريعة">
-                    <a href="/Home" class="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm text-slate-200 rounded-md">
+                <nav class="me-4 flex flex-none items-center gap-0.5" dir="rtl" aria-label="روابط سريعة">
+                    <a href="/Home" class="inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-sm text-slate-200">
                         <i class="fa-solid fa-house text-[16px]"></i>
                         <span>الصفحة الرئيسية</span>
                     </a>
@@ -83,12 +83,12 @@
 
 
                 <!-- المستخدم -->
-                <div class="flex items-center ms-3">
+                <div class="ms-3 flex items-center">
                     <div>
                        
 
                         <button type="button"
-                                class="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm text-slate-200 rounded-md"
+                                class="inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-sm text-slate-200"
                                 id="user-menu-button" aria-expanded="false" data-dropdown-toggle="user-dropdown">
                             <i class="fa-solid fa-gear text-[16px]"></i>
                             <span>الإعدادات</span>
@@ -98,7 +98,7 @@
 
                     <!-- User dropdown -->
                     <div id="user-dropdown"
-                         class="z-50 hidden w-55 my-2 overflow-hidden rounded-sm shadow-sm bg-slate-800 ring-1 ring-slate-700">
+                         class="z-50 my-2 hidden w-55 overflow-hidden rounded-sm bg-slate-800 shadow-sm ring-1 ring-slate-700">
                          
                        
                         
@@ -138,7 +138,7 @@
                     type="button"
                     class="sf-sidebar-toggle"
                     aria-label="Toggle sidebar">
-                <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
+                <svg class="h-6 w-6" fill="currentColor" viewBox="0 0 20 20">
                     <path fill-rule="evenodd"
                           d="M3 5a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 10a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 15a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z"
                           clip-rule="evenodd"></path>
@@ -198,31 +198,28 @@
        data-drawer-placement="right"
        data-drawer-backdrop="true"
        data-drawer-body-scrolling="false"
-       class="fixed top-0 right-0 z-40 h-screen transition-all duration-300 border-l bg-slate-800 text-slate-200 border-emerald-900
-       w-64 lg:translate-x-0 translate-x-full"
+       class="fixed top-0 right-0 z-40 h-screen w-64 translate-x-full border-l border-emerald-900 bg-slate-800 text-slate-200
+       transition-all duration-300 lg:translate-x-0"
        aria-label="Sidebar">
 
 
-    <div class="relative flex flex-col flex-1 h-full min-h-0 pt-0 bg-transparent">
+    <div class="relative flex h-full min-h-0 flex-1 flex-col bg-transparent pt-0">
 
         <!-- Sidebar Brand (ثابت أعلى السايدبار) -->
         <div class="px-4 pt-3 pb-3">
-            <a href="#" class="flex items-center justify-center gap-3 py-2 rounded-md hover:bg-white/10 transition">
+            <a href="#" class="flex items-center justify-center gap-3 rounded-md py-2 transition hover:bg-white/10">
                 <img src="../img/ppng.png" class="h-12" alt="KFMC Logo" />
-                <span class="font-semibold text-lg text-white">البوابة الموحدة</span>
+                <span class="text-lg font-semibold text-white">البوابة الموحدة</span>
             </a>
         </div>
 
-        <div class="mx-4 h-px bg-white/15"></div>
+       
 
-
-        <div class="flex flex-col flex-1 pt-[calc(var(--top-header-h)+var(--page-header-h)+12px)] pb-4 overflow-y-auto"
+        <div class="flex flex-1 flex-col overflow-y-auto pb-4"
              style="scrollbar-width: none; -ms-overflow-style: none;">
-           
-             
-             
 
-            <div class="flex-1 px-4 space-y-1">
+
+            <div class="flex-1 space-y-1 px-4">
 
 
                 <!-- بطاقة المستخدم (Card) -->
@@ -235,14 +232,14 @@
                         var hasPhoto = !string.IsNullOrWhiteSpace(photo);
                     }
 
-                    <div class="w-16 h-16 rounded-full overflow-hidden bg-white/10
-                flex items-center justify-center mb-3 mx-auto
+                    <div class="mx-auto mb-3 flex h-16 w-16
+                items-center justify-center overflow-hidden rounded-full bg-white/10
                 ring-1 ring-white/20">
                         @if (hasPhoto)
                         {
                             <img src="data:image/jpeg;base64,@photo"
                                  alt="user"
-                                 class="w-full h-full object-cover" />
+                                 class="h-full w-full object-cover" />
                         }
                         else
                         {
@@ -250,22 +247,22 @@
                         }
                     </div>
 
-                    <div class="text-sm font-medium text-white/90 leading-tight">
+                    <div class="text-sm leading-tight font-medium text-white/90">
                         @(sessionfullname?.ToString() ?? "غير معروف")
                     </div>
 
-                    <div class="text-base font-semibold text-emerald-300 mt-1">
+                    <div class="mt-1 text-base font-semibold text-emerald-300">
                         @(sessionnationalID?.ToString() ?? "غير معروف")
                     </div>
 
-                    <div class="text-base font-semibold text-emerald-300 mt-0.5">
+                    <div class="mt-0.5 text-base font-semibold text-emerald-300">
                         @(sessionGeneralNo?.ToString() ?? "غير معروف")
                     </div>
                 </div>
 
                 <!-- قائمة المنيو -->
                
-                <ul class="pt-2 pb-2 space-y-0" style="margin-top:-6px;">
+                <ul class="space-y-0 pt-2 pb-2" style="margin-top:-6px;">
                     <li id="menu-container"></li>
                 </ul>
             </div>
@@ -403,7 +400,7 @@
                 item.MPIcon && item.MPIcon.trim() !== ""
                     ? `<i class="${escapeHtml(
                           item.MPIcon
-                      )} w-5 h-5 me-3 text-slate-400 group-hover:text-slate-50 transition-colors duration-200"></i>`
+                      )} me-3 h-5 w-5 text-slate-400 transition-colors duration-200 group-hover:text-slate-50"></i>`
                     : "";
 
             let html = "";
@@ -423,12 +420,12 @@
                     aria-controls="${collapseId}"
                     ${expandedAttr}>
                 ${iconHtml}
-                <span class="flex-1 text-right whitespace-normal break-words leading-snug">
+                <span class="flex-1 text-right leading-snug break-words whitespace-normal">
                     ${menuName}
                 </span>
 
                 <!--  السهم -->
-                <svg class="menu-chevron w-4 h-4 text-slate-400 group-hover:text-slate-50 transition-transform duration-200"
+                <svg class="menu-chevron h-4 w-4 text-slate-400 transition-transform duration-200 group-hover:text-slate-50"
                      fill="currentColor" viewBox="0 0 20 20">
                     <path fill-rule="evenodd"
                           d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
@@ -456,7 +453,7 @@
            class="${linkClasses}${activeClass} sidebar-link"
            data-url="${escapeHtml(itemLink)}">
           ${iconHtml}
-        <span class="flex-1 whitespace-normal break-words leading-snug">
+        <span class="flex-1 leading-snug break-words whitespace-normal">
             ${menuName}
         </span>
             </a>`;
@@ -469,7 +466,7 @@
                 html += `
     <div class="${linkClasses}${activeClass}">
       ${iconHtml}
-    <span class="flex-1 whitespace-normal break-words leading-snug">
+    <span class="flex-1 leading-snug break-words whitespace-normal">
         ${menuName}
     </span>
         </div>`;

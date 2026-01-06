@@ -1610,10 +1610,10 @@ textarea[readonly] {
             text-align: right;
         }
         /* تمييز الخيار */
-        .sf-modal .select2-container--default .select2-results__option--highlighted.select2-results__option--selectable {
-            background-color: #eef2ff !important;
-            color: #111827 !important;
-        }
+.sf-modal .select2-container--default .select2-results__option--highlighted.select2-results__option--selectable {
+    background-color: #047857 !important;
+    color: #fff !important;
+}
         /* الخيار المحدد */
         .sf-modal .select2-container--default .select2-results__option--selected {
             background-color: #e5e7eb !important;
@@ -1697,115 +1697,72 @@ textarea[readonly] {
                 border-color: var(--sf-focus-border);
                 box-shadow: 0 0 0 2px var(--sf-focus-ring);
             }
-        /* =========================
+
+/* =========================
    Buttons ( modal style )
    ========================= */
+.sf-modal .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: 33px;
+    padding: 0 20px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 400;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    user-select: none;
+    color: #fff;
+}
 
-        .sf-modal .btn {
-            position: relative;
-            height: 33px;
-            padding: 0 25px;
-            border-radius: .300rem;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            font-size: .700rem;
-            font-weight: 700;
-            letter-spacing: 0;
-            color: #fff;
-            border: 1px solid transparent;
-            overflow: hidden;
-            user-select: none;
-            box-shadow: inset 0 -1px 0 rgba(0,0,0,.22), 0 1px 0 rgba(0,0,0,.05);
-            transition: filter 140ms ease, box-shadow 180ms ease, transform 120ms ease;
-        }
-            /* اللمعة العلوية */
-            .sf-modal .btn::before {
-                content: "";
-                position: absolute;
-                inset: 0;
-                pointer-events: none;
-                background: linear-gradient(to bottom, rgba(255,255,255,0.10), rgba(255,255,255,0));
-            }
-            /* Hover (أوضح) */
-            .sf-modal .btn:hover {
-                filter: brightness(1.05);
-                box-shadow: inset 0 -1px 0 rgba(0,0,0,.28), 0 4px 10px rgba(0,0,0,.18);
-            }
-            /* Active (ضغط حقيقي) */
-            .sf-modal .btn:active {
-                transform: translateY(2px);
-                filter: brightness(.95);
-                box-shadow: inset 0 2px 4px rgba(0,0,0,.35), 0 1px 0 rgba(0,0,0,.05);
-            }
-            /* Focus */
-            .sf-modal .btn:focus-visible {
-                outline: none;
-                box-shadow: inset 0 -1px 0 rgba(0,0,0,.22), 0 0 0 2px rgba(4,120,87,.22);
-            }
-            /* Disabled */
-            .sf-modal .btn:disabled {
-                opacity: .55;
-                cursor: not-allowed;
-                filter: none;
-                transform: none;
-                box-shadow: inset 0 -1px 0 rgba(0,0,0,.15), 0 1px 0 rgba(0,0,0,.05);
-            }
-            /* =========================
-   Variants (colors only)
-   ========================= */
-            /* Save / Success */
-            .sf-modal .sf-modal-btn-save,
-            .sf-modal .btn.btn-success {
-                background: linear-gradient(to bottom, #158a6b);
-                border-color: none;
-                /* تخفيف الإطار/الحواف الداكنة */
-                box-shadow: inset 0 0px 0 rgba(0,0,0,.14), 0 1px 0 rgba(0,0,0,.05);
-            }
-                /* Hover للـ Save  */
-                .sf-modal .sf-modal-btn-save:hover,
-                .sf-modal .btn.btn-success:hover {
-                    filter: brightness(1.05);
-                    box-shadow: inset 0 -1px 0 rgba(0,0,0,.18), 0 4px 10px rgba(0,0,0,.18);
-                }
-                /* Active للـ Save */
-                .sf-modal .sf-modal-btn-save:active,
-                .sf-modal .btn.btn-success:active {
-                    transform: translateY(2px);
-                    filter: brightness(.95);
-                    box-shadow: inset 0 2px 3px rgba(0,0,0,.22), 0 1px 0 rgba(0,0,0,.05);
-                }
-                /* Focus للـ Save */
-                .sf-modal .sf-modal-btn-save:focus-visible,
-                .sf-modal .btn.btn-success:focus-visible {
-                    outline: none;
-                    box-shadow: inset 0 -1px 0 rgba(0,0,0,.14), 0 0 0 2px rgba(4,120,87,.22);
-                }
-            /* Cancel / Secondary */
-            .sf-modal .sf-modal-btn-cancel,
-            .sf-modal .btn.btn-secondary {
-                background: linear-gradient(to bottom, #f3f4f6, #e5e7eb);
-                color: #111827;
-                border-color: #d1d5db;
-                box-shadow: inset 0 -1px 0 rgba(0,0,0,.10), 0 1px 0 rgba(0,0,0,.05);
-            }
+/* Variants */
+.sf-modal .btn-primary {
+    background-color: #0ea5e9;
+}
 
-                .sf-modal .sf-modal-btn-cancel::before,
-                .sf-modal .btn.btn-secondary::before {
-                    background: linear-gradient(to bottom, rgba(255,255,255,.65), rgba(255,255,255,0));
-                }
-            /* Danger */
-            .sf-modal .btn.btn-danger {
-                background: linear-gradient(to bottom, #dc2626, #991b1b);
-                border-color: #991b1b;
-            }
+    .sf-modal .btn-primary:hover {
+        background-color: #0284c7;
+    }
 
-                .sf-modal .btn.btn-danger:focus-visible {
-                    box-shadow: inset 0 -1px 0 rgba(0,0,0,.25), 0 0 0 2px rgba(185,28,28,.25);
-                }
-        /* =========================
-   Responsive 
+    .sf-modal .btn-primary:active {
+        background-color: #0369a1;
+    }
+
+.sf-modal .btn-secondary {
+    background-color: #e5e7eb;
+    color: #111827;
+}
+
+    .sf-modal .btn-secondary:hover {
+        background-color: #d1d5db;
+    }
+
+    .sf-modal .btn-secondary:active {
+        background-color: #9ca3af;
+    }
+
+.sf-modal .btn-danger {
+    background-color: #ef4444;
+}
+
+    .sf-modal .btn-danger:hover {
+        background-color: #dc2626;
+    }
+
+    .sf-modal .btn-danger:active {
+        background-color: #b91c1c;
+    }
+
+.sf-modal .btn:disabled {
+    opacity: 0.5;
+    pointer-events: none;
+}
+
+
+  /* =========================
+           Responsive 
    ========================= */
         @media (max-width: 1024px) {
             .sf-modal {
@@ -1861,30 +1818,25 @@ textarea[readonly] {
         /* =========================
    Panel (صفحة الرندر)
    ========================= */
-        /*.sf-panel {
-    @apply relative mx-auto mt-16 mb-6 w-full overflow-hidden;
-    @apply rounded-md border border-gray-300 bg-gray-50;
-    @apply shadow-sm;
-}*/
+
         .sf-panel {
-            @apply relative mx-auto mt-16 mb-6 w-full overflow-hidden;
+            @apply relative mx-auto mt-10 mb-6 w-full overflow-hidden;
             @apply rounded-md border border-gray-300 bg-gray-100;
             overflow: visible !important;
             @apply shadow-sm;
         }
-        /* Header = نفس .table-head */
+        
         .sf-panel-header {
-            @apply sticky top-0 z-20; /* نفس الجدول (لو تبغاه ثابت) */
+            @apply sticky top-0 z-20; 
             @apply relative flex items-center justify-between;
             @apply px-5 py-3;
 
-            @apply bg-gray-100; /* نفس الجدول */
-            @apply border-b border-gray-300; /* نفس راس الجدول */
+            @apply bg-gray-100; 
+            @apply border-b border-gray-300; 
             border-bottom-width: 1px;
-            /* نفس الظل */
             box-shadow: inset 0 -1px 0 rgba(0,0,0,0.06), 0 2px 6px rgba(0,0,0,0.05);
         }
-            /* لمعان داخلي مثل table-head::before */
+            
             .sf-panel-header::before {
                 content: "";
                 position: absolute;
@@ -2223,6 +2175,12 @@ textarea[readonly] {
             box-sizing: border-box;
         }
 
+.sf-form .select2-container--default .select2-results__option--highlighted.select2-results__option--selectable {
+    background-color: #047857 !important;
+    color: #fff !important;
+}
+
+
             :where(.sf-modal, .sf-form) .select2-container--default .select2-search--dropdown .select2-search__field:focus {
                 border-color: var(--sf-focus-border);
                 box-shadow: 0 0 0 0px var(--sf-focus-ring);
@@ -2298,4 +2256,13 @@ textarea[readonly] {
         }
 
 
+
+
+/*   لون التمرير Select2 في كل الحالات */
+.select2-container--default .select2-results__option--highlighted.select2-results__option--selectable,
+.sf-form .select2-container--default .select2-results__option--highlighted.select2-results__option--selectable,
+.sf-modal .select2-container--default .select2-results__option--highlighted.select2-results__option--selectable {
+    background-color: #047857 !important;
+    color: #fff !important;
+}
 

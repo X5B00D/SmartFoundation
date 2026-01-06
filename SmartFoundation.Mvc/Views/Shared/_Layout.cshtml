@@ -146,12 +146,7 @@
 </head>
 
 
-<body class="sidebar-pinned text-gray-900 transition-colors duration-300 bg-gray-50 dark:bg-gray-900 dark:text-gray-100">
-
-
-
-
-
+<body class="sidebar-pinned bg-gray-50 text-gray-900 transition-colors duration-300 dark:bg-gray-900 dark:text-gray-100">
 
 
     <!-- ✅ Navbar + Sidebar -->
@@ -159,25 +154,16 @@
 
     <!-- ✅ Main content area -->
 
-  @*   <div id="main-content"
-         class="relative flex flex-col h-screen pt-16 overflow-y-auto overflow-x-hidden transition-all duration-300 bg-gray-100 sm:mr-64"> *@
 
-       @*  <div id="main-content"
-             class="relative flex flex-col h-screen pt-10 overflow-y-auto  transition-all duration-300 bg-gray-100 sm:mr-64"> *@
-
-    <div id="main-content"
-         class="relative flex flex-col h-screen pt-10 overflow-y-auto transition-all duration-300 bg-gray-100">
-
-
-   @*  <div id="main-content"
-         class="relative  flex flex-col h-screen pt-16 overflow-y-auto overflow-x-hidden transition-all duration-300 bg-gray-100 sm:mr-64"> *@
+     <div id="main-content"
+         class="relative flex h-screen flex-col overflow-y-auto bg-gray-50 pt-10 transition-all duration-300"> 
 
 
 
         <!-- ===== Main Content Loading Overlay ===== -->
         <div id="main-loading"
              style="display:none"
-             class="absolute inset-0 z-40 bg-gray-100 flex items-center justify-center">
+             class="absolute inset-0 z-40 flex items-center justify-center bg-gray-100">
             <div class="sf-loader-dots">
                 <span></span>
                 <span></span>
@@ -188,7 +174,7 @@
         </div>
         <!-- Content -->
         @* <main class="flex-1 px-4 pt-6"> *@
-        <main class="flex-1 px-4 pt-6 overflow-x-hidden">
+        <main class="flex-1 overflow-x-hidden px-4 pt-6">
 
                 @RenderBody()
         </main>
@@ -196,7 +182,7 @@
         <!-- ✅ Modern Footer -->
         <footer class="mt-auto border-t bg-gray-200" style="border-color:#e5e7eb">
             <div class="px-4 py-5">
-                <div class="text-sm text-center text-gray-400">
+                <div class="text-center text-sm text-gray-400">
                     <span class="font-medium text-gray-700">
                         إدارة مدينة الملك فيصل العسكرية
                     </span>

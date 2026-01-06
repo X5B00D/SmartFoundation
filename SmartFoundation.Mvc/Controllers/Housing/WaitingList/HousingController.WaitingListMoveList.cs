@@ -229,7 +229,7 @@ namespace SmartFoundation.Mvc.Controllers.Housing
                         OpenModal = true,
                         ModalTitle = "قبول الطلب <i class='fa fa-exclamation-triangle text-white-600 text-xl mr-2'></i>",
                         ModalMessage = "هل أنت متأكد من قبول الطلب؟",
-                        ModalMessageClass = "bg-green-50 border border-green-200 text-green-700",
+                        ModalMessageClass = "bg-green-50 text-green-700",
                         OpenForm = new FormConfig
                         {
                             FormId = "WaitingListMoveListDeleteForm",
@@ -284,7 +284,7 @@ namespace SmartFoundation.Mvc.Controllers.Housing
                         OpenModal = true,
                         ModalTitle = "<i class='fa fa-exclamation-triangle text-red-600 text-xl mr-2'></i> تحذير",
                         ModalMessage = "هل أنت متأكد من رفض الطلب؟",
-                        ModalMessageClass = "bg-red-50 border border-red-200 text-red-700",
+                        ModalMessageClass = "bg-red-50 text-red-700",
                         OpenForm = new FormConfig
                         {
                             FormId = "WaitingListMoveListDeleteForm",
