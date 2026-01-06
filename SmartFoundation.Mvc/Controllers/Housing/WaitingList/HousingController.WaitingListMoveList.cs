@@ -216,13 +216,15 @@ namespace SmartFoundation.Mvc.Controllers.Housing
                     ShowDelete1 = canReject,
                     ShowBulkDelete = false,
 
-                  
+
+                    
+
+
                     Delete = new TableAction
                     {
                         Label = "قبول الطلب",
                         Icon = "fa fa-check",
                         Color = "success",
-                        //Placement = TableActionPlacement.ActionsMenu, //   أي زر بعد ما نسويه ونبيه يظهر في الاجراءات نحط هذا السطر فقط عشان ما يصير زحمة في التيبل اكشن
                         IsEdit = true,
                         OpenModal = true,
                         ModalTitle = "قبول الطلب <i class='fa fa-exclamation-triangle text-white-600 text-xl mr-2'></i>",
@@ -236,22 +238,48 @@ namespace SmartFoundation.Mvc.Controllers.Housing
                             ActionUrl = "/crud/delete",
                             Buttons = new List<FormButtonConfig>
                             {
-                                new FormButtonConfig { Text = "قبول", Type = "submit", Color = "success", },
+                                new FormButtonConfig { Text = "قبول", Type = "submit", Color = "success" },
                                 new FormButtonConfig { Text = "إلغاء", Type = "button", Color = "secondary", OnClickJs = "this.closest('.sf-modal').__x.$data.closeModal();" }
                             },
                             Fields = approveFields
-                        },
-                        RequireSelection = true,
-                        MinSelection = 1,
-                        MaxSelection = 1
+                                },
+                                RequireSelection = true,
+                                MinSelection = 1,
+                                MaxSelection = 1,
+
+                        // اذا الحالة مرفوض امنع عنه الازرار
+                        Guards = new TableActionGuards
+                        {
+                            AppliesTo = "any",
+                            DisableWhenAny = new List<TableActionRule>
+                            {
+                                new TableActionRule
+                                {
+                                    Field = "ActionStatus",
+                                    Op = "eq",
+                                    Value = "مقبول",
+                                    Message = "لا يمكن قبول طلب حالته بالفعل (مقبول).",
+                                    Priority = 1
+                                },
+                                new TableActionRule
+                                {
+                                    Field = "ActionStatus",
+                                    Op = "eq",
+                                    Value = "مرفوض",
+                                    Message = "لا يمكن قبول طلب حالته (مرفوض).",
+                                    Priority = 2
+                                }
+                            }
+                        }
                     },
+
+
 
                     Delete1 = new TableAction
                     {
                         Label = "رفض الطلب",
                         Icon = "fa fa-close",
                         Color = "danger",
-                        //Placement = TableActionPlacement.ActionsMenu, //   أي زر بعد ما نسويه ونبيه يظهر في الاجراءات نحط هذا السطر فقط عشان ما يصير زحمة في التيبل اكشن
                         IsEdit = true,
                         OpenModal = true,
                         ModalTitle = "<i class='fa fa-exclamation-triangle text-red-600 text-xl mr-2'></i> تحذير",
@@ -264,58 +292,88 @@ namespace SmartFoundation.Mvc.Controllers.Housing
                             Method = "post",
                             ActionUrl = "/crud/delete",
                             Buttons = new List<FormButtonConfig>
-                            {
-                                new FormButtonConfig { Text = "رفض", Type = "submit", Color = "danger", },
-                                new FormButtonConfig { Text = "إلغاء", Type = "button", Color = "secondary", OnClickJs = "this.closest('.sf-modal').__x.$data.closeModal();" }
-                            },
+                        {
+                            new FormButtonConfig { Text = "رفض", Type = "submit", Color = "danger" },
+                            new FormButtonConfig { Text = "إلغاء", Type = "button", Color = "secondary", OnClickJs = "this.closest('.sf-modal').__x.$data.closeModal();" }
+                        },
                             Fields = approveFields
                         },
                         RequireSelection = true,
                         MinSelection = 1,
-                        MaxSelection = 1
-                    },
+                        MaxSelection = 1,
 
+                        // اذا الحالة مرفوض امنع عنه الازرار "
+                        Guards = new TableActionGuards
+                        {
+                            AppliesTo = "any",
+                            DisableWhenAny = new List<TableActionRule>
+                        {
+                            new TableActionRule
+                            {
+                                    Field = "ActionStatus",
+                                    Op = "eq",
+                                    Value = "مرفوض",
+                                    Message = "لا يمكن رفض طلب حالته بالفعل (مرفوض).",
+                                    Priority = 1
+                                },
+                                new TableActionRule
+                                {
+                                    Field = "ActionStatus",
+                                    Op = "eq",
+                                    Value = "مقبول",
+                                    Message = "لا يمكن رفض طلب حالته (مقبول).",
+                                    Priority = 2
+                                }
+                            }
+                        }
+                    },
                 }
             };
 
 
-            dsModel.StyleRules = new List<TableStyleRule>
-                {
 
-                    new TableStyleRule
-                    {
-                        Target = "row",
-                        Field = "ActionStatus",
-                        Op = "eq",
-                        Value = "مرفوض",
-                        CssClass = "row-red",
-                        Priority = 1
-                       
-                    },
-                      new TableStyleRule
-                    {
-                        Target = "row",
-                        Field = "ActionStatus",
-                        Op = "eq",
-                        Value = "مقبول",
-                        CssClass = "row-green",
-                        Priority = 1
-                    },
-                    
-                };
 
+
+        dsModel.StyleRules = new List<TableStyleRule>
+            {
+                            
+            
+            new TableStyleRule
+                          
+            {
+                                
+                Target = "row",
+                Field = "ActionStatus",
+                Op = "eq",
+                Value = "مرفوض",
+                CssClass = "row-red",
+                Priority = 1
+            },
+                           
+            
+            new TableStyleRule
+            
+            {
+                 Target = "row",
+                Field = "ActionStatus",
+                Op = "eq",
+                Value = "مقبول",
+                CssClass = "row-green",
+                Priority = 1
+            },
+        };
 
             //return View("HousingDefinitions/BuildingType", dsModel);
 
-            var page = new SmartPageViewModel
-            {
-                PageTitle = dsModel.PageTitle,
-                PanelTitle = dsModel.PanelTitle,
-                PanelIcon = "fa-layer-group",
-                TableDS = dsModel
-            };
+                    var page = new SmartPageViewModel
+                    {
+                        PageTitle = dsModel.PageTitle,
+                        PanelTitle = dsModel.PanelTitle,
+                        PanelIcon = "fa-layer-group",
+                        TableDS = dsModel
+                    };
 
-            return View("WaitingList/WaitingListMoveList", page);
+                    return View("WaitingList/WaitingListMoveList", page);
 
         }
     }

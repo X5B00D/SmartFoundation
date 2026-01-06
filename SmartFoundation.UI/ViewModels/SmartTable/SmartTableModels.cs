@@ -155,6 +155,8 @@ namespace SmartFoundation.UI.ViewModels.SmartTable
         public string? KeyboardShortcut { get; set; }
         public List<string> Roles { get; set; } = new();
         public string? Condition { get; set; }
+        public TableActionGuards? Guards { get; set; }
+
     }
 
     public class TableToolbarConfig
@@ -245,4 +247,25 @@ namespace SmartFoundation.UI.ViewModels.SmartTable
 
     }
 
+}
+
+public class TableActionRule
+{
+    public string Field { get; set; } = "";
+    public string Op { get; set; } = "eq";  // eq, neq, in, notin, contains, startswith, endswith
+    public object? Value { get; set; }
+    public string? Message { get; set; }
+    public int Priority { get; set; } = 1;
+}
+
+public class TableActionGuards
+{
+    // لو تحقق أي شرط هنا => يتعطل الأكشن
+    public List<TableActionRule> DisableWhenAny { get; set; } = new();
+
+    // اختياري: الأكشن يكون معطل إلا إذا تحقق شرط من هذه القائمة
+    public List<TableActionRule> EnableWhenAny { get; set; } = new();
+
+    // تطبيق الشرط على أي صف من المحدد أو على كل الصفوف
+    public string AppliesTo { get; set; } = "any"; // any | all
 }

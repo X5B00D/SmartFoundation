@@ -42,6 +42,83 @@ window.__sfTableGlobalBound = window.__sfTableGlobalBound || false;
             actions: Array.isArray(cfg.actions) ? cfg.actions : [],
 
 
+
+
+            // ===== Guards (NEW) =====
+            getSelectedRows() {
+                const ids = new Set(Array.from(this.selectedKeys || []).map(String));
+
+                // اختَر مصدر البيانات الأفضل (حسب وضعك)
+                const hay =
+                    (this.serverPaging ? (Array.isArray(this.rows) ? this.rows : []) :
+                        (Array.isArray(this.filteredRows) && this.filteredRows.length) ? this.filteredRows :
+                            (Array.isArray(this.allRows) && this.allRows.length) ? this.allRows :
+                                (Array.isArray(this.rows) ? this.rows : [])
+                    );
+
+                return hay.filter(r => ids.has(String(r?.[this.rowIdField])));
+            },
+
+            sfCompare(v, op, expected) {
+                const vv = (v === null || v === undefined) ? "" : String(v);
+                const ee = (expected === null || expected === undefined) ? "" : String(expected);
+
+                switch (String(op || "eq").toLowerCase()) {
+                    case "eq": return vv === ee;
+                    case "neq": return vv !== ee;
+                    case "contains": return vv.includes(ee);
+                    case "startswith": return vv.startsWith(ee);
+                    case "endswith": return vv.endsWith(ee);
+                    case "in":
+                        if (Array.isArray(expected)) return expected.map(String).includes(vv);
+                        return ee.split(",").map(s => s.trim()).includes(vv);
+                    case "notin":
+                        if (Array.isArray(expected)) return !expected.map(String).includes(vv);
+                        return !ee.split(",").map(s => s.trim()).includes(vv);
+                    default:
+                        return false;
+                }
+            },
+
+            evalGuards(action) {
+                const g = action?.guards || action?.Guards;
+                if (!g) return { allowed: true, message: null };
+
+                const appliesTo = String(g.appliesTo || g.AppliesTo || "any").toLowerCase();
+                const rules = g.disableWhenAny || g.DisableWhenAny || [];
+                if (!Array.isArray(rules) || rules.length === 0) return { allowed: true, message: null };
+
+                const selectedRows = this.getSelectedRows();
+                if (!selectedRows.length) return { allowed: true, message: null };
+
+                const rowHits = (row) => rules.some(rule =>
+                    this.sfCompare(
+                        row?.[rule.field || rule.Field],
+                        (rule.op || rule.Op || "eq"),
+                        (rule.value ?? rule.Value)
+                    )
+                );
+
+                const blocked = (appliesTo === "all") ? selectedRows.every(rowHits) : selectedRows.some(rowHits);
+                if (!blocked) return { allowed: true, message: null };
+
+                // أول رسالة تطابق
+                for (const row of selectedRows) {
+                    for (const rule of rules) {
+                        const field = rule.field || rule.Field;
+                        const op = rule.op || rule.Op || "eq";
+                        const val = rule.value ?? rule.Value;
+                        if (this.sfCompare(row?.[field], op, val)) {
+                            return { allowed: false, message: rule.message || rule.Message || "غير مسموح" };
+                        }
+                    }
+                }
+
+                return { allowed: false, message: "غير مسموح" };
+            },
+
+
+
             // Client-side mode support (new)
             clientSideMode: !!cfg.clientSideMode,
             initialRows: Array.isArray(cfg.rows) ? cfg.rows : [],
@@ -917,11 +994,11 @@ window.__sfTableGlobalBound = window.__sfTableGlobalBound || false;
                     }
                 });
 
-                this.$nextTick(() => {
-                    const btn = document.querySelector('[data-export-excel-confirm]');
-                    if (!btn) return;
-                    btn.addEventListener('click', () => this.confirmExportExcelFromModal(), { once: true });
-                });
+                //this.$nextTick(() => {
+                //    const btn = document.querySelector('[data-export-excel-confirm]');
+                //    if (!btn) return;
+                //    btn.addEventListener('click', () => this.confirmExportExcelFromModal(), { once: true });
+                //});
             },
 
             getSelectedRowFromCurrentData() {
@@ -1181,10 +1258,25 @@ window.__sfTableGlobalBound = window.__sfTableGlobalBound || false;
                     }
 
                     // Open modal
+                    //if (action.openModal) {
+                    //    await this.openModal(action, row);
+                    //    return;
+                    //}
+
+                    // Open modal
                     if (action.openModal) {
+
+                        // ===== Guards check (NEW) =====
+                        const guardRes = this.evalGuards(action);
+                        if (!guardRes.allowed) {
+                            this.showToast(guardRes.message || "غير مسموح", "error");
+                            return;
+                        }
+
                         await this.openModal(action, row);
                         return;
                     }
+
 
                     // Execute stored procedure
                     if (action.saveSp) {
@@ -2421,13 +2513,13 @@ window.__sfTableGlobalBound = window.__sfTableGlobalBound || false;
                     }
 
 
-                    if (success) {
-                        this.closeModal();
-                        if (this.autoRefresh) {
-                            this.clearSelection();
-                            await this.refresh();
-                        }
-                    }
+                    //if (success) {
+                    //    this.closeModal();
+                    //    if (this.autoRefresh) {
+                    //        this.clearSelection();
+                    //        await this.refresh();
+                    //    }
+                    //}
 
                 } catch (e) {
                     console.error("Save error:", e);

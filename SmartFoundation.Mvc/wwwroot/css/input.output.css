@@ -110,7 +110,6 @@ body, h1, h2, h3, h4, h5, h6, input, textarea, select, button {
     --color-sky-600: oklch(58.8% 0.158 241.966);
     --color-sky-700: oklch(50% 0.134 242.749);
     --color-sky-800: oklch(44.3% 0.11 240.79);
-    --color-sky-900: oklch(39.1% 0.09 240.876);
     --color-blue-50: oklch(97% 0.014 254.604);
     --color-blue-100: oklch(93.2% 0.032 255.585);
     --color-blue-200: oklch(88.2% 0.059 254.128);
@@ -651,6 +650,21 @@ body, h1, h2, h3, h4, h5, h6, input, textarea, select, button {
   .table {
     display: table;
   }
+  .table-cell {
+    display: table-cell;
+  }
+  .table-column {
+    display: table-column;
+  }
+  .table-column-group {
+    display: table-column-group;
+  }
+  .table-row {
+    display: table-row;
+  }
+  .table-row-group {
+    display: table-row-group;
+  }
   .h-4 {
     height: calc(var(--spacing) * 4);
   }
@@ -811,6 +825,9 @@ body, h1, h2, h3, h4, h5, h6, input, textarea, select, button {
   }
   .flex-col {
     flex-direction: column;
+  }
+  .flex-row-reverse {
+    flex-direction: row-reverse;
   }
   .items-center {
     align-items: center;
@@ -991,6 +1008,9 @@ body, h1, h2, h3, h4, h5, h6, input, textarea, select, button {
   .border-gray-300 {
     border-color: var(--color-gray-300);
   }
+  .border-green-200 {
+    border-color: var(--color-green-200);
+  }
   .border-red-200 {
     border-color: var(--color-red-200);
   }
@@ -1050,6 +1070,9 @@ body, h1, h2, h3, h4, h5, h6, input, textarea, select, button {
     @supports (color: color-mix(in lab, red, red)) {
       background-color: color-mix(in oklab, var(--color-gray-900) 50%, transparent);
     }
+  }
+  .bg-green-50 {
+    background-color: var(--color-green-50);
   }
   .bg-green-100 {
     background-color: var(--color-green-100);
@@ -1413,6 +1436,9 @@ body, h1, h2, h3, h4, h5, h6, input, textarea, select, button {
   .text-green-600 {
     color: var(--color-green-600);
   }
+  .text-green-700 {
+    color: var(--color-green-700);
+  }
   .text-green-800 {
     color: var(--color-green-800);
   }
@@ -1476,9 +1502,15 @@ body, h1, h2, h3, h4, h5, h6, input, textarea, select, button {
       color: color-mix(in oklab, var(--color-white) 90%, transparent);
     }
   }
+  .italic {
+    font-style: italic;
+  }
   .ordinal {
     --tw-ordinal: ordinal;
     font-variant-numeric: var(--tw-ordinal,) var(--tw-slashed-zero,) var(--tw-numeric-figure,) var(--tw-numeric-spacing,) var(--tw-numeric-fraction,);
+  }
+  .underline {
+    text-decoration-line: underline;
   }
   .placeholder-slate-500 {
     &::placeholder {
@@ -1529,6 +1561,14 @@ body, h1, h2, h3, h4, h5, h6, input, textarea, select, button {
     @supports (color: color-mix(in lab, red, red)) {
       --tw-ring-color: color-mix(in oklab, var(--color-white) 20%, transparent);
     }
+  }
+  .\!outline {
+    outline-style: var(--tw-outline-style) !important;
+    outline-width: 1px !important;
+  }
+  .outline {
+    outline-style: var(--tw-outline-style);
+    outline-width: 1px;
   }
   .blur {
     --tw-blur: blur(8px);
@@ -2185,6 +2225,11 @@ body, h1, h2, h3, h4, h5, h6, input, textarea, select, button {
   .md\:col-span-12 {
     @media (width >= 48rem) {
       grid-column: span 12 / span 12;
+    }
+  }
+  .md\:justify-end {
+    @media (width >= 48rem) {
+      justify-content: flex-end;
     }
   }
   .md\:px-6 {
@@ -10520,11 +10565,6 @@ body, h1, h2, h3, h4, h5, h6, input, textarea, select, button {
   syntax: "*";
   inherits: false;
 }
-@property --tw-outline-style {
-  syntax: "*";
-  inherits: false;
-  initial-value: solid;
-}
 @layer base {
   html {
     scroll-behavior: smooth;
@@ -13231,6 +13271,11 @@ body.sf-navigating .select2-dropdown, body.sf-navigating .sf-select-panel {
   inherits: false;
   initial-value: 0 0 #0000;
 }
+@property --tw-outline-style {
+  syntax: "*";
+  inherits: false;
+  initial-value: solid;
+}
 @property --tw-blur {
   syntax: "*";
   inherits: false;
@@ -13388,6 +13433,7 @@ body.sf-navigating .select2-dropdown, body.sf-navigating .sf-select-panel {
       --tw-ring-offset-width: 0px;
       --tw-ring-offset-color: #fff;
       --tw-ring-offset-shadow: 0 0 #0000;
+      --tw-outline-style: solid;
       --tw-blur: initial;
       --tw-brightness: initial;
       --tw-contrast: initial;
@@ -13418,7 +13464,6 @@ body.sf-navigating .select2-dropdown, body.sf-navigating .sf-select-panel {
       --tw-scale-z: 1;
       --tw-divide-x-reverse: 0;
       --tw-tracking: initial;
-      --tw-outline-style: solid;
     }
   }
 }
