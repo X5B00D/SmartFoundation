@@ -2,21 +2,23 @@
 
 @{
     var hasPanelContent =
-        Model.Form is not null
-        || Model.DatePicker is not null
-        || Model.TableDS is not null
-        || Model.TableDS1 is not null
-        || Model.TableDS2 is not null
-        || Model.TableDS3 is not null
-        || Model.TableDS4 is not null
-        || Model.TableDS5 is not null
-        || Model.Table is not null;
+    Model.Form is not null
+    || Model.DatePicker is not null
+    || Model.Print is not null
+    || Model.TableDS is not null
+    || Model.TableDS1 is not null
+    || Model.TableDS2 is not null
+    || Model.TableDS3 is not null
+    || Model.TableDS4 is not null
+    || Model.TableDS5 is not null
+    || Model.Table is not null;
+
 }
 
 @if (Model.Charts is not null)
 {
     <div class="w-full">
-        <div class="bg-white rounded-sm border border-gray-100 shadow-sm p-6">
+        <div class="rounded-sm border border-gray-100 bg-white p-6 shadow-sm">
             @await Component.InvokeAsync("SmartCharts", new { model = Model.Charts, embedded = true })
         </div>
     </div>
@@ -27,7 +29,7 @@
     <div x-data="{ open:true }" class="sf-panel mt-6">
         <div class="sf-panel-header">
             <h3 class="sf-panel-title flex items-center gap-2">
-                <i class="fa-solid @(Model.PanelIcon ?? "fa-layer-group") text-emerald-600 text-sm"></i>
+                <i class="fa-solid @(Model.PanelIcon ?? "fa-layer-group") text-sm text-emerald-600"></i>
                 @(Model.PanelTitle ?? Model.PageTitle)
             </h3>
 
@@ -40,7 +42,7 @@
                         x-on:click="$el.closest('.sf-panel').remove()"
                         class="sf-panel-btn sf-panel-btn-close"
                         title="إغلاق">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
                     </svg>
                 </button>
@@ -56,6 +58,10 @@
             @if (Model.DatePicker is not null)
             {
                 @await Component.InvokeAsync("SmartDatePicker", new { model = Model.DatePicker, embedded = true })
+            }
+            @if (Model.Print is not null)
+            {
+                @await Component.InvokeAsync("SmartPrint", new { model = Model.Print, embedded = true })
             }
 
             @if (Model.TableDS is not null)

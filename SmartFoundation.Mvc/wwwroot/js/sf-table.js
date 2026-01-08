@@ -1117,7 +1117,7 @@ window.__sfTableGlobalBound = window.__sfTableGlobalBound || false;
                 if (!action) return;
 
                 try {
-                    // Check selection requirements
+                    // التحقق من متطلبات الاختيار
                     if (action.requireSelection) {
                         const selectedCount = this.selectedKeys.size;
                         if (selectedCount < (action.minSelection || 1)) {
@@ -1130,18 +1130,12 @@ window.__sfTableGlobalBound = window.__sfTableGlobalBound || false;
                         }
                     }
 
-                    // Confirm if needed
+                    // التأكيد إذا كان مطلوباً
                     if (action.confirmText && !confirm(action.confirmText)) {
                         return;
                     }
 
-                    // Open modal
-                    //if (action.openModal) {
-                    //    await this.openModal(action, row);
-                    //    return;
-                    //}
-
-                    // =====Open modal with Guards check (NEW) =====
+                    // فتح المودال مع فحص Guards
                     if (action.openModal) {
                         const guardRes = this.evalGuards(action);
                         if (!guardRes.allowed) {
@@ -1153,8 +1147,22 @@ window.__sfTableGlobalBound = window.__sfTableGlobalBound || false;
                         return;
                     }
 
+                    // ===== OnClickJs للأزرار التي لا تفتح مودال =====
 
-                    // Execute stored procedure
+                    if (action.onClickJs) {
+                        try {
+                            // تنفيذ الكود الجافاسكربت المخصص
+                            
+                            const fn = new Function('action', 'row', action.onClickJs);
+                            fn.call(this, action, row);
+                        } catch (e) {
+                            console.error("OnClickJs execution error:", e);
+                            this.showToast("فشل تنفيذ الإجراء", 'error');
+                        }
+                        return;
+                    }
+
+                    // تنفيذ stored procedure
                     if (action.saveSp) {
                         const success = await this.executeSp(action.saveSp, action.saveOp || "execute", row);
                         if (success && this.autoRefresh) {

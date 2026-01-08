@@ -5,6 +5,8 @@ using SmartFoundation.UI.ViewModels.SmartTable;
 using System.Data;
 using System.Linq;
 using System.Text.Json;
+using SmartFoundation.UI.ViewModels.SmartPrint;
+
 
 
 namespace SmartFoundation.Mvc.Controllers.Housing
@@ -386,19 +388,80 @@ namespace SmartFoundation.Mvc.Controllers.Housing
                     ShowBulkDelete = false,
 
 
-                    CustomActions = new List<TableAction>   //عرظ تفاصيل الصف 
-                    {
-                        new TableAction   
+                    CustomActions = new List<TableAction>
                         {
-                            Label = "عرض التفاصيل",
-                            ModalTitle="تفاصيل المستفيد",
-                            Icon = "fa-regular fa-file",
-                            OpenModal = true,
-                            RequireSelection = true,
-                            MinSelection = 1,
-                            MaxSelection = 1,
-                        }
-                    },
+                            new TableAction
+                            {
+                                Label = "عرض التفاصيل",
+                                ModalTitle = "تفاصيل المستفيد",
+                                Icon = "fa-regular fa-file",
+                                OpenModal = true,
+                                RequireSelection = true,
+                                MinSelection = 1,
+                                MaxSelection = 1,
+                            },
+
+                            //  زر الطباعة يفتح فريم الطباعة في نفس الصفحة حطيناه داخل الاكشن بار حق الجدول
+                            new TableAction
+                            {
+                                Label = "طباعة",
+                                Icon = "fa-solid fa-print",
+                                Color = "secondary",
+                                RequireSelection = false,
+                                OpenModal = false,
+
+                                //  دالة JavaScript للطباعة المباشرة بدون فتح نوافذ
+                                OnClickJs = $@"
+                                    (async function() {{
+                                        try {{
+                                            
+                                            let printFrame = document.getElementById('smartPrintFrame');
+                                            if (!printFrame) {{
+                                                printFrame = document.createElement('iframe');
+                                                printFrame.id = 'smartPrintFrame';
+                                                printFrame.style.position = 'fixed';
+                                                printFrame.style.top = '-9999px';
+                                                printFrame.style.left = '-9999px';
+                                                printFrame.style.width = '0';
+                                                printFrame.style.height = '0';
+                                                printFrame.style.border = 'none';
+                                                document.body.appendChild(printFrame);
+                                            }}
+
+                                            // جلب محتوى صفحة الطباعة
+                                            const response = await fetch('{Url.Action("ResidentsPrint", "Housing")}');
+                                            if (!response.ok) throw new Error('فشل تحميل التقرير');
+                                            
+                                            const html = await response.text();
+                                            
+                                            // كتابة المحتوى في الـ iframe
+                                            const doc = printFrame.contentDocument || printFrame.contentWindow.document;
+                                            doc.open();
+                                            doc.write(html);
+                                            doc.close();
+
+                                            // انتظار تحميل ثم الطباعة
+                                            printFrame.contentWindow.addEventListener('load', function() {{
+                                                setTimeout(function() {{
+                                                    try {{
+                                                        printFrame.contentWindow.focus();
+                                                        printFrame.contentWindow.print();
+                                                    }} catch (e) {{
+                                                        console.error('خطأ في الطباعة:', e);
+                                                        alert('حدث خطأ أثناء الطباعة');
+                                                    }}
+                                                }}, 500);
+                                            }});
+                                            
+                                        }} catch (error) {{
+                                            console.error('خطأ في تحميل التقرير:', error);
+                                            alert('حدث خطأ أثناء تحميل التقرير للطباعة');
+                                        }}
+                                    }})();
+                                "
+                            }
+                        },
+
 
 
 
@@ -547,5 +610,142 @@ namespace SmartFoundation.Mvc.Controllers.Housing
             return View("WaitingList/Residents", page);
 
         }
+
+        public async Task<IActionResult> ResidentsPrint()
+        {
+            if (!InitPageContext(out var redirect))
+                return redirect!;
+
+            ControllerName = nameof(Housing);
+            PageName = "Residents";
+
+            var spParameters = new object?[]
+            {
+                PageName,
+                IdaraId,
+                usersId,
+                HostName
+            };
+
+            DataSet ds = await _mastersServies.GetDataLoadDataSetAsync(spParameters);
+            SplitDataSet(ds);
+
+            if (permissionTable is null || permissionTable.Rows.Count == 0)
+                return RedirectToAction("Index", "Home");
+
+            
+            var printDoc = new PrintDocConfig
+            {
+                Type = PrintDocType.A4PortraitReport,
+                Dir = "rtl",
+                Title = "تقرير المستفيدين",
+                Paper = "A4",
+                Orientation = "portrait",
+                MarginMm = 12,
+                Logo = new PrintLogo { Url = "/img/Royal_Saudi_Land_Forces.png", Alt = "Logo", Width = 56, Height = 56 },
+
+                HeaderRight = new PrintHeaderBlock
+                {
+                    Title = "إدارة مدينة الملك فيصل العسكرية",
+                    Subtitle = "تقرير المستفيدين",
+                    Meta = new List<PrintKeyValue>
+                    {
+                        new PrintKeyValue { Key = "التاريخ", Value = DateTime.Now.ToString("yyyy-MM-dd") },
+                        new PrintKeyValue { Key = "عدد السجلات", Value = (dt1?.Rows.Count ?? 0).ToString() }
+                    }
+                },
+                HeaderLeft = new PrintHeaderBlock
+                {
+                    Title = "إدارة الأصول",
+                    Subtitle = "المنطقة الجنوبية",
+                    Meta = new List<PrintKeyValue>
+                    {
+                        new PrintKeyValue { Key = "الصفحة", Value = "المستفيدين" },
+                        new PrintKeyValue { Key = "المستخدم", Value = usersId ?? "" }
+                    }
+                },
+                Footer = new PrintFooter
+                {
+                    LeftText = "تم إنشاء التقرير عبر النظام",
+                    //CenterText = "تجريبي",
+                    RightText = "إدارة مدينة الملك فيصل العسكرية",
+                    ShowPageNumbers = true
+                }
+            };
+
+            printDoc.Blocks.Add(new PrintBlock
+            {
+                Type = PrintBlockType.KeyValueGrid,
+                //Title = "ملخص",
+                GridCols = 3,
+                Items = new List<PrintKeyValue>
+                {
+                    new PrintKeyValue { Key = "إجمالي المستفيدين", Value = (dt1?.Rows.Count ?? 0).ToString() },
+                    new PrintKeyValue { Key = "الجهة", Value = IdaraId ?? "" },
+                    new PrintKeyValue { Key = "المضيف", Value = HostName ?? "" }
+                }
+            });
+
+            var tableCols = new List<PrintTableColumn>
+            {
+                new PrintTableColumn { Field="residentInfoID", Label="الرقم المرجعي", Width="90px", Align="right" },
+                new PrintTableColumn { Field="NationalID", Label="رقم الهوية", Width="120px", Align="right" },
+                new PrintTableColumn { Field="FullName_A", Label="الاسم", Align="right" },
+                new PrintTableColumn { Field="rankNameA", Label="الرتبة", Width="90px", Align="right" },
+                new PrintTableColumn { Field="militaryUnitName_A", Label="الوحدة", Align="right" },
+                new PrintTableColumn { Field="residentcontactDetails", Label="الجوال", Width="110px", Align="right" },
+            };
+
+            var tableRows = new List<Dictionary<string, object?>>();
+            if (dt1 != null)
+            {
+                foreach (DataRow r in dt1.Rows)
+                {
+                    tableRows.Add(new Dictionary<string, object?>
+                    {
+                        ["residentInfoID"] = dt1.Columns.Contains("residentInfoID") ? r["residentInfoID"] : null,
+                        ["NationalID"] = dt1.Columns.Contains("NationalID") ? r["NationalID"] : null,
+                        ["FullName_A"] = dt1.Columns.Contains("FullName_A") ? r["FullName_A"] : null,
+                        ["rankNameA"] = dt1.Columns.Contains("rankNameA") ? r["rankNameA"] : null,
+                        ["militaryUnitName_A"] = dt1.Columns.Contains("militaryUnitName_A") ? r["militaryUnitName_A"] : null,
+                        ["residentcontactDetails"] = dt1.Columns.Contains("residentcontactDetails") ? r["residentcontactDetails"] : null,
+                    });
+                }
+            }
+
+            printDoc.Blocks.Add(new PrintBlock
+            {
+                Type = PrintBlockType.Table,
+                Title = "قائمة المستفيدين",
+                Columns = tableCols,
+                Rows = tableRows
+            });
+
+            var print = new SmartPrintConfig
+            {
+                PrintId = "smartPrintResidents",
+                //Title = "تجريبي",
+                Dir = "rtl",
+                Docs = new List<PrintDocConfig> { printDoc }
+            };
+
+            var page = new SmartPageViewModel
+            {
+                //PageTitle = "طباعة تقرير المستفيدين",
+                PanelTitle = "الطباعة",
+                PanelIcon = "fa-solid fa-print",
+                Print = print,
+                TableDS = null
+            };
+
+            return View("WaitingList/ResidentsPrint", page);
+
+        }
+
+
     }
+    
 }
+    
+
+
