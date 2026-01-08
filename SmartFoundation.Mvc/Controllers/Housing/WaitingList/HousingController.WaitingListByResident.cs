@@ -382,7 +382,6 @@ namespace SmartFoundation.Mvc.Controllers.Housing
                             bool isWaitingClassID = c.ColumnName.Equals("WaitingClassID", StringComparison.OrdinalIgnoreCase);
                             bool isWaitingOrderTypeID = c.ColumnName.Equals("WaitingOrderTypeID", StringComparison.OrdinalIgnoreCase);
                             bool iswaitingClassSequence = c.ColumnName.Equals("waitingClassSequence", StringComparison.OrdinalIgnoreCase);
-                            bool isresidentInfoID_FK = c.ColumnName.Equals("residentInfoID_FK", StringComparison.OrdinalIgnoreCase);
                             bool isresidentInfoID = c.ColumnName.Equals("residentInfoID", StringComparison.OrdinalIgnoreCase);
                             bool isActionID = c.ColumnName.Equals("ActionID", StringComparison.OrdinalIgnoreCase);
                             bool isNationalID = c.ColumnName.Equals("NationalID", StringComparison.OrdinalIgnoreCase);
@@ -397,7 +396,7 @@ namespace SmartFoundation.Mvc.Controllers.Housing
                                 Type = colType,
                                 Sortable = true
                                  ,
-                                Visible = !(isWaitingClassID || isWaitingOrderTypeID || iswaitingClassSequence || isresidentInfoID_FK || isActionID || isNationalID || isFullName_A)
+                                Visible = !(isWaitingClassID || isWaitingOrderTypeID || iswaitingClassSequence || isresidentInfoID || isActionID || isNationalID || isFullName_A)
                             });
                         }
 
@@ -414,7 +413,7 @@ namespace SmartFoundation.Mvc.Controllers.Housing
                             // p01..p05
                             object? Get(string key) => dict2.TryGetValue(key, out var v) ? v : null;
                             dict2["p01"] = Get("ActionID") ?? Get("actionID");
-                            dict2["p02"] = Get("residentInfoID_FK");
+                            dict2["p02"] = Get("residentInfoID");
                             dict2["p03"] = Get("NationalID");
                             dict2["p04"] = Get("GeneralNo");
                             dict2["p05"] = Get("ActionDecisionNo");
@@ -467,7 +466,6 @@ namespace SmartFoundation.Mvc.Controllers.Housing
                             bool isWaitingOrderTypeID = c.ColumnName.Equals("WaitingOrderTypeID", StringComparison.OrdinalIgnoreCase);
                             bool iswaitingClassSequence = c.ColumnName.Equals("waitingClassSequence", StringComparison.OrdinalIgnoreCase);
                             bool isresidentInfoID_FK = c.ColumnName.Equals("residentInfoID_FK", StringComparison.OrdinalIgnoreCase);
-                            bool isresidentInfoID = c.ColumnName.Equals("residentInfoID", StringComparison.OrdinalIgnoreCase);
                             bool isActionID = c.ColumnName.Equals("ActionID", StringComparison.OrdinalIgnoreCase);
                             bool isNationalID = c.ColumnName.Equals("NationalID", StringComparison.OrdinalIgnoreCase);
                             bool isWaitingClassName = c.ColumnName.Equals("WaitingClassName", StringComparison.OrdinalIgnoreCase);
@@ -537,6 +535,8 @@ namespace SmartFoundation.Mvc.Controllers.Housing
                             ["ActionNote"] = "ملاحظات",
                             ["currentIdaraName"] = "الادارة المنقول منها",
                             ["MoveToIdaraName"] = "الادارة المراد النقل اليها",
+                            ["ActionStatus"] = "حالة الطلب",
+                            ["entrydate"] = "وقت وتاريخ الاجراء",
                             
                         };
 
@@ -559,7 +559,7 @@ namespace SmartFoundation.Mvc.Controllers.Housing
                             bool isWaitingOrderTypeID = c.ColumnName.Equals("WaitingOrderTypeID", StringComparison.OrdinalIgnoreCase);
 
                             bool iswaitingClassSequence = c.ColumnName.Equals("waitingClassSequence", StringComparison.OrdinalIgnoreCase);
-                            bool isresidentInfoID_FK = c.ColumnName.Equals("residentInfoID_FK", StringComparison.OrdinalIgnoreCase);
+                            
                             bool isresidentInfoID = c.ColumnName.Equals("residentInfoID", StringComparison.OrdinalIgnoreCase);
                            
                             bool isWaitingClassName = c.ColumnName.Equals("WaitingClassName", StringComparison.OrdinalIgnoreCase);
@@ -578,7 +578,7 @@ namespace SmartFoundation.Mvc.Controllers.Housing
                                 Type = colType,
                                 Sortable = true
                                  ,
-                                Visible = !(isWaitingClassID || isWaitingOrderTypeID || iswaitingClassSequence || isresidentInfoID_FK || isActionID || isNationalID ||  isWaitingOrderTypeName || isIdaraId_FK || isMoveToIdaraID || iscurrentIdaraID || isFullName_A)
+                                Visible = !(isWaitingClassID || isWaitingOrderTypeID || iswaitingClassSequence  || isNationalID ||  isWaitingOrderTypeName || isIdaraId_FK || isMoveToIdaraID || iscurrentIdaraID || isFullName_A || isresidentInfoID)
                             });
                         }
 
@@ -595,7 +595,7 @@ namespace SmartFoundation.Mvc.Controllers.Housing
                             // p01..p05
                             object? Get(string key) => dict4.TryGetValue(key, out var v) ? v : null;
                             dict4["p01"] = Get("ActionID") ?? Get("actionID");
-                            dict4["p02"] = Get("residentInfoID_FK");
+                            dict4["p02"] = Get("residentInfoID");
                             dict4["p03"] = Get("NationalID");
                             dict4["p04"] = Get("GeneralNo");
                             dict4["p05"] = Get("ActionDecisionNo");
@@ -657,6 +657,9 @@ namespace SmartFoundation.Mvc.Controllers.Housing
             addFieldsWaitingList.Insert(0, new FieldConfig { Name = "redirectUrl", Type = "hidden", Value = currentUrl });
 
 
+         
+
+
             // ADD fields
             var addFieldsMoveWaitingList = new List<FieldConfig>
             {
@@ -670,8 +673,8 @@ namespace SmartFoundation.Mvc.Controllers.Housing
                 new FieldConfig { Name = "p08", Label = "نوع سجل الانتظار", Type = "hidden", ColCss = "3", Required = true, Options= waitingOrderTypeOptions },
 
 
-                new FieldConfig { Name = "p10", Label = "رقم قرار النقل", Type = "text", ColCss = "3", MaxLength = 50, TextMode = "number",Required=true},
-                new FieldConfig { Name = "p11", Label = "تاريخ قرار النقل", Type = "date", ColCss = "3", MaxLength = 50, TextMode = "number",Required=true,Placeholder="YYYY-MM-DD"},
+                new FieldConfig { Name = "p05", Label = "رقم قرار النقل", Type = "text", ColCss = "3", MaxLength = 50, TextMode = "number",Required=true,Readonly = true},
+                new FieldConfig { Name = "p06", Label = "تاريخ قرار النقل", Type = "text", ColCss = "3", MaxLength = 50, TextMode = "number",Required=true,Placeholder="YYYY-MM-DD",Readonly=true},
 
                 
                 new FieldConfig { Name = "p12", Label = "الادارة المراد نقل السراء اليها", Type = "select", ColCss = "6", Required = true, Options= idaraOptions },
@@ -849,7 +852,7 @@ namespace SmartFoundation.Mvc.Controllers.Housing
                 new FieldConfig { Name = "p09", Label = "ملاحظات", Type = "textarea", ColCss = "3", Required = false,Readonly =true },
             };
 
-           
+            
 
             var deleteFieldsMoveWaitingList = new List<FieldConfig>
             {
@@ -864,6 +867,9 @@ namespace SmartFoundation.Mvc.Controllers.Housing
                 new FieldConfig { Name = "__RequestVerificationToken", Type = "hidden", Value = (Request.Headers["RequestVerificationToken"].FirstOrDefault() ?? "") },
                 new FieldConfig { Name = rowIdField_dt4, Type = "hidden" },
                 new FieldConfig { Name = "p01", Type = "hidden", MirrorName = "ActionID" },
+                new FieldConfig { Name = "p02", Type = "hidden", MirrorName = "residentInfoID" },
+                new FieldConfig { Name = "p07", Type = "hidden", MirrorName = "WaitingClassID" },
+                new FieldConfig { Name = "p08", Type = "hidden", MirrorName = "WaitingOrderTypeID" },
                 new FieldConfig { Name = "p15", Label = "الاسم", Type = "text", ColCss = "3",Readonly =true},
                 new FieldConfig { Name = "p03", Label = "رقم الهوية الوطنية", Type = "text", ColCss = "3",Placeholder="1xxxxxxxxx",Readonly =true},
                 new FieldConfig { Name = "p04", Label = "الرقم العام", Type = "text", ColCss = "3", Required = true,Readonly =true},
@@ -877,10 +883,12 @@ namespace SmartFoundation.Mvc.Controllers.Housing
 
 
                 new FieldConfig { Name = "p11", Label = "الادارة المراد نقل السراء منها", Type = "text", ColCss = "6", Required = true ,Readonly =true },
-                new FieldConfig { Name = "p13", Label = "الادارة المراد نقل السراء اليها", Type = "text", ColCss = "6", Required = true,Readonly =true },
+                new FieldConfig { Name = "p13", Label = "الادارة المراد سنقل السراء اليها", Type = "text", ColCss = "6", Required = true,Readonly =true },
                 new FieldConfig { Name = "p09", Label = "ملاحظات", Type = "textarea", ColCss = "6", Required = false,Readonly =true },
 
             };
+
+            
 
 
             var dsModel = new SmartTableDsModel
@@ -1224,7 +1232,7 @@ namespace SmartFoundation.Mvc.Controllers.Housing
                             ActionUrl = "/crud/delete",
                             Buttons = new List<FormButtonConfig>
                             {
-                                new FormButtonConfig { Text = "حذف", Type = "submit", Color = "danger", },
+                                new FormButtonConfig { Text = "الغاء الطلب", Type = "submit", Color = "danger", },
                                 new FormButtonConfig { Text = "إلغاء", Type = "button", Color = "secondary", OnClickJs = "this.closest('.sf-modal').__x.$data.closeModal();" }
                             },
                             Fields = deleteFieldsMoveWaitingList
@@ -1245,6 +1253,16 @@ namespace SmartFoundation.Mvc.Controllers.Housing
                         Field = "ActionStatus",
                         Op = "eq",
                         Value = "مرفوض",
+                        CssClass = "row-red",
+                        Priority = 1
+
+                    },
+                     new TableStyleRule
+                    {
+                        Target = "row",
+                        Field = "ActionStatus",
+                        Op = "eq",
+                        Value = "ملغى",
                         CssClass = "row-red",
                         Priority = 1
 
