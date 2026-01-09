@@ -7,8 +7,12 @@ using SmartFoundation.Mvc.Controllers;
 using System.Text.Json;
 using QuestPDF.Infrastructure;
 using QuestPDF.Drawing;
+using SmartFoundation.Mvc.Services.Exports.Pdf;
+
+
 
 var builder = WebApplication.CreateBuilder(args);
+QuestPDF.Settings.License = LicenseType.Community;
 
 //For report generation
 QuestPDF.Settings.License = LicenseType.Community;
@@ -45,6 +49,8 @@ builder.Services.AddResponseCompression();
 builder.Services.AddSingleton<ConnectionFactory>();
 builder.Services.AddScoped<ISmartComponentService, SmartComponentService>();
 builder.Services.AddScoped<CrudController>();
+builder.Services.AddScoped<IPdfExportService, QuestPdfExportService>();
+
 
 // Application Layer
 builder.Services.AddApplicationServices();

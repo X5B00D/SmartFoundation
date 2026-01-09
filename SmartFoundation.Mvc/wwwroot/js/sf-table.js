@@ -750,17 +750,27 @@ window.__sfTableGlobalBound = window.__sfTableGlobalBound || false;
             },
 
 
-            // ===== Export Functions (XLSX true) =====
+            // ===== Export Functions (XLSX pdf true) =====
+            // ===== Export Functions (XLSX pdf true) =====
             exportData(type) {
                 if (!this.allowExport) return;
 
-                if (type !== "excel") {
-                    this.showToast("التصدير الحالي يدعم Excel فقط هنا", "error");
+                // PDF
+                if (type === "pdf") {
+                    this.openExportPdfModal();
                     return;
                 }
 
-                this.openExportExcelModal();
+                // Excel
+                if (type === "excel") {
+                    this.openExportExcelModal();
+                    return;
+                }
+
+                // غير مدعوم
+                this.showToast("نوع التصدير غير مدعوم", "error");
             },
+
 
             openExportExcelModal() {
                 if (!window.XLSX) {
@@ -1072,7 +1082,229 @@ window.__sfTableGlobalBound = window.__sfTableGlobalBound || false;
                 XLSX.writeFile(wb, `export_${new Date().toISOString().slice(0, 10)}.xlsx`);
             },
 
-             /*===== نهاية تصدير اكسل =====*/
+            /*===== نهاية تصدير اكسل =====*/
+
+
+            /*===== بداية تصدير PDF =====*/
+
+            openExportPdfModal() {
+                const cfg = (this.toolbar && this.toolbar.exportConfig) ? this.toolbar.exportConfig : {};
+
+                const enabled = (cfg.enablePdf ?? cfg.EnablePdf);
+                if (enabled === false) {
+                    this.showToast("PDF غير مفعل", "error");
+                    return;
+                }
+
+                const selectedRow = this.getSelectedRowFromCurrentData();
+                if (!selectedRow) {
+                    this.showToast("اختر صف واحد على الأقل قبل التصدير", "error");
+                    return;
+                }
+
+                this.modal.open = true;
+                window.__sfTableActive = this;
+                this.modal.title = "تصدير PDF";
+                this.modal.message = "";
+                this.modal.messageClass = "";
+                this.modal.messageIcon = "";
+                this.modal.messageIsHtml = false;
+                this.modal.loading = false;
+                this.modal.error = null;
+
+                window.toggleExportCountPdf = function () {
+                    const scope = document.getElementById("exportScopePdf")?.value;
+                    const countContainer = document.getElementById("countContainerPdf");
+                    if (!countContainer) return;
+                    countContainer.style.display = (scope === "from_selected_count") ? "" : "none";
+                };
+
+                this.modal.html = `
+                    <form id="sfExportPdfForm" class="sf-modal-form" onsubmit="return false;">
+                        <div class="grid grid-cols-12 gap-4">
+
+                            <div class="col-span-12 md:col-span-6">
+                                <label class="block text-sm font-medium mb-1">نطاق التصدير</label>
+                                <div class="sf-select-wrap">
+                                    <select name="scope" id="exportScopePdf" onchange="toggleExportCountPdf()" class="sf-modal-input" required>
+                                        <option value="all" selected>تصدير الكل</option>
+                                        <option value="from_selected_count">ابدأ من الصف المحدد وصدّر عدد</option>
+                                    </select>
+                                </div>
+                                <p class="mt-1 text-xs text-gray-500">
+                                    "ابدأ من الصف المحدد" يعتمد على ترتيب البيانات الحالي (بحث/فرز/فلترة).
+                                </p>
+                            </div>
+
+                            <div class="col-span-12 md:col-span-6" id="countContainerPdf" style="display:none;">
+                                <label class="block text-sm font-medium mb-1">عدد الصفوف</label>
+                                <input name="count" type="number" min="1" value="1" class="sf-modal-input" />
+                                <p class="mt-1 text-xs text-gray-500">مثال: 1 لتصدير صف واحد، أو 100 لتصدير 100 صف.</p>
+                            </div>
+
+                            <div class="col-span-12">
+                                <label class="block text-base font-medium mb-2">اختر الأعمدة المراد تصديرها :</label>
+                                <div class="grid grid-cols-2 gap-2" id="columnsCheckboxesPdf"></div>
+                            </div>
+
+                            <div class="col-span-12 flex justify-end gap-2 mt-4 sf-modal-actions">
+                                <button type="button" class="btn btn-danger" data-export-pdf-confirm>تصدير PDF</button>
+                                <button type="button" class="btn btn-secondary sf-modal-cancel">إلغاء</button>
+                            </div>
+                        </div>
+                    </form>
+                    `;
+
+                this.$nextTick(() => {
+                    const checkboxContainer = document.getElementById("columnsCheckboxesPdf");
+                    if (!checkboxContainer) return;
+
+                    const visibleCols = this.visibleColumns().filter(c => c.showInExport !== false);
+                    checkboxContainer.innerHTML = visibleCols.map(col => `
+                        <label class="flex items-center gap-2">
+                            <input type="checkbox" name="exportColsPdf" value="${col.field}" checked class="sf-checkbox" />
+                            <span>${col.label || col.field}</span>
+                        </label>
+                    `).join("");
+
+                    if (window.toggleExportCountPdf) window.toggleExportCountPdf();
+
+                    const btn = document.querySelector('[data-export-pdf-confirm]');
+                    if (btn) btn.addEventListener('click', () => this.confirmExportPdfFromModal(), { once: true });
+
+                    const modalEl = document.querySelector('.sf-modal') || this.$el.querySelector('.sf-modal');
+                    if (modalEl) {
+                        this.enableModalDrag(modalEl);
+                        this.enableModalResize(modalEl);
+                        this.initSelect2InModal(modalEl);
+                    }
+                });
+            },
+
+            async confirmExportPdfFromModal() {
+                const btn = document.querySelector('[data-export-pdf-confirm]');
+                const originalText = btn ? btn.textContent : "تصدير PDF";
+
+                try {
+                    if (btn) {
+                        btn.disabled = true;
+                        btn.classList.add("opacity-60", "pointer-events-none");
+                        btn.textContent = "جاري تجهيز الملف…";
+                    }
+                    this.modal.loading = true;
+                    const cfg = (this.toolbar && this.toolbar.exportConfig) ? this.toolbar.exportConfig : {};
+                    const endpoint = (cfg.pdfEndpoint ?? cfg.PdfEndpoint) || "/exports/pdf/table";
+                    const form = document.getElementById("sfExportPdfForm");
+                    if (!form) return;
+                    const fd = new FormData(form);
+                    const scope = String(fd.get("scope") || "all");
+                    const count = Math.max(1, Number(fd.get("count") || 1));
+                    const dataView = (Array.isArray(this.filteredRows) && this.filteredRows.length)
+                        ? this.filteredRows
+                        : (Array.isArray(this.allRows) ? this.allRows : []);
+                    let rowsToExport = [];
+                    if (scope === "all") {
+                        rowsToExport = dataView.slice();
+                    } else if (scope === "from_selected_count") {
+                        const startRow = this.getSelectedRowFromCurrentData();
+                        if (!startRow) {
+                            this.showToast("تعذر تحديد الصف المحدد كبداية", "error");
+                            return;
+                        }
+                        const startIdx = dataView.findIndex(r => String(r?.[this.rowIdField]) === String(startRow?.[this.rowIdField]));
+                        if (startIdx < 0) {
+                            this.showToast("تعذر إيجاد الصف المحدد داخل البيانات الحالية", "error");
+                            return;
+                        }
+
+                        const maxCount = dataView.length - startIdx;
+                        rowsToExport = dataView.slice(startIdx, startIdx + Math.min(count, maxCount));
+                    }
+
+                    if (!rowsToExport.length) {
+                        this.showToast("لا توجد بيانات للتصدير", "error");
+                        return;
+                    }
+                    const selectedFields = Array.from(document.querySelectorAll('input[name="exportColsPdf"]:checked'))
+                        .map(i => i.value);
+
+                    const allCols = this.visibleColumns().filter(c => c.showInExport !== false);
+                    const cols = allCols.filter(c => selectedFields.includes(c.field));
+
+                    if (!cols.length) {
+                        this.showToast("لا توجد أعمدة للتصدير", "error");
+                        return;
+                    }
+                    const colsRtl = cols.slice().reverse();
+                    const payload = {
+                        title: (cfg.pdfTitle ?? cfg.PdfTitle) || "تقرير",
+                        logoUrl: (cfg.pdfLogoUrl ?? cfg.PdfLogoUrl) || null,
+                        paper: (cfg.pdfPaper ?? cfg.PdfPaper) || "A4",
+                        orientation: (cfg.pdfOrientation ?? cfg.PdfOrientation) || "portrait",
+                        showPageNumbers: ((cfg.pdfShowPageNumbers ?? cfg.PdfShowPageNumbers) !== false),
+                        showGeneratedAt: ((cfg.pdfShowGeneratedAt ?? cfg.PdfShowGeneratedAt) !== false),
+                        filename: (cfg.filename ?? cfg.Filename) || "export",
+                        columns: colsRtl.map(c => ({ field: c.field, label: c.label || c.field })),
+                        rows: rowsToExport
+                    };
+
+                    const blob = await this.postPdfBlob(endpoint, payload);
+                    this.downloadBlob(blob, `${payload.filename}_${new Date().toISOString().slice(0, 10)}.pdf`);
+
+                    this.closeModal();
+
+                } catch (e) {
+                    console.error(e);
+                    this.showToast("فشل تصدير PDF: " + (e.message || e), "error");
+
+                } finally {
+                    
+                    this.modal.loading = false;
+
+                    if (btn) {
+                        btn.disabled = false;
+                        btn.classList.remove("opacity-60", "pointer-events-none");
+                        btn.textContent = originalText;
+                    }
+                }
+            },
+
+            async postPdfBlob(url, body) {
+                const headers = { "Content-Type": "application/json" };
+                const csrfToken = this.getCsrfToken();
+                if (csrfToken) headers["RequestVerificationToken"] = csrfToken;
+
+                const resp = await fetch(url, {
+                    method: "POST",
+                    headers,
+                    body: JSON.stringify(body)
+                });
+
+                if (!resp.ok) {
+                    let msg = `HTTP ${resp.status}`;
+                    try {
+                        const j = await resp.json();
+                        msg = j?.error || j?.message || msg;
+                    } catch { }
+                    throw new Error(msg);
+                }
+
+                return await resp.blob();
+            },
+
+            downloadBlob(blob, filename) {
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement("a");
+                a.href = url;
+                a.download = filename;
+                a.style.display = "none";
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+            },
+
+            /*===== نهاية تصدير PDF =====*/
 
             formatCellForExport(row, col) {
                 let value = row[col.field];
@@ -1118,7 +1350,7 @@ window.__sfTableGlobalBound = window.__sfTableGlobalBound || false;
                 if (!action) return;
 
                 try {
-                    // Check selection requirements
+                    // التحقق من متطلبات الاختيار
                     if (action.requireSelection) {
                         const selectedCount = this.selectedKeys.size;
                         if (selectedCount < (action.minSelection || 1)) {
@@ -1180,12 +1412,34 @@ window.__sfTableGlobalBound = window.__sfTableGlobalBound || false;
                     }
 
                     // Open modal
+                    // التأكيد إذا كان مطلوباً
+                    if (action.confirmText && !confirm(action.confirmText)) {
+                        return;
+                    }
+
+                    // فتح المودال مع فحص Guards
                     if (action.openModal) {
                         await this.openModal(action, row);
                         return;
                     }
 
                     // Execute stored procedure
+                    // ===== OnClickJs للأزرار التي لا تفتح مودال =====
+
+                    if (action.onClickJs) {
+                        try {
+                            // تنفيذ الكود الجافاسكربت المخصص
+                            
+                            const fn = new Function('action', 'row', action.onClickJs);
+                            fn.call(this, action, row);
+                        } catch (e) {
+                            console.error("OnClickJs execution error:", e);
+                            this.showToast("فشل تنفيذ الإجراء", 'error');
+                        }
+                        return;
+                    }
+
+                    // تنفيذ stored procedure
                     if (action.saveSp) {
                         const success = await this.executeSp(action.saveSp, action.saveOp || "execute", row);
                         if (success && this.autoRefresh) {
