@@ -9,6 +9,8 @@ using SmartFoundation.UI.ViewModels.SmartPrint;
 
 
 
+
+
 namespace SmartFoundation.Mvc.Controllers.Housing
 {
     public partial class HousingController : Controller
@@ -382,11 +384,26 @@ namespace SmartFoundation.Mvc.Controllers.Housing
                     ShowColumns = true,
                     ShowExportCsv = false,
                     ShowExportExcel = true,
+                    ShowExportPdf = true,
                     ShowAdd = canInsert,
                     ShowEdit = canUpdate,
                     ShowDelete = canDelete,
                     ShowBulkDelete = false,
 
+
+                    ExportConfig = new TableExportConfig
+                    {
+                        EnablePdf = true,
+                        PdfEndpoint = "/exports/pdf/table",
+                        PdfTitle = "المستفيدين",
+                        PdfPaper = "A4",
+                        PdfOrientation = "landscape",
+                        PdfShowPageNumbers = true,
+                        Filename = "Residents",
+                        PdfShowGeneratedAt = false, // هذا السطر يخفي تاريخ التوليد
+                        
+
+                    },
 
                     CustomActions = new List<TableAction>
                         {

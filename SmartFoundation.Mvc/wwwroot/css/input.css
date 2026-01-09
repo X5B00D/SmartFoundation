@@ -2266,3 +2266,16 @@ textarea[readonly] {
     color: #fff !important;
 }
 
+/* Loading overlay - centered */
+
+.td-loading {
+    height: 100%;
+    min-height: 150px; 
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    font-size: 16px;
+    font-weight: 500;
+    color: #333;
+}

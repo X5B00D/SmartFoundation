@@ -28,17 +28,42 @@ namespace SmartFoundation.UI.ViewModels.SmartTable
         public Dictionary<string, string> AggregateTypes { get; set; } = new();
     }
 
+    //public class TableExportConfig
+    //{
+    //    //public bool EnableExcel { get; set; } = true;
+    //    public bool EnableCsv { get; set; } = true;
+    //    public bool EnablePdf { get; set; } = false;
+    //    public bool EnablePrint { get; set; } = true;
+    //    public string? ExcelTemplate { get; set; }
+    //    public string? PdfTemplate { get; set; }
+    //    public List<string> ExcludeColumns { get; set; } = new();
+    //    public string? Filename { get; set; }
+
+
+    //}
+
     public class TableExportConfig
     {
-        //public bool EnableExcel { get; set; } = true;
         public bool EnableCsv { get; set; } = true;
         public bool EnablePdf { get; set; } = false;
         public bool EnablePrint { get; set; } = true;
+
         public string? ExcelTemplate { get; set; }
         public string? PdfTemplate { get; set; }
+
         public List<string> ExcludeColumns { get; set; } = new();
         public string? Filename { get; set; }
+
+        // NEW: endpoint + defaults
+        public string? PdfEndpoint { get; set; } = "/exports/pdf/table";
+        public string? PdfTitle { get; set; }
+        public string? PdfLogoUrl { get; set; }
+        public string? PdfPaper { get; set; } = "A4";
+        public string? PdfOrientation { get; set; } = "portrait"; // portrait | landscape
+        public bool PdfShowPageNumbers { get; set; } = true;
+        public bool PdfShowGeneratedAt { get; set; } = true; // يعرض تاريخ التوليد في الهيدر 
     }
+
 
     public class TableStyleRule
     {

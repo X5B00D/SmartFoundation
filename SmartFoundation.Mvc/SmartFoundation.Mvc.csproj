@@ -17,4 +17,8 @@
     <Folder Include="wwwroot\lib\fontawesome\" />
   </ItemGroup>
 
+  <ItemGroup>
+    <PackageReference Include="QuestPDF" Version="2025.12.1" />
+  </ItemGroup>
+
 </Project>
