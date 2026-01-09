@@ -5,8 +5,19 @@ using SmartFoundation.DataEngine.Core.Services;
 using SmartFoundation.DataEngine.Core.Utilities;
 using SmartFoundation.Mvc.Controllers;
 using System.Text.Json;
+using QuestPDF.Infrastructure;
+using QuestPDF.Drawing;
 
 var builder = WebApplication.CreateBuilder(args);
+
+//For report generation
+QuestPDF.Settings.License = LicenseType.Community;
+
+var fontPath = Path.Combine(builder.Environment.WebRootPath, "fonts", "Tajawal-Regular.ttf");
+using (var fs = File.OpenRead(fontPath))
+{
+    FontManager.RegisterFont(fs);
+}
 
 // MVC controllers + views
 builder.Services.AddControllersWithViews()

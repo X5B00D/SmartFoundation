@@ -1113,6 +1113,7 @@ window.__sfTableGlobalBound = window.__sfTableGlobalBound || false;
             },
 
             // ===== Actions Management =====
+
             async doAction(action, row) {
                 if (!action) return;
 
@@ -1128,31 +1129,61 @@ window.__sfTableGlobalBound = window.__sfTableGlobalBound || false;
                             this.showToast(`لا يمكن اختيار أكثر من ${action.maxSelection} عنصر`, 'error');
                             return;
                         }
+
+                        // إذا row ما وصل، جيبه من الاختيار الحالي
+                        if (!row) row = this.getSelectedRowFromCurrentData();
+                    }
+
+                    // Guards
+                    const guardRes = this.evalGuards(action);
+                    if (!guardRes.allowed) {
+                        this.showToast(guardRes.message || "غير مسموح", "error");
+                        return;
                     }
 
                     // Confirm if needed
-                    if (action.confirmText && !confirm(action.confirmText)) {
-                        return;
+                    if (action.confirmText && !confirm(action.confirmText)) return;
+
+                    // ✅ 1) OnClickJs (قبل المودال/السب)
+                    const js = action.onClickJs || action.OnClickJs;
+                    if (js && String(js).trim()) {
+                        try {
+                            const code = String(js).trim();
+
+                            // إذا مكتوب كاسم دالة فقط: myFunc
+                            // أو myFunc(...)
+                            const isFnCallOrName =
+                                /^[a-zA-Z_$][\w$]*(\s*\(.*\))?$/.test(code);
+
+                            if (isFnCallOrName) {
+                                const fnName = code.split('(')[0].trim();
+                                const fn = window[fnName];
+                                if (typeof fn === "function") {
+                                    // استدعاء الدالة وتمرير (row, action, tableApi)
+                                    fn(row, action, this);
+                                    return;
+                                }
+                            }
+
+                            // تنفيذ نص JS مباشرة مع سياق (row/action/table)
+                            // نمرر row/action/table كمتغيرات داخل التنفيذ
+                            // eslint-disable-next-line no-new-func
+                            const runner = new Function("row", "action", "table", code);
+                            runner(row, action, this);
+                            return;
+
+                        } catch (err) {
+                            console.error("OnClickJs failed:", err);
+                            this.showToast("فشل تنفيذ الأمر", "error");
+                            return;
+                        }
                     }
 
                     // Open modal
-                    //if (action.openModal) {
-                    //    await this.openModal(action, row);
-                    //    return;
-                    //}
-
-                    // =====Open modal with Guards check (NEW) =====
                     if (action.openModal) {
-                        const guardRes = this.evalGuards(action);
-                        if (!guardRes.allowed) {
-                            this.showToast(guardRes.message || "غير مسموح", "error");
-                            return;
-                        }
-
                         await this.openModal(action, row);
                         return;
                     }
-
 
                     // Execute stored procedure
                     if (action.saveSp) {
@@ -1169,6 +1200,65 @@ window.__sfTableGlobalBound = window.__sfTableGlobalBound || false;
                     this.showToast("فشل في تنفيذ الإجراء: " + e.message, 'error');
                 }
             },
+
+
+
+            //async doAction(action, row) {
+            //    if (!action) return;
+
+            //    try {
+            //        // Check selection requirements
+            //        if (action.requireSelection) {
+            //            const selectedCount = this.selectedKeys.size;
+            //            if (selectedCount < (action.minSelection || 1)) {
+            //                this.showToast(`يجب اختيار ${action.minSelection || 1} عنصر على الأقل`, 'error');
+            //                return;
+            //            }
+            //            if (action.maxSelection > 0 && selectedCount > action.maxSelection) {
+            //                this.showToast(`لا يمكن اختيار أكثر من ${action.maxSelection} عنصر`, 'error');
+            //                return;
+            //            }
+            //        }
+
+            //        // Confirm if needed
+            //        if (action.confirmText && !confirm(action.confirmText)) {
+            //            return;
+            //        }
+
+            //        // Open modal
+            //        //if (action.openModal) {
+            //        //    await this.openModal(action, row);
+            //        //    return;
+            //        //}
+
+            //        // =====Open modal with Guards check (NEW) =====
+            //        if (action.openModal) {
+            //            const guardRes = this.evalGuards(action);
+            //            if (!guardRes.allowed) {
+            //                this.showToast(guardRes.message || "غير مسموح", "error");
+            //                return;
+            //            }
+
+            //            await this.openModal(action, row);
+            //            return;
+            //        }
+
+
+            //        // Execute stored procedure
+            //        if (action.saveSp) {
+            //            const success = await this.executeSp(action.saveSp, action.saveOp || "execute", row);
+            //            if (success && this.autoRefresh) {
+            //                this.clearSelection();
+            //                await this.refresh();
+            //            }
+            //            return;
+            //        }
+
+            //    } catch (e) {
+            //        console.error("Action error:", e);
+            //        this.showToast("فشل في تنفيذ الإجراء: " + e.message, 'error');
+            //    }
+            //},
 
             async doBulkDelete() {
                 if (this.selectedKeys.size === 0) {

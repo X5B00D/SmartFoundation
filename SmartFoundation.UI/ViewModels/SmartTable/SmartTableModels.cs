@@ -168,6 +168,9 @@ namespace SmartFoundation.UI.ViewModels.SmartTable
         public bool ShowExportExcel { get; set; } = true;
         public bool ShowExportPdf { get; set; } = false;
         public bool ShowPrint { get; set; } = true;
+        public bool ShowPrint1 { get; set; } = true;
+        public bool ShowPrint2 { get; set; } = true;
+        public bool ShowPrint3 { get; set; } = true;
         public bool ShowAdvancedFilter { get; set; } = false;
         public bool ShowBulkDelete { get; set; } = false;
         public bool ShowFullscreen { get; set; } = true;
@@ -193,6 +196,11 @@ namespace SmartFoundation.UI.ViewModels.SmartTable
         public TableExportConfig ExportConfig { get; set; } = new();
         public bool ShowSearch { get; set; } = true;
         public string? SearchPosition { get; set; } = "left";
+        public TableAction? Print { get; set; }
+        public TableAction? Print1 { get; set; }
+        public TableAction? Print2 { get; set; }
+        public TableAction? Print3 { get; set; }
+
     }
 
     public class TableConfig

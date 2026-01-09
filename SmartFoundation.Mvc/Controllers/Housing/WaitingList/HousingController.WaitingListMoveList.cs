@@ -268,6 +268,14 @@ namespace SmartFoundation.Mvc.Controllers.Housing
                                     Value = "مرفوض",
                                     Message = "لا يمكن قبول طلب حالته (مرفوض).",
                                     Priority = 2
+                                },
+                                new TableActionRule
+                                {
+                                    Field = "ActionStatus",
+                                    Op = "eq",
+                                    Value = "ملغى",
+                                    Message = "لا يمكن قبول طلب حالته (ملغى).",
+                                    Priority = 3
                                 }
                             }
                         }
@@ -316,13 +324,21 @@ namespace SmartFoundation.Mvc.Controllers.Housing
                                     Message = "لا يمكن رفض طلب حالته بالفعل (مرفوض).",
                                     Priority = 1
                                 },
+                            new TableActionRule
+                            {
+                                    Field = "ActionStatus",
+                                    Op = "eq",
+                                    Value = "ملغى",
+                                    Message = "لا يمكن رفض طلب حالته بالفعل (ملغى).",
+                                    Priority = 2
+                                },
                                 new TableActionRule
                                 {
                                     Field = "ActionStatus",
                                     Op = "eq",
                                     Value = "مقبول",
                                     Message = "لا يمكن رفض طلب حالته (مقبول).",
-                                    Priority = 2
+                                    Priority = 3
                                 }
                             }
                         }
@@ -346,6 +362,18 @@ namespace SmartFoundation.Mvc.Controllers.Housing
                 Field = "ActionStatus",
                 Op = "eq",
                 Value = "مرفوض",
+                CssClass = "row-red",
+                Priority = 1
+            },
+                           
+            new TableStyleRule
+                          
+            {
+                                
+                Target = "row",
+                Field = "ActionStatus",
+                Op = "eq",
+                Value = "ملغى",
                 CssClass = "row-red",
                 Priority = 1
             },

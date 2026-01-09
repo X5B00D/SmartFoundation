@@ -91,3 +91,39 @@
         </div>
     </div>
 }
+
+@* ===== Global Print Iframe (ONE TIME) ===== *@
+<iframe id="sf-print-frame"
+        style="display:none;width:0;height:0;border:0"></iframe>
+
+<script>
+    // prevent re-define if SmartRenderer rendered multiple times
+    window.sfOpenPrint = window.sfOpenPrint || function (url) {
+
+        const frame = document.getElementById('sf-print-frame');
+        if (!frame) {
+            console.error('sf-print-frame not found');
+            return;
+        }
+
+        // add a cache buster to force reload even if same url
+        try {
+            const u = new URL(url, window.location.origin);
+            u.searchParams.set('_t', Date.now().toString());
+            url = u.toString();
+        } catch { /* ignore */ }
+
+        frame.onload = function () {
+            try {
+                frame.contentWindow.focus();
+                frame.contentWindow.print();
+            } catch (e) {
+                console.error('Print failed:', e);
+            }
+        };
+
+        frame.src = url;
+    };
+</script>
+
+

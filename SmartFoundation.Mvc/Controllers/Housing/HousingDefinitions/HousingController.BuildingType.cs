@@ -4,13 +4,17 @@ using SmartFoundation.UI.ViewModels.SmartPage;
 using SmartFoundation.UI.ViewModels.SmartTable;
 using System.Data;
 using System.Linq;
+using SmartFoundation.MVC.Reports;
+
 
 
 namespace SmartFoundation.Mvc.Controllers.Housing
 {
     public partial class HousingController : Controller
     {
-        public async Task<IActionResult> BuildingType()
+
+        
+        public async Task<IActionResult> BuildingType(int pdf = 0)
         {
             //  قراءة السيشن والكونتكست
             if (!InitPageContext(out var redirect))
@@ -206,6 +210,8 @@ namespace SmartFoundation.Mvc.Controllers.Housing
                     ShowAdd = canInsert,
                     ShowEdit = canUpdate,
                     ShowDelete = canDelete,
+                    ShowPrint = true, // شرطك
+                    ShowPrint1 = true, // شرطك
                     ShowBulkDelete = false,
 
                     Add = new TableAction
@@ -282,6 +288,37 @@ namespace SmartFoundation.Mvc.Controllers.Housing
                         MinSelection = 1,
                         MaxSelection = 1
                     },
+
+                    Print = new TableAction
+                    {
+                        Label = "طباعة تقرير",
+                        Icon = "fa fa-print",
+                        Color = "primary",
+                        Placement = TableActionPlacement.ActionsMenu,
+                        RequireSelection = false,
+                        OnClickJs = @"
+    const u = new URL(window.location.href);
+    u.searchParams.set('pdf','1');
+    sfOpenPrint(u.toString());
+"
+
+                    },
+
+                    Print1 = new TableAction
+                    {
+                        Label = "طباعة خطاب",
+                        Icon = "fa fa-print",
+                        Color = "primary",
+                        Placement = TableActionPlacement.ActionsMenu,
+                        RequireSelection = false,
+                        OnClickJs = @"
+    const u = new URL(window.location.href);
+    u.searchParams.set('pdf','2');
+    sfOpenPrint(u.toString());
+"
+
+                    },
+
                 }
             };
 
@@ -295,8 +332,177 @@ namespace SmartFoundation.Mvc.Controllers.Housing
                 TableDS = dsModel
             };
 
+
+
+            // ===== PDF Export (same request, no extra DB call) =====
+            if (pdf == 1)
+            {
+                var printTable = dt1;
+
+                if (printTable == null || printTable.Rows.Count == 0)
+                    return Content("لا توجد بيانات للطباعة.");
+
+
+                var reportColumns = new List<ReportColumn>
+{
+    new("buildingTypeCode",   "رمز نوع المباني",       Align:"center", Weight:1, FontSize:9),
+    new("buildingTypeName_A", "اسم نوع المباني بالعربي",Align:"center", Weight:2, FontSize:10),
+    new("buildingTypeName_E", "اسم نوع المباني بالإنجليزي",Align:"center", Weight:2, FontSize:9),
+    //new ReportColumn("buildingTypeDescription", "ملاحظات",Align: "right",  Weight: 4, FontSize:9),
+};
+
+              
+
+                var logo = Path.Combine(_env.WebRootPath, "img", "ppng.png");
+
+                var header = new Dictionary<string, string>
+                {
+                    ["no"] = "١٢٣/٤٥",
+                    ["date"] = DateTime.Now.ToString("yyyy/MM/dd"),
+                    ["attach"] = "—",
+                    ["subject"] = "تقرير أنواع المباني",
+
+                    ["right1"] = "المملكة العربية السعودية",
+                    ["right2"] = "وزارة الدفاع",
+                    ["right3"] = "القوات البرية الملكية السعودية",
+                    ["right4"] = "الادارة الهندسية للتشغيل والصيانة",
+                    ["right5"] = "إدارة مدينة الملك فيصل العسكرية",
+
+                    ["bismillah"] = "بسم الله الرحمن الرحيم",
+                    ["midCaption"] = ""
+                };
+
+                var report = DataTableReportBuilder.FromDataTable(
+                    reportId: "BuildingType",
+                    title: "تقرير أنواع المباني",
+                    table: printTable,
+                    columns: reportColumns,
+                    headerFields: header,
+                    //footerFields: new(),
+                   footerFields: new(),
+                    
+                    orientation: ReportOrientation.Landscape,
+                    headerType: ReportHeaderType.LetterOfficial,
+                    logoPath: logo
+                );
+                
+
+
+                
+
+                var pdfBytes = QuestPdfReportRenderer.Render(report);
+                Response.Headers["Content-Disposition"] = "inline; filename=BuildingType.pdf";
+                return File(pdfBytes, "application/pdf");
+
+
+            }
+
+
+            if (pdf == 2)
+            {
+                var logo = Path.Combine(_env.WebRootPath, "img", "ppng.png");
+
+                var header = new Dictionary<string, string>
+                {
+                    ["no"] = "١٢٣/٤٥",
+                    ["date"] = DateTime.Now.ToString("yyyy/MM/dd"),
+                    ["attach"] = "—",
+                    ["subject"] = "خطاب رسمي",
+
+                    ["right1"] = "المملكة العربية السعودية",
+                    ["right2"] = "وزارة الدفاع",
+                    ["right3"] = "القوات البرية الملكية السعودية",
+                    ["right4"] = "الادارة الهندسية للتشغيل والصيانة",
+                    ["right5"] = "إدارة مدينة الملك فيصل العسكرية",
+
+                    ["bismillah"] = "بسم الله الرحمن الرحيم",
+                    ["midCaption"] = ""
+                };
+
+                var report = new ReportResult
+                {
+                    ReportId = "OfficialLetter01",
+                    Title = "خطاب رسمي",
+                    Kind = ReportKind.Letter,
+
+                    // هنا اختَر الاتجاه اللي تبيه للخطاب
+                    Orientation = ReportOrientation.Portrait, // أو Landscape
+
+                    HeaderType = ReportHeaderType.LetterOfficial,
+                    LogoPath = logo,
+                    ShowFooter = false,
+
+                    HeaderFields = header,
+
+                    LetterBlocks = new List<LetterBlock>
+        {
+            new LetterBlock
+            {
+                Text = "سعادة قائد إدارة مدينة الملك فيصل العسكرية حفظه الله",
+                FontSize = 13,
+                Bold = true,
+                PaddingBottom = 12,
+                PaddingTop = 30,
+                Align = TextAlign.Center
+            },
+
+            new LetterBlock
+            {
+                Text = "السلام عليكم ورحمة الله وبركاته،",
+                FontSize = 12,
+                PaddingBottom = 10,
+                PaddingTop = 15,
+                Align = TextAlign.Right
+            },
+
+            new LetterBlock
+            {
+                Text = "نفيد سعادتكم بأنه بناءً على توجيهاتكم الكريمة ...",
+                FontSize = 12,
+                Align = TextAlign.Justify,
+                LineHeight = 1.8f,
+                PaddingBottom = 16
+            },
+
+            new LetterBlock
+            {
+                Text = "وتفضلوا بقبول فائق الاحترام والتقدير،",
+                FontSize = 12,
+                PaddingTop = 20,
+                Align = TextAlign.Right
+            },
+
+            new LetterBlock
+            {
+                Text = "مدير الإدارة الهندسية\nالاسم / ..................\nالتوقيع / ...............",
+                FontSize = 11,
+                Align = TextAlign.Left,
+                PaddingTop = 30,
+                PaddingLeft = 120
+            }
+        }
+                };
+
+                var pdfBytes = QuestPdfReportRenderer.Render(report);
+                Response.Headers["Content-Disposition"] = "inline; filename=Letter.pdf";
+                return File(pdfBytes, "application/pdf");
+            }
+
+
+
+
             return View("HousingDefinitions/BuildingType", page);
 
         }
+
+        public IActionResult Print()
+        {
+            if (TempData["PdfBytes"] == null)
+                return Content("لا يوجد ملف للطباعة");
+
+            ViewBag.PdfBase64 = TempData["PdfBytes"];
+            return View();
+        }
+
     }
 }

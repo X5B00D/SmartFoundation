@@ -125,6 +125,8 @@
           ...(toolbar.showDelete !== false && toolbar.delete ? [toolbar.delete] : []),
           ...(toolbar.showDelete1 !== false && toolbar.delete1 ? [toolbar.delete1] : []),
           ...(toolbar.showDelete2 !== false && toolbar.delete2 ? [toolbar.delete2] : []),
+          ...(toolbar.showPrint !== false && toolbar.print ? [toolbar.print] : []),
+          ...(toolbar.showPrint1 !== false && toolbar.print1 ? [toolbar.print1] : []),
           ...(toolbar.customActions || [])
           ].filter(a => a && a.show !== false && (a.placement ?? 'Button') !== 'ActionsMenu')"
     :key="act.label">
@@ -150,6 +152,8 @@
           ...(toolbar.showDelete !== false && toolbar.delete ? [toolbar.delete] : []),
           ...(toolbar.showDelete1 !== false && toolbar.delete1 ? [toolbar.delete1] : []),
           ...(toolbar.showDelete2 !== false && toolbar.delete2 ? [toolbar.delete2] : []),
+          ...(toolbar.showPrint !== false && toolbar.print ? [toolbar.print] : []),
+          ...(toolbar.showPrint1 !== false && toolbar.print1 ? [toolbar.print1] : []),
           ...(toolbar.customActions || [])
           ].some(a => a && a.show !== false && a.placement === 'ActionsMenu')">
 
@@ -176,6 +180,8 @@
                       ...(toolbar.showDelete !== false && toolbar.delete ? [toolbar.delete] : []),
                       ...(toolbar.showDelete1 !== false && toolbar.delete1 ? [toolbar.delete1] : []),
                       ...(toolbar.showDelete2 !== false && toolbar.delete2 ? [toolbar.delete2] : []),
+                      ...(toolbar.showPrint !== false && toolbar.print ? [toolbar.print] : []),
+                      ...(toolbar.showPrint1 !== false && toolbar.print1 ? [toolbar.print1] : []),
                       ...(toolbar.customActions || [])
                       ].filter(a => a && a.show !== false && a.placement === 'ActionsMenu')"
                 :key="act.label">
