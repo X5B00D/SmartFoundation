@@ -35,6 +35,9 @@ namespace SmartFoundation.Mvc.Services.Exports.Pdf.Helpers
         public static TextStyle SmallText() =>
             TextStyle.Default.FontFamily(Font).FontSize(SmallSize).FontColor(Colors.Grey.Darken2);
 
+        public static TextStyle TitleText() =>
+            TextStyle.Default.FontFamily(Font).FontSize(TitleSize).FontColor(HeaderText).Bold();
+
         // ===== Header (الترويسة الرسمية) =====
         public static void BuildHeader(IContainer container, PdfTableRequest request)
         {
