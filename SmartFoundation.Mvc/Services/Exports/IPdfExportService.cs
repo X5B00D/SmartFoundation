@@ -17,13 +17,19 @@
         public string Paper { get; set; } = "A4";
         public string Orientation { get; set; } = "portrait";
         public bool ShowPageNumbers { get; set; } = true;
-
-        // NEW
         public bool ShowGeneratedAt { get; set; } = true;
+        public bool ShowSerial { get; set; } = false;
+        public string SerialLabel { get; set; } = "#";
+
+        
+        public string? RightHeaderLine1 { get; set; }
+        public string? RightHeaderLine2 { get; set; }
+        public string? RightHeaderLine3 { get; set; }
+        public string? RightHeaderLine4 { get; set; }
+        public string? RightHeaderLine5 { get; set; }
 
         public List<PdfTableColumn> Columns { get; set; } = new();
         public List<Dictionary<string, object?>> Rows { get; set; } = new();
-
         public string? HeaderTitle { get; set; }
         public string? HeaderSubtitle { get; set; }
         public string? GeneratedBy { get; set; }

@@ -1241,9 +1241,17 @@ window.__sfTableGlobalBound = window.__sfTableGlobalBound || false;
                         logoUrl: (cfg.pdfLogoUrl ?? cfg.PdfLogoUrl) || null,
                         paper: (cfg.pdfPaper ?? cfg.PdfPaper) || "A4",
                         orientation: (cfg.pdfOrientation ?? cfg.PdfOrientation) || "portrait",
+                        showSerial: (cfg.pdfShowSerial ?? cfg.PdfShowSerial) === true,
+                        serialLabel: (cfg.pdfSerialLabel ?? cfg.PdfSerialLabel) || "#",
                         showPageNumbers: ((cfg.pdfShowPageNumbers ?? cfg.PdfShowPageNumbers) !== false),
                         showGeneratedAt: ((cfg.pdfShowGeneratedAt ?? cfg.PdfShowGeneratedAt) !== false),
                         filename: (cfg.filename ?? cfg.Filename) || "export",
+                        rightHeaderLine1: (cfg.rightHeaderLine1 ?? cfg.RightHeaderLine1) || "",
+                        rightHeaderLine2: (cfg.rightHeaderLine2 ?? cfg.RightHeaderLine2) || "",
+                        rightHeaderLine3: (cfg.rightHeaderLine3 ?? cfg.RightHeaderLine3) || "",
+                        rightHeaderLine4: (cfg.rightHeaderLine4 ?? cfg.RightHeaderLine4) || "",
+                        rightHeaderLine5: (cfg.rightHeaderLine5 ?? cfg.RightHeaderLine5) || "",
+
                         columns: colsRtl.map(c => ({ field: c.field, label: c.label || c.field })),
                         rows: rowsToExport
                     };

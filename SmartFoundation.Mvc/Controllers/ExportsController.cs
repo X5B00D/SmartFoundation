@@ -22,19 +22,25 @@ namespace SmartFoundation.Mvc.Controllers
                 var pdfRequest = new PdfTableRequest
                 {
                     Title = req.Title ?? "تقرير PDF",
-                    LogoUrl = req.LogoUrl,
+                    LogoUrl = req.LogoUrl, //   المسؤول عن تمرير رابط الشعار
                     Paper = req.Paper ?? "A4",
                     Orientation = req.Orientation ?? "portrait",
                     ShowPageNumbers = req.ShowPageNumbers,
                     ShowGeneratedAt = req.ShowGeneratedAt,
-                    HeaderSubtitle = req.Subtitle,
-                    GeneratedBy = req.GeneratedBy,
-                    GeneratedAt = DateTime.Now,
+                    ShowSerial = req.ShowSerial,
+                    SerialLabel = req.SerialLabel ?? "#",
+
+                    
+                    RightHeaderLine1 = req.RightHeaderLine1,
+                    RightHeaderLine2 = req.RightHeaderLine2,
+                    RightHeaderLine3 = req.RightHeaderLine3,
+                    RightHeaderLine4 = req.RightHeaderLine4,
+                    RightHeaderLine5 = req.RightHeaderLine5,
+
                     Columns = req.Columns.Select(c => new PdfTableColumn
                     {
                         Field = c.Field,
                         Label = c.Label,
-                        Width = null, // Let QuestPDF auto-calculate
                         Align = "right"
                     }).ToList(),
                     Rows = req.Rows
@@ -63,6 +69,15 @@ namespace SmartFoundation.Mvc.Controllers
         public bool ShowPageNumbers { get; set; } = true;
         public string? GeneratedBy { get; set; }
         public bool ShowGeneratedAt { get; set; } = false; // NEW
+        public bool ShowSerial { get; set; } = false;
+        public string? SerialLabel { get; set; } = "#";
+        
+        public string? RightHeaderLine1 { get; set; } // المملكة العربية السعودية
+        public string? RightHeaderLine2 { get; set; } 
+        public string? RightHeaderLine3 { get; set; } 
+        public string? RightHeaderLine4 { get; set; } 
+        public string? RightHeaderLine5 { get; set; } 
+
         public List<PdfCol> Columns { get; set; } = new();
         public List<Dictionary<string, object?>> Rows { get; set; } = new();
     }
@@ -71,5 +86,7 @@ namespace SmartFoundation.Mvc.Controllers
     {
         public string Field { get; set; } = "";
         public string Label { get; set; } = "";
+
+
     }
 }

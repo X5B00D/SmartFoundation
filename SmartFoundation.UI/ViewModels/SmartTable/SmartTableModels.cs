@@ -62,7 +62,17 @@ namespace SmartFoundation.UI.ViewModels.SmartTable
         public string? PdfOrientation { get; set; } = "portrait"; // portrait | landscape
         public bool PdfShowPageNumbers { get; set; } = true;
         public bool PdfShowGeneratedAt { get; set; } = true; // يعرض تاريخ التوليد في الهيدر 
+        public bool PdfShowSerial { get; set; } = false; // تفعيل أو تعطيل الرقم التسلسلي
+        public string PdfSerialLabel { get; set; } = "#";
+        
+        public string? RightHeaderLine1 { get; set; } // المملكة العربية السعودية
+        public string? RightHeaderLine2 { get; set; } 
+        public string? RightHeaderLine3 { get; set; } 
+        public string? RightHeaderLine4 { get; set; } 
+        public string? RightHeaderLine5 { get; set; } 
     }
+
+
 
 
     public class TableStyleRule

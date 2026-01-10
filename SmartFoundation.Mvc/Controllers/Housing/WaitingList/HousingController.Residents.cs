@@ -8,10 +8,6 @@ using System.Data;
 using System.Linq;
 using System.Text.Json;
 
-
-
-
-
 namespace SmartFoundation.Mvc.Controllers.Housing
 {
     public partial class HousingController : Controller
@@ -415,8 +411,15 @@ namespace SmartFoundation.Mvc.Controllers.Housing
                         PdfOrientation = "landscape",
                         PdfShowPageNumbers = true,
                         Filename = "Residents",
-                        PdfShowGeneratedAt = false, // هذا السطر يخفي تاريخ التوليد
-                        
+                        PdfShowGeneratedAt = true, // هذا السطر يخفي تاريخ التوليد
+                        PdfShowSerial = true,  //  هذا السطر سيظهر العمود
+                        PdfSerialLabel = "م",  //   عنوان العمود
+                        RightHeaderLine1 = "المملكة العربية السعودية",
+                        RightHeaderLine2 = "وزارة الدفاع",
+                        RightHeaderLine3 = "القوات البرية الملكية السعودية",
+                        RightHeaderLine4 = "الإدارة الهندسية للتشغيل والصيانة",
+                        RightHeaderLine5 = "مدينة الملك فيصل العسكرية",
+                        PdfLogoUrl="/img/ppng.png",
 
                     },
 
