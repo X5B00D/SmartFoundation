@@ -35,29 +35,25 @@ namespace SmartFoundation.Mvc.Services.Exports.Pdf.Helpers
         public static TextStyle SmallText() =>
             TextStyle.Default.FontFamily(Font).FontSize(SmallSize).FontColor(Colors.Grey.Darken2);
 
-        public static TextStyle TitleText() =>
-            TextStyle.Default.FontFamily(Font).FontSize(TitleSize).FontColor(HeaderText).Bold();
-
-        public static TextStyle SubtitleText() =>
-            TextStyle.Default.FontFamily(Font).FontSize(SubtitleSize).FontColor(Colors.Grey.Darken3);
-
-        // ===== Header (الترويسة الرسمية - بدون تحذيرات Obsolete) =====
+        // ===== Header (الترويسة الرسمية) =====
         public static void BuildHeader(IContainer container, PdfTableRequest request)
         {
             container.PaddingBottom(10).Column(col =>
             {
                 col.Item().Row(row =>
                 {
-                    // 1. اليسار: التاريخ والموضوع
-                    row.RelativeItem().Column(leftCol =>
+                    // 1. اليسار: التاريخ والموضوع (مكانه يسار، النص محاذاته يمين)
+                    row.RelativeItem().AlignLeft().Column(leftCol =>
                     {
                         if (request.ShowGeneratedAt)
-                            leftCol.Item().Text($"التاريخ: {DateTime.Now:yyyy-MM-dd}").Style(SmallText());
+                        {
+                            leftCol.Item().AlignRight().Text($"التاريخ: {DateTime.Now:yyyy-MM-dd}").Style(SmallText());
+                        }
 
-                        leftCol.Item().Text($"الموضوع: {request.Title}").Style(SmallText());
+                        leftCol.Item().AlignRight().Text($"الموضوع: {request.Title}").Style(SmallText());
                     });
 
-                    // 2. المنتصف: الشعار (استخدام الطريقة الجديدة Descriptor)
+                    // 2. المنتصف: الشعار
                     row.ConstantItem(150).AlignCenter().AlignMiddle().Column(centerCol =>
                     {
                         if (!string.IsNullOrEmpty(request.LogoUrl))
@@ -66,13 +62,12 @@ namespace SmartFoundation.Mvc.Services.Exports.Pdf.Helpers
 
                             if (File.Exists(logoPath))
                             {
-                                // الإصلاح هنا: استخدام Image(path) ثم استدعاء FitHeight() من الـ Descriptor
                                 centerCol.Item().Height(60).AlignCenter().Image(logoPath).FitHeight();
                             }
                         }
                     });
 
-                    // 3. اليمين: البيانات وتوسيطها
+                    // 3. اليمين: البيانات الرسمية (مكانه يمين، النص محاذاته متوسطة)
                     row.RelativeItem().AlignRight().Column(rightCol =>
                     {
                         var headerLines = new[] {
@@ -87,6 +82,7 @@ namespace SmartFoundation.Mvc.Services.Exports.Pdf.Helpers
                         {
                             if (!string.IsNullOrEmpty(line))
                             {
+                                // تم التعديل هنا إلى AlignCenter بناءً على طلبك
                                 rightCol.Item().AlignCenter().Text(line).Style(BaseText().Bold().FontSize(9));
                             }
                         }
