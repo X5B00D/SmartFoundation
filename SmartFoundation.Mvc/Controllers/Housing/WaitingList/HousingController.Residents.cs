@@ -1,11 +1,12 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using SmartFoundation.MVC.Reports;
 using SmartFoundation.UI.ViewModels.SmartForm;
 using SmartFoundation.UI.ViewModels.SmartPage;
+using SmartFoundation.UI.ViewModels.SmartPrint;
 using SmartFoundation.UI.ViewModels.SmartTable;
 using System.Data;
 using System.Linq;
 using System.Text.Json;
-using SmartFoundation.UI.ViewModels.SmartPrint;
 
 
 
@@ -15,7 +16,7 @@ namespace SmartFoundation.Mvc.Controllers.Housing
 {
     public partial class HousingController : Controller
     {
-        public async Task<IActionResult> Residents()
+        public async Task<IActionResult> Residents(int pdf = 0)
         {
             //  قراءة السيشن والكونتكست
             if (!InitPageContext(out var redirect))
@@ -388,8 +389,22 @@ namespace SmartFoundation.Mvc.Controllers.Housing
                     ShowAdd = canInsert,
                     ShowEdit = canUpdate,
                     ShowDelete = canDelete,
+                    ShowPrint1 = true,
                     ShowBulkDelete = false,
+                    Print1 = new TableAction
+                    {
+                        Label = "طباعة تقرير",
+                        Icon = "fa fa-print",
+                        Color = "primary",
+                        Placement = TableActionPlacement.ActionsMenu,
+                        RequireSelection = false,
+                        OnClickJs = @"
+    const u = new URL(window.location.href);
+    u.searchParams.set('pdf','1');
+    sfOpenPrint(u.toString());
+"
 
+                    },
 
                     ExportConfig = new TableExportConfig
                     {
@@ -558,6 +573,9 @@ namespace SmartFoundation.Mvc.Controllers.Housing
                         MinSelection = 1,
                         MaxSelection = 1
                     },
+
+
+                  
                 }
             };
 
@@ -623,6 +641,104 @@ namespace SmartFoundation.Mvc.Controllers.Housing
                 PanelIcon = "fa-solid fa-user-group",
                 TableDS = dsModel
             };
+
+
+            if (pdf == 1)
+            {
+                //var printTable = dt1;
+                int start1Based = 1; // يبدأ من الصف 200
+                int count = 10;       // يطبع 50 سجل
+
+                int startIndex = start1Based - 1;
+                int endIndex = Math.Min(dt1.Rows.Count, startIndex + count);
+
+                // جدول خفيف للطباعة
+                var printTable = new DataTable();
+                printTable.Columns.Add("NationalID", typeof(string));
+                printTable.Columns.Add("FullName_A", typeof(string));
+                printTable.Columns.Add("generalNo_FK", typeof(string));
+                printTable.Columns.Add("rankNameA", typeof(string));
+
+                for (int i = startIndex; i < endIndex; i++)
+                {
+                    var r = dt1.Rows[i];
+
+                    printTable.Rows.Add(
+                        r["NationalID"],
+                        r["FullName_A"],
+                        r["generalNo_FK"],
+                        r["rankNameA"]
+                    );
+                }
+
+                if (printTable == null || printTable.Rows.Count == 0)
+                    return Content("لا توجد بيانات للطباعة.");
+
+                  
+
+                var reportColumns = new List<ReportColumn>
+{
+    new("NationalID",   "رقم الهوية",       Align:"center", Weight:1, FontSize:9),
+    new("FullName_A", "الاسم",Align:"center", Weight:2, FontSize:9),
+    new("generalNo_FK", "الرقم العام",Align:"center", Weight:2, FontSize:10),
+    new("rankNameA", "الرتبة",Align:"center", Weight:2, FontSize:9),
+    //new("militaryUnitName_A", "الوحدة",Align:"center", Weight:2, FontSize:9),
+    //new("maritalStatusName_A", "الحالة الاجتماعية",Align:"center", Weight:2, FontSize:9),
+    //new("dependinceCounter", "عدد التابعين",Align:"center", Weight:2, FontSize:9),
+    //new("nationalityName_A", "الجنسية",Align:"center", Weight:2, FontSize:9),
+    //new("genderName_A", "الجنس",Align:"center", Weight:2, FontSize:9),
+    //new("birthdate", "تاريخ الميلاد",Align:"center", Weight:2, FontSize:9),
+    //new("residentcontactDetails", "رقم الجوال",Align:"center", Weight:2, FontSize:9),
+    //new ReportColumn("buildingTypeDescription", "ملاحظات",Align: "right",  Weight: 4, FontSize:9),
+};
+
+
+
+                var logo = Path.Combine(_env.WebRootPath, "img", "ppng.png");
+
+                var header = new Dictionary<string, string>
+                {
+                    ["no"] = "١٢٣/٤٥",
+                    ["date"] = DateTime.Now.ToString("yyyy/MM/dd"),
+                    ["attach"] = "—",
+                    ["subject"] = "قائمة المستفيدين",
+
+                    ["right1"] = "المملكة العربية السعودية",
+                    ["right2"] = "وزارة الدفاع",
+                    ["right3"] = "القوات البرية الملكية السعودية",
+                    ["right4"] = "الادارة الهندسية للتشغيل والصيانة",
+                    ["right5"] = "إدارة مدينة الملك فيصل العسكرية",
+
+                    ["bismillah"] = "بسم الله الرحمن الرحيم",
+                    ["midCaption"] = ""
+                };
+
+                var report = DataTableReportBuilder.FromDataTable(
+                    reportId: "BuildingType",
+                    title: "قائمة المستفيدين",
+                    table: printTable,
+                    columns: reportColumns,
+                    headerFields: header,
+                   //footerFields: new(),
+                   footerFields: new(),
+
+                    orientation: ReportOrientation.Landscape,
+                    headerType: ReportHeaderType.LetterOfficial,
+                    logoPath: logo
+                );
+
+
+
+
+
+                var pdfBytes = QuestPdfReportRenderer.Render(report);
+                Response.Headers["Content-Disposition"] = "inline; filename=BuildingType.pdf";
+                return File(pdfBytes, "application/pdf");
+
+
+            }
+
+
 
             return View("WaitingList/Residents", page);
 

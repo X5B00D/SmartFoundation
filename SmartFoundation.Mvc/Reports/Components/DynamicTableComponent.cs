@@ -12,8 +12,14 @@ public static class DynamicTableComponent
             table.ColumnsDefinition(cols =>
             {
                 foreach (var c in report.Columns)
-                    cols.RelativeColumn(Math.Max(1, c.Weight));
+                {
+                    if (c.Width.HasValue && c.Width.Value > 0)
+                        cols.ConstantColumn(c.Width.Value);
+                    else
+                        cols.RelativeColumn(c.Weight <= 0 ? 1 : c.Weight);
+                }
             });
+
 
             // Header row
             table.Header(header =>

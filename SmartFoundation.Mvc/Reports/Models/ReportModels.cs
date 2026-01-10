@@ -8,7 +8,8 @@ public record ReportColumn(
     string? Format = null,
     string Align = "right",
     int Weight = 2,
-    float? FontSize = null   // ⭐ جديد
+    float? FontSize = null,
+    float? Width = null 
 );
 
 
