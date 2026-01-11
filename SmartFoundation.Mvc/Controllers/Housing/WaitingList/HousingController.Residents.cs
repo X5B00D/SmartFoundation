@@ -746,7 +746,8 @@ namespace SmartFoundation.Mvc.Controllers.Housing
                    {
                        ["تمت الطباعة بواسطة"] = FullName,
                        ["ملاحظة"] = " هذا التقرير للاستخدام الرسمي",
-                       ["عدد السجلات"] = dt1.Rows.Count.ToString()
+                       ["عدد السجلات"] = dt1.Rows.Count.ToString(),
+                       ["تاريخ ووقت الطباعة"] = DateTime.Now.ToString("yyyy/MM/dd HH:mm:ss")
                    },
 
                     orientation: ReportOrientation.Landscape,
