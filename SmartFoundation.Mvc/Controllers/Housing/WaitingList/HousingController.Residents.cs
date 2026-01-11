@@ -391,14 +391,18 @@ namespace SmartFoundation.Mvc.Controllers.Housing
                     {
                         Label = "طباعة تقرير",
                         Icon = "fa fa-print",
-                        Color = "primary",
-                        Placement = TableActionPlacement.ActionsMenu,
+                        Color = "warning",
+                        //Placement = TableActionPlacement.ActionsMenu,
                         RequireSelection = false,
+                        //OnClickJs = @"sfPrintWithBusy(table, { pdf: 1 });"
                         OnClickJs = @"
-    const u = new URL(window.location.href);
-    u.searchParams.set('pdf','1');
-    sfOpenPrint(u.toString());
-"
+                                sfPrintWithBusy(table, {
+                                  pdf: 1,
+                                  busy: { title: 'طباعة بيانات المستفيدين'}
+                                });
+                                "
+
+
 
                     },
 
@@ -650,10 +654,10 @@ namespace SmartFoundation.Mvc.Controllers.Housing
             {
                 //var printTable = dt1;
                 int start1Based = 1; // يبدأ من الصف 200
-                int count = 10;       // يطبع 50 سجل
+                int count = 100;       // يطبع 50 سجل
 
                 int startIndex = start1Based - 1;
-                int endIndex = Math.Min(dt1.Rows.Count, startIndex + count);
+                int endIndex = Math.Min(dt1.Rows.Count, startIndex + dt1.Rows.Count);
 
                 // جدول خفيف للطباعة
                 var printTable = new DataTable();
@@ -661,6 +665,13 @@ namespace SmartFoundation.Mvc.Controllers.Housing
                 printTable.Columns.Add("FullName_A", typeof(string));
                 printTable.Columns.Add("generalNo_FK", typeof(string));
                 printTable.Columns.Add("rankNameA", typeof(string));
+                printTable.Columns.Add("militaryUnitName_A", typeof(string));
+                printTable.Columns.Add("maritalStatusName_A", typeof(string));
+                printTable.Columns.Add("dependinceCounter", typeof(string));
+                printTable.Columns.Add("nationalityName_A", typeof(string));
+                printTable.Columns.Add("genderName_A", typeof(string));
+                printTable.Columns.Add("birthdate", typeof(string));
+                printTable.Columns.Add("residentcontactDetails", typeof(string));
 
                 for (int i = startIndex; i < endIndex; i++)
                 {
@@ -670,7 +681,14 @@ namespace SmartFoundation.Mvc.Controllers.Housing
                         r["NationalID"],
                         r["FullName_A"],
                         r["generalNo_FK"],
-                        r["rankNameA"]
+                        r["rankNameA"],
+                        r["militaryUnitName_A"],
+                        r["maritalStatusName_A"],
+                        r["dependinceCounter"],
+                        r["nationalityName_A"],
+                        r["genderName_A"],
+                        r["birthdate"],
+                        r["residentcontactDetails"]
                     );
                 }
 
@@ -681,18 +699,18 @@ namespace SmartFoundation.Mvc.Controllers.Housing
 
                 var reportColumns = new List<ReportColumn>
 {
-    new("NationalID",   "رقم الهوية",       Align:"center", Weight:1, FontSize:9),
-    new("FullName_A", "الاسم",Align:"center", Weight:2, FontSize:9),
-    new("generalNo_FK", "الرقم العام",Align:"center", Weight:2, FontSize:10),
-    new("rankNameA", "الرتبة",Align:"center", Weight:2, FontSize:9),
-    //new("militaryUnitName_A", "الوحدة",Align:"center", Weight:2, FontSize:9),
-    //new("maritalStatusName_A", "الحالة الاجتماعية",Align:"center", Weight:2, FontSize:9),
-    //new("dependinceCounter", "عدد التابعين",Align:"center", Weight:2, FontSize:9),
-    //new("nationalityName_A", "الجنسية",Align:"center", Weight:2, FontSize:9),
-    //new("genderName_A", "الجنس",Align:"center", Weight:2, FontSize:9),
-    //new("birthdate", "تاريخ الميلاد",Align:"center", Weight:2, FontSize:9),
-    //new("residentcontactDetails", "رقم الجوال",Align:"center", Weight:2, FontSize:9),
-    //new ReportColumn("buildingTypeDescription", "ملاحظات",Align: "right",  Weight: 4, FontSize:9),
+    new("NationalID", "رقم الهوية", Align:"center", Weight:2, FontSize:9),
+    new("FullName_A", "الاسم", Align:"center", Weight:5, FontSize:9),
+    new("generalNo_FK", "الرقم العام", Align:"center", Weight:2, FontSize:9),
+    new("rankNameA", "الرتبة", Align:"center", Weight:2, FontSize:9),
+    new("militaryUnitName_A", "الوحدة", Align:"center", Weight:3, FontSize:9),
+    new("maritalStatusName_A", "الحالة الاجتماعية", Align:"center", Weight:3, FontSize:9),
+    new("dependinceCounter", "عدد التابعين", Align:"center", Weight:2, FontSize:9),
+    new("nationalityName_A", "الجنسية", Align:"center", Weight:2, FontSize:9),
+    new("genderName_A", "الجنس", Align:"center", Weight:2, FontSize:9),
+    new("birthdate", "تاريخ الميلاد", Align:"center", Weight:2, FontSize:9),
+    new("residentcontactDetails", "رقم الجوال", Align:"center", Weight:2, FontSize:9),
+
 };
 
 
@@ -701,7 +719,7 @@ namespace SmartFoundation.Mvc.Controllers.Housing
 
                 var header = new Dictionary<string, string>
                 {
-                    ["no"] = "١٢٣/٤٥",
+                    ["no"] = usersId,//"١٢٣/٤٥",
                     ["date"] = DateTime.Now.ToString("yyyy/MM/dd"),
                     ["attach"] = "—",
                     ["subject"] = "قائمة المستفيدين",
@@ -723,11 +741,17 @@ namespace SmartFoundation.Mvc.Controllers.Housing
                     columns: reportColumns,
                     headerFields: header,
                    //footerFields: new(),
-                   footerFields: new(),
+                   footerFields: new Dictionary<string, string>
+                   {
+                       ["تمت الطباعة بواسطة"] = FullName,
+                       ["ملاحظة"] = " هذا التقرير للاستخدام الرسمي"
+                   },
 
                     orientation: ReportOrientation.Landscape,
                     headerType: ReportHeaderType.LetterOfficial,
-                    logoPath: logo
+                    logoPath: logo,
+                    headerRepeat: ReportHeaderRepeat.FirstPageOnly
+                    //headerRepeat: ReportHeaderRepeat.AllPages
                 );
 
 

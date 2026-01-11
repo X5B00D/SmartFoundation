@@ -24,7 +24,14 @@ public static class QuestPdfReportRenderer
                 page.DefaultTextStyle(x => x.FontFamily("Tajawal").FontSize(fontSize));
                 page.ContentFromRightToLeft();
 
-                page.Header().Element(c => HeaderFactory.Compose(c, report));
+                if (report.HeaderRepeat == ReportHeaderRepeat.FirstPageOnly)
+                {
+                    page.Header().ShowOnce().Element(c => HeaderFactory.Compose(c, report));
+                }
+                else
+                {
+                    page.Header().Element(c => HeaderFactory.Compose(c, report));
+                }
                 page.Content().Element(c =>
                 {
                     // ✅ Letter

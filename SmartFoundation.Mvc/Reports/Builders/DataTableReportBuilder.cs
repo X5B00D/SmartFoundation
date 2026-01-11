@@ -13,7 +13,8 @@ public static class DataTableReportBuilder
      Dictionary<string, string>? footerFields = null,
      ReportOrientation orientation = ReportOrientation.Auto,
      ReportHeaderType headerType = ReportHeaderType.Standard,
-     string? logoPath = null)
+     string? logoPath = null,
+     ReportHeaderRepeat headerRepeat = ReportHeaderRepeat.AllPages)
 
     {
         var cols = columns?.ToList() ?? InferColumns(table);
@@ -35,6 +36,7 @@ public static class DataTableReportBuilder
             Orientation = orientation,
 
             HeaderType = headerType,
+            HeaderRepeat = headerRepeat,
             LogoPath = logoPath,
 
             HeaderFields = headerFields ?? new(),

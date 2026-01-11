@@ -291,31 +291,33 @@ namespace SmartFoundation.Mvc.Controllers.Housing
 
                     Print = new TableAction
                     {
-                        Label = "طباعة تقرير",
+                        Label = "طباعة أنواع المباني",
                         Icon = "fa fa-print",
                         Color = "primary",
                         Placement = TableActionPlacement.ActionsMenu,
                         RequireSelection = false,
                         OnClickJs = @"
-    const u = new URL(window.location.href);
-    u.searchParams.set('pdf','1');
-    sfOpenPrint(u.toString());
-"
+                                sfPrintWithBusy(table, {
+                                  pdf: 1,
+                                  busy: { title: 'طباعة أنواع المباني'}
+                                });
+                                "
 
                     },
 
                     Print1 = new TableAction
                     {
-                        Label = "طباعة خطاب",
+                        Label = "طباعة خطاب تجريبي",
                         Icon = "fa fa-print",
                         Color = "primary",
                         Placement = TableActionPlacement.ActionsMenu,
                         RequireSelection = false,
                         OnClickJs = @"
-    const u = new URL(window.location.href);
-    u.searchParams.set('pdf','2');
-    sfOpenPrint(u.toString());
-"
+                                sfPrintWithBusy(table, {
+                                  pdf: 2,
+                                  busy: { title: 'طباعة خطاب تجريبي'}
+                                });
+                                "
 
                     },
 

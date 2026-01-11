@@ -26,6 +26,7 @@ public class ReportResult
     public Dictionary<string, string> HeaderFields { get; set; } = new();
     public ReportHeaderType HeaderType { get; set; } = ReportHeaderType.Standard;
     public string? LogoPath { get; set; }
+    public ReportHeaderRepeat HeaderRepeat { get; set; } = ReportHeaderRepeat.AllPages;
 
     // ===== Table =====
     public List<ReportColumn> Columns { get; set; } = new();
@@ -86,6 +87,12 @@ public class LetterBlock
     public float LineHeight { get; set; } = 1.4f;
 }
 
+
+public enum ReportHeaderRepeat
+{
+    AllPages,      // الهيدر في كل الصفحات
+    FirstPageOnly  // الهيدر في الصفحة الأولى فقط
+}
 
 
 
