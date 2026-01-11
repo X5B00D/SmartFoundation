@@ -147,6 +147,7 @@ namespace SmartFoundation.Mvc.Controllers.Housing
                          ColCss = "3",
                          Placeholder = "اختر فئة سجلات الانتظار",
                          Icon = "fa fa-user",
+                         Select2 = true,
                          Value = waitingClassID_,
                          OnChangeJs = @"
                                        var WaitingClassID_ = value.trim();
@@ -406,9 +407,10 @@ namespace SmartFoundation.Mvc.Controllers.Housing
                         IsEdit = true,
                         OpenModal = true,
                         //ModalTitle = "رسالة تحذيرية",
-                        ModalTitle = "<i class='fa fa-exclamation-triangle text-red-600 text-xl mr-2'></i> نقل المستفيد لقائمة التخصيص <i class='fa fa-exclamation-triangle text-red-600 text-xl mr-2'></i>",
+                        ModalTitle = "نقل المستفيد لقائمة التخصيص",
                         ModalMessage = "ملاحظة : سيتم رفض نقل المستفيد في حال لم يكن في رأس القائمة من قبل النظام",
-                        ModalMessageClass = "bg-red-50 border border-red-200 text-red-700",
+                        ModalMessageClass = "bg-red-50 text-red-700",
+                        ModalMessageIcon = "fa-solid fa-triangle-exclamation",
                         OpenForm = new FormConfig
                         {
                             FormId = "employeeDeleteForm",
@@ -418,7 +420,7 @@ namespace SmartFoundation.Mvc.Controllers.Housing
                             Buttons = new List<FormButtonConfig>
                             {
                                 new FormButtonConfig { Text = "نقل المستفيد", Type = "submit", Color = "success", Icon = "fa fa-check" },
-                                new FormButtonConfig { Text = "إلغاء", Type = "button", Color = "secondary", Icon = "fa fa-times", OnClickJs = "this.closest('.sf-modal').__x.$data.closeModal();" }
+                                new FormButtonConfig { Text = "إلغاء", Type = "button", Color = "secondary", OnClickJs = "this.closest('.sf-modal').__x.$data.closeModal();" }
                             },
                             Fields = MoveToCustomizationListFields
                         },

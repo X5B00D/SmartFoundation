@@ -103,25 +103,25 @@
 
                 @* ===== تصدير ===== *@
                 <!-- Excel -->
-                <template x-if="allowExport && toolbar.showExportExcel">
+                @* <template x-if="allowExport && toolbar.showExportExcel">
                     <button type="button" class="btn btn-info" x-on:click="exportData('excel')">
                         <i class="fa fa-file-excel"></i> Excel
                     </button>
-                </template>
+                </template> *@
 
                 <!-- CSV -->
-                <template x-if="allowExport && toolbar.showExportCsv">
+                @* <template x-if="allowExport && toolbar.showExportCsv">
                     <button type="button" class="btn btn-warning" x-on:click="exportData('csv')">
                         <i class="fa fa-file-csv"></i> CSV
                     </button>
-                </template>
+                </template> *@
 
                 <!-- PDF -->
-                <template x-if="allowExport && toolbar.showExportPdf">
+                @* <template x-if="allowExport && toolbar.showExportPdf">
                     <button type="button" class="btn btn-danger" x-on:click="exportData('pdf')">
                         <i class="fa fa-file-pdf"></i> PDF
                     </button>
-                </template>
+                </template> *@
 
 
 
@@ -370,7 +370,7 @@
 
 
 
-                        <template x-if="!modal.loading && !modal.error && modal.html">
+                        <template x-if="!modal.lloading && !modal.error && modal.html">
                             <div x-html="modal.html"></div>
                         </template>
 

@@ -636,6 +636,9 @@ body, h1, h2, h3, h4, h5, h6, input, textarea, select, button {
   .top-1 {
     top: calc(var(--spacing) * 1);
   }
+  .top-1\/2 {
+    top: calc(1/2 * 100%);
+  }
   .top-2 {
     top: calc(var(--spacing) * 2);
   }
@@ -728,6 +731,9 @@ body, h1, h2, h3, h4, h5, h6, input, textarea, select, button {
   }
   .left-1 {
     left: calc(var(--spacing) * 1);
+  }
+  .left-1\/2 {
+    left: calc(1/2 * 100%);
   }
   .left-5 {
     left: calc(var(--spacing) * 5);
@@ -1405,6 +1411,10 @@ body, h1, h2, h3, h4, h5, h6, input, textarea, select, button {
     --tw-translate-x: calc(var(--spacing) * -1);
     translate: var(--tw-translate-x) var(--tw-translate-y);
   }
+  .-translate-x-1\/2 {
+    --tw-translate-x: calc(calc(1/2 * 100%) * -1);
+    translate: var(--tw-translate-x) var(--tw-translate-y);
+  }
   .-translate-x-full {
     --tw-translate-x: -100%;
     translate: var(--tw-translate-x) var(--tw-translate-y);
@@ -1423,6 +1433,10 @@ body, h1, h2, h3, h4, h5, h6, input, textarea, select, button {
   }
   .-translate-y-1 {
     --tw-translate-y: calc(var(--spacing) * -1);
+    translate: var(--tw-translate-x) var(--tw-translate-y);
+  }
+  .-translate-y-1\/2 {
+    --tw-translate-y: calc(calc(1/2 * 100%) * -1);
     translate: var(--tw-translate-x) var(--tw-translate-y);
   }
   .-translate-y-3 {
@@ -1624,6 +1638,13 @@ body, h1, h2, h3, h4, h5, h6, input, textarea, select, button {
       --tw-space-y-reverse: 0;
       margin-block-start: calc(calc(var(--spacing) * 2) * var(--tw-space-y-reverse));
       margin-block-end: calc(calc(var(--spacing) * 2) * calc(1 - var(--tw-space-y-reverse)));
+    }
+  }
+  .space-y-3 {
+    :where(& > :not(:last-child)) {
+      --tw-space-y-reverse: 0;
+      margin-block-start: calc(calc(var(--spacing) * 3) * var(--tw-space-y-reverse));
+      margin-block-end: calc(calc(var(--spacing) * 3) * calc(1 - var(--tw-space-y-reverse)));
     }
   }
   .gap-x-4 {
@@ -2311,6 +2332,9 @@ body, h1, h2, h3, h4, h5, h6, input, textarea, select, button {
   }
   .bg-red-900 {
     background-color: var(--color-red-900);
+  }
+  .bg-sky-50 {
+    background-color: var(--color-sky-50);
   }
   .bg-sky-100 {
     background-color: var(--color-sky-100);
@@ -3184,6 +3208,9 @@ body, h1, h2, h3, h4, h5, h6, input, textarea, select, button {
   .text-emerald-300 {
     color: var(--color-emerald-300);
   }
+  .text-emerald-600 {
+    color: var(--color-emerald-600);
+  }
   .text-emerald-900 {
     color: var(--color-emerald-900);
   }
@@ -3446,6 +3473,9 @@ body, h1, h2, h3, h4, h5, h6, input, textarea, select, button {
   }
   .opacity-20 {
     opacity: 20%;
+  }
+  .opacity-60 {
+    opacity: 60%;
   }
   .opacity-100 {
     opacity: 100%;
@@ -4297,11 +4327,6 @@ body, h1, h2, h3, h4, h5, h6, input, textarea, select, button {
     @media (width >= 64rem) {
       --tw-translate-x: calc(var(--spacing) * 0);
       translate: var(--tw-translate-x) var(--tw-translate-y);
-    }
-  }
-  .lg\:grid-cols-2 {
-    @media (width >= 64rem) {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
     }
   }
   .lg\:overflow-hidden {
@@ -13928,6 +13953,7 @@ input[readonly], textarea[readonly] {
   text-align: center;
   opacity: .85;
   flex: 0 0 18px;
+  color: #6b7280;
 }
 .toolbar-actions .relative > div.absolute > button:disabled {
   opacity: .5;
@@ -14345,6 +14371,32 @@ input[readonly], textarea[readonly] {
   font-size: 0.875rem;
   font-weight: 600;
   color: #4b5563;
+}
+.sf-modal .sf-field-wrap {
+  position: relative;
+}
+.sf-modal .sf-input-icon {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #9ca3af;
+  pointer-events: none;
+}
+.sf-modal .sf-input-icon.sf-icon-right {
+  right: 10px;
+}
+.sf-modal .sf-input-icon.sf-icon-left {
+  left: 10px;
+}
+.sf-modal .sf-modal-input.sf-has-icon.sf-icon-right {
+  padding-right: 2rem !important;
+}
+.sf-modal .sf-modal-input.sf-has-icon.sf-icon-left {
+  padding-left: 2rem !important;
+}
+.sf-modal textarea.sf-modal-input ~ .sf-input-icon {
+  top: 14px;
+  transform: none;
 }
 .sf-modal input[readonly], .sf-modal input:disabled, .sf-modal textarea[readonly], .sf-modal textarea:disabled, .sf-modal select[readonly], .sf-modal select:disabled,  .sf-modal .input[readonly], .sf-modal .input:disabled, .sf-modal .sf-modal-input[readonly], .sf-modal .sf-modal-input:disabled, .sf-modal .sf-textarea[readonly], .sf-modal .sf-textarea:disabled, .sf-modal .sf-date[readonly], .sf-modal .sf-date:disabled,  .sf-modal .sf-select[aria-disabled="true"], .sf-modal .sf-select[disabled] {
   background-color: #f3f4f6;
@@ -15072,6 +15124,17 @@ body.sf-navigating .select2-dropdown, body.sf-navigating .sf-select-panel {
 .select2-container--default .select2-results__option--highlighted.select2-results__option--selectable, .sf-form .select2-container--default .select2-results__option--highlighted.select2-results__option--selectable, .sf-modal .select2-container--default .select2-results__option--highlighted.select2-results__option--selectable {
   background-color: #047857 !important;
   color: #fff !important;
+}
+.td-loading {
+  height: 100%;
+  min-height: 150px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-size: 16px;
+  font-weight: 500;
+  color: #333;
 }
 @property --tw-translate-x {
   syntax: "*";

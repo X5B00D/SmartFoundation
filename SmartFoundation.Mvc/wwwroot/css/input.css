@@ -244,6 +244,7 @@ input, textarea, select, button {
     }
 }
 
+
 /* =========================
    Buttons Table
    ========================= */
@@ -903,6 +904,7 @@ textarea[readonly] {
                         text-align: center;
                         opacity: .85;
                         flex: 0 0 18px;
+                        color: #6b7280;
                     }
 
                     /* Disabled */
@@ -1387,6 +1389,45 @@ textarea[readonly] {
             font-weight: 600;
             color: #4b5563; /* gray-600 بدل الأسود */
         }
+
+
+/* ===== SF Modal Icon Fix ===== */
+.sf-modal .sf-field-wrap {
+    position: relative;
+}
+
+.sf-modal .sf-input-icon {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #9ca3af;
+    pointer-events: none;
+}
+
+    /* مكان الأيقونة */
+    .sf-modal .sf-input-icon.sf-icon-right {
+        right: 10px;
+    }
+
+    .sf-modal .sf-input-icon.sf-icon-left {
+        left: 10px;
+    }
+
+/* ✅ أهم شي: padding للحقل لما فيه أيقونة */
+.sf-modal .sf-modal-input.sf-has-icon.sf-icon-right {
+    padding-right: 2rem !important;
+}
+
+.sf-modal .sf-modal-input.sf-has-icon.sf-icon-left {
+    padding-left: 2rem !important;
+}
+
+/* textarea: خلي الأيقونة فوق شوي */
+.sf-modal textarea.sf-modal-input ~ .sf-input-icon {
+    top: 14px;
+    transform: none;
+}
+
         /* =========================
    Readonly / Disabled fields (Modal)
    ========================= */

@@ -141,14 +141,11 @@ namespace SmartFoundation.UI.ViewModels.SmartTable
         public Dictionary<string, object> CustomProperties { get; set; } = new();
     }
 
-
-
     public enum TableActionPlacement
     {
         Button,       // زر مباشر في التولبار (الافتراضي)
         ActionsMenu   // داخل قائمة "الإجراءات"
     }
-
 
     public class TableAction
     {

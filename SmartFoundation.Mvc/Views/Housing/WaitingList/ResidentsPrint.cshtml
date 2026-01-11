@@ -1,7 +1,7 @@
 ﻿@* SmartFoundation\SmartFoundation.Mvc\Views\Housing\WaitingList\ResidentsPrint.cshtml
  *@
  @*هذي الصفحة ثابتة لكل اكشنات الطباعة كل اكشن طباعة جديد داخل أي كنترول لازم نسوي له فيو نسخ لصق مع السكربت*@
-
+@* 
 @model SmartFoundation.UI.ViewModels.SmartPage.SmartPageViewModel
 @{
     Layout = "_PrintLayout";
@@ -14,7 +14,7 @@
 }
 
 @* تفعيل الطباعة التلقائية عند تحميل الصفحة داخل iframe *@
-<script>
+@* <script>
     (function() {
         
         const isInIframe = window.self !== window.top;
@@ -52,4 +52,4 @@
             autoPrint();
         }
     })();
-</script>
+</script>  *@

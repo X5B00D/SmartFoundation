@@ -138,9 +138,9 @@ namespace SmartFoundation.Mvc.Controllers.Housing
             {
                 new FieldConfig { Name = rowIdField, Type = "hidden" },
 
-                new FieldConfig { Name = "p01", Label = "رمز نوع المباني", Type ="text", ColCss ="3", },
-                new FieldConfig { Name = "p02", Label = "اسم نوع المباني بالعربي", Type = "text", Required = true,Placeholder = "حقل عربي فقط",Icon = "fa-solid fa-user",ColCss = "3",MaxLength = 50,TextMode = "arabic",},
-                new FieldConfig { Name = "p03", Label = "اسم نوع المباني بالانجليزي", Type = "text", ColCss = "3" , Required = true, TextMode = "english"},
+                new FieldConfig { Name = "p01", Label = "رمز نوع المباني", Type ="text", ColCss ="3",Icon = "fa fa-building" },
+                new FieldConfig { Name = "p02", Label = "اسم نوع المباني بالعربي", Type = "text", Required = true,Placeholder = "حقل عربي فقط",Icon = "fa fa-home",ColCss = "3",MaxLength = 50,TextMode = "arabic",},
+                new FieldConfig { Name = "p03", Label = "اسم نوع المباني بالانجليزي", Type = "text", ColCss = "3" , Required = true,Icon = "fa fa-home", TextMode = "english",Placeholder = "حقل انجليزي فقط"},
                 new FieldConfig { Name = "p04", Label = "ملاحظات", Type = "textarea", ColCss = "6", Required = false }
             };
 
@@ -168,9 +168,9 @@ namespace SmartFoundation.Mvc.Controllers.Housing
                 new FieldConfig { Name = rowIdField,            Type = "hidden" },
 
                 new FieldConfig { Name = "p01", Label = "الرقم المرجعي",Type ="hidden", Readonly = true, ColCss = "3" },
-                new FieldConfig { Name = "p02", Label = "رمز نوع المباني",Type ="text", Required = true,  ColCss = "3" },
-                new FieldConfig { Name = "p03", Label = "اسم نوع المباني بالعربي", Type ="text",ColCss = "3", Required = true, TextMode = "arabic" },
-                new FieldConfig { Name = "p04", Label = "اسم نوع المباني بالانجليزي", Type ="text", Required = true, ColCss = "3",TextMode = "english" },
+                new FieldConfig { Name = "p02", Label = "رمز نوع المباني",Type ="text", Required = true,  ColCss = "3",Icon = "fa fa-building" },
+                new FieldConfig { Name = "p03", Label = "اسم نوع المباني بالعربي", Type ="text",ColCss = "3", Required = true, TextMode = "arabic",Icon = "fa fa-home" },
+                new FieldConfig { Name = "p04", Label = "اسم نوع المباني بالانجليزي", Type ="text", Required = true, ColCss = "3",TextMode = "english",Icon = "fa fa-home" },
                 new FieldConfig { Name = "p05", Label = "ملاحظات",Type ="textarea",ColCss = "6" }
             };
 
@@ -270,7 +270,7 @@ namespace SmartFoundation.Mvc.Controllers.Housing
                         OpenModal = true,
                         ModalTitle = "<i class='fa fa-exclamation-triangle text-red-600 text-xl mr-2'></i> تحذير",
                         ModalMessage = "هل أنت متأكد من حذف هذا نوع المباني؟",
-                        ModalMessageClass = "bg-red-50 border border-red-200 text-red-700",
+                        ModalMessageClass = "bg-red-50 text-red-700",
                         OpenForm = new FormConfig
                         {
                             FormId = "BuildingTypeDeleteForm",
