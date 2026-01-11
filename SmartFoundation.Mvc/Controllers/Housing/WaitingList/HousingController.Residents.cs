@@ -653,11 +653,11 @@ namespace SmartFoundation.Mvc.Controllers.Housing
             if (pdf == 1)
             {
                 //var printTable = dt1;
-                int start1Based = 1; // يبدأ من الصف 200
-                int count = 100;       // يطبع 50 سجل
+                //int start1Based = 1; // يبدأ من الصف 200
+                //int count = 100;       // يطبع 50 سجل
 
-                int startIndex = start1Based - 1;
-                int endIndex = Math.Min(dt1.Rows.Count, startIndex + dt1.Rows.Count);
+                //int startIndex = start1Based - 1;
+                //int endIndex = Math.Min(dt1.Rows.Count, startIndex + dt1.Rows.Count);
 
                 // جدول خفيف للطباعة
                 var printTable = new DataTable();
@@ -673,9 +673,10 @@ namespace SmartFoundation.Mvc.Controllers.Housing
                 printTable.Columns.Add("birthdate", typeof(string));
                 printTable.Columns.Add("residentcontactDetails", typeof(string));
 
-                for (int i = startIndex; i < endIndex; i++)
+                //for (int i = startIndex; i < endIndex; i++)
+                foreach (DataRow r in dt1.Rows)
                 {
-                    var r = dt1.Rows[i];
+                    //var r = dt1.Rows[i];
 
                     printTable.Rows.Add(
                         r["NationalID"],
@@ -744,7 +745,8 @@ namespace SmartFoundation.Mvc.Controllers.Housing
                    footerFields: new Dictionary<string, string>
                    {
                        ["تمت الطباعة بواسطة"] = FullName,
-                       ["ملاحظة"] = " هذا التقرير للاستخدام الرسمي"
+                       ["ملاحظة"] = " هذا التقرير للاستخدام الرسمي",
+                       ["عدد السجلات"] = dt1.Rows.Count.ToString()
                    },
 
                     orientation: ReportOrientation.Landscape,
