@@ -75,7 +75,7 @@ input, textarea, select, button {
    ========================= */
 @layer components {
     .form-container {
-        @apply w-full rounded-lg border border-gray-400 bg-gray-100 p-4 shadow md:p-8;
+        @apply w-full rounded-sm border border-gray-400 bg-gray-100 p-4 shadow md:p-8;
     }
 
     .form-header {
@@ -123,7 +123,7 @@ input, textarea, select, button {
     }
 
     .input {
-        @apply placeholder-gray-500 block h-10 w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-base leading-relaxed text-gray-800 transition-colors duration-200 read-only:cursor-not-allowed read-only:bg-gray-100 read-only:text-gray-500 focus:border-emerald-600 focus:ring-2 focus:ring-emerald-500 focus:outline-none disabled:cursor-not-allowed disabled:bg-gray-100 disabled:text-gray-500;
+        @apply placeholder-gray-500 block h-10 w-full rounded-sm border border-gray-300 bg-white px-3 py-2 text-base leading-relaxed text-gray-800 transition-colors duration-200 read-only:cursor-not-allowed read-only:bg-gray-100 read-only:text-gray-500 focus:border-emerald-600 focus:ring-2 focus:ring-emerald-500 focus:outline-none disabled:cursor-not-allowed disabled:bg-gray-100 disabled:text-gray-500;
         font-family: "Tajawal", ui-sans-serif, system-ui, sans-serif;
     }
 
@@ -143,7 +143,7 @@ input, textarea, select, button {
 
         .section-title::before {
             content: "";
-            @apply absolute top-0 left-0 h-full w-1 rounded-l-md bg-emerald-500;
+            @apply absolute top-0 left-0 h-full w-1 rounded-sm bg-emerald-500;
         }
 
     .section-box {
@@ -159,11 +159,11 @@ input, textarea, select, button {
     }
 
     .sf-input {
-        @apply w-full rounded-md border border-gray-300 bg-gray-50 text-sm text-gray-900 focus:border-emerald-500 focus:ring-emerald-500;
+        @apply w-full rounded-sm border border-gray-300 bg-gray-50 text-sm text-gray-900 focus:border-emerald-500 focus:ring-emerald-500;
     }
 
     .sf-textarea {
-        @apply min-h-[100px] w-full rounded-md border border-gray-300 bg-gray-50 text-sm text-gray-900 focus:border-emerald-600 focus:ring-emerald-500;
+        @apply min-h-[100px] w-full rounded-sm border border-gray-300 bg-gray-50 text-sm text-gray-900 focus:border-emerald-600 focus:ring-emerald-500;
     }
 
     .sf-select {
@@ -197,28 +197,28 @@ input, textarea, select, button {
         }
 
     .sf-date {
-        @apply block w-full rounded-lg border border-gray-300 bg-white text-base text-gray-900 shadow-sm transition-colors duration-150 focus:border-emerald-600 focus:outline-none disabled:bg-gray-100 disabled:text-gray-500;
+        @apply block w-full rounded-sm border border-gray-300 bg-white text-base text-gray-900 shadow-sm transition-colors duration-150 focus:border-emerald-600 focus:outline-none disabled:bg-gray-100 disabled:text-gray-500;
         font-family: "Tajawal", sans-serif;
         direction: ltr;
         text-align: right;
     }
 
     .date-info-box {
-        @apply space-y-1 rounded-md border border-emerald-100 bg-emerald-100 p-2 text-sm text-gray-700 shadow-sm;
+        @apply space-y-1 rounded-sm border border-emerald-100 bg-emerald-100 p-2 text-sm text-gray-700 shadow-sm;
     }
 
     .days-counter-box {
-        @apply mt-2 inline-flex items-center gap-2 rounded-md border border-emerald-100 bg-emerald-100 px-3 py-2 text-sm text-gray-700;
+        @apply mt-2 inline-flex items-center gap-2 rounded-sm border border-emerald-100 bg-emerald-100 px-3 py-2 text-sm text-gray-700;
     }
 
     .sf-file {
-        @apply block w-full rounded-lg border border-gray-300 bg-white text-base text-gray-900 shadow-sm transition-colors duration-150 focus:border-emerald-600 focus:outline-none disabled:cursor-not-allowed disabled:opacity-60;
+        @apply block w-full rounded-sm border border-gray-300 bg-white text-base text-gray-900 shadow-sm transition-colors duration-150 focus:border-emerald-600 focus:outline-none disabled:cursor-not-allowed disabled:opacity-60;
         font-family: "Tajawal", sans-serif;
         padding: 0;
     }
 
         .sf-file::file-selector-button {
-            @apply cursor-pointer rounded-md border-0 bg-emerald-600 px-4 py-2 text-sm font-medium text-white transition-colors duration-150 hover:bg-emerald-700;
+            @apply cursor-pointer rounded-sm border-0 bg-emerald-600 px-4 py-2 text-sm font-medium text-white transition-colors duration-150 hover:bg-emerald-700;
             margin-inline-start: auto;
         }
 
@@ -228,7 +228,7 @@ input, textarea, select, button {
         }
 
     .sf-checkbox {
-        @apply h-4 w-4 cursor-pointer appearance-none rounded-none border border-gray-300 bg-white text-emerald-700 shadow-sm checked:border-emerald-700 checked:bg-emerald-700 focus:border-emerald-700 focus:ring-2 focus:ring-emerald-700 disabled:cursor-not-allowed disabled:border-gray-200 disabled:bg-gray-100;
+        @apply h-4 w-4 cursor-pointer appearance-none rounded-sm border border-gray-300 bg-white text-emerald-700 shadow-sm checked:border-emerald-700 checked:bg-emerald-700 focus:border-emerald-700 focus:ring-2 focus:ring-emerald-700 disabled:cursor-not-allowed disabled:border-gray-200 disabled:bg-gray-100;
         margin-top: 5px;
     }
 
@@ -260,13 +260,34 @@ input, textarea, select, button {
     @apply bg-blue-600 text-white hover:bg-blue-700 focus:ring-blue-400;
 }
 
-.btn-secondary {
+/*.btn-secondary {
     @apply bg-gray-300 text-gray-800 hover:bg-gray-400 focus:ring-gray-500;
+}*/
+.btn-secondary {
+    @apply rounded-sm bg-gray-300 px-5 py-2.5
+           text-sm leading-tight font-medium
+           tracking-normal text-gray-800
+           shadow-none transition-colors
+           duration-150 ease-in-out
+           hover:bg-gray-400 hover:shadow
+           focus:ring-1 focus:ring-gray-500 focus:ring-offset-1 focus:outline-none;
 }
 
-.btn-success {
+
+/*.btn-success {
     @apply bg-emerald-700 text-white hover:bg-emerald-800 focus:ring-emerald-600;
+}*/
+.btn-success {
+    @apply rounded-sm bg-emerald-700 px-5 py-2.5
+           text-sm leading-tight
+           font-medium tracking-normal text-white
+           shadow-sm transition-colors
+           duration-150 ease-in-out
+           hover:bg-emerald-800 hover:shadow
+           focus:ring-1 focus:ring-emerald-600 focus:ring-offset-1 focus:outline-none;
 }
+
+
 
 .btn-danger {
     @apply bg-red-700 text-white hover:bg-red-800 focus:ring-red-400;
@@ -291,163 +312,131 @@ textarea[readonly] {
 
 
 
+
+
+
+
+
+
 /* =========================
-   Table
+   Table Wrapper
    ========================= */
-
-
 .sf-table-wrapper {
-    @apply mx-auto w-full max-w-7xl;
-    @apply rounded-md border border-gray-300 bg-gray-50;
-    @apply shadow-sm;
-    @apply p-3;
+    @apply mx-auto w-full max-w-7xl rounded-sm border border-gray-200 bg-white p-4;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.03);
 }
 
-/* Table container */
+/* =========================
+   Table Container
+   ========================= */
 .table-box {
-    @apply relative w-full overflow-x-auto;
-    @apply rounded-sm border border-gray-300 bg-white;
+    @apply relative w-full overflow-x-auto rounded-sm border border-gray-200 bg-white;
 }
 
-    /* Scrollbar (هادئ) */
+    /* Scrollbar */
     .table-box::-webkit-scrollbar {
-        height: 10px;
+        height: 8px;
     }
 
     .table-box::-webkit-scrollbar-track {
-        @apply bg-gray-100;
+        background: #f9fafb;
     }
 
     .table-box::-webkit-scrollbar-thumb {
-        @apply rounded bg-gray-300;
+        background: #d1d5db;
+        border-radius: 4px;
     }
 
         .table-box::-webkit-scrollbar-thumb:hover {
-            @apply bg-gray-400;
+            background: #9ca3af;
         }
 
-/* Table */
+/* =========================
+   Table
+   ========================= */
 .sf-table {
-    @apply w-full;
-    @apply border-collapse;
+    @apply w-full border-collapse;
 }
-
 
 /* =========================
-   Table Head (Formal / Government UI)
+   Table Head
    ========================= */
 .table-head {
-    @apply sticky top-0 z-20;
-    @apply bg-gray-100; 
-    @apply border-b-1 border-gray-900; 
-    box-shadow: inset 0 -1px 0 rgba(0,0,0,0.06), 
-    0 2px 6px rgba(0,0,0,0.05);
-}
-    .table-head::before {
-        content: "";
-        position: absolute;
-        inset: 0;
-        pointer-events: none;
-        /* لمعان داخلي خفيف جدًا */
-        background: linear-gradient( to bottom, rgba(255,255,255,0.35), rgba(255,255,255,0.0) );
-    }
-
-/* فصل بصري أدق بين الرأس والمحتوى */
-.sf-table tbody {
-    border-top: 1px solid rgba(0,0,0,0.04);
+    @apply sticky top-0 z-10 border-b border-gray-300 bg-gray-50;
+    box-shadow: 0 1px 0 rgba(0, 0, 0, 0.05);
 }
 
-
-
-/* TH */
+/* =========================
+   Head Cell
+   ========================= */
 .th-cell {
-    @apply px-4 py-3 text-center align-middle;
-    @apply text-sm font-semibold text-gray-800;
-    @apply whitespace-nowrap;
-    @apply border-b border-gray-300;
+    @apply border-b border-gray-200 bg-gray-50 px-4 py-3 text-center text-sm font-semibold whitespace-nowrap text-gray-700;
 }
 
-/* TD */
+/* =========================
+   Body Cell
+   ========================= */
 .td-cell {
-    @apply px-4 py-2.5 text-center align-middle;
-    @apply text-sm font-medium text-gray-700;
-    @apply whitespace-nowrap;
-    @apply border-b border-gray-200;
+    @apply border-b border-gray-100 px-4 py-2.5 text-center text-sm font-normal whitespace-nowrap text-gray-800;
+    line-height: 1.6;
     -webkit-font-smoothing: antialiased;
-    text-rendering: optimizeLegibility;
-    /* تحسين القراءة  */
-    line-height: 1.55;
 }
 
-/* Rows */
+/* =========================
+   Rows
+   ========================= */
 .tr-row {
-    @apply bg-white;
-    transition: background-color 120ms ease, box-shadow 120ms ease, transform 80ms ease;
-    will-change: background-color, box-shadow, transform;
+    @apply bg-white transition-colors duration-100 ease-in-out;
 }
 
-
-
-
-    /* Zebra خفيف */
     .tr-row:nth-child(even) {
         @apply bg-gray-50;
     }
 
-    /*  المؤشر على خلايا الصف ثابت */
     .tr-row > td:first-child {
-        border-right: 4px solid transparent; /* بداية الصف في RTL */
+        border-right: 4px solid transparent;
     }
-
-
-/* ===== Row indicator (RTL) — stable, no side effects وخط ===== */
-
-.sf-table .tr-row > td.td-cell:first-child {
-    border-right: 4px solid transparent;
-    box-sizing: border-box;
-}
-
-.sf-table .tr-row > td.td-cell:not(:first-child) {
-    border-right: 0 !important;
-    border-left: 0 !important;
-}
 
 /* Hover */
-.sf-table .tr-row:hover > td.td-cell:first-child {
-    border-right-color: rgba(5,150,105,.55);
+.sf-table .tr-row:hover {
+    background-color: #ecfdf5;
 }
+
+    .sf-table .tr-row:hover > td:first-child {
+        border-right-color: rgba(5,150,105,0.5);
+    }
 
 /* Selected */
-.sf-table .tr-row.tr-row-selected > td.td-cell:first-child {
-    border-right-color: rgba(5,150,105,.75);
+.sf-table .tr-row.tr-row-selected {
+    background-color: rgba(5,150,105,0.08) !important;
 }
 
-/* خلفية التحديد */
-.sf-table .tr-row.tr-row-selected {
-    background-color: rgba(5,150,105,.10) !important;
-}
+    .sf-table .tr-row.tr-row-selected > td:first-child {
+        border-right-color: rgba(5,150,105,0.7);
+    }
 
 /* Active */
-.sf-table .tr-row:active > td {
-    filter: brightness(0.97);
+.sf-table .tr-row:active {
+    filter: brightness(0.98);
 }
 
+/* Focus */
+.tr-row:focus-within {
+    outline: none;
+    box-shadow: inset 4px 0 0 rgba(5,150,105,0.55), inset -4px 0 0 rgba(5,150,105,0.55);
+}
 
+.tr-row.tr-row-selected:focus-within {
+    box-shadow: inset 4px 0 0 rgba(5,150,105,0.75), inset -4px 0 0 rgba(5,150,105,0.75);
+}
 
+/* Active Row */
+.tr-row.tr-row-active {
+    outline: 2px solid rgba(5,150,105,0.35);
+    outline-offset: -2px;
+}
 
-
-    /* Focus للكيبورد (مفيد جدًا للتنقل) */
-    /* اشتغل حتى لو ما عندك tabindex على tr بشرط يكون داخل الصف عنصر عليه focus */
-    .tr-row:focus-within {
-        outline: none;
-        box-shadow: inset 4px 0 0 0 rgba(5, 150, 105, 0.55), inset -4px 0 0 0 rgba(5, 150, 105, 0.55), 0 0 0 2px rgba(16, 185, 129, 0.18);
-    }
-
-    
-    .tr-row.tr-row-selected:focus-within {
-        box-shadow: inset 4px 0 0 0 rgba(5, 150, 105, 0.70), inset -4px 0 0 0 rgba(5, 150, 105, 0.70), 0 0 0 2px rgba(16, 185, 129, 0.22);
-    }
-
+/* Truncate */
 .td-cell.truncate-cell {
     max-width: 260px;
     overflow: hidden;
@@ -456,39 +445,13 @@ textarea[readonly] {
 }
 
     .td-cell.truncate-cell > * {
-        display: inline-block; /* بدل block */
+        display: inline-block;
         max-width: 100%;
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
         vertical-align: top;
     }
-
-
-
-
-/* الصف النشط من الكيبورد (غير التحديد) */
-.tr-row.tr-row-active {
-    outline: 2px solid rgba(5, 150, 105, 0.35);
-    outline-offset: -2px;
-}
-
-
-/* Respect reduced motion */
-@media (prefers-reduced-motion: reduce) {
-    .tr-row {
-        transition: none;
-    }
-
-        .tr-row:active {
-            transform: none;
-        }
-}
-
-/* آخر صف بدون حد سفلي زائد */
-.sf-table tbody .tr-row:last-child .td-cell {
-    @apply border-b-0;
-}
 
 /* Density */
 .sf-table[data-density="compact"] .th-cell {
@@ -507,19 +470,80 @@ textarea[readonly] {
     @apply py-4;
 }
 
-
+/* Last Row No Bottom Border */
+.sf-table tbody .tr-row:last-child .td-cell {
+    @apply border-b-0;
+}
 
 /* =========================
-   الوان الصفوف والخلايا في خاصية TableStyleRule 
+   Color Variants
    ========================= */
+.td-cell.cell-green {
+    background-color: #d1fae5 !important;
+    color: #065f46 !important;
+}
 
-/* =========================
-   Column Colors 
-   ========================= */
+.td-cell.cell-blue {
+    background-color: #dbeafe !important;
+    color: #1e3a8a !important;
+}
 
+.td-cell.cell-purple {
+    background-color: #e9d5ff !important;
+    color: #6b21a8 !important;
+}
 
+.td-cell.cell-yellow {
+    background-color: #fef08a !important;
+    color: #78350f !important;
+}
 
-/* ===== Column colors (override row colors) ===== */
+.td-cell.cell-orange {
+    background-color: #fed7aa !important;
+    color: #7c2d12 !important;
+}
+
+.td-cell.cell-red {
+    background-color: #fecaca !important;
+    color: #7f1d1d !important;
+}
+
+.tr-row.row-green > td {
+    background-color: #d1fae5 !important;
+}
+
+.tr-row.row-blue > td {
+    background-color: #dbeafe !important;
+}
+
+.tr-row.row-purple > td {
+    background-color: #ede9fe !important;
+}
+
+.tr-row.row-red > td {
+    background-color: #fecaca !important;
+}
+
+.tr-row.row-yellow > td {
+    background-color: #fef08a !important;
+}
+
+.tr-row.row-orange > td {
+    background-color: #fed7aa !important;
+}
+
+.tr-row.row-cyan > td {
+    background-color: #cffafe !important;
+}
+
+.tr-row.row-gray > td {
+    background-color: #f3f4f6 !important;
+}
+
+.tr-row.row-pink > td {
+    background-color: #fbcfe8 !important;
+}
+
 .tr-row > .td-cell.col-green {
     background-color: #dcfce7 !important;
 }
@@ -552,101 +576,25 @@ textarea[readonly] {
     background-color: #fce7f3 !important;
 }
 
+/* Accessibility */
+@media (prefers-reduced-motion: reduce) {
+    .tr-row {
+        transition: none;
+    }
 
-/* =========================
-   row Colors 
-   ========================= */
-
-/* أخضر  */
-.tr-row.row-green > td {
-    background-color: #d1fae5 !important; /* green-100 → أقرب لـ 200 */
-}
-
-/* أزرق  */
-.tr-row.row-blue > td {
-    background-color: #dbeafe !important; /* blue-100 → 200 */
-}
-
-/* بنفسجي  */
-.tr-row.row-purple > td {
-    background-color: #ede9fe !important; /* violet-100 → 200 */
-}
-
-/* أحمر  */
-.tr-row.row-red > td {
-    background-color: #fecaca !important; /* red-100 → 200 */
-}
-
-/* أصفر */
-.tr-row.row-yellow > td {
-    background-color: #fef08a !important;
-}
-
-/* برتقالي */
-.tr-row.row-orange > td {
-    background-color: #fed7aa !important;
-}
-
-/* سماوي */
-.tr-row.row-cyan > td {
-    background-color: #cffafe !important;
-}
-
-/* رمادي */
-.tr-row.row-gray > td {
-    background-color: #e5e7eb !important;
-}
-
-/* وردي */
-.tr-row.row-pink > td {
-    background-color: #fbcfe8 !important;
+        .tr-row:active {
+            transform: none;
+        }
 }
 
 
-/* =========================
-   cell Colors 
-   ========================= */
-/* أخضر (نجاح / طبيعي) */
-.td-cell.cell-green {
-    background-color: #bbf7d0 !important; /* أغمق شوي */
-    color: #14532d !important;
-    
-}
 
-/* أزرق (معلومة) */
-.td-cell.cell-blue {
-    background-color: #dbeafe !important;
-    color: #1e3a8a !important;
-    
-}
 
-/* بنفسجي (حالة خاصة) */
-.td-cell.cell-purple {
-    background-color: #e9d5ff !important;
-    color: #581c87 !important;
-    
-}
 
-/* أصفر (تنبيه) */
-.td-cell.cell-yellow {
-    background-color: #fde68a !important;
-    color: #78350f !important;
-    
-}
 
-/* برتقالي (مراجعة) */
-.td-cell.cell-orange {
-    background-color: #fed7aa !important;
-    color: #7c2d12 !important;
-    
-}
 
-/* أحمر (تحذير / غير مطابق) */
-.td-cell.cell-red {
-    background-color: #fecaca !important;
-    color: #7f1d1d !important;
-    
-}
+
+
 
 
 
@@ -691,89 +639,91 @@ textarea[readonly] {
    ========================= */
 .toolbar {
     @apply mb-3 flex flex-col gap-3 md:flex-row md:items-center md:justify-between;
-    @apply relative; /* مهم للـ ::before */
-    @apply rounded-sm border border-gray-300;
-    @apply bg-gray-50; /* نفس table-head */
+    @apply relative;
+    @apply rounded-sm border border-gray-200;
+    @apply bg-gray-50;
     @apply px-3 py-3;
-    box-shadow: inset 0 -1px 0 rgba(0,0,0,0.06), 0 2px 6px rgba(0,0,0,0.05); /* نفس الظل */
+    box-shadow: inset 0 -1px 0 rgba(0, 0, 0, 0.04), 0 1px 2px rgba(0, 0, 0, 0.04);
 }
 
-    /* لمعان داخلي مثل table-head::before */
     .toolbar::before {
         content: "";
         position: absolute;
         inset: 0;
         pointer-events: none;
-        background: linear-gradient( to bottom, rgba(255,255,255,0.35), rgba(255,255,255,0.0) );
+        background: linear-gradient(to bottom, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0));
     }
 
 
+/* =========================
+   Shared Input Styling
+   ========================= */
 .search-input,
 .select-sm {
     @apply border-gray-300 bg-white;
-    @apply focus:border-emerald-600 focus:ring-0 focus:outline-none;
+    @apply focus:border-emerald-600 focus:ring-1 focus:ring-emerald-100 focus:outline-none;
 }
 
-
-
+/* Select Field */
 .select-sm {
     @apply h-10 w-20;
-    @apply rounded-md border border-gray-300 bg-white px-2;
+    @apply rounded-sm border border-gray-300 bg-white px-2;
     @apply text-sm text-gray-700;
     @apply transition duration-100;
     @apply focus:border-emerald-600 focus:ring-1 focus:ring-emerald-100 focus:outline-none;
 }
 
-
-
-
 /* =========================
-   Actions (Classic buttons) + Actions Dropdown + Tooltip (FINAL FIX)
+   Actions (Classic buttons) + Dropdown + Tooltip
    ========================= */
-
-/* ========== الأساسيات (كما هي) ========== */
 .actions-list {
     @apply flex flex-wrap items-center justify-start gap-2;
 }
 
+/* Search Section */
 .toolbar-search {
     @apply flex w-full items-center gap-2 md:w-auto;
 }
 
 .search-input {
     @apply h-9 w-full md:w-72;
-    @apply rounded-md border border-gray-300 bg-white;
+    @apply rounded-sm border border-gray-300 bg-white;
     @apply px-3 text-sm text-gray-700 placeholder:text-gray-400;
     @apply transition duration-150;
-    @apply focus:border-emerald-700 focus:ring-0 focus:ring-emerald-700 focus:outline-none;
+    @apply focus:border-emerald-700 focus:ring-1 focus:ring-emerald-100 focus:outline-none;
 }
 
+/* Buttons */
 .actions-list .btn {
     @apply inline-flex h-9 items-center justify-center gap-2;
-    @apply rounded-md border px-3;
+    @apply rounded-sm border px-3;
     @apply text-sm font-semibold;
     @apply transition duration-100;
     @apply focus:ring-2 focus:outline-none;
 }
 
+/* Edit Button */
 .actions-list .btn-edit {
     @apply border-sky-300 bg-sky-100 text-sky-800;
     @apply hover:bg-sky-200;
     @apply focus:ring-sky-200;
 }
 
+/* Delete Button */
 .actions-list .btn-delete {
     @apply border-red-300 bg-red-100 text-red-800;
     @apply hover:bg-red-200;
     @apply focus:ring-red-200;
 }
 
+/* View Button */
 .actions-list .btn-view {
     @apply border-emerald-300 bg-emerald-100 text-emerald-900;
     @apply hover:bg-emerald-200;
     @apply focus:ring-emerald-200;
 }
 
+/* Select Input (Fixed duplicate) */
 .select-sm {
     @apply h-9 w-20;
     @apply rounded-sm border border-gray-300 bg-white px-2;
@@ -782,15 +732,16 @@ textarea[readonly] {
     @apply focus:border-emerald-600 focus:ring-1 focus:ring-emerald-700 focus:outline-none;
 }
 
+/* Group Alignment */
 .toolbar .actions-list,
 .toolbar .toolbar-actions {
     @apply flex flex-wrap items-center gap-2;
 }
 
+/* Dropdown Anchor */
 .toolbar-actions {
     position: relative;
 }
-
 
 
 
@@ -858,7 +809,7 @@ textarea[readonly] {
                 left: 0 !important;
                 right: auto !important;
 
-                @apply rounded-md border border-gray-200 bg-white;
+                @apply rounded-sm border border-gray-200 bg-white;
                 @apply shadow-xl;
                 z-index: 99999 !important;
                 min-width: 260px;
@@ -1025,54 +976,56 @@ textarea[readonly] {
 
 
 /* =========================
-   Pagination (Classic)
+   Pagination (Modern)
    ========================= */
 .pagination {
-    @apply mt-3 mb-6 flex flex-col gap-1 md:flex-row md:items-center md:justify-between;
+    @apply mt-4 mb-6 flex flex-col gap-2 md:flex-row md:items-center md:justify-between;
     @apply text-sm text-gray-700;
 }
 
+/* =========================
+   Pagination Navigation Buttons
+   ========================= */
 .pagination-nav {
-    @apply inline-flex items-center gap-2;
-    @apply rounded-sm border border-gray-200 bg-gray-50;
-    @apply px-2 py-1;
+    @apply inline-flex items-center gap-1;
+    @apply rounded-sm border border-gray-200 bg-white px-2 py-1;
 }
 
     .pagination-nav button {
-        @apply inline-flex h-7 min-w-[70px] items-center justify-center;
-        @apply rounded-sm border border-gray-200 bg-gray-50;
-        @apply text-sm text-gray-700;
-        @apply transition duration-100;
-        @apply hover:bg-gray-100;
-        @apply focus:ring-1 focus:ring-emerald-600 focus:outline-none;
+        @apply inline-flex h-8 min-w-[72px] items-center justify-center;
+        @apply rounded-sm border border-gray-200 bg-white px-3 text-sm text-gray-700;
+        @apply transition duration-100 ease-in-out;
+        @apply hover:bg-gray-100 hover:text-gray-900;
+        @apply focus:ring-1 focus:ring-emerald-700 focus:outline-none;
     }
 
+    /* Active Page */
     .pagination-nav .active {
-        @apply border-emerald-700 bg-emerald-700 text-white;
-        @apply hover:bg-emerald-800;
-        @apply focus:ring-emerald-200;
+        @apply border-emerald-600 bg-emerald-600 text-white;
+        @apply hover:bg-emerald-700;
+        @apply focus:ring-emerald-300;
     }
 
+    /* Text between buttons (ex: "Page 1 of 3") */
     .pagination-nav .page-text {
         @apply mx-2 text-xs font-medium text-gray-600;
     }
 
+    /* Disabled Buttons */
     .pagination-nav button:disabled {
-        @apply cursor-not-allowed opacity-50 hover:bg-gray-900;
+        @apply cursor-not-allowed opacity-50;
+        @apply bg-gray-50 text-gray-400;
     }
 
-
-
-
+/* =========================
+   Pagination Range Info (left-side)
+   ========================= */
 .pagination-range {
-    @apply inline-flex items-center;
-    @apply h-7 px-3;
-    @apply rounded-sm;
-    @apply text-xs font-medium;
-    @apply bg-gray-100 text-gray-700;
-    @apply border-0;
+    @apply inline-flex h-8 items-center px-3;
+    @apply rounded-sm bg-gray-100 text-xs font-medium text-gray-700;
     @apply select-none;
 }
+
 
 
 /* =========================
@@ -1148,7 +1101,7 @@ textarea[readonly] {
     .sf-modal {
         width: calc(100vw - 16px);
         max-width: calc(100vw - 16px);
-        height: calc(100vh - 16px);
+        height: auto; /*calc(100vh - 16px);*/
         max-height: calc(100vh - 16px);
         left: 8px;
         top: 8px;
@@ -1856,177 +1809,180 @@ textarea[readonly] {
                 padding: 10px 12px;
             }
         }
-        /* =========================
+
+
+
+
+/* =========================
    Panel (صفحة الرندر)
    ========================= */
+.sf-panel {
+    @apply relative mx-auto mt-10 mb-6 w-full overflow-visible;
+    @apply rounded-sm border border-gray-200 bg-white;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
 
-        .sf-panel {
-            @apply relative mx-auto mt-10 mb-6 w-full overflow-hidden;
-            @apply rounded-md border border-gray-300 bg-gray-100;
-            overflow: visible !important;
-            @apply shadow-sm;
-        }
-        
-        .sf-panel-header {
-            @apply sticky top-0 z-20; 
-            @apply relative flex items-center justify-between;
-            @apply px-5 py-3;
+.sf-panel-header {
+    @apply relative z-10 flex items-center justify-between px-5 py-3;
+    @apply border-b border-gray-200 bg-gray-50;
+    box-shadow: 0 1px 0 rgba(0, 0, 0, 0.04);
+}
 
-            @apply bg-gray-100; 
-            @apply border-b border-gray-300; 
-            border-bottom-width: 1px;
-            box-shadow: inset 0 -1px 0 rgba(0,0,0,0.06), 0 2px 6px rgba(0,0,0,0.05);
-        }
-            
-            .sf-panel-header::before {
-                content: "";
-                position: absolute;
-                inset: 0;
-                pointer-events: none;
-                background: linear-gradient( to bottom, rgba(255,255,255,0.35), rgba(255,255,255,0.0) );
-            }
-        /* Title مثل TH */
-        .sf-panel-title {
-            @apply flex items-center gap-2;
-            @apply text-sm font-semibold text-gray-800; /* مثل .th-cell */
-            @apply whitespace-nowrap;
-            letter-spacing: 0;
-        }
-            /* Icon بنفس روح الهيدر */
-            .sf-panel-title i {
-                color: #374151; /* gray-700 مثل ألوان الجدول */
-                font-size: 14px;
-                opacity: .9;
-            }
-        /* Body (يفصل نفس tbody border-top) */
-        .sf-panel-body {
-            @apply bg-white;
-            @apply p-3 md:p-3;
-            border-top: 1px solid rgba(0,0,0,0.04);
-        }
-        /* =========================
-   Panel Actions (Modern icon buttons)
+    .sf-panel-header::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+        background: linear-gradient(to bottom, rgba(255,255,255,0.3), transparent);
+    }
+
+/* =========================
+   Panel Title
    ========================= */
-        .sf-panel-actions {
-            @apply flex items-center gap-2;
-        }
+.sf-panel-title {
+    @apply flex items-center gap-2 text-sm font-semibold whitespace-nowrap text-gray-800;
+    letter-spacing: -0.2px;
+}
+
+    .sf-panel-title i {
+        font-size: 14px;
+        color: #374151;
+        opacity: 0.9;
+    }
+
+/* =========================
+   Panel Body
+   ========================= */
+.sf-panel-body {
+    @apply bg-gray-50 p-4 md:p-5;
+    border-top: 1px solid rgba(0, 0, 0, 0.03);
+}
+
+/* =========================
+   Panel Actions
+   ========================= */
+.sf-panel-actions {
+    @apply flex items-center gap-2;
+}
+
+/* =========================
+   Panel Button
+   ========================= */
+.sf-panel-btn {
+    @apply inline-flex h-7 w-7 items-center justify-center;
+    @apply rounded-sm border border-gray-200 bg-white text-gray-700;
+    @apply hover:bg-gray-100 hover:text-gray-900;
+    @apply transition duration-150 ease-in-out;
+    @apply focus:ring-1 focus:ring-emerald-700 focus:outline-none;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+}
+
+    .sf-panel-btn i,
+    .sf-panel-btn svg {
+        opacity: 0.85;
+        transition: all 0.2s ease;
+    }
+
+    .sf-panel-btn:hover i,
+    .sf-panel-btn:hover svg {
+        opacity: 1;
+    }
+
+    .sf-panel-btn:active {
+        transform: scale(0.98);
+        box-shadow: inset 0 2px 3px rgba(0, 0, 0, 0.08);
+    }
+
+    .sf-panel-btn i {
+        font-size: 12px;
+        color: #374151;
+    }
+
+    .sf-panel-btn svg {
+        width: 12px;
+        height: 12px;
+        stroke-width: 2;
+        stroke: #374151;
+    }
+
+/* =========================
+   Close Button
+   ========================= */
+.sf-panel-btn-close {
+    @apply border-gray-200 bg-white text-gray-500;
+    @apply hover:border-gray-300 hover:bg-gray-100 hover:text-gray-700;
+}
 
 
 
-        .sf-panel-btn {
-            @apply inline-flex h-6 w-6 items-center justify-center;
-            @apply rounded-sm border border-gray-300 bg-white;
-            @apply text-gray-700;
-            @apply transition duration-150;
-            @apply hover:bg-gray-50 hover:text-gray-900;
-            @apply focus:ring-1 focus:ring-emerald-600 focus:outline-none;
-            box-shadow: none;
-        }
-
-            .sf-panel-btn i,
-            .sf-panel-btn svg {
-                opacity: .85;
-            }
-
-            .sf-panel-btn:hover i,
-            .sf-panel-btn:hover svg {
-                opacity: 1;
-            }
 
 
 
-            .sf-panel-btn:active {
-                transform: translateY(1px);
-                box-shadow: inset 0 2px 3px rgba(0,0,0,0.10);
-            }
 
-            .sf-panel-btn i {
-                font-size: 10px;
-                color: #374151;
-                opacity: 0.85;
-            }
 
-            .sf-panel-btn svg {
-                width: 10px;
-                height: 10px;
-                stroke-width: 2;
-                stroke: #374151;
-                opacity: 0.85;
-            }
-            /* Hover:*/
-            .sf-panel-btn:hover i,
-            .sf-panel-btn:hover svg {
-                opacity: 1;
-            }
-        /* زر الإغلاق */
-        .sf-panel-btn-close {
-            @apply border-gray-300 bg-white text-gray-600;
-            @apply hover:border-gray-300 hover:bg-gray-50 hover:text-gray-700;
-        }
         /* =========================
    Loader – Pulse Dots (Premium)
    ========================= */
-        .sf-loader-dots {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: 6px;
-        }
 
-            .sf-loader-dots span {
-                width: 10px;
-                height: 10px;
-                border-radius: 9999px;
-                background: #20876a;
-                opacity: .35;
-                transform: scale(.75);
-                animation: sf-pulse 900ms infinite ease-in-out;
-            }
+.gov-spinner {
+    width: 40px;
+    height: 40px;
+    border: 4px solid #e5e7eb; /* Tailwind gray-200 - لون خلفي خفيف */
+    border-top: 4px solid #047857; /* Tailwind emerald-700 */
+    border-radius: 50%;
+    animation: spin 0.6s linear infinite;
+}
 
-                .sf-loader-dots span:nth-child(2) {
-                    animation-delay: 150ms;
-                }
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
 
-                .sf-loader-dots span:nth-child(3) {
-                    animation-delay: 300ms;
-                }
+    100% {
+        transform: rotate(360deg);
+    }
+}
 
-        @keyframes sf-pulse {
-            0%, 100% {
-                transform: scale(.75);
-                opacity: .35;
-            }
 
-            50% {
-                transform: scale(1.15);
-                opacity: 1;
-            }
-        }
-        /* =========================
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* =========================
    Modal Responsive
    ========================= */
-        @media (max-width: 768px) {
-            .sf-modal {
-                width: calc(100vw - 16px);
-                max-width: 95vw;
-                max-height: 90vh;
-                border-radius: 10px;
-            }
+@media (max-width: 768px) {
+    .sf-modal {
+        width: calc(100vw - 16px);
+        max-width: 95vw;
+        max-height: 90vh;
+        border-radius: 10px;
+    }
 
-            .sf-modal-body {
-                max-height: calc(90vh - 70px);
-                overflow-y: auto;
-            }
+    .sf-modal-body {
+        max-height: calc(90vh - 70px);
+        overflow-y: auto;
+    }
 
-            .sf-modal .form-row {
-                grid-template-columns: 1fr !important;
-                gap: 12px !important;
-            }
+    .sf-modal .form-row {
+        grid-template-columns: 1fr !important;
+        gap: 12px !important;
+    }
 
-            .sf-modal .form-group {
-                grid-column: 1 / -1 !important;
-            }
-        }
+    .sf-modal .form-group {
+        grid-column: 1 / -1 !important;
+    }
+}
         /* =========================
    Hidden Fields on Page Load
    ========================= */
@@ -2319,4 +2275,45 @@ textarea[readonly] {
     font-size: 16px;
     font-weight: 500;
     color: #333;
+}
+
+
+/* Responsive Modal Fix for Small Screens */
+@media (max-width: 1080px) {
+    body::after {
+        content: "✅ Media Query 1280px Active";
+        position: fixed;
+        bottom: 20px;
+        left: 20px;
+        background: green;
+        color: white;
+        font-size: 16px;
+        padding: 8px 12px;
+        z-index: 9999999;
+    }
+
+    .sf-modal {
+        width: 95vw !important;
+        max-width: 95vw !important;
+        max-height: 90vh !important;
+        left: 50% !important;
+        top: 50% !important;
+        transform: translate(-50%, -50%) !important;
+        
+    }
+
+    .sf-modal-body {
+        max-height: 70vh !important;
+        overflow-y: auto !important;
+    }
+
+    .sf-modal .form-row {
+        display: grid !important;
+        grid-template-columns: 1fr !important;
+        gap: 16px !important;
+    }
+
+    .sf-modal .form-group {
+        grid-column: 1 / -1 !important;
+    }
 }

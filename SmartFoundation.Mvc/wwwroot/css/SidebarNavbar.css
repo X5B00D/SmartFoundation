@@ -45,6 +45,7 @@
 /*  السايدبار يبدأ من أعلى الشاشة (الشعار فوق) */
 #logo-sidebar {
     padding-top: 0 !important;
+    
 }
 
 
@@ -59,9 +60,17 @@
     min-width: 0;
 }
 
-.sf-bc {
+/*.sf-bc {
     min-width: 0;
+}*/
+.sf-bc {
+    background-color: rgba(255, 255, 255, 0.6);
+    backdrop-filter: blur(4px);
+    padding: 6px 10px;
+    border-radius: 0.5rem;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.05);
 }
+
 
 .sf-bc-text {
     display: flex;
@@ -420,12 +429,7 @@ button[data-dropdown-toggle="notification-dropdown"] svg {
         }
 
 
-
-/* ===== Desktop layout relationship with #main-content ===== */
-/* عندك بالـLayout: sm:mr-64
-   نثبتها هنا ونخليها ديناميكية حسب حالة السايدبار */
-
-@media (min-width: 640px) {
+@media (min-width: 1024px) {
     body.sidebar-pinned #main-content {
         margin-right: var(--sidebar-w) !important;
     }
@@ -434,6 +438,25 @@ button[data-dropdown-toggle="notification-dropdown"] svg {
         margin-right: var(--sidebar-w-collapsed) !important;
     }
 }
+
+@media (max-width: 1023px) {
+    #page-header {
+        right: 0 !important;
+        left: 0 !important;
+    }
+
+    .sf-sidebar-toggle {
+        /*z-index: 60;*/
+        position: relative;
+        z-index: 70 !important;
+    }
+}
+@media (max-width: 1023px) {
+    #logo-sidebar {
+        z-index: 50 !important;
+    }
+}
+
 
 
 /* ===== Sidebar widths ===== */
@@ -469,9 +492,9 @@ button[data-dropdown-toggle="notification-dropdown"] svg {
         margin: 0 !important;
     }
 }
- 
-/* ===== Make page-header follow main-content width on desktop ===== */    /*جديد*/
-@media (min-width: 640px) {
+
+/* ===== Make page-header follow main-content width (DESKTOP ONLY) ===== */
+@media (min-width: 1024px) {
     body.sidebar-pinned #page-header {
         right: var(--sidebar-w);
         left: 0;
@@ -483,9 +506,8 @@ button[data-dropdown-toggle="notification-dropdown"] svg {
     }
 }
 
-
-/* ===== Make top-header follow main-content width on desktop ===== */
-@media (min-width: 640px) {
+/* ===== Make top-header follow main-content width (DESKTOP ONLY) ===== */
+@media (min-width: 1024px) {
     body.sidebar-pinned #top-header {
         right: var(--sidebar-w);
         left: 0;
@@ -498,6 +520,7 @@ button[data-dropdown-toggle="notification-dropdown"] svg {
         width: auto;
     }
 }
+
 
 
 
@@ -524,30 +547,38 @@ body.sidebar-collapsed #pin-sidebar i {
 
 
 
-
-
-
-
-/* زر تصغير/تكبير السايدبار ) */
-
 .sf-sidebar-toggle {
-    width: 40px;
-    height: 40px;
-    background-color: transparent;
-    color: #064E3B; /* نفس لون السايدبار */
-    border: none;
+    width: 32px;
+    height: 32px;
+    padding: 0;
+    font-size: 14px;
+    background-color: #ffffff;
+    color: #064E3B;
+    border: 1px solid #d1d5db;
     border-radius: 0.3rem;
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    transition: background-color 0.2s ease, color 0.2s ease;
     cursor: pointer;
+    transition: background-color 0.2s ease, box-shadow 0.2s ease, transform 0.1s ease;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+    will-change: transform;
+    display: inline-flex !important;
+    visibility: visible !important;
 }
 
     .sf-sidebar-toggle:hover {
-        background-color: rgba(6, 78, 59, 0.12); /* hover من نفس الأخضر */
-        color: #064E3B; /* يبقى نفس اللون */
+        background-color: #f9fafb;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.08);
     }
+
+    .sf-sidebar-toggle:active {
+        transform: scale(0.96);
+        box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.15);
+    }
+
+
+
 
 
     .sf-sidebar-toggle:focus {
@@ -645,14 +676,7 @@ body.sidebar-collapsed #pin-sidebar i {
             margin: 0 2px;
         }
 
-            .sf-bc .sf-bc-text .sep::before {
-                content: "";
-                width: 4px;
-                height: 4px;
-                border-radius: 999px;
-                background: rgba(55, 65, 81, 0.4);
-            }
-
+           
         /* current */
         .sf-bc .sf-bc-text .current,
         .sf-bc .sf-bc-text a[aria-current="page"] {
@@ -667,3 +691,105 @@ body.sidebar-collapsed #pin-sidebar i {
     }
 }
 
+
+
+body.sidebar-collapsed .sidebar-logo {
+    visibility: hidden; /* بدلاً من display: none */
+}
+
+
+
+/* ===== Main content moves when sidebar is open (mobile/tablet) ===== */
+
+
+@media (max-width: 1023px) {
+    #logo-sidebar {
+        transform: translateX(100%);
+        transition: transform 0.3s ease;
+    }
+
+    body.with-sidebar-open #logo-sidebar {
+        transform: translateX(0%);
+    }
+
+
+    .sidebar-backdrop {
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: 30;
+        display: none !important;
+    }
+}
+
+
+/* ===============================
+   Sidebar Toggle (Mobile / iPad)
+   =============================== */
+#top-header .sf-sidebar-toggle {
+    position: fixed;
+    top: 0;
+    inset-inline-start: 0; 
+    height: var(--top-header-h);
+    width: 56px;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    color: #ffffff;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 60; /* فوق السايدبار */
+}
+
+    /* أيقونة القائمة */
+    #top-header .sf-sidebar-toggle svg {
+        width: 22px;
+        height: 22px;
+    }
+
+    /* Hover */
+    #top-header .sf-sidebar-toggle:hover {
+        background: rgba(255, 255, 255, 0.12);
+    }
+
+    /* Active */
+    #top-header .sf-sidebar-toggle:active {
+        background: rgba(255, 255, 255, 0.18);
+    }
+
+/* ===============================
+   Desktop behavior (اختياري)
+   =============================== */
+@media (min-width: 1024px) {
+    #top-header .sf-sidebar-toggle {
+        position: absolute; /* يرجع طبيعي بالديسكتوب */
+        inset-inline-start: 0;
+    }
+}
+
+
+@media (min-width: 1024px) {
+    
+    body.sidebar-collapsed #logo-sidebar ul > li > ul > li > a::before,
+    body.sidebar-collapsed #logo-sidebar ul > li > ul > li > button::before {
+        top: auto !important;
+        bottom: 6px !important;
+        right: 50% !important;
+        left: auto !important;
+        width: 22px !important;
+        height: 3px !important;
+        transform: translateX(50%) !important;
+        border-radius: 999px !important;
+    }
+
+   
+    body.sidebar-collapsed #logo-sidebar ul > li > ul > li > a:hover::before,
+    body.sidebar-collapsed #logo-sidebar ul > li > ul > li > button:hover::before,
+    body.sidebar-collapsed #logo-sidebar ul > li > ul > li > a.bg-slate-700::before,
+    body.sidebar-collapsed #logo-sidebar ul > li > ul > li > button.bg-slate-700::before {
+        height: 3px !important;
+        transform: translateX(50%) !important; 
+    }
+}

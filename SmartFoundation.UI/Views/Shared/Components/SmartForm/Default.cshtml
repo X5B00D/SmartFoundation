@@ -19,7 +19,7 @@
       data-sp="@Model.StoredProcedureName"
       data-operation="@Model.Operation"
       autocomplete="off"
-      class="w-full sf-form">
+      class="sf-form w-full">
 
     @* Show LabelText if provided *@
     @if (!string.IsNullOrWhiteSpace(Model.LabelText))
@@ -82,93 +82,6 @@
 
             @switch (field.Type.ToLower())
             {
-                @* case "select":
-                    {
-                        var selectConfig = new
-                        {
-                            name = field.Name,
-                            placeholder = field.Placeholder ?? "اختر...",
-                            multiple = field.Multiple,
-                            disabled = field.Disabled,
-                            @readonly = field.Readonly,
-                            initial = field.Value ?? "",
-                            onchangeJs = field.OnChangeJs ?? "",
-                            options = field.Options.Select(o => new { Value = o.Value, Text = o.Text, Disabled = o.Disabled, Selected = o.Selected }).ToList()
-                        };
-                        var selectConfigJson = JsonSerializer.Serialize(selectConfig, webJson);
-
-                        <div x-data='sfSelect(@Html.Raw(selectConfigJson))'
-                             x-init="init()"
-                             data-dependson="@field.DependsOn"
-                             data-dependsurl="@field.DependsUrl"
-                             class="relative"
-                             x-on:keydown.escape.window="open=false">
-
-                           
-                            <input type="hidden" x-ref="hidden" name="@field.Name" :value="serialize()"
-                                   @(field.Required ? "required" : null) @(field.Disabled ? "disabled" : null) />
-
-                            
-                            <button type="button"
-                                    x-ref="anchor"
-                                    class="sf-select @field.ExtraCss"
-                                    x-bind:disabled="disabled || readonly"
-                                    x-bind:aria-expanded="open.toString()"
-                                    x-on:click="togglePanel()"
-                                    x-on:keydown.enter="togglePanel()">
-                                <span class="truncate" x-text="displayText()"></span>
-                                <span class="pointer-events-none absolute inset-y-0 end-0 flex items-center pe-3">
-                                <svg class="h-5 w-5 text-gray-500" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                                <path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 10.94l3.71-3.71a.75.75 0 011.08 1.04l-4.25 4.25a.75.75 0 01-1.06 0L5.21 8.27a.75.75 0 01.02-1.06z" clip-rule="evenodd"/>
-                                </svg>
-                                 </span>
-
-                            </button>
-
-                            <!-- Dropdown panel -->
-                            <template x-teleport="body">
-                                <div x-show="open" x-transition x-cloak
-                                     x-on:click.outside="open=false"
-                                     x-bind:style="panelStyle"
-                                     class="sf-select-panel animate-fade-in fixed z-[9999]">
-
-                                    <!-- شريط علوي -->
-                                    <div class="flex justify-end p-3 pb-1">
-                                        <button type="button" class="text-xs text-gray-800 hover:text-gray-800" x-on:click="clear()">مسح</button>
-                                    </div>
-
-                                    <!-- البحث -->
-                                    <div class="p-2">
-                                        <input type="text" x-model.trim="q" placeholder="بحث..." dir="rtl"
-                                               class="w-full rounded-sm border border-gray-300 px-3 py-2 text-sm focus:ring-1 focus:ring-emerald-600 focus:outline-none" />
-                                    </div>
-
-                                    <!-- العناصر -->
-                                    <ul class="max-h-60 overflow-y-auto py-1">
-                                        <template x-for="opt in filtered()" :key="opt.value">
-                                            <li class="cursor-pointer px-3 py-1.5 select-none hover:bg-gray-200"
-                                                :class="opt.disabled ? 'cursor-not-allowed opacity-50' : ''"
-                                                x-on:click.stop="toggle(opt)">
-                                                <div class="flex items-center gap-3">
-                                                    <template x-if="!multiple">
-                                                        <span class="sf-select-radio"
-                                                              :class="isSelected(opt) ? 'selected' : ''"></span>
-                                                    </template>
-                                                    <template x-if="multiple">
-                                                        <input type="checkbox" class="h-4 w-4 shrink-0"
-                                                               :checked="isSelected(opt)" x-on:click.stop>
-                                                    </template>
-                                                    <span class="grow truncate" x-text="opt.text"></span>
-                                                </div>
-                                            </li>
-                                        </template>
-                                    </ul>
-                                </div>
-                            </template>
-                        </div>
-                    }
-                    break; *@
-
 
 
                                     case "select":

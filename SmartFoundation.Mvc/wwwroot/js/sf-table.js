@@ -2036,9 +2036,6 @@ window.__sfTableGlobalBound = window.__sfTableGlobalBound || false;
                     }
 
 
-
-
-
                     case "textarea":
                         const rows = field.rows || 3;
                         fieldHtml = `
@@ -3017,23 +3014,37 @@ window.__sfTableGlobalBound = window.__sfTableGlobalBound || false;
                     .replace(/'/g, "&#039;");
             },
 
+           
             showToast(message, type = 'info') {
                 const toast = document.createElement('div');
-                toast.className = `fixed top-4 right-4 px-4 py-2 rounded-md text-white z-50  ${
-                    type === 'error' ? 'bg-red-600' : 
-                    type === 'success' ? 'bg-green-600' : 'bg-blue-600'
-                }`;
                 toast.textContent = message;
-                toast.style.zIndex = '10000';
-                
+                Object.assign(toast.style, {
+                    position: 'fixed',
+                    top: '20px',
+                    left: '50%',
+                    transform: 'translateX(-50%)',
+                    padding: '1rem 2rem',
+                    borderRadius: '0.5rem',
+                    color: 'white',
+                    backgroundColor:
+                        type === 'error' ? '#EF4444' :
+                            type === 'success' ? '#16A34A' :
+                                '#3B82F6',
+                    zIndex: '10000',
+                    fontSize: '1rem',
+                    textAlign: 'center',
+                    maxWidth: '90%',
+                    boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
+                });
+
                 document.body.appendChild(toast);
-                
+
                 setTimeout(() => {
-                    if (toast.parentElement) {
-                        toast.parentElement.removeChild(toast);
-                    }
+                    toast.remove();
                 }, 3000);
             },
+
+
 
             // ===== Advanced Features =====
             toggleFullscreen() {

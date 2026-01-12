@@ -183,6 +183,7 @@ namespace SmartFoundation.Mvc.Controllers.Housing
                          SectionTitle = "نوع البحث",
                          Label="البحث برقم الهوية الوطنية",
                          Required =true,
+                         TextMode="numeric",
                          Name = "NationalID",
                          Type = "nationalid",
                          ColCss = "3",
@@ -190,6 +191,7 @@ namespace SmartFoundation.Mvc.Controllers.Housing
                          Placeholder = "1xxxxxxxxx",
                          Icon = "fa-solid fa-id-card",
                          MaxLength=10,
+                         
 
                      },
 
@@ -955,7 +957,7 @@ namespace SmartFoundation.Mvc.Controllers.Housing
                         //ModalMessage = "ملاحظة: جميع التعديلات مرصودة",
                         ModalMessage = "ملاحظة: جميع التعديلات مرصودة",
                         ModalMessageIcon = "fa-solid fa-circle-info",
-                        ModalMessageClass = "bg-sky-100 border border-sky-200 text-sky-700",
+                        ModalMessageClass = "bg-sky-100 text-sky-700",
 
 
 
@@ -988,7 +990,7 @@ namespace SmartFoundation.Mvc.Controllers.Housing
                         ModalTitle = "تعديل بيانات انتظار",
                         ModalMessage = "ملاحظة: جميع التعديلات مرصودة",
                         ModalMessageIcon = "fa-solid fa-circle-info",
-                        ModalMessageClass = "bg-sky-100 border border-sky-200 text-sky-700",
+                        ModalMessageClass = "bg-sky-100 text-sky-700",
                         OpenForm = new FormConfig
                         {
                             FormId = "BuildingTypeEditForm",
@@ -1040,7 +1042,7 @@ namespace SmartFoundation.Mvc.Controllers.Housing
                         ModalTitle = "تحذير",
                         ModalMessage = "هل أنت متأكد من الغاء بيانات الانتظار؟",
                         ModalMessageIcon = "fa fa-exclamation-triangle text-red-600",
-                        ModalMessageClass = "bg-red-50 border border-red-200 text-red-700",
+                        ModalMessageClass = "bg-red-50 text-red-700",
                         OpenForm = new FormConfig
                         {
                             FormId = "BuildingTypeDeleteForm",
@@ -1104,7 +1106,7 @@ namespace SmartFoundation.Mvc.Controllers.Housing
                         ModalTitle = "إدخال بيانات خطاب تسكين جديد",
                         ModalMessage = "ملاحظة: جميع التعديلات مرصودة",
                         ModalMessageIcon = "fa-solid fa-circle-info",
-                        ModalMessageClass = "bg-sky-100 border border-sky-200 text-sky-700",
+                        ModalMessageClass = "bg-sky-100 text-sky-700",
 
                         OpenForm = new FormConfig
                         {

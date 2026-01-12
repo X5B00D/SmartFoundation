@@ -382,7 +382,7 @@ namespace SmartFoundation.Mvc.Controllers.Housing
                     {
                         Label = "طباعة تقرير",
                         Icon = "fa fa-print",
-                        Color = "warning",
+                        Color = "info",
                         RequireSelection = false,
                         OnClickJs = @"
                                 sfPrintWithBusy(table, {
@@ -456,7 +456,7 @@ namespace SmartFoundation.Mvc.Controllers.Housing
 
                         Add = new TableAction
                         {
-                            Label = "إضافة مستفيد جديد",
+                            Label = "إضافة مستفيد",
                             Icon = "fa fa-plus",
                             Color = "success",
                             OpenModal = true,

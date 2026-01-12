@@ -132,6 +132,37 @@
                 color: #708090 !important;
             }
 
+
+
+
+
+
+
+
+        /* تصغير حجم الواجهة للشاشات المتوسطة والصغيرة */
+        @@media (max-width: 1366px) {
+            html {
+                font-size: 14px; 
+            }
+
+            .container-fluid {
+                padding-left: 10px;
+                padding-right: 10px;
+            }
+            
+            table th, table td {
+                padding: 8px 4px !important;
+                font-size: 12px !important;
+            }
+        }
+
+        
+        .overflow-x-auto {
+            scrollbar-width: thin; 
+        }
+
+
+
     </style>
 
     <script>
@@ -155,28 +186,38 @@
     <!-- ✅ Main content area -->
 
 
-     <div id="main-content"
-         class="relative flex h-screen flex-col overflow-y-auto bg-gray-50 pt-10 transition-all duration-300"> 
+     @* <div id="main-content"
+         class="relative flex h-screen flex-col overflow-y-auto bg-gray-50 pt-10 transition-all duration-300"> *@ 
+         <div id="main-content" class="relative flex min-h-screen flex-col bg-gray-50 transition-all duration-300">
 
 
 
         <!-- ===== Main Content Loading Overlay ===== -->
         <div id="main-loading"
-             style="display:none"
-             class="absolute inset-0 z-40 flex items-center justify-center bg-gray-100">
-            <div class="sf-loader-dots">
-                <span></span>
-                <span></span>
-                <span></span>
-            </div>
+             style="display: none"
+             class="bg-opacity-80 absolute inset-0 z-40 flex flex-col items-center justify-center bg-white backdrop-blur-sm">
 
+            <div class="gov-spinner mb-4"></div>
 
+            <p class="text-lg font-medium tracking-wider text-gray-600">
+                جاري التحميل...
+            </p>
         </div>
+
+
+
+
         <!-- Content -->
         @* <main class="flex-1 px-4 pt-6"> *@
-        <main class="flex-1 overflow-x-hidden px-4 pt-6">
+        @* <main class="flex-1 overflow-x-hidden px-4 pt-6">
 
                 @RenderBody()
+        </main> *@
+
+        <main class="w-full max-w-[100vw] flex-1 px-2 pt-4 sm:px-4 md:px-6">
+            <div class="container-fluid mx-auto">
+                @RenderBody()
+            </div>
         </main>
 
         <!-- ✅ Modern Footer -->
@@ -328,6 +369,7 @@ document.addEventListener('DOMContentLoaded', function () {
     <script src="~/js/smartcharts.pie3d.js" asp-append-version="true"></script>
     <script src="~/js/smartcharts.opsboard.js" asp-append-version="true"></script>
     <script src="~/js/smartcharts.execwatch.js" asp-append-version="true"></script>
+
 
 
 

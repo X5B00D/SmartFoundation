@@ -21,10 +21,6 @@
     var sessionnationalID = Context.Session.GetString("nationalID");
 }
 
-
-
-
-@* <nav class="border-bottom fixed z-50 w-full" style="background:#064E3B; color:#fff; border-color:#064E3B"> *@
 <nav id="top-header" class="fixed z-50 w-full">
 
     <div class="px-3 py-3 lg:px-5 lg:pe-3">
@@ -40,29 +36,17 @@
                     <i class="fa-solid fa-thumbtack"></i>
                 </button>
 
-               
- 
 
-                <!-- البحث -->
-                @* <form action="#" method="GET" class="block lg:ps-3.5" autocomplete="off">
-                    <label for="topbar-search" class="sr-only">بحث</label>
-                    <div class="relative mt-1 lg:w-96" dir="rtl">
-                        <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center ps-3">
-                            <svg class="h-5 w-10 text-slate-400" fill="currentColor" viewBox="0 0 20 20">
-                                <path fill-rule="evenodd"
-                                      d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z"
-                                      clip-rule="evenodd"></path>
-                            </svg>
-                        </div>
-
-                        <input id="topbar-search" type="text"
-                               autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false"
-                               class="placeholder-slate-500 block w-full rounded-md border border-slate-300 bg-slate-100
-                   p-2.5 ps-10 text-sm
-                   text-slate-900 focus:border-emerald-800 focus:ring-emerald-800"
-                               placeholder="بحث..">
-                    </div>
-                </form> *@
+                 <button id="toggle-sidebar"
+                    type="button"
+                    class="sf-sidebar-toggle"
+                    aria-label="Toggle sidebar">
+                <svg class="h-6 w-6" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd"
+                          d="M3 5a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 10a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 15a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z"
+                          clip-rule="evenodd"></path>
+                </svg>
+            </button> 
             </div>
 
 
@@ -77,7 +61,7 @@
                 
                 </nav>
 
-                <!-- الإشعارات -->
+
                 <!-- الإشعارات -->
                 @await Component.InvokeAsync("Notification")
 
@@ -133,19 +117,6 @@
     <div class="px-3 py-2 lg:px-5" dir="rtl">
         <div id="page-header-content" class="flex items-center justify-between gap-3">
 
-            <!-- زر تصغير وتكبير السايدبار داخل الهيدر بجانب البريدكامب -->
-            <button id="toggle-sidebar"
-                    type="button"
-                    class="sf-sidebar-toggle"
-                    aria-label="Toggle sidebar">
-                <svg class="h-6 w-6" fill="currentColor" viewBox="0 0 20 20">
-                    <path fill-rule="evenodd"
-                          d="M3 5a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 10a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 15a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z"
-                          clip-rule="evenodd"></path>
-                </svg>
-            </button>
-
-
             @{
                 var controller = (ViewContext.RouteData.Values["controller"]?.ToString()) ?? "";
                 var action = (ViewContext.RouteData.Values["action"]?.ToString()) ?? "";
@@ -193,12 +164,11 @@
 </div>
 
 
-
 <aside id="logo-sidebar"
        data-drawer-placement="right"
        data-drawer-backdrop="true"
        data-drawer-body-scrolling="false"
-       class="fixed top-0 right-0 z-40 h-screen w-64 translate-x-full border-l border-emerald-900 bg-slate-800 text-slate-200
+       class="fixed top-0 right-0 z-40 h-screen w-60 translate-x-full border-l border-emerald-900 bg-slate-800 text-slate-200
        transition-all duration-300 lg:translate-x-0"
        aria-label="Sidebar">
 
@@ -206,14 +176,14 @@
     <div class="relative flex h-full min-h-0 flex-1 flex-col bg-transparent pt-0">
 
         <!-- Sidebar Brand (ثابت أعلى السايدبار) -->
-        <div class="px-4 pt-3 pb-3">
+        
+        <div class="sidebar-logo px-4 pt-3 pb-3">
             <a href="/Dashboard" class="flex items-center justify-center gap-3 rounded-md py-2 transition hover:bg-white/10">
                 <img src="../img/Royal_Saudi_Land_Forces.png" class="h-12" alt="KFMC Logo" />
-                <span class="text-lg font-semibold text-white"> النظام الموحدة</span>
+                <span class="text-lg font-semibold text-white">النظام الموحدة</span>
             </a>
         </div>
 
-       
 
         <div class="flex flex-1 flex-col overflow-y-auto pb-4"
              style="scrollbar-width: none; -ms-overflow-style: none;">
@@ -493,7 +463,6 @@
 
             let html = "";
             rootItems.forEach(item => {
-                /* html += `<li><hr class="my-2 border-white/30">${buildMenuItem(item, 1)}</li>`; */ /*الخط الفاصل بين القوائم */
                 html += `<li><div class="menu-sep"></div>${buildMenuItem(item, 1)}</li>`;
 
             });
@@ -539,8 +508,6 @@
                 }
                 main.innerHTML = newMain.innerHTML;
 
-                // ====== 2) تحديث breadcrumb (page-header) لأنه خارج main ======
-                    // ====== 2) تحديث breadcrumb فقط (بدون استبدال الهيدر كامل) ======
     const currentBc = document.querySelector("#page-header .sf-bc-text");
     const newBc = doc.querySelector("#page-header .sf-bc-text");
     if (currentBc && newBc) {
@@ -622,7 +589,7 @@
             }, 1000);
         });
 
-        // الرجوع/التقدم بالمتصفح
+
         window.addEventListener("popstate", function () {
             loadPageIntoMainContent(window.location.pathname + window.location.search);
         });
@@ -638,9 +605,82 @@
         const sidebar = document.getElementById('logo-sidebar');
         const pinBtn = document.getElementById('pin-sidebar');
         const toggleSidebarBtn = document.getElementById("toggle-sidebar");
+
+            //  إدارة الحالة
+    const SIDEBAR_STATES = {
+        PINNED: "sidebar-pinned",
+        COLLAPSED: "sidebar-collapsed",
+        MOBILE_OPEN: "with-sidebar-open"
+    };
+
+    function resetSidebarState() {
+        body.classList.remove(
+            SIDEBAR_STATES.PINNED,
+            SIDEBAR_STATES.COLLAPSED,
+            SIDEBAR_STATES.MOBILE_OPEN
+        );
+    }
+
+    //  زر الهيدر
+        toggleSidebarBtn?.addEventListener("click", () => {
+        const isOpen = body.classList.contains(SIDEBAR_STATES.MOBILE_OPEN);
+
+        if (isOpen) {
+            body.classList.remove(SIDEBAR_STATES.MOBILE_OPEN);
+            const backdrop = document.querySelector(".sidebar-backdrop");
+            if (backdrop) backdrop.remove();
+        } else {
+            body.classList.add(SIDEBAR_STATES.MOBILE_OPEN);
+
+            // نتأكد ما فيه خلفية موجودة مسبقًا
+            if (!document.querySelector(".sidebar-backdrop")) {
+                const backdrop = document.createElement("div");
+                backdrop.className = "sidebar-backdrop lg:hidden";
+                backdrop.addEventListener("click", () => {
+                    body.classList.remove(SIDEBAR_STATES.MOBILE_OPEN);
+                    backdrop.remove();
+                });
+                document.body.appendChild(backdrop);
+            }
+        }
+    });
+
+
+    //  زر التثبيت
+    pinBtn?.addEventListener("click", () => {
+        const isPinned = body.classList.contains(SIDEBAR_STATES.PINNED);
+        resetSidebarState();
+        if (!isPinned) {
+            body.classList.add(SIDEBAR_STATES.PINNED);
+        } else {
+            body.classList.add(SIDEBAR_STATES.COLLAPSED);
+        }
+    });
+
+
+        window.addEventListener("resize", () => {
+        if (window.innerWidth >= 1024 && window.innerWidth < 1440) {
+            resetSidebarState();
+            body.classList.add(SIDEBAR_STATES.COLLAPSED);
+        } else if (window.innerWidth >= 1440) {
+            resetSidebarState();
+            body.classList.add(SIDEBAR_STATES.PINNED);
+        } else {
+            resetSidebarState();
+        }
+    });
+
+    //  عند التحميل
+        if (window.innerWidth >= 1024) {
+        body.classList.add(SIDEBAR_STATES.PINNED);
+    } else {
+        body.classList.add(SIDEBAR_STATES.MOBILE_OPEN); 
+    }
+
+        
         const mobileToggleBtn = document.querySelector('[data-drawer-toggle="logo-sidebar"]');
 
-        let isHoverTriggered = false; //  نستخدمه نعرف إذا الفتح كان بالماوس
+        let isHoverTriggered = false; 
 
         //  زر القائمة (موبايل)
         if (mobileToggleBtn) {
