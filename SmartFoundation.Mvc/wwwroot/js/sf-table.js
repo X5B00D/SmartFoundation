@@ -1549,9 +1549,66 @@ window.__sfTableGlobalBound = window.__sfTableGlobalBound || false;
                             this.$el.querySelector('.sf-modal');
 
                         if (!modalEl) return;
-                        //  datepickers داخل المودال
+
+                        // زر الحفظ داخل المودال: يغيّر الزر فقط إلى "جاري الحفظ…"
+                        const form = modalEl.querySelector('form');
+                        if (form && !form.__saveBound) {
+                            form.__saveBound = true;
+
+                            // عند الضغط على حفظ (submit)
+                            form.addEventListener('submit', (e) => {
+                                const btn =
+                                    form.querySelector('.sf-modal-btn-save') ||
+                                    form.querySelector('button[type="submit"]');
+
+                                if (!btn) return;
+
+                                // منع تكرار الضغط
+                                if (btn.__saving) return;
+                                btn.__saving = true;
+
+                                // حفظ النص الأصلي
+                                btn.__originalText = btn.textContent;
+
+                                // تغيير شكل/نص الزر فقط
+                                btn.disabled = true;
+                                btn.classList.add("opacity-60", "pointer-events-none");
+                                btn.textContent ="جاري الحفظ .."
+
+                                
+                                clearTimeout(btn.__restoreTimer);
+                                btn.__restoreTimer = setTimeout(() => {
+                                    if (this.modal?.open) {
+                                        btn.disabled = false;
+                                        btn.classList.remove("opacity-60", "pointer-events-none");
+                                        btn.textContent = btn.__originalText || "حفظ";
+                                        btn.__saving = false;
+                                    }
+                                }, 15000); // 15 ثانية
+                            });
+
+                            // إذا الفورم غير صالح (required…): رجّع الزر مباشرة
+                            form.addEventListener('invalid', (e) => {
+                                const btn =
+                                    form.querySelector('.sf-modal-btn-save') ||
+                                    form.querySelector('button[type="submit"]');
+
+                                if (!btn) return;
+
+                                clearTimeout(btn.__restoreTimer);
+
+                                btn.disabled = false;
+                                btn.classList.remove("opacity-60", "pointer-events-none");
+                                btn.textContent = btn.__originalText || "حفظ";
+                                btn.__saving = false;
+
+                            }, true);
+                        }
+
+                        // datepickers داخل المودال
                         this.initDatePickers(modalEl);
-                        // ===== drag  =====
+
+                        // ===== drag =====
                         (function () {
                             const modal = modalEl;
                             const header = modal.querySelector('.sf-modal-header');
@@ -1604,12 +1661,15 @@ window.__sfTableGlobalBound = window.__sfTableGlobalBound || false;
                             }
                         })();
 
-                        //  الجديد: تفعيل التحجيم
+                        // تفعيل التحجيم
                         this.enableModalResize(modalEl);
 
-                        //  select2 داخل المودال
+                        // select2 داخل المودال
                         this.initSelect2InModal(modalEl);
                     });
+
+
+
 
                 } catch (e) {
                     console.error("Modal error:", e);

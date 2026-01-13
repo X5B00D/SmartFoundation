@@ -9,9 +9,6 @@
 
 @model List<MenuItem>
 
-
-
-
 @{
     // غيّر "userID" إذا اسم السيشن عندك مختلف
     var sessionUserId = Context.Session.GetString("usersID");
@@ -580,9 +577,10 @@
             showMainLoading();
             document.body.style.pointerEvents = "none";
 
-            setTimeout(() => {
-                loadPageIntoMainContent(url);
-            }, 1000);
+            // setTimeout(() => {
+            //     loadPageIntoMainContent(url);
+            // }, 1000);
+            loadPageIntoMainContent(url);
         });
 
 
