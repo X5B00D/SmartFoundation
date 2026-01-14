@@ -389,13 +389,14 @@ textarea[readonly] {
 
 /* عند تمرير الماوس */
 .tr-row:hover .td-cell {
-    background: #dcfce7 !important; /* أخضر فاتح خفيف عند hover */
+    background: #f0f0f0 !important; /* رمادي فاتح للـ hover */
 }
 
 /* إذا الصف محدد */
 .tr-row.tr-row-selected .td-cell {
-    background: #bbf7d0 !important; /* أخضر ناعم للتحديد */
+    background: #e0f0ff !important; /* أزرق رسمي ناعم للتحديد */
 }
+
 
 
 

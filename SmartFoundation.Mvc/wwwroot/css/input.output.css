@@ -13343,10 +13343,10 @@ input[readonly], textarea[readonly] {
   background: #ffffff;
 }
 .tr-row:hover .td-cell {
-  background: #dcfce7 !important;
+  background: #f0f0f0 !important;
 }
 .tr-row.tr-row-selected .td-cell {
-  background: #bbf7d0 !important;
+  background: #e0f0ff !important;
 }
 .tr-row {
   background-color: var(--color-white);
