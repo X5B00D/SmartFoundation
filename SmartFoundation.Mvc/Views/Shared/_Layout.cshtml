@@ -111,13 +111,13 @@
         }
 
         footer.mt-auto {
-            background: #fafafa !important;
+            background: ##fcfcfc !important;
             position: fixed;
             bottom: 0;
             left: 0;
             right: 0;
             z-index: 30;
-            border-top: 1px solid #e5e7eb !important;
+            border-top: 1px solid ##fcfcfc !important;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -189,22 +189,22 @@
 
         <div id="main-loading">
             <div class="loader-inner text-center">
-                <div class="gov-spinner mb-4 mx-auto"></div>
+                <div class="gov-spinner mx-auto mb-4"></div>
                 <p class="text-lg font-medium tracking-wider text-gray-600">
                     جاري التحميل...
                 </p>
             </div>
         </div>
 
-        <main class="w-full max-w-full flex-1 px-2 pt-4 sm:px-4 md:px-6 overflow-x-hidden">
+        <main class="w-full max-w-full flex-1 overflow-x-hidden px-2 pt-4 sm:px-4 md:px-6">
             <div class="container-fluid mx-auto">
                 @RenderBody()
             </div>
         </main>
 
         <footer class="mt-auto border-t bg-gray-200" style="border-color:#e5e7eb; height: var(--footer-h);">
-            <div class="grid place-items-center h-full px-4">
-                <div class="text-sm text-center text-gray-400" dir="rtl">
+            <div class="grid h-full place-items-center px-4">
+                <div class="text-center text-sm text-gray-400" dir="rtl">
                     <span class="font-medium text-gray-700">إدارة مدينة الملك فيصل العسكرية</span>
                     <span class="mx-1 text-gray-400">©</span>
                     <span class="text-gray-500">@DateTime.UtcNow.Year</span>

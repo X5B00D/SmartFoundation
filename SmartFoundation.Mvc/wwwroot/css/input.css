@@ -343,17 +343,62 @@ textarea[readonly] {
    Head Cell
    ========================= */
 .th-cell {
-    @apply border-b border-gray-200 bg-gray-50 px-4 py-3 text-center text-sm font-semibold whitespace-nowrap text-gray-700;
+    @apply border-b border-gray-200 px-4 py-3 text-center text-sm font-semibold whitespace-nowrap;
+    background: linear-gradient(to bottom, #f9fafb, #f3f4f6);
+    color: #2c2c2c;
+    font-weight: 500;
+    font-size: 15px;
+    letter-spacing: -0.2px;
+    font-family: "Inter", "Tajawal", sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
 }
+
+
 
 /* =========================
    Body Cell
    ========================= */
+
+/* الخلية الأساسية */
 .td-cell {
-    @apply border-b border-gray-100 px-4 py-2.5 text-center text-sm font-normal whitespace-nowrap text-gray-800;
-    line-height: 1.6;
+    @apply border-b border-gray-100 px-4 py-2.5 text-center text-sm font-normal whitespace-nowrap text-gray-700;
+    font-family: "Inter", "Tajawal", sans-serif;
+    letter-spacing: -0.2px;
+    line-height: 1.7;
+    font-size: 14px;
     -webkit-font-smoothing: antialiased;
+    box-shadow: inset 0 -1px 0 rgba(0, 0, 0, 0.03), 0 0 0 0.5px rgba(0, 0, 0, 0.01);
+    transition: background 150ms ease, box-shadow 150ms ease;
 }
+
+/* الصف العادي */
+.tr-row:not(.tr-row-selected) .td-cell {
+    background: #ffffff;
+}
+
+
+.tr-row:not(.tr-row-selected):nth-child(even) .td-cell {
+    background: #f9f9f9; /* رمادي  فاتح */
+}
+
+.tr-row:not(.tr-row-selected):nth-child(odd) .td-cell {
+    background: #ffffff; /* أبيض */
+}
+
+/* عند تمرير الماوس */
+.tr-row:hover .td-cell {
+    background: #dcfce7 !important; /* أخضر فاتح خفيف عند hover */
+}
+
+/* إذا الصف محدد */
+.tr-row.tr-row-selected .td-cell {
+    background: #bbf7d0 !important; /* أخضر ناعم للتحديد */
+}
+
+
+
 
 /* =========================
    Rows
@@ -372,7 +417,7 @@ textarea[readonly] {
 
 /* Hover */
 .sf-table .tr-row:hover {
-    background-color: #ecfdf5;
+    background-color: #d1fae5;
 }
 
     .sf-table .tr-row:hover > td:first-child {
@@ -381,7 +426,7 @@ textarea[readonly] {
 
 /* Selected */
 .sf-table .tr-row.tr-row-selected {
-    background-color: rgba(5,150,105,0.08) !important;
+    background-color: #d1fae5;
 }
 
     .sf-table .tr-row.tr-row-selected > td:first-child {
@@ -390,7 +435,7 @@ textarea[readonly] {
 
 /* Active */
 .sf-table .tr-row:active {
-    filter: brightness(0.98);
+    filter: brightness(0.98) ;
 }
 
 /* Focus */
@@ -589,25 +634,42 @@ textarea[readonly] {
    Toolbar (Classic + Matched)
    ========================= */
 
-/* =========================
-   Toolbar – Match Table Head / Panel Header
-   ========================= */
 .toolbar {
-    @apply mb-3 flex flex-col gap-3 md:flex-row md:items-center md:justify-between;
-    @apply relative;
-    @apply rounded-sm border border-gray-200;
-    @apply bg-gray-50;
-    @apply px-3 py-3;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem; /* 12px */
+    margin-bottom: 0.75rem; /* 12px */
+    border-radius: 4px;
+    border: 1px solid #d1d5db; /* gray-300 */
+    background: linear-gradient(to bottom, #f9fafb, #f3f4f6); /* نفس th-cell */
+    padding: 0.75rem 0.75rem; /* 12px 12px */
     box-shadow: inset 0 -1px 0 rgba(0, 0, 0, 0.04), 0 1px 2px rgba(0, 0, 0, 0.04);
+    color: #374151;
+    font-weight: 400; /* ← هنا التعديل */
+    letter-spacing: -0.2px;
+    font-family: "Inter", "Tajawal", sans-serif;
+    flex-wrap: wrap;
 }
 
-    .toolbar::before {
-        content: "";
-        position: absolute;
-        inset: 0;
-        pointer-events: none;
-        background: linear-gradient(to bottom, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0));
+
+
+@media (min-width: 768px) {
+    .toolbar {
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
     }
+}
+
+.toolbar::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: linear-gradient(to bottom, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0));
+}
+
 
 
 /* =========================
@@ -732,24 +794,29 @@ textarea[readonly] {
                 @apply hover:bg-gray-50 hover:text-gray-900;
                 @apply focus:border-transparent focus:ring-1 focus:ring-emerald-700;
                 @apply h-9 rounded-sm px-3;
-                @apply inline-flex items-center gap-2;
-                transition: transform 80ms ease, background-color 120ms ease;
+                @apply inline-flex items-center gap-1;
+                background: linear-gradient(to bottom, #ffffff, #fdfdfd);
+                box-shadow: inset 0 0 0 1px rgba(0,0,0,0.02), 0 1px 1px rgba(0,0,0,0.03);
+                font-family: "Inter", "Tajawal", sans-serif;
+                font-weight: 500;
+                letter-spacing: -0.2px;
+                transition: transform 80ms ease, background-color 120ms ease, box-shadow 150ms ease;
                 position: relative;
                 z-index: 70;
             }
 
-                /* تفاعل الضغط */
                 .toolbar-actions .relative > button.btn.btn-outline-secondary:active,
                 .toolbar-actions .relative > button.btn-outline-secondary:active,
                 .toolbar-actions .btn-outline-secondary:active {
                     transform: translateY(1px);
+                    box-shadow: inset 0 2px 3px rgba(0,0,0,0.06);
                 }
 
-                /* أيقونة النقاط */
                 .toolbar-actions .relative > button.btn.btn-outline-secondary i,
                 .toolbar-actions .btn-outline-secondary i {
                     @apply text-gray-600;
                 }
+
 
             /* صندوق القائمة */
             .toolbar-actions .relative > div.absolute {
@@ -1015,6 +1082,7 @@ textarea[readonly] {
     background: rgba(0,0,0,.70);
     padding: 12px;
     overscroll-behavior: contain;
+
 }
 
 /* Modal Frame */
@@ -1023,28 +1091,22 @@ textarea[readonly] {
     z-index: 99991 !important;
     display: flex;
     flex-direction: column;
-    /*width: min(1000px, calc(100vw - 24px));*/
-    /*width: min(1000px, 92vw);*/
-    /*width: clamp(360px, 88vw, 760px);*/
     width: clamp(360px, 85vw, 680px);
     max-height: calc(100vh - 24px);
-    background: #f3f4f6; /* gray-100 */
+    background: linear-gradient(to bottom, #064e3b 0px, #f3f4f6 48px);
     border: 0px solid #064e3b;
-    border-radius: 0.500rem; /* rounded-sm */
+    border-radius: 0.500rem;
     overflow: hidden;
     max-width: calc(100vw - 24px);
     max-height: calc(100vh - 24px);
-    /* تمركز افتراضي بالمنتصف */
     left: 50%;
     top: 50%;
     transform: translate(-50%, -50%);
-    box-shadow: inset 0 -1px 0 rgba(0,0,0,0.06), 0 10px 30px rgba(0,0,0,0.20);
-    /* ===== NEW: Allow user resize (with JS handles) ===== */
+    box-shadow: none;
     min-width: 320px;
     min-height: 220px;
-    max-width: calc(100vw - 24px);
-    max-height: calc(100vh - 24px);
 }
+
 
 /* Mobile: nearly fullscreen */
 @media (max-width: 768px) {
@@ -1151,14 +1213,17 @@ textarea[readonly] {
 .sf-modal-header {
     position: relative;
     display: flex;
+    overflow: hidden;
     align-items: center;
     justify-content: center;
     padding: 12px 20px;
     border-bottom: 0px solid #d1d5db;
     background-color: #064e3b;
     color: #fff !important;
-    box-shadow: inset 0 -1px 0 rgba(0,0,0,0.22);
-    /* للسحب بالماوس */
+    border-bottom: 1px solid rgba(0,0,0,0.08);
+    box-shadow: none;
+    border-top-left-radius: 0.5rem;
+    border-top-right-radius: 0.5rem;
     cursor: move;
     user-select: none;
 }
@@ -1209,15 +1274,12 @@ textarea[readonly] {
 
 /* Body */
 .sf-modal-body {
-    background: #ffffff;
+    background: #fcfcfc;
     padding: 16px 20px;
-    /*overflow-y: auto;*/
     overflow-x: hidden;
     border-top: 1px solid rgba(0,0,0,0.04);
-    /* كان: max-height: calc(100vh - 24px - 48px - 56px); */
-    /*max-height: none;*/
     flex: 1;
-    min-height: 0; /* مهم جدًا مع flex عشان يشتغل scroll */
+    min-height: 0;
     overflow-y: auto;
     max-height: none;
 }
@@ -1767,24 +1829,31 @@ header,
 }
 
 
-
-
 /* =========================
    Panel (صفحة الرندر)
    ========================= */
 .sf-panel {
-    @apply relative mx-auto mt-6 mb-9 overflow-visible;
+    /*@apply relative mx-auto mt-6 mb-9 overflow-visible;*/
+    @apply relative mx-auto mt-6 mb-9 overflow-hidden;
     @apply w-[99%];
-    @apply rounded-sm border border-gray-200 bg-white;
+    @apply rounded-sm border border-gray-300 bg-gray-50;
+
 }
+
+/* =========================
+   Panel Header
+   ========================= */
 
 .sf-panel-header {
     @apply relative z-10 flex items-center justify-between;
     @apply px-4 py-2.5;
-    @apply border-b border-gray-200 bg-gray-50;
-    @apply text-sm font-medium text-gray-700;
-    @apply transition-colors duration-150;
-    box-shadow: 0 1px 0 rgba(0, 0, 0, 0.04);
+    @apply border-b border-gray-200;
+    background: linear-gradient(to bottom, #f9fafb, #f3f4f6);
+    color: #374151;
+    font-weight: 500;
+    letter-spacing: -0.2px;
+    font-family: "Inter", "Tajawal", sans-serif;
+    transition: all 0.2s ease;
 }
 
 
@@ -1793,30 +1862,34 @@ header,
         position: absolute;
         inset: 0;
         pointer-events: none;
-        background: linear-gradient(to bottom, rgba(255,255,255,0.3), transparent);
+        background: linear-gradient(to bottom, rgba(255,255,255,0.2), transparent);
     }
 
 /* =========================
    Panel Title
    ========================= */
 .sf-panel-title {
-    @apply flex items-center gap-2 text-sm font-semibold whitespace-nowrap text-gray-800;
+    @apply flex items-center gap-2 text-sm font-semibold whitespace-nowrap text-gray-900;
     letter-spacing: -0.2px;
+    font-weight: 500;
+    font-size: 17px;
 }
 
     .sf-panel-title i {
         font-size: 14px;
-        color: #374151;
-        opacity: 0.9;
+        color: #293545; /* Tailwind gray-800 */
+        opacity: 1;
     }
 
 /* =========================
    Panel Body
    ========================= */
 .sf-panel-body {
-    @apply bg-gray-50 p-4 md:p-5;
-    border-top: 1px solid rgba(0, 0, 0, 0.03);
+    background: #fcfcfc;
+    @apply p-4 md:p-5;
+    border-top: 1px solid rgba(0, 0, 0, 0.06);
 }
+
 
 /* =========================
    Panel Actions
@@ -1830,16 +1903,16 @@ header,
    ========================= */
 .sf-panel-btn {
     @apply inline-flex h-5 w-5 items-center justify-center;
-    @apply rounded-sm border border-gray-200 bg-white text-gray-700;
-    @apply hover:bg-gray-100 hover:text-gray-900;
+    @apply rounded-sm border border-gray-300 bg-white text-gray-800;
+    @apply hover:bg-gray-200 hover:text-gray-900;
     @apply transition duration-150 ease-in-out;
-    @apply focus:ring-1 focus:ring-emerald-700 focus:outline-none;
-    box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+    @apply focus:ring-2 focus:ring-emerald-700 focus:outline-none;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.08);
 }
 
     .sf-panel-btn i,
     .sf-panel-btn svg {
-        opacity: 0.85;
+        opacity: 0.9;
         transition: all 0.2s ease;
     }
 
@@ -1850,28 +1923,33 @@ header,
 
     .sf-panel-btn:active {
         transform: scale(0.98);
-        box-shadow: inset 0 2px 3px rgba(0, 0, 0, 0.08);
+        box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
     }
 
     .sf-panel-btn i {
         font-size: 10px;
-        color: #374151;
+        color: #1f2937;
     }
 
     .sf-panel-btn svg {
         width: 10px;
         height: 10px;
         stroke-width: 2;
-        stroke: #374151;
+        stroke: #1f2937;
     }
 
 /* =========================
    Close Button
    ========================= */
 .sf-panel-btn-close {
-    @apply border-gray-200 bg-white text-gray-500;
-    @apply hover:border-gray-300 hover:bg-gray-100 hover:text-gray-700;
+    @apply border-gray-300 bg-white text-gray-600;
+    @apply hover:border-gray-400 hover:bg-gray-200 hover:text-gray-800;
 }
+
+
+
+
+
 
 
 /* =========================
