@@ -143,11 +143,12 @@ namespace SmartFoundation.Mvc.Controllers.Housing
                          SectionTitle = "اختيار فئة قائمة الانتظار",
                          Name = "WaitingList",
                          Type = "select",
+                         Select2 = true,
                          Options = WaitingListOptions,
                          ColCss = "3",
                          Placeholder = "اختر فئة سجلات الانتظار",
                          Icon = "fa fa-user",
-                         Select2 = true,
+                         
                          Value = waitingClassID_,
                          OnChangeJs = @"
                                        var WaitingClassID_ = value.trim();

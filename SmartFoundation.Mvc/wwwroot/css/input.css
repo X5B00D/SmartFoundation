@@ -239,7 +239,7 @@ input, textarea, select, button {
    Buttons Table
    ========================= */
 .btn {
-    @apply inline-flex h-8.5 items-center justify-center gap-2 rounded-sm px-2 text-sm font-medium transition focus:ring-2 focus:ring-offset-0 focus:outline-none disabled:pointer-events-none disabled:opacity-60;
+    @apply inline-flex h-9 items-center justify-center gap-2 rounded-sm px-2 text-sm font-medium transition focus:ring-2 focus:ring-offset-0 focus:outline-none disabled:pointer-events-none disabled:opacity-60;
 }
 
     .btn i {
@@ -389,12 +389,12 @@ textarea[readonly] {
 
 /* عند تمرير الماوس */
 .tr-row:hover .td-cell {
-    background: #f0f0f0 !important; /* رمادي فاتح للـ hover */
+    background: #f0f0f0 !important;
 }
 
 /* إذا الصف محدد */
 .tr-row.tr-row-selected .td-cell {
-    background: #e0f0ff !important; /* أزرق رسمي ناعم للتحديد */
+    background: #e0f0ff !important; 
 }
 
 
@@ -1400,6 +1400,28 @@ textarea[readonly] {
     transform: none;
 }
 
+
+
+
+/* =========================
+   مكان ايقونات الفورم 
+   ========================= */
+/* Move the input icon wrapper to the right */
+.sf-form .pointer-events-none.absolute.inset-y-0.left-0 {
+    left: auto !important;
+    right: 0 !important;
+    padding-left: 0 !important;
+    padding-right: .75rem !important; /* نفس pl-3 */
+}
+
+/* Replace input left padding with right padding */
+.sf-form input.input.pl-10 {
+    padding-left: .75rem !important;
+    padding-right: 2.5rem !important; /* نفس  pl-10 */
+}
+
+
+
 /* =========================
    Readonly / Disabled fields (Modal)
    ========================= */
@@ -2321,3 +2343,5 @@ body.sf-navigating .sf-select-panel {
         width: min(900px, 92vw);
     }
 }
+
+

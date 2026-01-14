@@ -182,7 +182,9 @@ namespace SmartFoundation.UI.ViewModels.SmartForm
         public bool Show { get; set; } = true;
         public string? StoredProcedureName { get; set; }
         public string? Operation { get; set; } = "custom";
-        public string? Color { get; set; } 
+        public string? Color { get; set; }
+
+        public string? SectionTitle { get; set; }  // اسم ال
     }
 
     public class FormConfig

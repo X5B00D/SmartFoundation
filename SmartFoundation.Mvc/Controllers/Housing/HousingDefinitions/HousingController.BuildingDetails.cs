@@ -190,6 +190,7 @@ namespace SmartFoundation.Mvc.Controllers.Housing
                          SectionTitle = "اختيار المرفق",
                          Name = "UtilityType",
                          Type = "select",
+                         Select2=true,
                          Options = UtilityTypeOptions,
                          ColCss = "3",
                          Placeholder = "اختر المرفق",

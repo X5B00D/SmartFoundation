@@ -148,43 +148,54 @@ function deleteForm() { console.log("deleteForm: نفّذ تأكيد ثم submit
 
 
 
-// =========================
-// Select2 init (SmartForm)
-// =========================
 function sfInitSelect2(root = document) {
     if (!window.jQuery || !jQuery.fn || !jQuery.fn.select2) return;
 
-    jQuery(root).find('select.js-select2').each(function () {
-        const $s = jQuery(this);
-        if ($s.data('select2')) return;
+    const $root = jQuery(root);
 
-        const ph = $s.data('s2-placeholder') || '';
-        const min = $s.data('s2-min-results');
+    $root
+        .find('select.js-select2')
+        .add($root.is('select.js-select2') ? $root : [])
+        .each(function () {
+            const $s = jQuery(this);
+            if ($s.data('select2')) return;
 
-        $s.select2({
-            width: '100%',
-            dir: 'rtl',
-            placeholder: ph,
-            minimumResultsForSearch:
-                (min !== undefined && min !== null && min !== '')
-                    ? parseInt(min, 10)
-                    : 0
+            const ph = $s.data('s2-placeholder') || '';
+            const min = $s.data('s2-min-results');
+
+            $s.select2({
+                width: '100%',
+                dir: 'rtl',
+                placeholder: ph,
+                minimumResultsForSearch:
+                    (min !== undefined && min !== null && min !== '')
+                        ? parseInt(min, 10)
+                        : 0
+            });
         });
-    });
 }
 
-// أول تحميل
-document.addEventListener('DOMContentLoaded', () => sfInitSelect2());
 
-// بعد ما Alpine يجهز (مهم)
-document.addEventListener('alpine:init', () => {
-    queueMicrotask(() => sfInitSelect2());
-});
 
-// إذا عندك تحديث ديناميكي للحقول/الخيارات
-document.addEventListener('form-rendered', (e) => {
-    sfInitSelect2(e.target || document);
-});
+
+(function () {
+    const run = () => sfInitSelect2(document);
+
+    document.addEventListener("DOMContentLoaded", run);
+
+    const obs = new MutationObserver((mutations) => {
+        for (const m of mutations) {
+            for (const node of m.addedNodes) {
+                if (node.nodeType !== 1) continue;
+                if (node.matches?.("select.js-select2") || node.querySelector?.("select.js-select2")) {
+                    sfInitSelect2(node);
+                }
+            }
+        }
+    });
+
+    obs.observe(document.body, { childList: true, subtree: true });
+})();
 
 
 (function () {

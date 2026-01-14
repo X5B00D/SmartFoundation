@@ -13128,7 +13128,7 @@ body, h1, h2, h3, h4, h5, h6, input, textarea, select, button {
 }
 .btn {
   display: inline-flex;
-  height: calc(var(--spacing) * 8.5);
+  height: calc(var(--spacing) * 9);
   align-items: center;
   justify-content: center;
   gap: calc(var(--spacing) * 2);
@@ -14335,6 +14335,16 @@ input[readonly], textarea[readonly] {
 .sf-modal textarea.sf-modal-input ~ .sf-input-icon {
   top: 14px;
   transform: none;
+}
+.sf-form .pointer-events-none.absolute.inset-y-0.left-0 {
+  left: auto !important;
+  right: 0 !important;
+  padding-left: 0 !important;
+  padding-right: .75rem !important;
+}
+.sf-form input.input.pl-10 {
+  padding-left: .75rem !important;
+  padding-right: 2.5rem !important;
 }
 .sf-modal input[readonly], .sf-modal input:disabled, .sf-modal textarea[readonly], .sf-modal textarea:disabled, .sf-modal select[readonly], .sf-modal select:disabled, .sf-modal .input[readonly], .sf-modal .input:disabled, .sf-modal .sf-modal-input[readonly], .sf-modal .sf-modal-input:disabled, .sf-modal .sf-textarea[readonly], .sf-modal .sf-textarea:disabled, .sf-modal .sf-date[readonly], .sf-modal .sf-date:disabled, .sf-modal .sf-select[aria-disabled="true"], .sf-modal .sf-select[disabled] {
   background-color: #f3f4f6;

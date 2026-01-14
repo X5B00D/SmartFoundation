@@ -163,61 +163,44 @@ namespace SmartFoundation.Mvc.Controllers.Housing
             try
             {
 
-
                 form = new FormConfig
                 {
-                    FormId = "dynamicForm",
-                    Title = "نموذج الإدخال",
-                    Method = "POST",
-                    SubmitText = null,
-                    StoredProcedureName = "sp_SaveDemoForm",
-                    Operation = "insert",
-                    StoredSuccessMessageField = "Message",
-                    StoredErrorMessageField = "Error",
-
                     Fields = new List<FieldConfig>
-                {
-                    // ========= البيانات الشخصية =========
+                                {
+                        new FieldConfig
+                        {
+                            SectionTitle = "نوع البحث",
+                            Label = "البحث برقم الهوية الوطنية",
+                            Required = true,
+                            InputLang = "number",
+                            InputPattern = @"^[0-9]{10}$",
+                            Name = "NationalID",
+                            IsNumericOnly = true,
+                            Type = "text",
+                            ColCss = "3",
+                            Value = NationalID_,
+                            Placeholder = "1xxxxxxxxx",
+                            Icon = "fa-solid fa-id-card",
+                            MaxLength = 10,
 
-                     new FieldConfig {
-                         SectionTitle = "نوع البحث",
-                         Label="البحث برقم الهوية الوطنية",
-                         Required =true,
-                         TextMode="numeric",
-                         Name = "NationalID",
-                         Type = "nationalid",
-                         ColCss = "3",
-                         Value = NationalID_,
-                         Placeholder = "1xxxxxxxxx",
-                         Icon = "fa-solid fa-id-card",
-                         MaxLength=10,
-                         
-
-                     },
-
-                   },
-
-
-                    Buttons = new List<FormButtonConfig>
-                    {
-                                   new FormButtonConfig
-                          {
-                              Text="بحث",
-                              Icon="fa-solid fa-search",
-                              Type="button",
-                              Color="success",
-                              // Replace the OnClickJs of the "تجربة" button with this:
-                              OnClickJs = "(function(){"
+                            // ===== زر البحث نحطه داخل نفس الحقل =====
+                            InlineButton = true,
+                            InlineButtonText = "بحث",
+                            InlineButtonIcon = "fa-solid fa-search",
+                            InlineButtonCss = "btn btn-success",
+                            InlineButtonPosition = "end",
+                            InlineButtonOnClickJs =
+                                "(function(){"
                                 + "var hidden=document.querySelector('input[name=NationalID]');"
                                 + "if(!hidden){toastr.error('لا يوجد حقل مستخدم');return;}"
-                                + "var NationalID = (hidden.value||'').trim();"
+                                + "var NationalID=(hidden.value||'').trim();"
                                 + "if(!NationalID){toastr.error('الرجاء كتابة رقم الهوية الوطنية');return;}"
-                                + "var url = '/Housing/WaitingListByResident?NID=' + encodeURIComponent(NationalID);"
-                                + "window.location.href = url;"
+                                + "var url='/Housing/WaitingListByResident?NID='+encodeURIComponent(NationalID);"
+                                + "window.location.href=url;"
                                 + "})();"
-                                },
-                            }
-                        };
+                        }
+                      }
+                   };
 
 
                 if (ds != null && ds.Tables.Count > 0 && permissionTable!.Rows.Count > 0)

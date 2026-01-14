@@ -281,6 +281,7 @@ namespace SmartFoundation.Mvc.Controllers.ControlPanel
                          SectionTitle = "نوع البحث",
                          Name = "permissinType",
                          Type = "select",
+                         Select2=true,
                          Options = permissinTypeOptions,
                          ColCss = "3",
                          Value = SearchID_,
