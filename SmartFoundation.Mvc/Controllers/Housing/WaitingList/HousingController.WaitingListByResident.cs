@@ -156,7 +156,7 @@ namespace SmartFoundation.Mvc.Controllers.Housing
             json = JsonSerializer.Serialize(result!.Value);
 
             idaraOptions = JsonSerializer.Deserialize<List<OptionItem>>(json)!;
-            
+
 
             //// ---------------------- END DDL ----------------------
 
@@ -166,42 +166,39 @@ namespace SmartFoundation.Mvc.Controllers.Housing
                 form = new FormConfig
                 {
                     Fields = new List<FieldConfig>
+                    {
+                                new FieldConfig
                                 {
-                        new FieldConfig
-                        {
-                            SectionTitle = "نوع البحث",
-                            Label = "البحث برقم الهوية الوطنية",
-                            Required = true,
-                            InputLang = "number",
-                            InputPattern = @"^[0-9]{10}$",
-                            Name = "NationalID",
-                            IsNumericOnly = true,
-                            Type = "text",
-                            ColCss = "3",
-                            Value = NationalID_,
-                            Placeholder = "1xxxxxxxxx",
-                            Icon = "fa-solid fa-id-card",
-                            MaxLength = 10,
+                                    SectionTitle= "نوع البحث",                 
+                                    Label="البحث برقم الهوية الوطنية", 
+                                    Name="NationalID",
+                                    Type="text",
+                                    ColCss="3",
+                                    Icon="fa-solid fa-id-card",
+                                    Placeholder="1xxxxxxxxx",
+                                    Value= NationalID_,                 // القيمة الافتراضية (من السيرفر)
+                                    MaxLength=10,
+                                    Required=true,
+                                    InputLang= "number",
+                                    InputPattern= @"^[0-9]{10}$",
+                                    PatternMsg= "رقم الهوية يجب أن يكون 10 أرقام",
+                                    RequiredMsg= "الرجاء كتابة رقم الهوية الوطنية",
+                                    IsNumericOnly=true,
+                                    SubmitOnEnter =true,  // يفعل زر  Enter جديد
+                                    // ===== زر داخل نفس الحقل =====
+                                    InlineButton=true,               // تفعيل زر داخل الحقل
+                                    InlineButtonText="بحـث",              // نص الزر
+                                    InlineButtonIcon= "fa-solid fa-search",
+                                    InlineButtonCss="btn btn-success", 
+                                    InlineButtonPosition="end",              // مكان الزر (end / start)
+                                    InlineButtonOnClickJs="sfNav(this)",      // استدعاء الدالة العامة )
+                                    // ===== بيانات التنقل (sfNav) =====
+                                    NavUrl="/Housing/WaitingListByResident", // الصفحة الهدف
+                                    NavKey="NID",                            // اسم باراميتر الـ QueryString
 
-                            // ===== زر البحث نحطه داخل نفس الحقل =====
-                            InlineButton = true,
-                            InlineButtonText = "بحث",
-                            InlineButtonIcon = "fa-solid fa-search",
-                            InlineButtonCss = "btn btn-success",
-                            InlineButtonPosition = "end",
-                            InlineButtonOnClickJs =
-                                "(function(){"
-                                + "var hidden=document.querySelector('input[name=NationalID]');"
-                                + "if(!hidden){toastr.error('لا يوجد حقل مستخدم');return;}"
-                                + "var NationalID=(hidden.value||'').trim();"
-                                + "if(!NationalID){toastr.error('الرجاء كتابة رقم الهوية الوطنية');return;}"
-                                + "var url='/Housing/WaitingListByResident?NID='+encodeURIComponent(NationalID);"
-                                + "window.location.href=url;"
-                                + "})();"
-                        }
-                      }
-                   };
-
+                                    }
+                              }
+                        };
 
                 if (ds != null && ds.Tables.Count > 0 && permissionTable!.Rows.Count > 0)
                 {

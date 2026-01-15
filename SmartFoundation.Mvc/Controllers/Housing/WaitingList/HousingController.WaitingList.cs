@@ -117,57 +117,29 @@ namespace SmartFoundation.Mvc.Controllers.Housing
                 // ----------------------END DDLValues ----------------------
 
 
-
-
-
                 // Determine which fields should be visible based on SearchID_
 
-                form = new FormConfig
-                {
-                    FormId = "dynamicForm",
-                    Title = "نموذج الإدخال",
-                    Method = "POST",
-                    SubmitText = null,
+                           form = new FormConfig
+                            {
+                                 Fields = new List<FieldConfig>
+                                {
+                                    new FieldConfig
+                                    {
+                                        SectionTitle = "اختيار فئة قائمة الانتظار",
+                                        Name = "WaitingList",
+                                        Type = "select",
+                                        Select2 = true,
+                                        Options = WaitingListOptions,
+                                        ColCss = "3",
+                                        Placeholder = "اختر فئة سجلات الانتظار",
+                                        Icon = "fa fa-user",
+                                        Value = waitingClassID_,
+                                        OnChangeJs = "sfNav(this)",
+                                        NavUrl = "/Housing/WaitingList",
+                                        NavKey = "U",
+                                    },
+                                },
 
-
-                    StoredProcedureName = "sp_SaveDemoForm",
-                    Operation = "insert",
-                    StoredSuccessMessageField = "Message",
-                    StoredErrorMessageField = "Error",
-
-                    Fields = new List<FieldConfig>
-                {
-
-
-                     new FieldConfig {
-                         SectionTitle = "اختيار فئة قائمة الانتظار",
-                         Name = "WaitingList",
-                         Type = "select",
-                         Select2 = true,
-                         Options = WaitingListOptions,
-                         ColCss = "3",
-                         Placeholder = "اختر فئة سجلات الانتظار",
-                         Icon = "fa fa-user",
-                         
-                         Value = waitingClassID_,
-                         OnChangeJs = @"
-                                       var WaitingClassID_ = value.trim();
-                                       if (!WaitingClassID_) {
-                                           if (typeof toastr !== 'undefined') {
-                                               toastr.info('الرجاء الاختيار اولا');
-                                           }
-                                           return;
-                                       }
-                                         if (value && value !== '-1') {
-                             var url = '/Housing/WaitingList?U=' + encodeURIComponent(WaitingClassID_);
-                            window.location.href = url;
-                        }
-
-                                   "
-                     },
-
-
-                 },
                     Buttons = new List<FormButtonConfig>
                     {
                         //           new FormButtonConfig
@@ -188,8 +160,6 @@ namespace SmartFoundation.Mvc.Controllers.Housing
                         //+ "window.location.href = url;"
                         //+ "})();"
                         //  },
-
-
 
                     }
 

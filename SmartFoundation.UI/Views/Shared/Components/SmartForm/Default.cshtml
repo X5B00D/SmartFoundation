@@ -93,7 +93,7 @@
 
             @switch (field.Type.ToLower())
             {
-                                            case "select":
+                                            @* case "select":
                                         {
                                             var name = field.Name;
                                             var value = field.Value ?? "";
@@ -153,7 +153,93 @@
                                                 <p class="mt-1 text-xs text-gray-500">@field.HelpText</p>
                                             }
                                         }
-                                        break;
+                                        break; *@
+
+                                        case "select":
+                                            {
+                                                var name = field.Name;
+                                                var value = field.Value ?? "";
+                                                var placeholder = field.Placeholder ?? "الرجاء الاختيار";
+
+                                                var required = field.Required ? "required" : "";
+                                                var disabled = field.Disabled ? "disabled" : "";
+
+                                                var useSelect2 = field.Select2;
+                                                var minResults = field.Select2MinResultsForSearch;
+                                                var s2Placeholder = string.IsNullOrWhiteSpace(field.Select2Placeholder)
+                                                    ? placeholder
+                                                    : field.Select2Placeholder;
+
+                                                var onchangeJs =
+                                                    string.IsNullOrWhiteSpace(field.DependsOn) &&
+                                                    string.IsNullOrWhiteSpace(field.DependsUrl)
+                                                        ? field.OnChangeJs
+                                                        : null;
+
+                                                <div class="sf-select-wrap">
+                                                    <select
+                                                        id="@name"
+                                                        name="@name"
+                                                        class="sf-modal-input sf-modal-select @(useSelect2 ? "js-select2" : "") @field.ExtraCss"
+                                                        @required
+                                                        @disabled
+                                                        data-depends-on="@field.DependsOn"
+                                                        data-depends-url="@field.DependsUrl"
+                                                        data-s2-min-results="@(minResults?.ToString())"
+                                                        data-s2-placeholder="@s2Placeholder"
+
+                                                        data-sf-url="@field.NavUrl"
+                                                        data-sf-key="@field.NavKey"
+                                                        data-sf-key2="@field.NavKey2" data-sf-val2="@field.NavVal2"
+                                                        data-sf-key3="@field.NavKey3" data-sf-val3="@field.NavVal3"
+                                                        data-sf-key4="@field.NavKey4" data-sf-val4="@field.NavVal4"
+                                                        data-sf-key5="@field.NavKey5" data-sf-val5="@field.NavVal5"
+                                                        data-sf-field3="@field.NavField3"
+                                                        data-sf-field4="@field.NavField4"
+                                                        data-sf-field5="@field.NavField5"
+                                                        data-sf-toggle-group="@field.ToggleGroup"
+                                                        data-sf-toggle-map="@field.ToggleMap"
+                                                        data-sf-toggle-mode="@field.ToggleMode"
+
+
+                                                        data-sf-required="@(field.Required ? "1" : "0")"
+                                                        data-sf-required-msg="@field.RequiredMsg"
+                                                        data-sf-reject="@field.RejectValue"
+                                                        data-sf-reject-msg="@field.RejectMsg"
+                                                        data-sf-toast-type="@field.ToastType"
+                                                        data-sf-pattern="@field.InputPattern"
+                                                        data-sf-pattern-msg="@field.PatternMsg"
+
+                                                        onchange="@onchangeJs">
+
+                                                        <option value="" disabled @(string.IsNullOrWhiteSpace(value) ? "selected" : "")>
+                                                            @placeholder
+                                                        </option>
+
+                                                        @foreach (var opt in field.Options)
+                                                        {
+                                                            var optValue = opt.Value ?? "";
+                                                            var optText = opt.Text ?? "";
+                                                            var isSelected =
+                                                                opt.Selected ||
+                                                                string.Equals(value, optValue, StringComparison.OrdinalIgnoreCase);
+
+                                                            <option value="@optValue"
+                                                                    @(opt.Disabled ? "disabled" : null)
+                                                                    @(isSelected ? "selected" : null)>
+                                                                @optText
+                                                            </option>
+                                                        }
+                                                    </select>
+                                                </div>
+
+                                                @if (!string.IsNullOrWhiteSpace(field.HelpText))
+                                                {
+                                                    <p class="mt-1 text-xs text-gray-500">@field.HelpText</p>
+                                                }
+                                            }
+                                            break;
+
 
 
 
@@ -274,6 +360,8 @@
                       x-input-lang="@field.InputLang"
                       x-input-pattern="@field.InputPattern"
                       x-on:change="@field.OnChangeJs"
+                      @* @Html.Raw(field.SubmitOnEnter ? " x-on:keydown.enter.prevent=\"sfEnter(this)\"" : "") *@
+                      @Html.Raw(field.SubmitOnEnter ? " x-on:keydown.enter.prevent=\"window.sfEnter($event.target)\"" : "")
                       data-dependson="@field.DependsOn"
                       data-dependsurl="@field.DependsUrl"
                       data-textmode="@field.TextMode"
@@ -301,13 +389,11 @@
         else
         {
 
-
-
                     <div class="flex items-center gap-2">
                         @* زر قبل الحقل (start) *@
                         @if (field.InlineButton && (field.InlineButtonPosition ?? "end").ToLower() == "start")
                         {
-                            <button type="button"
+                            @* <button type="button"
                                     class="shrink-0 whitespace-nowrap @(string.IsNullOrWhiteSpace(field.InlineButtonCss) ? "btn btn-success" : field.InlineButtonCss)"
                                     @Html.Raw(string.IsNullOrWhiteSpace(field.InlineButtonOnClickJs) ? "" : $"onclick=\"{field.InlineButtonOnClickJs}\"")>
                                 @if (!string.IsNullOrWhiteSpace(field.InlineButtonIcon))
@@ -318,7 +404,40 @@
                                 {
                                     <span>@field.InlineButtonText</span>
                                 }
+                            </button> *@
+                            <button type="button"
+                                    class="shrink-0 whitespace-nowrap @(string.IsNullOrWhiteSpace(field.InlineButtonCss) ? "btn btn-success" : field.InlineButtonCss)"
+                                    @Html.Raw(string.IsNullOrWhiteSpace(field.InlineButtonOnClickJs) ? "" : $"onclick=\"{field.InlineButtonOnClickJs}\"")
+                                    data-sf-field="@field.Name"
+                                    data-sf-url="@field.NavUrl"
+                                    data-sf-key="@field.NavKey"
+                                    data-sf-key2="@field.NavKey2" data-sf-val2="@field.NavVal2"
+                                    data-sf-key3="@field.NavKey3" data-sf-val3="@field.NavVal3"
+                                    data-sf-key4="@field.NavKey4" data-sf-val4="@field.NavVal4"
+                                    data-sf-key5="@field.NavKey5" data-sf-val5="@field.NavVal5"
+                                    data-sf-field3="@field.NavField3"
+                                    data-sf-field4="@field.NavField4"
+                                    data-sf-field5="@field.NavField5"
+                                    data-sf-toggle-group="@field.ToggleGroup"
+                                    data-sf-toggle-map="@field.ToggleMap"
+                                    data-sf-toggle-mode="@field.ToggleMode"
+                                    data-sf-required="@(field.Required ? "1" : "0")"
+                                    data-sf-required-msg="@field.RequiredMsg"
+                                    data-sf-pattern="@field.InputPattern"
+                                    data-sf-pattern-msg="@field.PatternMsg"
+                                    data-sf-reject="@field.RejectValue"
+                                    data-sf-reject-msg="@field.RejectMsg"
+                                    data-sf-toast-type="@field.ToastType">
+                                @if (!string.IsNullOrWhiteSpace(field.InlineButtonIcon))
+                                {
+                                    <i class="@field.InlineButtonIcon text-[14px]"></i>
+                                }
+                                @if (!string.IsNullOrWhiteSpace(field.InlineButtonText))
+                                {
+                                    <span>@field.InlineButtonText</span>
+                                }
                             </button>
+
                         }
 
                     <div class="relative min-w-0 flex-1">
@@ -341,6 +460,8 @@
                            x-input-lang="@field.InputLang"
                            x-input-pattern="@field.InputPattern"
                            x-on:change="@field.OnChangeJs"
+                           @* @Html.Raw(field.SubmitOnEnter ? " x-on:keydown.enter.prevent=\"sfEnter(this)\"" : "") *@
+                           @Html.Raw(field.SubmitOnEnter ? " x-on:keydown.enter.prevent=\"window.sfEnter($event.target)\"" : "")
                            autocomplete="@(field.Autocomplete ?? "off")"
                            spellcheck="@(field.Spellcheck?.ToString().ToLower() ?? "false")"
                            autocapitalize="@(field.Autocapitalize ?? "none")"
@@ -379,7 +500,7 @@
                             @* زر بعد الحقل (end) *@
                             @if (field.InlineButton && (field.InlineButtonPosition ?? "end").ToLower() != "start")
                             {
-                                <button type="button"
+                                @* <button type="button"
                                         class="shrink-0 whitespace-nowrap @(string.IsNullOrWhiteSpace(field.InlineButtonCss) ? "btn btn-success" : field.InlineButtonCss)"
                                         @Html.Raw(string.IsNullOrWhiteSpace(field.InlineButtonOnClickJs) ? "" : $"onclick=\"{field.InlineButtonOnClickJs}\"")>
                                     @if (!string.IsNullOrWhiteSpace(field.InlineButtonIcon))
@@ -390,7 +511,40 @@
                                     {
                                         <span>@field.InlineButtonText</span>
                                     }
-                                </button>
+                                </button> *@
+                                <button type="button"
+                                    class="shrink-0 whitespace-nowrap @(string.IsNullOrWhiteSpace(field.InlineButtonCss) ? "btn btn-success" : field.InlineButtonCss)"
+                                    @Html.Raw(string.IsNullOrWhiteSpace(field.InlineButtonOnClickJs) ? "" : $"onclick=\"{field.InlineButtonOnClickJs}\"")
+                                    data-sf-field="@field.Name"
+                                    data-sf-url="@field.NavUrl"
+                                    data-sf-key="@field.NavKey"
+                                    data-sf-key2="@field.NavKey2" data-sf-val2="@field.NavVal2"
+                                    data-sf-key3="@field.NavKey3" data-sf-val3="@field.NavVal3"
+                                    data-sf-key4="@field.NavKey4" data-sf-val4="@field.NavVal4"
+                                    data-sf-key5="@field.NavKey5" data-sf-val5="@field.NavVal5"
+                                    data-sf-field3="@field.NavField3"
+                                    data-sf-field4="@field.NavField4"
+                                    data-sf-field5="@field.NavField5"
+                                    data-sf-toggle-group="@field.ToggleGroup"
+                                    data-sf-toggle-map="@field.ToggleMap"
+                                    data-sf-toggle-mode="@field.ToggleMode"
+                                    data-sf-required="@(field.Required ? "1" : "0")"
+                                    data-sf-required-msg="@field.RequiredMsg"
+                                    data-sf-pattern="@field.InputPattern"
+                                    data-sf-pattern-msg="@field.PatternMsg"
+                                    data-sf-reject="@field.RejectValue"
+                                    data-sf-reject-msg="@field.RejectMsg"
+                                    data-sf-toast-type="@field.ToastType">
+                                @if (!string.IsNullOrWhiteSpace(field.InlineButtonIcon))
+                                {
+                                    <i class="@field.InlineButtonIcon text-[14px]"></i>
+                                }
+                                @if (!string.IsNullOrWhiteSpace(field.InlineButtonText))
+                                {
+                                    <span>@field.InlineButtonText</span>
+                                }
+                            </button>
+
                             }
 
                         </div>

@@ -274,21 +274,10 @@ input, textarea, select, button {
     @apply bg-sky-600 text-white hover:bg-sky-700 focus:ring-sky-400;
 }
 
-
-
-
-
 input[readonly],
 textarea[readonly] {
     @apply cursor-not-allowed bg-gray-200 text-gray-500;
 }
-
-
-
-
-
-
-
 
 
 /* =========================
@@ -303,7 +292,7 @@ textarea[readonly] {
    Table Container
    ========================= */
 .table-box {
-    @apply relative w-full overflow-x-auto rounded-sm border border-gray-200 bg-white;
+    @apply relative w-full overflow-x-auto rounded-sm border border-gray-300 bg-gray-50;
 }
 
     /* Scrollbar */
@@ -355,15 +344,13 @@ textarea[readonly] {
     text-rendering: optimizeLegibility;
 }
 
-
-
 /* =========================
    Body Cell
    ========================= */
 
 /* الخلية الأساسية */
 .td-cell {
-    @apply border-b border-gray-100 px-4 py-2.5 text-center text-sm font-normal whitespace-nowrap text-gray-700;
+    @apply border-b border-gray-200 px-4 py-2.5 text-center text-sm font-normal whitespace-nowrap text-gray-700;
     font-family: "Inter", "Tajawal", sans-serif;
     letter-spacing: -0.2px;
     line-height: 1.7;
@@ -396,10 +383,6 @@ textarea[readonly] {
 .tr-row.tr-row-selected .td-cell {
     background: #e0f0ff !important; 
 }
-
-
-
-
 
 /* =========================
    Rows
@@ -653,8 +636,6 @@ textarea[readonly] {
     flex-wrap: wrap;
 }
 
-
-
 @media (min-width: 768px) {
     .toolbar {
         flex-direction: row;
@@ -670,8 +651,6 @@ textarea[readonly] {
     pointer-events: none;
     background: linear-gradient(to bottom, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0));
 }
-
-
 
 /* =========================
    Shared Input Styling
@@ -760,10 +739,6 @@ textarea[readonly] {
 .toolbar-actions {
     position: relative;
 }
-
-
-
-
 
 /* =========================
    Dropdown Actions (Menu)
@@ -888,9 +863,6 @@ textarea[readonly] {
 
 
 
-
-
-
 /* موبايل */
 @media (max-width: 640px) {
     .toolbar-actions .relative > div.absolute {
@@ -960,8 +932,6 @@ textarea[readonly] {
         display: none !important;
     }
 
-
-
     /* سهم صغير (فوق العنصر) */
     .sf-tipwrap[data-tip]::before {
         content: "";
@@ -984,12 +954,6 @@ textarea[readonly] {
     opacity: 1;
     transform: translateY(-2px);
 }
-
-
-
-
-
-
 
 
 /* =========================
@@ -1052,15 +1016,6 @@ textarea[readonly] {
     content: "";
     @apply absolute inset-0 bg-white/50;
 }
-
-
-
-
-
-
-
-
-
 
 /* =========================================================
    MODAL — Compatibility + Sidebar-safe
@@ -1292,7 +1247,6 @@ textarea[readonly] {
     }
 }
 
-
 /* Desktop / Large */
 @media (min-width: 1201px) {
     .sf-modal {
@@ -1300,8 +1254,7 @@ textarea[readonly] {
     }
 }
 
-
-/* Footer */
+/*Footer */
 .sf-modal-footer {
     display: flex;
     align-items: center;
@@ -1312,11 +1265,6 @@ textarea[readonly] {
     border-top: 1px solid #d1d5db;
     box-shadow: inset 0 1px 0 rgba(255,255,255,0.55);
 }
-
-
-
-
-
 
 /* =========================
    Inputs / Focus + Labels
@@ -1400,9 +1348,6 @@ textarea[readonly] {
     transform: none;
 }
 
-
-
-
 /* =========================
    مكان ايقونات الفورم 
    ========================= */
@@ -1419,8 +1364,6 @@ textarea[readonly] {
     padding-left: .75rem !important;
     padding-right: 2.5rem !important; /* نفس  pl-10 */
 }
-
-
 
 /* =========================
    Readonly / Disabled fields (Modal)
@@ -1740,7 +1683,7 @@ header,
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    height: 30px;
+    height: 33px;
     padding: 0 25px;
     border-radius: 4px;
     font-size: 12px;
@@ -1870,7 +1813,7 @@ header,
 .sf-panel-header {
     @apply relative z-10 flex items-center justify-between;
     @apply px-4 py-2.5;
-    @apply border-b border-gray-200;
+    @apply border-b border-gray-300;
     background: linear-gradient(to bottom, #f9fafb, #f3f4f6);
     color: #374151;
     font-weight: 500;
@@ -1968,12 +1911,6 @@ header,
     @apply border-gray-300 bg-white text-gray-600;
     @apply hover:border-gray-400 hover:bg-gray-200 hover:text-gray-800;
 }
-
-
-
-
-
-
 
 /* =========================
    Modal Responsive
@@ -2271,9 +2208,6 @@ body.sf-navigating .sf-select-panel {
     font-size: 14px;
 }
 
-
-
-
 /*   لون التمرير Select2 في كل الحالات */
 .select2-container--default .select2-results__option--highlighted.select2-results__option--selectable,
 .sf-form .select2-container--default .select2-results__option--highlighted.select2-results__option--selectable,
@@ -2300,7 +2234,7 @@ body.sf-navigating .sf-select-panel {
 /* Responsive Modal Fix for Small Screens */
 @media (max-width: 1080px) {
 
-    /* ✅ عرض مناسب للابتوب (مو fullscreen) */
+    
     .sf-modal {
         width: min(780px, 92vw) !important;
         max-width: min(780px, 92vw) !important;
@@ -2310,12 +2244,12 @@ body.sf-navigating .sf-select-panel {
         transform: translate(-50%, -50%) !important;
     }
 
-    /* ✅ خلّي السكرول داخل البودي بدون تحديد 70vh */
+    
     .sf-modal-body {
         overflow-y: auto !important;
     }
 
-    /* ✅ خلي الحقول عمود واحد على الشاشات الأصغر */
+    
     .sf-modal .sf-modal-form > .grid.grid-cols-12 {
         grid-template-columns: 1fr !important;
         gap: 16px !important;
@@ -2325,8 +2259,6 @@ body.sf-navigating .sf-select-panel {
             grid-column: 1 / -1 !important;
         }
 }
-
-
 
 @media (max-height: 800px) {
     .sf-modal {
@@ -2343,5 +2275,3 @@ body.sf-navigating .sf-select-panel {
         width: min(900px, 92vw);
     }
 }
-
-

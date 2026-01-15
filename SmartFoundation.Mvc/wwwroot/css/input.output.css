@@ -13260,8 +13260,8 @@ input[readonly], textarea[readonly] {
   border-radius: var(--radius-sm);
   border-style: var(--tw-border-style);
   border-width: 1px;
-  border-color: var(--color-gray-200);
-  background-color: var(--color-white);
+  border-color: var(--color-gray-300);
+  background-color: var(--color-gray-50);
 }
 .table-box::-webkit-scrollbar {
   height: 8px;
@@ -13315,7 +13315,7 @@ input[readonly], textarea[readonly] {
 .td-cell {
   border-bottom-style: var(--tw-border-style);
   border-bottom-width: 1px;
-  border-color: var(--color-gray-100);
+  border-color: var(--color-gray-200);
   padding-inline: calc(var(--spacing) * 4);
   padding-block: calc(var(--spacing) * 2.5);
   text-align: center;
@@ -14564,7 +14564,7 @@ header, .sf-header, .navbar {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  height: 30px;
+  height: 33px;
   padding: 0 25px;
   border-radius: 4px;
   font-size: 12px;
@@ -14672,7 +14672,7 @@ header, .sf-header, .navbar {
   padding-block: calc(var(--spacing) * 2.5);
   border-bottom-style: var(--tw-border-style);
   border-bottom-width: 1px;
-  border-color: var(--color-gray-200);
+  border-color: var(--color-gray-300);
   background: linear-gradient(to bottom, #f9fafb, #f3f4f6);
   color: #374151;
   font-weight: 500;
