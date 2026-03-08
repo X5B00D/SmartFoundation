@@ -1,0 +1,3 @@
+﻿CREATE LOGIN [KFMCMODA\AppsAdmin]
+    FROM WINDOWS WITH DEFAULT_LANGUAGE = [us_english];
+
