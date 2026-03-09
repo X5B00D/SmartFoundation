@@ -94,7 +94,7 @@ BEGIN
 
             IF EXISTS (
                 SELECT 1
-                FROM DATACORE.Housing.MeterType c
+                FROM  Housing.MeterType c
                 WHERE c.meterTypeName_A = @meterTypeName_A and c.meterTypeActive = 1
                     AND c.IdaraId_FK = @IdaraID_INT
                   AND c.meterTypeActive = 1
@@ -103,7 +103,7 @@ BEGIN
                 ;THROW 50001, N'بيانات نوع العداد مدخلة مسبقا', 1;
             END
 
-            INSERT INTO DATACORE.Housing.MeterType
+            INSERT INTO  Housing.MeterType
             (
                   [meterServiceTypeID_FK]
                  ,[meterTypeName_A]
@@ -142,7 +142,7 @@ BEGIN
                 ;THROW 50002, N'حصل خطأ في اضافة نوع العداد - MeterType', 1; -- برمجي
             END
 
-                INSERT INTO DATACORE.Housing.MeterServicePrice
+                INSERT INTO  Housing.MeterServicePrice
                 (
                       [meterTypeID_FK]
                      ,[meterServicePriceStartDate]
@@ -195,7 +195,7 @@ BEGIN
 
                 + N'}';
 
-            INSERT INTO DATACORE.dbo.AuditLog
+            INSERT INTO  dbo.AuditLog
             (
                   TableName
                 , ActionType
@@ -225,7 +225,7 @@ BEGIN
 
             IF not EXISTS (
                 SELECT 1
-                FROM DATACORE.Housing.MeterType c
+                FROM  Housing.MeterType c
                 WHERE c.meterTypeID = @meterTypeID_FK
                     AND c.IdaraId_FK = @IdaraID_INT
                   AND c.meterTypeActive = 1
@@ -259,7 +259,7 @@ BEGIN
                     ;THROW 50003, N'حصل خطأ في اضافة نوع العداد - MeterServicePrice', 1; -- برمجي
                 END
 
-            INSERT INTO DATACORE.Housing.MeterType
+            INSERT INTO  Housing.MeterType
             (
                   [meterServiceTypeID_FK]
                  ,[meterTypeName_A]
@@ -298,7 +298,7 @@ BEGIN
                 ;THROW 50002, N'حصل خطأ في تعديل نوع العداد - MeterType', 1; -- برمجي
             END
 
-                INSERT INTO DATACORE.Housing.MeterServicePrice
+                INSERT INTO  Housing.MeterServicePrice
                 (
                       [meterTypeID_FK]
                      ,[meterServicePriceStartDate]
@@ -351,7 +351,7 @@ BEGIN
 
                 + N'}';
 
-            INSERT INTO DATACORE.dbo.AuditLog
+            INSERT INTO  dbo.AuditLog
             (
                   TableName
                 , ActionType
@@ -386,7 +386,7 @@ BEGIN
 
             IF not EXISTS (
                 SELECT 1
-                FROM DATACORE.Housing.MeterType c
+                FROM  Housing.MeterType c
                  WHERE c.meterTypeID = @meterTypeID_FK
                     AND c.IdaraId_FK = @IdaraID_INT
                   AND c.meterTypeActive = 1
@@ -398,7 +398,7 @@ BEGIN
 
              IF  EXISTS (
                 SELECT 1
-                FROM DATACORE.Housing.MeterType c
+                FROM  Housing.MeterType c
                 inner join Housing.Meter m on c.meterTypeID = m .meterTypeID_FK
                 WHERE c.meterTypeID = @meterTypeID_FK
                     AND c.IdaraId_FK = @IdaraID_INT
@@ -446,7 +446,7 @@ BEGIN
 
                 + N'}';
 
-            INSERT INTO DATACORE.dbo.AuditLog
+            INSERT INTO  dbo.AuditLog
             (
                   TableName
                 , ActionType
@@ -480,7 +480,7 @@ BEGIN
 
             IF EXISTS (
                 SELECT 1
-                FROM DATACORE.Housing.Meter c
+                FROM  Housing.Meter c
                 WHERE c.meterNo = @meterNo and c.meterActive = 1
                     AND c.IdaraId_FK = @IdaraID_INT
                   AND c.meterActive = 1
@@ -491,7 +491,7 @@ BEGIN
 
              IF EXISTS (
                 SELECT 1
-                FROM DATACORE.Housing.Meter c
+                FROM  Housing.Meter c
                 WHERE c.meterName_A = @meterName_A and c.meterActive = 1
                     AND c.IdaraId_FK = @IdaraID_INT
                   AND c.meterActive = 1
@@ -502,7 +502,7 @@ BEGIN
 
 
 
-            INSERT INTO DATACORE.Housing.Meter
+            INSERT INTO  Housing.Meter
             (
                   [meterTypeID_FK]
                  ,[meterNo]
@@ -558,7 +558,7 @@ BEGIN
 
                 + N'}';
 
-                INSERT INTO DATACORE.Housing.MeterRead
+                INSERT INTO  Housing.MeterRead
                 (
                       [meterReadTypeID_FK]
                      ,[meterID_FK]
@@ -611,7 +611,7 @@ BEGIN
 
            
 
-            INSERT INTO DATACORE.dbo.AuditLog
+            INSERT INTO  dbo.AuditLog
             (
                   TableName
                 , ActionType
@@ -648,7 +648,7 @@ BEGIN
     -- تأكد موجود
     IF NOT EXISTS (
         SELECT 1
-        FROM DATACORE.Housing.Meter m
+        FROM  Housing.Meter m
         WHERE m.meterID = @meterID
           AND m.IdaraId_FK = @IdaraID_INT
           AND m.meterActive = 1
@@ -660,7 +660,7 @@ BEGIN
     -- منع تكرار رقم العداد (مع استثناء نفس السجل)
     IF EXISTS (
         SELECT 1
-        FROM DATACORE.Housing.Meter c
+        FROM  Housing.Meter c
         WHERE c.meterNo = @meterNo
           AND c.IdaraId_FK = @IdaraID_INT
           AND c.meterActive = 1
@@ -673,7 +673,7 @@ BEGIN
     -- منع تكرار الاسم العربي (مع استثناء نفس السجل)
     IF EXISTS (
         SELECT 1
-        FROM DATACORE.Housing.Meter c
+        FROM  Housing.Meter c
         WHERE c.meterName_A = @meterName_A
           AND c.IdaraId_FK = @IdaraID_INT
           AND c.meterActive = 1
@@ -697,7 +697,7 @@ BEGIN
         m.entryDate        = GETDATE(),
         m.entryData        = @entryData,
         m.hostName         = @hostName
-    FROM DATACORE.Housing.Meter m
+    FROM  Housing.Meter m
     WHERE m.meterID = @meterID
       AND m.IdaraId_FK = @IdaraID_INT
       AND m.meterActive = 1;
@@ -731,7 +731,7 @@ BEGIN
                      ;WITH x AS
                      (
                          SELECT TOP (1) mr.meterReadID
-                         FROM DATACORE.Housing.MeterRead mr
+                         FROM  Housing.MeterRead mr
                          WHERE mr.meterID_FK = @meterID
                            AND (mr.meterReadTypeID_FK = 4)
                            AND mr.meterReadActive = 1
@@ -742,7 +742,7 @@ BEGIN
                          mr.entryDate      = GETDATE(),
                          mr.entryData      = @entryData,
                          mr.hostName       = @hostName
-                     FROM DATACORE.Housing.MeterRead mr
+                     FROM  Housing.MeterRead mr
                      INNER JOIN x ON x.meterReadID = mr.meterReadID;
                  END
 
@@ -769,7 +769,7 @@ BEGIN
 
            
 
-            INSERT INTO DATACORE.dbo.AuditLog
+            INSERT INTO  dbo.AuditLog
             (
                   TableName
                 , ActionType
@@ -805,7 +805,7 @@ BEGIN
     -- تأكد موجود
     IF NOT EXISTS (
         SELECT 1
-        FROM DATACORE.Housing.Meter m
+        FROM  Housing.Meter m
         WHERE m.meterID = @meterID
           AND m.IdaraId_FK = @IdaraID_INT
           AND m.meterActive = 1
@@ -817,7 +817,7 @@ BEGIN
       -- تأكد موجود
     IF EXISTS (
         SELECT 1
-        FROM DATACORE.Housing.Meter m
+        FROM  Housing.Meter m
         INNER JOIN Housing.MeterForBuilding mbb ON mbb.meterID_FK = m.meterID
         WHERE m.meterID = @meterID
           AND m.IdaraId_FK = @IdaraID_INT
@@ -839,7 +839,7 @@ BEGIN
         m.CanceledNote  = @Notes,
         m.entryData        = @entryData,
         m.hostName         = @hostName
-    FROM DATACORE.Housing.Meter m
+    FROM  Housing.Meter m
     WHERE m.meterID = @meterID
       AND m.IdaraId_FK = @IdaraID_INT
       AND m.meterActive = 1;
@@ -870,7 +870,7 @@ BEGIN
 
            
 
-            INSERT INTO DATACORE.dbo.AuditLog
+            INSERT INTO  dbo.AuditLog
             (
                   TableName
                 , ActionType
@@ -913,7 +913,7 @@ BEGIN
     -- تأكد موجود
     IF NOT EXISTS (
         SELECT 1
-        FROM DATACORE.Housing.Meter m
+        FROM  Housing.Meter m
         WHERE m.meterID = @meterID
           AND m.IdaraId_FK = @IdaraID_INT
           AND m.meterActive = 1
@@ -924,7 +924,7 @@ BEGIN
 
       -- تأكد موجود
    
-     INSERT INTO DATACORE.Housing.MeterForBuilding
+     INSERT INTO  Housing.MeterForBuilding
             (
                   [meterID_FK]
                  ,[buildingDetailsID_FK]
@@ -958,7 +958,7 @@ BEGIN
             END
 
 
-             INSERT INTO DATACORE.Housing.MeterRead
+             INSERT INTO  Housing.MeterRead
                 (
                       [meterReadTypeID_FK]
                      ,[meterID_FK]
@@ -1024,7 +1024,7 @@ BEGIN
 
            
 
-            INSERT INTO DATACORE.dbo.AuditLog
+            INSERT INTO  dbo.AuditLog
             (
                   TableName
                 , ActionType
@@ -1062,7 +1062,7 @@ BEGIN
     IF NOT EXISTS
     (
         SELECT 1
-        FROM DATACORE.Housing.MeterForBuilding m
+        FROM  Housing.MeterForBuilding m
         WHERE m.meterForBuildingID = @meterForBuildingID
           AND m.meterForBuildingActive = 1
     )
@@ -1106,7 +1106,7 @@ BEGIN
     BEGIN
         ;THROW 50001, N'قراءة العداد مطلوبة', 1;
         END
-    INSERT INTO DATACORE.Housing.MeterRead
+    INSERT INTO  Housing.MeterRead
     (
         meterReadTypeID_FK,
         meterID_FK,
@@ -1244,7 +1244,7 @@ BEGIN
         + N',"hostName":"'                 + ISNULL(CONVERT(NVARCHAR(MAX), @hostName), '') + N'"'
         + N'}';
 
-    INSERT INTO DATACORE.dbo.AuditLog
+    INSERT INTO  dbo.AuditLog
     (
         TableName,
         ActionType,

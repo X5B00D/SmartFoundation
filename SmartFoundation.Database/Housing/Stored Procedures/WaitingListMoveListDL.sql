@@ -46,7 +46,7 @@ BEGIN
               ,[LastActionEntryData]
               ,[ActionStatus]
               
-          FROM [DATACORE].[Housing].[V_MoveWaitingList] mw
+          FROM  [Housing].[V_MoveWaitingList] mw
           where 
           --mw.NationalID = @parameter_01 
           --and 

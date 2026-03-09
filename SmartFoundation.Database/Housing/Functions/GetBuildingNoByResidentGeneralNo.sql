@@ -19,7 +19,7 @@ BEGIN
 	 SET @Result = 
 					(
 						SELECT TOP (1) ba.buildingDetailsNo 
-						from kfmc.Housing.BuildingAction ba
+						from  Housing.BuildingAction ba
 						WHERE  ba.generalNo_FK = @generalNo_FK
 						ORDER BY ba.buildingActionID desc
 

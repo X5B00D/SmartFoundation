@@ -13,7 +13,7 @@ BEGIN
 
     set @usersID = (
     select TOP(1) u.usersID
-    from DATACORE.dbo.Users u 
+    from  dbo.Users u 
     where u.nationalID = @NationalID
     and u.usersActive = 1 
     and u.usersStartDate is not null 
@@ -29,7 +29,7 @@ BEGIN
   -- هل يوجد كلمة مرور للمستخدم؟
 IF NOT EXISTS (
     SELECT 1 
-    FROM DATACORE.dbo.usersPassword us
+    FROM  dbo.usersPassword us
     WHERE us.usersID_FK = @UsersID and us.userPasswordActive = 1
 )
 BEGIN
@@ -41,7 +41,7 @@ BEGIN
     SELECT 
         @Salt = PasswordSalt,
         @StoredHash = PasswordHash
-    FROM DATACORE.dbo.usersPassword
+    FROM  dbo.usersPassword
     WHERE usersID_FK = @UsersID;
 
     -- فحص كلمة المرور
@@ -56,12 +56,12 @@ BEGIN
 END
 
     
-         if(select count(us.usersID) from DATACORE.dbo.[Users] us where us.usersID = @UsersID) > 0
+         if(select count(us.usersID) from  dbo.[Users] us where us.usersID = @UsersID) > 0
              begin
                  set @GeneralNo = (
                  select TOP(1) ud.GeneralNo 
-                 from DATACORE.dbo.[Users] us 
-                 inner join DATACORE.dbo.UsersDetails ud on us.usersID = ud.usersID_FK
+                 from  dbo.[Users] us 
+                 inner join  dbo.UsersDetails ud on us.usersID = ud.usersID_FK
                  where us.usersID = @UsersID and us.usersActive = 1 
                  and us.usersStartDate is not null 
                  and cast(us.usersStartDate as date) <= cast(GETDATE() as date)
@@ -123,8 +123,8 @@ END
  --                       m.MvcThameName,
  --                       'default'
  --                  ) AS ThameName
- --           FROM DATACORE.dbo.MvcThameUser u
- --           LEFT JOIN DATACORE.dbo.MvcThame m 
+ --           FROM  dbo.MvcThameUser u
+ --           LEFT JOIN  dbo.MvcThame m 
  --                  ON u.MvcThameID_FK = m.MvcThameID
  --           WHERE u.UserID_FK = @GeneralNo
  --             AND u.MvcThameUserActive = 1
@@ -159,7 +159,7 @@ END
 
       
 
-    if(select Count(*) From DATACORE.dbo.[Users] uu where uu.usersID = @UsersID and uu.usersActive = 1) > 0
+    if(select Count(*) From  dbo.[Users] uu where uu.usersID = @UsersID and uu.usersActive = 1) > 0
                 begin
 
 
@@ -185,7 +185,7 @@ END
                         d.SectionName,
                         d.DivisonID,
                         d.DivisonName,
-                        (SELECT Photo FROM DATACORE.dbo.UsersPhoto up WHERE up.usersID_FK = @usersID) AS Photo,
+                        (SELECT Photo FROM  dbo.UsersPhoto up WHERE up.usersID_FK = @usersID) AS Photo,
                 		case when t.ThameName is null Then 'default'
                 		else t.ThameName
                 		END ThameName,
@@ -195,7 +195,7 @@ END
 						@GeneralNo GeneralNo,
                         N'مرحبا بك : '+CONCAT_WS(' ', ud.firstName_A, ud.secondName_A, ud.lastName_A)+N' تم تسجيل دخولك للنظام في '+convert(nvarchar(50),GETDATE(),111)+N' الساعة ' +convert(nvarchar(50),GETDATE(),108) as Message_
                     FROM dbo.[Users] u
-                    inner join DATACORE.dbo.UsersDetails ud on u.usersID = ud.usersID_FK
+                    inner join  dbo.UsersDetails ud on u.usersID = ud.usersID_FK
                     LEFT JOIN @DepartmentInfo d ON u.usersID = d.UserID
                 	LEFT JOIN @ThameInfo t ON u.usersID = t.UserID
                     WHERE u.usersID = @usersID and u.usersActive = 1

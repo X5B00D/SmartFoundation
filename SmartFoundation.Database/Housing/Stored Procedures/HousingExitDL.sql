@@ -19,7 +19,7 @@ BEGIN
  -- HousingExit Data
 
  Declare @residentInfoID Bigint
- Set @residentInfoID = (select f.residentInfoID from DATACORE.Housing.V_GetFullResidentDetails f where f.NationalID = @NationalID)
+ Set @residentInfoID = (select f.residentInfoID from  Housing.V_GetFullResidentDetails f where f.NationalID = @NationalID)
 
             SELECT 
 

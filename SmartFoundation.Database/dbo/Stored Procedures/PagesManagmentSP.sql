@@ -135,7 +135,7 @@ SET @dateOfBirth_DT         = TRY_CONVERT(date, @dateOfBirth, 23);
 
 
 
-            INSERT INTO DATACORE.dbo.Program
+            INSERT INTO dbo.Program
             (
                 [programName_A]
                ,[programName_E]
@@ -187,7 +187,7 @@ SET @dateOfBirth_DT         = TRY_CONVERT(date, @dateOfBirth, 23);
                 + N',"hostName": "'                 + ISNULL(CONVERT(NVARCHAR(MAX), @hostName), '') + N'"'
                 + N'}';
 
-            INSERT INTO DATACORE.dbo.AuditLog
+            INSERT INTO  dbo.AuditLog
             (
                   TableName
                 , ActionType
@@ -341,7 +341,7 @@ SET @dateOfBirth_DT         = TRY_CONVERT(date, @dateOfBirth, 23);
                         + N',"hostName": "' + ISNULL(CONVERT(NVARCHAR(MAX), @hostName), N'') + N'"'
                         + N'}';
                 
-                    INSERT INTO DATACORE.dbo.AuditLog (TableName, ActionType, RecordID, PerformedBy, Notes)
+                    INSERT INTO  dbo.AuditLog (TableName, ActionType, RecordID, PerformedBy, Notes)
                     VALUES (N'[dbo].[Program]', N'EditProgram', @programID_Int, @entryData, @Note);
                 
                     SELECT 1 AS IsSuccessful, N'تم تعديل البرنامج بنجاح' AS Message_;
@@ -481,7 +481,7 @@ SET @dateOfBirth_DT         = TRY_CONVERT(date, @dateOfBirth, 23);
                         + N',"hostName": "' + ISNULL(CONVERT(NVARCHAR(MAX), @hostName), N'') + N'"'
                         + N'}';
                 
-                    INSERT INTO DATACORE.dbo.AuditLog (TableName, ActionType, RecordID, PerformedBy, Notes)
+                    INSERT INTO  dbo.AuditLog (TableName, ActionType, RecordID, PerformedBy, Notes)
                     VALUES (N'[dbo].[Program]', N'DeleteProgram', @programID_Int1, @entryData, @Note);
                 
                     SELECT 1 AS IsSuccessful, N'تم تعديل حالة البرنامج بنجاح' AS Message_;
@@ -537,7 +537,7 @@ SET @dateOfBirth_DT         = TRY_CONVERT(date, @dateOfBirth, 23);
 
 
 
-            INSERT INTO DATACORE.dbo.Menu
+            INSERT INTO  dbo.Menu
             (
                 [menuName_A]
                ,[menuName_E]
@@ -585,7 +585,7 @@ SET @dateOfBirth_DT         = TRY_CONVERT(date, @dateOfBirth, 23);
                           + N',"hostName": "'         + ISNULL(CONVERT(NVARCHAR(MAX), @hostName), N'') + N'"'
                           + N'}';
 
-            INSERT INTO DATACORE.dbo.AuditLog
+            INSERT INTO  dbo.AuditLog
             (
                   TableName
                 , ActionType

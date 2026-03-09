@@ -48,7 +48,7 @@ BEGIN
 
     Declare @HasMeterService int
     set @HasMeterService =(select count(*) 
-    from DATACORE.Housing.MeterForBuilding m 
+    from  Housing.MeterForBuilding m 
     where m.buildingDetailsID_FK = @buildingDetailsID 
     and m.meterForBuildingActive = 1 
     and (m.meterForBuildingEndDate is null or cast(m.meterForBuildingEndDate as date) > cast(GETDATE() as date)))
@@ -101,7 +101,7 @@ BEGIN
             IF NOT EXISTS
             (
                  SELECT 1
-                FROM DATACORE.Housing.V_WaitingList w
+                FROM  Housing.V_WaitingList w
                 WHERE w.ActionID = @ActionID
             )
             BEGIN
@@ -145,7 +145,7 @@ BEGIN
             
 
 
-              INSERT INTO DATACORE.Housing.BuildingAction
+              INSERT INTO  Housing.BuildingAction
             (
                   buildingActionTypeID_FK
                 , residentInfoID_FK
@@ -209,7 +209,7 @@ BEGIN
                 + N',"hostName": "'       + ISNULL(CONVERT(NVARCHAR(MAX), @hostName), '') + N'"'
                 + N'}';
 
-            INSERT INTO DATACORE.dbo.AuditLog
+            INSERT INTO  dbo.AuditLog
             (
                   TableName
                 , ActionType
@@ -250,7 +250,7 @@ BEGIN
             IF NOT EXISTS
             (
                  SELECT 1
-                FROM DATACORE.Housing.V_WaitingList w
+                FROM  Housing.V_WaitingList w
                 WHERE w.ActionID = @ActionID
             )
             BEGIN
@@ -269,7 +269,7 @@ BEGIN
 
 
 
-              INSERT INTO DATACORE.Housing.BuildingAction
+              INSERT INTO  Housing.BuildingAction
             (
                   buildingActionTypeID_FK
                 , residentInfoID_FK
@@ -326,7 +326,7 @@ BEGIN
             if(@OccupentDate <  @ToDate)
             begin
 
-            -- INSERT INTO [DATACORE].[Housing].[RentBills]
+            -- INSERT INTO  [Housing].[RentBills]
             --(
             --      [residentInfoID_FK]
             --     ,[buildingDetailsID_FK]
@@ -341,7 +341,7 @@ BEGIN
             --)
 
             
-             INSERT INTO [DATACORE].[Housing].[Bills]
+             INSERT INTO  [Housing].[Bills]
             (
                   [residentInfoID_FK]
                  ,[buildingDetailsID]
@@ -406,7 +406,7 @@ BEGIN
                 + N',"hostName": "'       + ISNULL(CONVERT(NVARCHAR(MAX), @hostName), '') + N'"'
                 + N'}';
 
-            INSERT INTO DATACORE.dbo.AuditLog
+            INSERT INTO  dbo.AuditLog
             (
                   TableName
                 , ActionType

@@ -186,7 +186,7 @@ BEGIN
         BEGIN
             IF EXISTS (
                 SELECT 1
-                FROM DATACORE.Housing.ResidentInfo c
+                FROM  Housing.ResidentInfo c
                 WHERE c.NationalID = @NationalID
                   AND c.residentInfoActive = 1
             )
@@ -194,7 +194,7 @@ BEGIN
                 ;THROW 50001, N'بيانات المستفيد مدخلة مسبقا', 1;
             END
 
-            INSERT INTO DATACORE.Housing.ResidentInfo
+            INSERT INTO  Housing.ResidentInfo
             (
                   [NationalID]
                  ,[residentInfoActive]
@@ -215,7 +215,7 @@ BEGIN
                 ;THROW 50002, N'حصل خطأ في اضافة البيانات - ResidentInfo', 1; -- برمجي
             END
 
-                INSERT INTO DATACORE.Housing.ResidentDetails
+                INSERT INTO  Housing.ResidentDetails
                 (
                       [residentInfoID_FK]
                      ,[generalNo_FK]
@@ -273,7 +273,7 @@ BEGIN
                     ;THROW 50003, N'حصل خطأ في اضافة البيانات - ResidentDetails', 1; -- برمجي
                 END
 
-                 INSERT INTO DATACORE.Housing.ResidentContactInfo
+                 INSERT INTO  Housing.ResidentContactInfo
                 (
                       [residentInfoID_FK]
                      ,[residentcontanctTypeID_FK]
@@ -330,7 +330,7 @@ BEGIN
                 + N',"residentcontactDetails": "' + ISNULL(CONVERT(NVARCHAR(MAX), @Mobile), '') + N'"'
                 + N'}';
 
-            INSERT INTO DATACORE.dbo.AuditLog
+            INSERT INTO  dbo.AuditLog
             (
                   TableName
                 , ActionType
@@ -365,7 +365,7 @@ BEGIN
             IF NOT EXISTS
             (
                 SELECT 1
-                FROM DATACORE.Housing.ResidentInfo bd
+                FROM  Housing.ResidentInfo bd
                 WHERE bd.residentInfoID = @residentInfoID
                   AND bd.residentInfoActive = 1
             )
@@ -377,7 +377,7 @@ BEGIN
             --IF EXISTS
             --(
             --    SELECT 1
-            --    FROM DATACORE.Housing.ResidentInfo c
+            --    FROM  Housing.ResidentInfo c
             --    WHERE c.NationalID = @NationalID
             --      AND c.residentInfoActive = 1
                   
@@ -387,7 +387,7 @@ BEGIN
             --END
 
            
-            UPDATE DATACORE.Housing.ResidentInfo
+            UPDATE  Housing.ResidentInfo
             SET
                   NationalID = ISNULL(@NationalID, NationalID)
                 , entryData = ISNULL(ISNULL(entryData,'')+N','+@entryData, entryData)
@@ -396,7 +396,7 @@ BEGIN
 
              SET @Identity_Update = @@ROWCOUNT;
 
-            UPDATE DATACORE.Housing.ResidentDetails
+            UPDATE  Housing.ResidentDetails
                 SET
                       residentDetailsActive = 0
                     , residentDetailsEndDate = ISNULL(residentDetailsEndDate, GETDATE())
@@ -409,7 +409,7 @@ BEGIN
 
             if (@Identity_Update1 > 0)
             BEGIN
-                 INSERT INTO DATACORE.Housing.ResidentDetails
+                 INSERT INTO  Housing.ResidentDetails
                     (
                         residentInfoID_FK
                        , [generalNo_FK]          
@@ -468,7 +468,7 @@ BEGIN
                    END
 
 
-                      UPDATE DATACORE.Housing.ResidentContactInfo
+                      UPDATE  Housing.ResidentContactInfo
                 SET
                       residentcontactInfoActive = 0
                     , residentcontactInfoEndDate = ISNULL(residentcontactInfoEndDate, GETDATE())
@@ -482,7 +482,7 @@ BEGIN
                   IF(@Identity_Update2 > 0)
                   BEGIN
 
-                      INSERT INTO DATACORE.Housing.ResidentContactInfo
+                      INSERT INTO  Housing.ResidentContactInfo
                 (
                       [residentInfoID_FK]
                      ,[residentcontanctTypeID_FK]
@@ -535,7 +535,7 @@ BEGIN
                 + N',"residentcontactDetails": "' + ISNULL(CONVERT(NVARCHAR(MAX), @Mobile), '') + N'"'
                 + N'}';
 
-            INSERT INTO DATACORE.dbo.AuditLog
+            INSERT INTO  dbo.AuditLog
             (
                   TableName
                 , ActionType
@@ -570,7 +570,7 @@ BEGIN
             IF NOT EXISTS
             (
                 SELECT 1
-                FROM DATACORE.Housing.ResidentInfo bd
+                FROM  Housing.ResidentInfo bd
                 WHERE bd.residentInfoID = @residentInfoID
                   AND bd.residentInfoActive = 1
             )
@@ -578,7 +578,7 @@ BEGIN
                 ;THROW 50001, N'المستفيد غير موجود', 1;
             END
 
-             UPDATE DATACORE.Housing.ResidentInfo
+             UPDATE  Housing.ResidentInfo
             SET
                   residentInfoActive = 0
                 , entryData = ISNULL(ISNULL(entryData,'')+N','+@entryData, entryData)
@@ -590,7 +590,7 @@ BEGIN
                         ;THROW 50002, N'حصل خطأ في تحديث البيانات - ResidentInfo', 1; -- برمجي/غير متوقع
                     END
 
-            UPDATE DATACORE.Housing.ResidentDetails
+            UPDATE  Housing.ResidentDetails
                 SET
                       residentDetailsActive = 0
                     , residentDetailsEndDate = ISNULL(residentDetailsEndDate, GETDATE())
@@ -631,7 +631,7 @@ BEGIN
                 + N',"residentcontactDetails": "' + ISNULL(CONVERT(NVARCHAR(MAX), @Mobile), '') + N'"'
                 + N'}';
 
-            INSERT INTO DATACORE.dbo.AuditLog
+            INSERT INTO  dbo.AuditLog
             (
                   TableName
                 , ActionType

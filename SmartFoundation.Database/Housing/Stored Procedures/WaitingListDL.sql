@@ -56,7 +56,7 @@ FROM Housing.V_WaitingList w
 
      -- WaitingClass DDL
             SELECT c.waitingClassID,c.waitingClassName_A
-            FROM [DATACORE].[Housing].[WaitingClass] c
+            FROM  [Housing].[WaitingClass] c
             --where (c.idara_FK is null or c.idara_FK = @idaraID)
             order by c.waitingClassSequence asc
 

@@ -128,7 +128,7 @@ DECLARE @PenaltyPriceDecimal DECIMAL(18,2) =
             IF NOT EXISTS
             (
                  SELECT 1
-                FROM DATACORE.Housing.V_WaitingList w
+                FROM  Housing.V_WaitingList w
                 WHERE w.ActionID = @ActionID
             )
             BEGIN
@@ -172,7 +172,7 @@ DECLARE @PenaltyPriceDecimal DECIMAL(18,2) =
             
 
 
-              INSERT INTO DATACORE.Housing.BuildingAction
+              INSERT INTO  Housing.BuildingAction
             (
                   buildingActionTypeID_FK
                 , residentInfoID_FK
@@ -230,7 +230,7 @@ DECLARE @PenaltyPriceDecimal DECIMAL(18,2) =
                 + N',"hostName": "'       + ISNULL(CONVERT(NVARCHAR(MAX), @hostName), '') + N'"'
                 + N'}';
 
-            INSERT INTO DATACORE.dbo.AuditLog
+            INSERT INTO  dbo.AuditLog
             (
                   TableName
                 , ActionType
@@ -271,7 +271,7 @@ DECLARE @PenaltyPriceDecimal DECIMAL(18,2) =
             IF NOT EXISTS
             (
                  SELECT 1
-                FROM DATACORE.Housing.V_WaitingList w
+                FROM  Housing.V_WaitingList w
                 WHERE w.ActionID = @ActionID
             )
             BEGIN
@@ -293,7 +293,7 @@ DECLARE @PenaltyPriceDecimal DECIMAL(18,2) =
             
 
 
-              INSERT INTO DATACORE.Housing.BuildingAction
+              INSERT INTO  Housing.BuildingAction
             (
                   buildingActionTypeID_FK
                 , residentInfoID_FK
@@ -337,7 +337,7 @@ DECLARE @PenaltyPriceDecimal DECIMAL(18,2) =
 
 
             
-              INSERT INTO DATACORE.Housing.BuildingAction
+              INSERT INTO  Housing.BuildingAction
             (
                   buildingActionTypeID_FK
                 , residentInfoID_FK
@@ -397,7 +397,7 @@ DECLARE @PenaltyPriceDecimal DECIMAL(18,2) =
                 + N',"hostName": "'       + ISNULL(CONVERT(NVARCHAR(MAX), @hostName), '') + N'"'
                 + N'}';
 
-            INSERT INTO DATACORE.dbo.AuditLog
+            INSERT INTO  dbo.AuditLog
             (
                   TableName
                 , ActionType
@@ -437,7 +437,7 @@ DECLARE @PenaltyPriceDecimal DECIMAL(18,2) =
             IF NOT EXISTS
             (
                  SELECT 1
-                FROM DATACORE.Housing.V_WaitingList w
+                FROM  Housing.V_WaitingList w
                 WHERE w.ActionID = @ActionID
             )
             BEGIN
@@ -466,7 +466,7 @@ DECLARE @PenaltyPriceDecimal DECIMAL(18,2) =
             
 
 
-              INSERT INTO DATACORE.Housing.BuildingAction
+              INSERT INTO  Housing.BuildingAction
             (
                   buildingActionTypeID_FK
                 , residentInfoID_FK
@@ -510,7 +510,7 @@ DECLARE @PenaltyPriceDecimal DECIMAL(18,2) =
 
 
             
-                INSERT INTO DATACORE.Housing.BuildingAction
+                INSERT INTO  Housing.BuildingAction
             (
                  buildingActionTypeID_FK, buildingStatusID_FK, residentInfoID_FK, generalNo_FK, buildingPaymentTypeID_FK, buildingDetailsID_FK, buildingDetailsNo, buildingActionFromDate, 
                buildingActionToDate, buildingActionDate, buildingActionDate2, buildingActionDecisionNo, buildingActionDecisionDate, fromDSD_FK, toDSD_FK, buildingActionFromSourceID_FK, buildingActionToSourceID_FK, 
@@ -561,7 +561,7 @@ DECLARE @PenaltyPriceDecimal DECIMAL(18,2) =
                 + N',"hostName": "'       + ISNULL(CONVERT(NVARCHAR(MAX), @hostName), '') + N'"'
                 + N'}';
 
-            INSERT INTO DATACORE.dbo.AuditLog
+            INSERT INTO  dbo.AuditLog
             (
                   TableName
                 , ActionType
@@ -603,7 +603,7 @@ DECLARE @PenaltyPriceDecimal DECIMAL(18,2) =
             IF NOT EXISTS
             (
                  SELECT 1
-                FROM DATACORE.Housing.V_WaitingList w
+                FROM  Housing.V_WaitingList w
                 WHERE w.ActionID = @ActionID
             )
             BEGIN
@@ -625,7 +625,7 @@ DECLARE @PenaltyPriceDecimal DECIMAL(18,2) =
             
 
 
-              INSERT INTO DATACORE.Housing.BuildingAction
+              INSERT INTO  Housing.BuildingAction
             (
                   buildingActionTypeID_FK
                 , residentInfoID_FK
@@ -683,7 +683,7 @@ DECLARE @PenaltyPriceDecimal DECIMAL(18,2) =
                 + N',"hostName": "'       + ISNULL(CONVERT(NVARCHAR(MAX), @hostName), '') + N'"'
                 + N'}';
 
-            INSERT INTO DATACORE.dbo.AuditLog
+            INSERT INTO  dbo.AuditLog
             (
                   TableName
                 , ActionType
@@ -724,7 +724,7 @@ DECLARE @PenaltyPriceDecimal DECIMAL(18,2) =
             IF NOT EXISTS
             (
                  SELECT 1
-                FROM DATACORE.Housing.V_WaitingList w
+                FROM  Housing.V_WaitingList w
                 WHERE w.ActionID = @ActionID
             )
             BEGIN
@@ -746,7 +746,7 @@ DECLARE @PenaltyPriceDecimal DECIMAL(18,2) =
             
 
 
-              INSERT INTO DATACORE.Housing.BuildingAction
+              INSERT INTO  Housing.BuildingAction
             (
                   buildingActionTypeID_FK
                 , residentInfoID_FK
@@ -809,7 +809,7 @@ DECLARE @PenaltyPriceDecimal DECIMAL(18,2) =
                 + N',"hostName": "'       + ISNULL(CONVERT(NVARCHAR(MAX), @hostName), '') + N'"'
                 + N'}';
 
-            INSERT INTO DATACORE.dbo.AuditLog
+            INSERT INTO  dbo.AuditLog
             (
                   TableName
                 , ActionType
@@ -851,7 +851,7 @@ DECLARE @PenaltyPriceDecimal DECIMAL(18,2) =
             IF NOT EXISTS
             (
                  SELECT 1
-                FROM DATACORE.Housing.V_WaitingList w
+                FROM  Housing.V_WaitingList w
                 WHERE w.ActionID = @ActionID
             )
             BEGIN
@@ -873,7 +873,7 @@ DECLARE @PenaltyPriceDecimal DECIMAL(18,2) =
             Begin
 
 
-              INSERT INTO DATACORE.Housing.BuildingAction
+              INSERT INTO  Housing.BuildingAction
             (
                   buildingActionTypeID_FK
                 , residentInfoID_FK
@@ -918,7 +918,7 @@ DECLARE @PenaltyPriceDecimal DECIMAL(18,2) =
 
             
              
-             INSERT INTO [DATACORE].[Housing].[Bills]
+             INSERT INTO  [Housing].[Bills]
             (
                   [residentInfoID_FK]
                  ,[buildingDetailsID]
@@ -988,7 +988,7 @@ DECLARE @PenaltyPriceDecimal DECIMAL(18,2) =
             END
 
 
-              INSERT INTO [DATACORE].[Housing].[Bills]
+              INSERT INTO  [Housing].[Bills]
             (
                   [residentInfoID_FK]
                  ,[buildingDetailsID]
@@ -1052,7 +1052,7 @@ DECLARE @PenaltyPriceDecimal DECIMAL(18,2) =
                 + N',"hostName": "'       + ISNULL(CONVERT(NVARCHAR(MAX), @hostName), '') + N'"'
                 + N'}';
 
-            INSERT INTO DATACORE.dbo.AuditLog
+            INSERT INTO  dbo.AuditLog
             (
                   TableName
                 , ActionType

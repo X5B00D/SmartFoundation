@@ -81,7 +81,7 @@ BEGIN
           IF NOT EXISTS
             (
                 SELECT 1
-                FROM DATACORE.Housing.AssignPeriod a
+                FROM  Housing.AssignPeriod a
                 WHERE a.AssignPeriodID = @AssignPeriodID
                 and a.AssignPeriodActive = 1 and a.AssignPeriodClose = 0 and a.AssignPeriodEnddate is not null and a.AssignPeriodFinalEND = 1 and a.AssignPeriodFinalEnddate is null
                   AND a.IdaraId_FK = @IdaraID_INT
@@ -131,7 +131,7 @@ BEGIN
                 + N',"AssignPeriodFinalENDBy": "'                + ISNULL(CONVERT(NVARCHAR(MAX), @entryData), '') + N'"'
                 + N'}';
 
-            INSERT INTO DATACORE.dbo.AuditLog
+            INSERT INTO  dbo.AuditLog
             (
                   TableName
                 , ActionType
@@ -172,7 +172,7 @@ BEGIN
             IF NOT EXISTS
             (
                  SELECT 1
-                FROM DATACORE.Housing.V_WaitingList w
+                FROM  Housing.V_WaitingList w
                 WHERE w.ActionID = @ActionID
             )
             BEGIN
@@ -217,7 +217,7 @@ BEGIN
             
 
 
-              INSERT INTO DATACORE.Housing.BuildingAction
+              INSERT INTO  Housing.BuildingAction
             (
                   buildingActionTypeID_FK
                 , residentInfoID_FK
@@ -281,7 +281,7 @@ BEGIN
                 + N',"hostName": "'       + ISNULL(CONVERT(NVARCHAR(MAX), @hostName), '') + N'"'
                 + N'}';
 
-            INSERT INTO DATACORE.dbo.AuditLog
+            INSERT INTO  dbo.AuditLog
             (
                   TableName
                 , ActionType

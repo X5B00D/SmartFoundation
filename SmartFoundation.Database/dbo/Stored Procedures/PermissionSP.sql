@@ -69,22 +69,22 @@ BEGIN
         ----------------------------------------------------------------
         -- تحديث صلاحيات منتهية (كما عندك)
         ----------------------------------------------------------------
-        UPDATE DATACORE.dbo.Permission
+        UPDATE  dbo.Permission
         SET permissionActive = 0
         WHERE permissionEndDate IS NOT NULL
           AND CAST(permissionEndDate AS DATE) < CAST(GETDATE() AS DATE);
 
-        UPDATE DATACORE.dbo.Permission
+        UPDATE  dbo.Permission
         SET permissionEndDate = CAST(GETDATE() AS DATE)
         WHERE permissionActive = 0
           AND permissionEndDate IS NULL;
 
-        UPDATE DATACORE.dbo.UserDistributor
+        UPDATE  dbo.UserDistributor
         SET UDActive = 0
         WHERE UDEndDate IS NOT NULL
           AND CAST(UDEndDate AS DATE) < CAST(GETDATE() AS DATE);
 
-        UPDATE DATACORE.dbo.UserDistributor
+        UPDATE  dbo.UserDistributor
         SET UDEndDate = CAST(GETDATE() AS DATE)
         WHERE UDActive = 0
           AND UDEndDate IS NULL;
@@ -97,14 +97,14 @@ BEGIN
             IF (@IdaraID IS NOT NULL AND @DeptID IS NULL AND @SectionID IS NULL AND @DivisonID IS NULL)
             BEGIN
                 SELECT @DSDID = dsd.DSDID
-                FROM DATACORE.dbo.DeptSecDiv dsd
+                FROM  dbo.DeptSecDiv dsd
                 WHERE dsd.idaraID_FK = @IdaraID
                   AND dsd.deptID_FK IS NULL AND dsd.secID_FK IS NULL AND dsd.divID_FK IS NULL;
             END
             ELSE IF (@IdaraID IS NOT NULL AND @DeptID IS NOT NULL AND @SectionID IS NULL AND @DivisonID IS NULL)
             BEGIN
                 SELECT @DSDID = dsd.DSDID
-                FROM DATACORE.dbo.DeptSecDiv dsd
+                FROM  dbo.DeptSecDiv dsd
                 WHERE dsd.idaraID_FK = @IdaraID
                   AND dsd.deptID_FK = @DeptID
                   AND dsd.secID_FK IS NULL AND dsd.divID_FK IS NULL;
@@ -112,7 +112,7 @@ BEGIN
             ELSE IF (@IdaraID IS NOT NULL AND @DeptID IS NOT NULL AND @SectionID IS NOT NULL AND @DivisonID IS NULL)
             BEGIN
                 SELECT @DSDID = dsd.DSDID
-                FROM DATACORE.dbo.DeptSecDiv dsd
+                FROM  dbo.DeptSecDiv dsd
                 WHERE dsd.idaraID_FK = @IdaraID
                   AND dsd.deptID_FK = @DeptID
                   AND dsd.secID_FK = @SectionID
@@ -121,7 +121,7 @@ BEGIN
             ELSE IF (@IdaraID IS NOT NULL AND @DeptID IS NOT NULL AND @SectionID IS NOT NULL AND @DivisonID IS NOT NULL)
             BEGIN
                 SELECT @DSDID = dsd.DSDID
-                FROM DATACORE.dbo.DeptSecDiv dsd
+                FROM  dbo.DeptSecDiv dsd
                 WHERE dsd.idaraID_FK = @IdaraID
                   AND dsd.deptID_FK = @DeptID
                   AND dsd.secID_FK = @SectionID
@@ -181,8 +181,8 @@ BEGIN
             IF ISNULL(@searchID,0) = 1
             BEGIN
                 SELECT @Flag = COUNT(*)
-                FROM DATACORE.dbo.Permission p
-                JOIN DATACORE.dbo.DistributorPermissionType dt
+                FROM  dbo.Permission p
+                JOIN  dbo.DistributorPermissionType dt
                   ON p.DistributorPermissionTypeID_FK = dt.distributorPermissionTypeID
                 WHERE p.DistributorPermissionTypeID_FK = @DistributorPermissionTypeID_FK
                   AND p.permissionActive = 1
@@ -193,8 +193,8 @@ BEGIN
             ELSE IF ISNULL(@searchID,0) = 2
             BEGIN
                 SELECT @Flag = COUNT(*)
-                FROM DATACORE.dbo.Permission p
-                JOIN DATACORE.dbo.DistributorPermissionType dt
+                FROM  dbo.Permission p
+                JOIN  dbo.DistributorPermissionType dt
                   ON p.DistributorPermissionTypeID_FK = dt.distributorPermissionTypeID
                 WHERE p.DistributorPermissionTypeID_FK = @DistributorPermissionTypeID_FK
                   AND p.permissionActive = 1
@@ -205,8 +205,8 @@ BEGIN
             ELSE IF ISNULL(@searchID,0) = 3
             BEGIN
                 SELECT @Flag = COUNT(*)
-                FROM DATACORE.dbo.Permission p
-                JOIN DATACORE.dbo.DistributorPermissionType dt
+                FROM  dbo.Permission p
+                JOIN  dbo.DistributorPermissionType dt
                   ON p.DistributorPermissionTypeID_FK = dt.distributorPermissionTypeID
                 WHERE p.DistributorPermissionTypeID_FK = @DistributorPermissionTypeID_FK
                   AND p.permissionActive = 1
@@ -217,8 +217,8 @@ BEGIN
             ELSE IF ISNULL(@searchID,0) = 4
             BEGIN
                 SELECT @Flag = COUNT(*)
-                FROM DATACORE.dbo.Permission p
-                JOIN DATACORE.dbo.DistributorPermissionType dt
+                FROM  dbo.Permission p
+                JOIN  dbo.DistributorPermissionType dt
                   ON p.DistributorPermissionTypeID_FK = dt.distributorPermissionTypeID
                 WHERE p.DistributorPermissionTypeID_FK = @DistributorPermissionTypeID_FK
                   AND p.permissionActive = 1
@@ -229,8 +229,8 @@ BEGIN
             ELSE IF ISNULL(@searchID,0) = 5
             BEGIN
                 SELECT @Flag = COUNT(*)
-                FROM DATACORE.dbo.Permission p
-                JOIN DATACORE.dbo.DistributorPermissionType dt
+                FROM  dbo.Permission p
+                JOIN  dbo.DistributorPermissionType dt
                   ON p.DistributorPermissionTypeID_FK = dt.distributorPermissionTypeID
                 WHERE p.DistributorPermissionTypeID_FK = @DistributorPermissionTypeID_FK
                   AND p.permissionActive = 1
@@ -248,7 +248,7 @@ BEGIN
                 ;THROW 50001, N'البيانات مدخلة مسبقا', 1;
             END
 
-            INSERT INTO DATACORE.dbo.Permission
+            INSERT INTO  dbo.Permission
             (
                   DistributorPermissionTypeID_FK
                 , UsersID_FK
@@ -308,7 +308,7 @@ BEGIN
                 + N',"hostName": "'                      + ISNULL(CONVERT(NVARCHAR(MAX), @hostName), '') + N'"'
                 + N'}';
 
-            INSERT INTO DATACORE.dbo.AuditLog (TableName, ActionType, RecordID, PerformedBy, Notes)
+            INSERT INTO  dbo.AuditLog (TableName, ActionType, RecordID, PerformedBy, Notes)
             VALUES (N'[dbo].[Permission]', N'INSERT', ISNULL(@NewID, 0), @entryData, @Note);
 
             SELECT 1 AS IsSuccessful, N'تم اضافة البيانات بنجاح' AS Message_;
@@ -356,7 +356,7 @@ BEGIN
             -- الإدخال حسب نوع الهدف
             IF ISNULL(@searchID,0) = 1
             BEGIN
-                INSERT INTO DATACORE.dbo.Permission
+                INSERT INTO  dbo.Permission
                 (
                       DistributorPermissionTypeID_FK, UsersID_FK
                     , permissionStartDate, permissionEndDate, permissionNote
@@ -368,8 +368,8 @@ BEGIN
                     , CONVERT(DATETIME, @EndDT)
                     , @permissionNote
                     , 1,@InIdaraID, @entryData, @hostName
-                FROM DATACORE.dbo.DistributorPermissionType dt
-                INNER JOIN DATACORE.dbo.PermissionType p
+                FROM  dbo.DistributorPermissionType dt
+                INNER JOIN  dbo.PermissionType p
                     ON dt.permissionTypeID_FK = p.permissionTypeID
                 WHERE dt.distributorID_FK = @distributorIDFroGiveAllPermissions
                   AND dt.distributorPermissionTypeActive = 1
@@ -380,7 +380,7 @@ BEGIN
                   AND dt.distributorPermissionTypeID NOT IN
                   (
                         SELECT r.DistributorPermissionTypeID_FK
-                        FROM DATACORE.dbo.Permission r
+                        FROM  dbo.Permission r
                         WHERE r.permissionActive = 1
                           AND CAST(r.permissionStartDate AS DATE) <= CAST(GETDATE() AS DATE)
                           AND (CAST(r.permissionEndDate AS DATE) > CAST(GETDATE() AS DATE)
@@ -396,7 +396,7 @@ BEGIN
             END
             ELSE IF ISNULL(@searchID,0) = 2
             BEGIN
-                INSERT INTO DATACORE.dbo.Permission
+                INSERT INTO  dbo.Permission
                 (
                       DistributorPermissionTypeID_FK, distributorID_FK
                     , permissionStartDate, permissionEndDate, permissionNote
@@ -408,8 +408,8 @@ BEGIN
                     , CONVERT(DATETIME, @EndDT)
                     , @permissionNote
                     , 1,@InIdaraID, @entryData, @hostName
-                FROM DATACORE.dbo.DistributorPermissionType dt
-                INNER JOIN DATACORE.dbo.PermissionType p
+                FROM  dbo.DistributorPermissionType dt
+                INNER JOIN  dbo.PermissionType p
                     ON dt.permissionTypeID_FK = p.permissionTypeID
                 WHERE dt.distributorID_FK = @distributorIDFroGiveAllPermissions
                   AND dt.distributorPermissionTypeActive = 1
@@ -420,7 +420,7 @@ BEGIN
                   AND dt.distributorPermissionTypeID NOT IN
                   (
                         SELECT r.DistributorPermissionTypeID_FK
-                        FROM DATACORE.dbo.Permission r
+                        FROM  dbo.Permission r
                         WHERE r.permissionActive = 1
                           AND CAST(r.permissionStartDate AS DATE) <= CAST(GETDATE() AS DATE)
                           AND (CAST(r.permissionEndDate AS DATE) > CAST(GETDATE() AS DATE)
@@ -436,7 +436,7 @@ BEGIN
             END
             ELSE IF ISNULL(@searchID,0) = 3
             BEGIN
-                INSERT INTO DATACORE.dbo.Permission
+                INSERT INTO  dbo.Permission
                 (
                       DistributorPermissionTypeID_FK, RoleID_FK
                     , permissionStartDate, permissionEndDate, permissionNote
@@ -448,8 +448,8 @@ BEGIN
                     , CONVERT(DATETIME, @EndDT)
                     , @permissionNote
                     , 1,@InIdaraID, @entryData, @hostName
-                FROM DATACORE.dbo.DistributorPermissionType dt
-                INNER JOIN DATACORE.dbo.PermissionType p
+                FROM  dbo.DistributorPermissionType dt
+                INNER JOIN  dbo.PermissionType p
                     ON dt.permissionTypeID_FK = p.permissionTypeID
                 WHERE dt.distributorID_FK = @distributorIDFroGiveAllPermissions
                   AND dt.distributorPermissionTypeActive = 1
@@ -460,7 +460,7 @@ BEGIN
                   AND dt.distributorPermissionTypeID NOT IN
                   (
                         SELECT r.DistributorPermissionTypeID_FK
-                        FROM DATACORE.dbo.Permission r
+                        FROM  dbo.Permission r
                         WHERE r.permissionActive = 1
                           AND CAST(r.permissionStartDate AS DATE) <= CAST(GETDATE() AS DATE)
                           AND (CAST(r.permissionEndDate AS DATE) > CAST(GETDATE() AS DATE)
@@ -476,7 +476,7 @@ BEGIN
             END
             ELSE IF ISNULL(@searchID,0) = 4
             BEGIN
-                INSERT INTO DATACORE.dbo.Permission
+                INSERT INTO  dbo.Permission
                 (
                       DistributorPermissionTypeID_FK, IdaraID_FK
                     , permissionStartDate, permissionEndDate, permissionNote
@@ -488,8 +488,8 @@ BEGIN
                     , CONVERT(DATETIME, @EndDT)
                     , @permissionNote
                     , 1,@InIdaraID, @entryData, @hostName
-                FROM DATACORE.dbo.DistributorPermissionType dt
-                INNER JOIN DATACORE.dbo.PermissionType p
+                FROM  dbo.DistributorPermissionType dt
+                INNER JOIN  dbo.PermissionType p
                     ON dt.permissionTypeID_FK = p.permissionTypeID
                 WHERE dt.distributorID_FK = @distributorIDFroGiveAllPermissions
                   AND dt.distributorPermissionTypeActive = 1
@@ -500,7 +500,7 @@ BEGIN
                   AND dt.distributorPermissionTypeID NOT IN
                   (
                         SELECT r.DistributorPermissionTypeID_FK
-                        FROM DATACORE.dbo.Permission r
+                        FROM  dbo.Permission r
                         WHERE r.permissionActive = 1
                           AND CAST(r.permissionStartDate AS DATE) <= CAST(GETDATE() AS DATE)
                           AND (CAST(r.permissionEndDate AS DATE) > CAST(GETDATE() AS DATE)
@@ -516,7 +516,7 @@ BEGIN
             END
             ELSE IF ISNULL(@searchID,0) = 5
             BEGIN
-                INSERT INTO DATACORE.dbo.Permission
+                INSERT INTO  dbo.Permission
                 (
                       DistributorPermissionTypeID_FK, DSDID_FK
                     , permissionStartDate, permissionEndDate, permissionNote
@@ -528,8 +528,8 @@ BEGIN
                     , CONVERT(DATETIME, @EndDT)
                     , @permissionNote
                     , 1,@InIdaraID, @entryData, @hostName
-                FROM DATACORE.dbo.DistributorPermissionType dt
-                INNER JOIN DATACORE.dbo.PermissionType p
+                FROM  dbo.DistributorPermissionType dt
+                INNER JOIN  dbo.PermissionType p
                     ON dt.permissionTypeID_FK = p.permissionTypeID
                 WHERE dt.distributorID_FK = @distributorIDFroGiveAllPermissions
                   AND dt.distributorPermissionTypeActive = 1
@@ -540,7 +540,7 @@ BEGIN
                   AND dt.distributorPermissionTypeID NOT IN
                   (
                         SELECT r.DistributorPermissionTypeID_FK
-                        FROM DATACORE.dbo.Permission r
+                        FROM  dbo.Permission r
                         WHERE r.permissionActive = 1
                           AND CAST(r.permissionStartDate AS DATE) <= CAST(GETDATE() AS DATE)
                           AND (CAST(r.permissionEndDate AS DATE) > CAST(GETDATE() AS DATE)
@@ -567,7 +567,7 @@ BEGIN
                 + N',"hostName": "' + ISNULL(CONVERT(NVARCHAR(MAX), @hostName), '') + N'"'
                 + N'}';
 
-            INSERT INTO DATACORE.dbo.AuditLog (TableName, ActionType, RecordID, PerformedBy, Notes)
+            INSERT INTO  dbo.AuditLog (TableName, ActionType, RecordID, PerformedBy, Notes)
             VALUES (N'[dbo].[Permission]', N'INSERTFULLACCESS', 0, @entryData, @Note);
 
             SELECT 1 AS IsSuccessful, N'تم اضافة البيانات بنجاح' AS Message_;
@@ -584,12 +584,12 @@ BEGIN
                 ;THROW 50001, N'رقم السجل مطلوب للتعديل', 1;
             END
 
-            IF NOT EXISTS (SELECT 1 FROM DATACORE.dbo.Permission WHERE permissionID = @PermissionID)
+            IF NOT EXISTS (SELECT 1 FROM  dbo.Permission WHERE permissionID = @PermissionID)
             BEGIN
                 ;THROW 50001, N'السجل غير موجود', 1;
             END
 
-            UPDATE DATACORE.dbo.Permission
+            UPDATE  dbo.Permission
             SET permissionEndDate = CAST(GETDATE() AS DATE),
                 permissionActive  = 0
             WHERE permissionID = @PermissionID;
@@ -599,7 +599,7 @@ BEGIN
                 ;THROW 50002, N'لم يتم تعديل السجل القديم', 1;
             END
 
-            INSERT INTO DATACORE.dbo.Permission
+            INSERT INTO  dbo.Permission
             (
                   DistributorPermissionTypeID_FK
                 , UsersID_FK
@@ -629,7 +629,7 @@ BEGIN
                 , @InIdaraID
                 , @entryData
                 , @hostName
-            FROM DATACORE.dbo.Permission p
+            FROM  dbo.Permission p
             WHERE p.permissionID = @PermissionID;
 
             SET @Rows = @@ROWCOUNT;
@@ -647,7 +647,7 @@ BEGIN
                 + N',"hostName": "' + ISNULL(CONVERT(NVARCHAR(MAX), @hostName), '') + N'"'
                 + N'}';
 
-            INSERT INTO DATACORE.dbo.AuditLog (TableName, ActionType, RecordID, PerformedBy, Notes)
+            INSERT INTO  dbo.AuditLog (TableName, ActionType, RecordID, PerformedBy, Notes)
             VALUES (N'[dbo].[Permission]', N'UPDATE', @PermissionID, @entryData, @Note);
 
             SELECT 1 AS IsSuccessful, N'تم تعديل البيانات بنجاح' AS Message_;
@@ -664,12 +664,12 @@ BEGIN
                 ;THROW 50001, N'رقم السجل مطلوب للحذف', 1;
             END
 
-            IF NOT EXISTS (SELECT 1 FROM DATACORE.dbo.Permission WHERE permissionID = @PermissionID)
+            IF NOT EXISTS (SELECT 1 FROM  dbo.Permission WHERE permissionID = @PermissionID)
             BEGIN
                 ;THROW 50001, N'السجل غير موجود', 1;
             END
 
-            UPDATE DATACORE.dbo.Permission
+            UPDATE  dbo.Permission
             SET permissionEndDate = CAST(GETDATE() AS DATE),
                 permissionActive  = 0
             WHERE permissionID = @PermissionID;
@@ -685,7 +685,7 @@ BEGIN
                 + N',"hostName": "' + ISNULL(CONVERT(NVARCHAR(MAX), @hostName), '') + N'"'
                 + N'}';
 
-            INSERT INTO DATACORE.dbo.AuditLog (TableName, ActionType, RecordID, PerformedBy, Notes)
+            INSERT INTO  dbo.AuditLog (TableName, ActionType, RecordID, PerformedBy, Notes)
             VALUES (N'[dbo].[Permission]', N'DELETE', @PermissionID, @entryData, @Note);
 
             SELECT 1 AS IsSuccessful, N'تم حذف البيانات بنجاح' AS Message_;

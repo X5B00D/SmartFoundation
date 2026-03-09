@@ -17,8 +17,8 @@ BEGIN
 	-- Add the T-SQL statements to compute the return value here
 	 SET @Result = 
 					(SELECT count(*) 'Utility Type'
-						FROM KFMC.Housing.BuildingDetails bd
-						INNER JOIN KFMC.Housing.BuildingUtilityType but ON bd.buildingUtilityTypeID_FK = but.buildingUtilityTypeID
+						FROM  Housing.BuildingDetails bd
+						INNER JOIN  Housing.BuildingUtilityType but ON bd.buildingUtilityTypeID_FK = but.buildingUtilityTypeID
 						WHERE but.buildingUtilityTypeActive = 1 AND but.buildingUtilityTypeID = @buildingUtilityTypeID
 
 					)

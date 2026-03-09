@@ -10,7 +10,7 @@ DECLARE @Result NVARCHAR(12)
 
 SET @Result=(	
 				select top 1 cast(shiftTimeOut AS NVARCHAR (12))
-				from KFMC.dbo.AttendanceShiftTime st
+				from  dbo.AttendanceShiftTime st
 				WHERE 1=1
 				AND (st.shiftTypeID_FK=dbo.GetUserTypeID(@userID))
 				AND (st.shiftDayNo=DATEPART(dw,@dateOfDay))

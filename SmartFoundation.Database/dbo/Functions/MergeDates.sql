@@ -21,14 +21,14 @@ BEGIN
 
 BEGIN
 
- SET @MergeDate =(SELECT CAST( CAST(g.gregorianDate AS DATE)AS nvarchar(100))+' - '+ g.hijriDateyyyymmdd_ FROM KFMC.dbo._GregorianHijriDate g WHERE g.gregorianDate = @greoDate) 
+ SET @MergeDate =(SELECT CAST( CAST(g.gregorianDate AS DATE)AS nvarchar(100))+' - '+ g.hijriDateyyyymmdd_ FROM  dbo._GregorianHijriDate g WHERE g.gregorianDate = @greoDate) 
 
 END
 ELSE IF(@hijriDate IS NOT NULL AND @greoDate IS NULL)
 
 BEGIN
 
- SET @MergeDate = (SELECT CAST( CAST(g.gregorianDate AS DATE)AS nvarchar(100))+' - '+ g.hijriDateyyyymmdd_ FROM KFMC.dbo._GregorianHijriDate g WHERE g.hijriDateyyyymmdd_ = @hijriDate) 
+ SET @MergeDate = (SELECT CAST( CAST(g.gregorianDate AS DATE)AS nvarchar(100))+' - '+ g.hijriDateyyyymmdd_ FROM  dbo._GregorianHijriDate g WHERE g.hijriDateyyyymmdd_ = @hijriDate) 
 
 END
 ELSE

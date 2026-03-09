@@ -30,14 +30,14 @@ BEGIN
                 , m.IdaraId_FK
                 , mc.militaryAreaCityName_A
                 
-            FROM [DATACORE].[Housing].[MilitaryLocation] m
-            inner join [DATACORE].[Housing].[MilitaryAreaCity] mc on m.militaryAreaCityID_FK = mc.militaryAreaCityID
+            FROM  [Housing].[MilitaryLocation] m
+            inner join  [Housing].[MilitaryAreaCity] mc on m.militaryAreaCityID_FK = mc.militaryAreaCityID
             WHERE m.militaryLocationActive = 1 and (m.IdaraId_FK is null or m.IdaraId_FK = @idaraID)
             ORDER BY m.militaryLocationID desc;
 
             -- Cities DDL
             SELECT c.militaryAreaCityID, c.militaryAreaCityName_A
-            FROM DATACORE.Housing.MilitaryAreaCity c
+            FROM  Housing.MilitaryAreaCity c
             WHERE c.militaryAreaCityActive = 1;
     -- Insert statements for procedure here
 END

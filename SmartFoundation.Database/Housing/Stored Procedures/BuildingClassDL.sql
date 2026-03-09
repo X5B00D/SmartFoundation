@@ -25,7 +25,7 @@ BEGIN
                 , c.buildingClassDescription
                 , c.buildingClassOrder
                 , c.buildingClassActive
-            FROM DATACORE.Housing.BuildingClass c
+            FROM  Housing.BuildingClass c
             WHERE c.buildingClassActive = 1 and (c.IdaraId_FK is null or c.IdaraId_FK = @idaraID)
             order by c.buildingClassID desc;
     -- Insert statements for procedure here

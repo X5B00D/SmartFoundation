@@ -27,8 +27,8 @@ Declare @ToDistributor INT
 
 
 --SET @disID = (SELECT TOP(1) d.distributorID FROM dbo.UserDistributor ud inner join dbo.Distributor d on d.distributorID = ud.distributorID_FK WHERE ud.userID_FK = @managerID AND d.distributorActive = 1 ORDER BY d.roleID_FK ASC )
-set @ToDistributor=(SELECT  top (1)ud.distributorID_FK  FROM KFMC.dbo.UserDistributor ud
-INNER JOIN KFMC.dbo.Distributor d ON ud.distributorID_FK=d.distributorID 
+set @ToDistributor=(SELECT  top (1)ud.distributorID_FK  FROM  dbo.UserDistributor ud
+INNER JOIN  dbo.Distributor d ON ud.distributorID_FK=d.distributorID 
 AND d.distributorActive=1 
 AND ud.UDActive=1
 AND ud.UDStartDate IS NOT NULL
@@ -44,7 +44,7 @@ SELECT case when mu.AdID is not null AND mu.userID <> mu.AdID then mu.AdID
 	  when mu.AdID is  null AND mu.SvID is null  AND mu.userID = mu.MaID then mu.GMID
 	  END managerID
 	 
-	  FROM KFMC.dbo.V_ManagerOfUser mu
+	  FROM dbo.V_ManagerOfUser mu
 	  where mu.userID=@userID
 	  )
 	  

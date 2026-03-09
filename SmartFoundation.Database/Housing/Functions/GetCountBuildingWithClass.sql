@@ -18,8 +18,8 @@ BEGIN
 	 SET @Result = 
 					(
 						SELECT count (*) 'Building Class'
-						from kfmc.Housing.BuildingDetails bd
-						inner join kfmc.Housing.BuildingClass bc on bd.buildingClassID_FK=bc.buildingClassID
+						from  Housing.BuildingDetails bd
+						inner join  Housing.BuildingClass bc on bd.buildingClassID_FK=bc.buildingClassID
 						WHERE bc.buildingClassActive = 1 AND bc.buildingClassID = @buildingClassID
 
 					)

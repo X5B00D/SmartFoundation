@@ -213,7 +213,7 @@ BEGIN
                         ,[entryDate]
                         ,[entryData]
                         ,[hostName]
-                    FROM [DATACORE].[Housing].[BuildingPayment] bb
+                    FROM  [Housing].[BuildingPayment] bb
                     where bb.buildingPayementActive = 1 and bb.deductListID_FK = @parameter_01
 
                 
@@ -268,7 +268,7 @@ BEGIN
               @ErrSeverity = ERROR_SEVERITY(),
               @ErrState    = ERROR_STATE();
 
-        INSERT INTO DATACORE.dbo.ErrorLog
+        INSERT INTO  dbo.ErrorLog
         (
               ERROR_MESSAGE_
             , ERROR_SEVERITY_

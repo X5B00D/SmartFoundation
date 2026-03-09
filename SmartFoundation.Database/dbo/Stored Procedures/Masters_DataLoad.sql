@@ -29,8 +29,8 @@ BEGIN
         isnull(ud.usersAuthTypeID_FK,3) 
         
         from dbo.Users s
-        Left JOIN DATACORE.dbo.UsersDetails ud ON s.usersID = ud.usersID_FK
-        left Join DATACORE.dbo.UsersAuthType ua on ud.usersAuthTypeID_FK = ua.UsersAuthTypeID
+        Left JOIN  dbo.UsersDetails ud ON s.usersID = ud.usersID_FK
+        left Join  dbo.UsersAuthType ua on ud.usersAuthTypeID_FK = ua.UsersAuthTypeID
         
         where s.usersActive = 1 
         and s.usersID = @entrydata 
@@ -75,7 +75,7 @@ BEGIN
                 , CONVERT(NVARCHAR(50), p.permissionStartDate, 23) AS permissionStartDate
                 , CONVERT(NVARCHAR(50), p.permissionEndDate, 23) AS permissionEndDate
                 , p.permissionNote
-            FROM DATACORE.dbo.V_GetListUserPermission p
+            FROM  dbo.V_GetListUserPermission p
            
             WHERE p.userID = @parameter_02
               AND p.distributorID_FK is null
@@ -105,7 +105,7 @@ BEGIN
                 , CONVERT(NVARCHAR(50), p.permissionStartDate, 23) AS permissionStartDate
                 , CONVERT(NVARCHAR(50), p.permissionEndDate, 23) AS permissionEndDate
                 , p.permissionNote
-            FROM DATACORE.dbo.V_GetListUserPermission p
+            FROM  dbo.V_GetListUserPermission p
             WHERE  p.distributorID_FK = @parameter_03
                AND p.userID  is null
               AND p.RoleID_FK is null
@@ -133,7 +133,7 @@ BEGIN
                 , CONVERT(NVARCHAR(50), p.permissionStartDate, 23) AS permissionStartDate
                 , CONVERT(NVARCHAR(50), p.permissionEndDate, 23) AS permissionEndDate
                 , p.permissionNote
-            FROM DATACORE.dbo.V_GetListUserPermission p
+            FROM  dbo.V_GetListUserPermission p
             WHERE p.userID is null
               AND p.distributorID_FK is null
               AND p.RoleID_FK = @parameter_04
@@ -161,7 +161,7 @@ BEGIN
                 , CONVERT(NVARCHAR(50), p.permissionStartDate, 23) AS permissionStartDate
                 , CONVERT(NVARCHAR(50), p.permissionEndDate, 23) AS permissionEndDate
                 , p.permissionNote
-            FROM DATACORE.dbo.V_GetListUserPermission p
+            FROM  dbo.V_GetListUserPermission p
             WHERE p.userID is null
               AND p.distributorID_FK is null
               AND p.RoleID_FK is null
@@ -190,7 +190,7 @@ BEGIN
                 , CONVERT(NVARCHAR(50), p.permissionStartDate, 23) AS permissionStartDate
                 , CONVERT(NVARCHAR(50), p.permissionEndDate, 23) AS permissionEndDate
                 , p.permissionNote
-            FROM DATACORE.dbo.V_GetListUserPermission p
+            FROM  dbo.V_GetListUserPermission p
             WHERE p.userID is null
               AND p.distributorID_FK is null
               AND p.RoleID_FK is null
@@ -220,7 +220,7 @@ BEGIN
                 , CONVERT(NVARCHAR(50), p.permissionStartDate, 23) AS permissionStartDate
                 , CONVERT(NVARCHAR(50), p.permissionEndDate, 23) AS permissionEndDate
                 , p.permissionNote
-            FROM DATACORE.dbo.V_GetListUserPermission p
+            FROM  dbo.V_GetListUserPermission p
             WHERE p.userID is null
               AND p.distributorID_FK is null
               AND p.RoleID_FK is null
@@ -249,7 +249,7 @@ BEGIN
                 , CONVERT(NVARCHAR(50), p.permissionStartDate, 23) AS permissionStartDate
                 , CONVERT(NVARCHAR(50), p.permissionEndDate, 23) AS permissionEndDate
                 , p.permissionNote
-            FROM DATACORE.dbo.V_GetListUserPermission p
+            FROM  dbo.V_GetListUserPermission p
             WHERE p.userID is null
               AND p.distributorID_FK is null
               AND p.RoleID_FK is null
@@ -286,9 +286,9 @@ BEGIN
                   CAST(d.usersID AS BIGINT) AS userID_
                 , CAST(d.nationalID AS NVARCHAR(20)) + ' - ' + d.FullName+' - ' + s.idaraLongName_A AS FullName
                 , d.userTypeID
-            FROM DATACORE.dbo.V_GetFullStructureForDSD f
-            INNER JOIN DATACORE.dbo.V_GetListUsersInDSD d ON f.DSDID = d.DSDID
-            inner join DATACORE.dbo.V_GetFullSystemUsersDetails s on d.usersID = s.usersID
+            FROM  dbo.V_GetFullStructureForDSD f
+            INNER JOIN  dbo.V_GetListUsersInDSD d ON f.DSDID = d.DSDID
+            inner join  dbo.V_GetFullSystemUsersDetails s on d.usersID = s.usersID
             WHERE  d.usersID IS NOT NULL
             ORDER BY d.userTypeID ASC;
             END
@@ -299,8 +299,8 @@ BEGIN
                   CAST(d.usersID AS BIGINT) AS userID_
                 , CAST(d.nationalID AS NVARCHAR(20)) + ' - ' + d.FullName AS FullName
                 , d.userTypeID
-            FROM DATACORE.dbo.V_GetFullStructureForDSD f
-            INNER JOIN DATACORE.dbo.V_GetListUsersInDSD d ON f.DSDID = d.DSDID
+            FROM  dbo.V_GetFullStructureForDSD f
+            INNER JOIN  dbo.V_GetListUsersInDSD d ON f.DSDID = d.DSDID
             WHERE f.IdaraID = @idaraID 
               AND d.usersID IS NOT NULL
             ORDER BY d.userTypeID ASC;
@@ -313,8 +313,8 @@ BEGIN
                   CAST(d.usersID AS BIGINT) AS userID_
                 , CAST(d.nationalID AS NVARCHAR(20)) + ' - ' + d.FullName AS FullName
                 , d.userTypeID
-            FROM DATACORE.dbo.V_GetFullStructureForDSD f
-            INNER JOIN DATACORE.dbo.V_GetListUsersInDSD d ON f.DSDID = d.DSDID
+            FROM  dbo.V_GetFullStructureForDSD f
+            INNER JOIN  dbo.V_GetListUsersInDSD d ON f.DSDID = d.DSDID
             WHERE f.IdaraID = @idaraID 
               AND d.usersID IS NOT NULL
             ORDER BY d.userTypeID ASC;
@@ -327,9 +327,9 @@ BEGIN
             BEGIN
 
             SELECT d.distributorID, d.distributorName_A
-            FROM DATACORE.dbo.Distributor d
-            INNER JOIN DATACORE.dbo.MenuDistributor md ON d.distributorID = md.distributorID_FK
-            inner join DATACORE.dbo.Menu m on md.menuID_FK = m .menuID
+            FROM  dbo.Distributor d
+            INNER JOIN  dbo.MenuDistributor md ON d.distributorID = md.distributorID_FK
+            inner join  dbo.Menu m on md.menuID_FK = m .menuID
             WHERE d.distributorActive = 1 
               AND md.menuDistributorActive = 1
               and m.PageLvl in (1,2,3);
@@ -338,9 +338,9 @@ BEGIN
             BEGIN
 
             SELECT d.distributorID, d.distributorName_A
-            FROM DATACORE.dbo.Distributor d
-            INNER JOIN DATACORE.dbo.MenuDistributor md ON d.distributorID = md.distributorID_FK
-            inner join DATACORE.dbo.Menu m on md.menuID_FK = m .menuID
+            FROM  dbo.Distributor d
+            INNER JOIN  dbo.MenuDistributor md ON d.distributorID = md.distributorID_FK
+            inner join  dbo.Menu m on md.menuID_FK = m .menuID
             WHERE d.distributorActive = 1 
               AND md.menuDistributorActive = 1 
               and m.PageLvl in (2,3);
@@ -349,9 +349,9 @@ BEGIN
             BEGIN
 
             SELECT d.distributorID, d.distributorName_A
-            FROM DATACORE.dbo.Distributor d
-            INNER JOIN DATACORE.dbo.MenuDistributor md ON d.distributorID = md.distributorID_FK
-            inner join DATACORE.dbo.Menu m on md.menuID_FK = m .menuID
+            FROM  dbo.Distributor d
+            INNER JOIN  dbo.MenuDistributor md ON d.distributorID = md.distributorID_FK
+            inner join  dbo.Menu m on md.menuID_FK = m .menuID
             WHERE d.distributorActive = 1 
               AND md.menuDistributorActive = 1 
               and m.PageLvl in (3);
@@ -370,8 +370,8 @@ BEGIN
                   dpt.distributorPermissionTypeID
                 , pt.permissionTypeName_A
                 , dpt.distributorID_FK
-            FROM DATACORE.dbo.DistributorPermissionType dpt
-            INNER JOIN DATACORE.dbo.PermissionType pt ON dpt.permissionTypeID_FK = pt.permissionTypeID
+            FROM  dbo.DistributorPermissionType dpt
+            INNER JOIN  dbo.PermissionType pt ON dpt.permissionTypeID_FK = pt.permissionTypeID
             WHERE pt.permissionTypeActive = 1 
               AND dpt.distributorPermissionTypeActive = 1
               and dpt.permissionAuthLvl in (1,2,3);
@@ -388,8 +388,8 @@ BEGIN
                   dpt.distributorPermissionTypeID
                 , pt.permissionTypeName_A
                 , dpt.distributorID_FK
-            FROM DATACORE.dbo.DistributorPermissionType dpt
-            INNER JOIN DATACORE.dbo.PermissionType pt ON dpt.permissionTypeID_FK = pt.permissionTypeID
+            FROM  dbo.DistributorPermissionType dpt
+            INNER JOIN  dbo.PermissionType pt ON dpt.permissionTypeID_FK = pt.permissionTypeID
             WHERE pt.permissionTypeActive = 1 
               AND dpt.distributorPermissionTypeActive = 1
               and dpt.permissionAuthLvl in (2,3);
@@ -404,8 +404,8 @@ BEGIN
                   dpt.distributorPermissionTypeID
                 , pt.permissionTypeName_A
                 , dpt.distributorID_FK
-            FROM DATACORE.dbo.DistributorPermissionType dpt
-            INNER JOIN DATACORE.dbo.PermissionType pt ON dpt.permissionTypeID_FK = pt.permissionTypeID
+            FROM  dbo.DistributorPermissionType dpt
+            INNER JOIN  dbo.PermissionType pt ON dpt.permissionTypeID_FK = pt.permissionTypeID
             WHERE pt.permissionTypeActive = 1 
               AND dpt.distributorPermissionTypeActive = 1
               and dpt.permissionAuthLvl in (3);
@@ -417,38 +417,38 @@ BEGIN
 
               -- IDara DDL
             SELECT distinct D.idaraID,D.idaraLongName_A 
-            FROM DATACORE.DBO.Idara D
+            FROM  DBO.Idara D
             order by D.idaraID asc
 
 
                -- Dept DDL
             SELECT distinct D.deptID,D.deptName_A ,d.idaraID_FK
-            FROM DATACORE.DBO.Department D
+            FROM  DBO.Department D
             WHERE D.deptActive = 1 and d.idaraID_FK = @idaraID
 
             -- Section DDL
             SELECT distinct s.secID,s.secName_A,a.deptID
-            FROM DATACORE.DBO.Section s
-            inner join DATACORE.dbo.DeptSecDiv d on s.secID =d.secID_FK
-            inner join DATACORE.dbo.Department a on d.deptID_FK = a.deptID
+            FROM  DBO.Section s
+            inner join  dbo.DeptSecDiv d on s.secID =d.secID_FK
+            inner join  dbo.Department a on d.deptID_FK = a.deptID
             WHERE s.secActive = 1 and a.idaraID_FK = @idaraID
 
             
             -- Divison DDL
             SELECT distinct s.divID,s.divName_A,a.secID
-            FROM DATACORE.DBO.Divison s
-            inner join DATACORE.dbo.DeptSecDiv d on s.divID =d.divID_FK
-             inner join DATACORE.dbo.Section a on d.secID_FK= a.secID
-             inner join DATACORE.dbo.Department dd on d.deptID_FK = dd.deptID
+            FROM  DBO.Divison s
+            inner join  dbo.DeptSecDiv d on s.divID =d.divID_FK
+             inner join  dbo.Section a on d.secID_FK= a.secID
+             inner join  dbo.Department dd on d.deptID_FK = dd.deptID
             WHERE s.divActive = 1 AND dd.IdaraID_FK = @idaraID
 
             -- Role DDL
             select r.roleID,r.roleName_A 
-            from DATACORE.dbo.[Role] r
+            from  dbo.[Role] r
             
               -- Distributors To give permission DDL
             SELECT d.distributorID, d.distributorName_A
-            FROM DATACORE.dbo.Distributor d
+            FROM  dbo.Distributor d
             WHERE d.distributorActive = 1 and d.distributorType_FK = 2 
             and d.DSDID_FK in (select ds.DSDID from dbo.DeptSecDiv ds where ds.idaraID_FK = @entryDataIdaraID)
           
@@ -501,7 +501,7 @@ BEGIN
               
                r1.distributorID
 
-           from [DATACORE].[dbo].[V_GetFullSystemUsersDetails] d
+           from  [dbo].[V_GetFullSystemUsersDetails] d
            inner join dbo.UsersDetails ud on d.usersID = ud.usersID_FK and ud.userActive = 1 and d.userActive = 1
            left join dbo.UserDistributor ui on ud.usersID_FK = ui.userID_FK and ui.UDActive = 1
            left join dbo.Distributor r on ui.distributorID_FK = r.distributorID
@@ -557,7 +557,7 @@ BEGIN
           
                r1.distributorID
 
-           from [DATACORE].[dbo].[V_GetFullSystemUsersDetails] d
+           from  [dbo].[V_GetFullSystemUsersDetails] d
            inner join dbo.UsersDetails ud on d.usersID = ud.usersID_FK and ud.userActive = 1 and d.userActive = 1
            left join dbo.UserDistributor ui on ud.usersID_FK = ui.userID_FK and ui.UDActive = 1
            left join dbo.Distributor r on ui.distributorID_FK = r.distributorID
@@ -608,7 +608,7 @@ BEGIN
               
                r1.distributorID
 
-           from [DATACORE].[dbo].[V_GetFullSystemUsersDetails] d
+           from  [dbo].[V_GetFullSystemUsersDetails] d
            inner join dbo.UsersDetails ud on d.usersID = ud.usersID_FK and ud.userActive = 1 and d.userActive = 1
            left join dbo.UserDistributor ui on ud.usersID_FK = ui.userID_FK and ui.UDActive = 1
            left join dbo.Distributor r on ui.distributorID_FK = r.distributorID
@@ -741,7 +741,7 @@ BEGIN
         --   SELECT  [BillChargeTypeID]
         --          ,[BillChargeTypeName_A]
       
-        --FROM [DATACORE].[Housing].[BillChargeType] 
+        --FROM  [Housing].[BillChargeType] 
         --where BillChargeTypeActive = 1 and BillChargeTypeID <> 5
         --order by BillChargeTypeID asc
 
@@ -873,7 +873,7 @@ BEGIN
       ,d.distributorType_FK
     
     
-  FROM [DATACORE].[dbo].[DistributorPermissionType] t 
+  FROM  [dbo].[DistributorPermissionType] t 
   inner join dbo.Distributor d on d.distributorID = t.distributorID_FK and d.distributorActive = 1 and d.distributorType_FK = 4
   inner join dbo.MenuDistributor md on md.distributorID_FK = t.distributorID_FK and md.menuDistributorActive = 1
   inner join dbo.Menu m on m.menuID = md.menuID_FK and m.menuActive = 1
@@ -1375,7 +1375,7 @@ END
               @ErrSeverity = ERROR_SEVERITY(),
               @ErrState    = ERROR_STATE();
 
-        INSERT INTO DATACORE.dbo.ErrorLog
+        INSERT INTO  dbo.ErrorLog
         (
               ERROR_MESSAGE_
             , ERROR_SEVERITY_

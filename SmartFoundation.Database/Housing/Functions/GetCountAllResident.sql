@@ -18,7 +18,7 @@ BEGIN
 	 SET @Result = 
 					(
 						SELECT count(*) N'AllResident' FROM Housing.ResidentDetails rd
-    INNER JOIN KFMC.Housing.ResidentInfo ri ON rd.generalNo_FK = ri.generalNo
+    INNER JOIN  Housing.ResidentInfo ri ON rd.residentInfoID_FK = ri.residentInfoID
 	WHERE rd.residentDetailsActive =1
 
 					)

@@ -31,7 +31,7 @@ BEGIN
                     WHEN t.buildingUtilityIsRent = 1 THEN N'1'
                     ELSE N''
                   END AS buildingUtilityIsRent
-            FROM DATACORE.Housing.buildingUtilityType t
+            FROM  Housing.buildingUtilityType t
             WHERE t.buildingUtilityTypeActive = 1 and (t.IdaraId_FK is null or t.IdaraId_FK = @idaraID)
             ORDER BY t.buildingUtilityTypeID DESC;
     -- Insert statements for procedure here

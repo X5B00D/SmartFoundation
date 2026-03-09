@@ -21,7 +21,7 @@ Declare @Result int
 	-- Declare the return variable here
 	set @Result =(
 (select isnull(sum(o.vacOldDecisionTotalDays),0)  
-from kfmc.dbo.VAC_OldDecision o
+from  dbo.VAC_OldDecision o
 where 1=1
 and o.vacOldDecisionUserID_FK = @userID
 and o.entryDate is not null
@@ -35,12 +35,12 @@ and o.vacOldDecisionActive = 1)
 
 (
 select isnull(sum(d.noOfDay),0)
-From kfmc.dbo.VAC_VacationRequests r
-inner join kfmc.dbo.VAC_VacationDetails d on r.vacationRequestID = d.vacationRequestID_FK
-inner join kfmc.dbo.VAC_VacationActions a on r.vacationRequestID = a.vacationRequestID_FK
-inner join kfmc.dbo.GetLastActionForVacationRequest() la on a.vacationActionsID = la.ActionsID and a.actionTypeID_FK <> 4
+From  dbo.VAC_VacationRequests r
+inner join  dbo.VAC_VacationDetails d on r.vacationRequestID = d.vacationRequestID_FK
+inner join  dbo.VAC_VacationActions a on r.vacationRequestID = a.vacationRequestID_FK
+inner join  dbo.GetLastActionForVacationRequest() la on a.vacationActionsID = la.ActionsID and a.actionTypeID_FK <> 4
 where r.userID_FK = @userID and d.EntitlementYear =2022
---inner join kfmc.dbo.GetLastActionForVacationRequest() lr on lr.RequestID
+--inner join  dbo.GetLastActionForVacationRequest() lr on lr.RequestID
 )
 )
 

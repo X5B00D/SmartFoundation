@@ -51,7 +51,7 @@ BEGIN
             IF EXISTS
             (
                 SELECT 1
-                FROM DATACORE.Housing.BuildingType bt
+                FROM  Housing.BuildingType bt
                 WHERE bt.buildingTypeName_A = @buildingTypeName_A
                   AND bt.buildingTypeActive = 1
                   AND (bt.IdaraId_FK = @IdaraID_INT OR @IdaraID_INT IS NULL)
@@ -60,7 +60,7 @@ BEGIN
                 ;THROW 50001, N'البيانات مدخلة مسبقا', 1;
             END
 
-            INSERT INTO DATACORE.Housing.BuildingType
+            INSERT INTO  Housing.BuildingType
             (
                   buildingTypeCode
                 , buildingTypeName_A
@@ -106,7 +106,7 @@ BEGIN
                 + N',"hostName": "'                + ISNULL(CONVERT(NVARCHAR(MAX), @hostName), '') + N'"'
                 + N'}';
 
-            INSERT INTO DATACORE.dbo.AuditLog
+            INSERT INTO  dbo.AuditLog
             (
                   TableName
                 , ActionType
@@ -140,7 +140,7 @@ BEGIN
             IF NOT EXISTS
             (
                 SELECT 1
-                FROM DATACORE.Housing.BuildingType
+                FROM  Housing.BuildingType
                 WHERE buildingTypeID = @buildingTypeID
                   AND buildingTypeActive = 1
             )
@@ -148,7 +148,7 @@ BEGIN
                 ;THROW 50001, N'السجل غير موجود', 1;
             END
 
-            UPDATE DATACORE.Housing.BuildingType
+            UPDATE  Housing.BuildingType
             SET
                   buildingTypeCode        = ISNULL(@buildingTypeCode, buildingTypeCode)
                 , buildingTypeName_A      = ISNULL(@buildingTypeName_A, buildingTypeName_A)
@@ -175,7 +175,7 @@ BEGIN
                 + N',"hostName": "'                + ISNULL(CONVERT(NVARCHAR(MAX), @hostName), '') + N'"'
                 + N'}';
 
-            INSERT INTO DATACORE.dbo.AuditLog
+            INSERT INTO  dbo.AuditLog
             (
                   TableName
                 , ActionType
@@ -209,7 +209,7 @@ BEGIN
             IF NOT EXISTS
             (
                 SELECT 1
-                FROM DATACORE.Housing.BuildingType
+                FROM  Housing.BuildingType
                 WHERE buildingTypeID = @buildingTypeID
                   AND buildingTypeActive = 1
             )
@@ -217,7 +217,7 @@ BEGIN
                 ;THROW 50001, N'السجل غير موجود', 1;
             END
 
-            UPDATE DATACORE.Housing.BuildingType
+            UPDATE  Housing.BuildingType
             SET
                   buildingTypeActive = 0
                 , entryData = ISNULL(ISNULL(entryData,'')+N','+@entryData, entryData)
@@ -235,7 +235,7 @@ BEGIN
                 + N',"hostName": "'      + ISNULL(CONVERT(NVARCHAR(MAX), @hostName), '') + N'"'
                 + N'}';
 
-            INSERT INTO DATACORE.dbo.AuditLog
+            INSERT INTO  dbo.AuditLog
             (
                   TableName
                 , ActionType

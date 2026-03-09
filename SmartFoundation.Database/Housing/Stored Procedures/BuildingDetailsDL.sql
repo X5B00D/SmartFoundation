@@ -48,13 +48,13 @@ BEGIN
                 ,br.buildingRentEndDate
                 ,bd.IdaraId_FK
 
-           FROM [DATACORE].[Housing].[BuildingDetails] bd
-            inner join [DATACORE].[Housing].[BuildingType] bt on bd.buildingTypeID_FK = bt.buildingTypeID
-            inner join [DATACORE].[Housing].[BuildingUtilityType] but on bd.buildingUtilityTypeID_FK = but.buildingUtilityTypeID
-            inner join [DATACORE].[Housing].[MilitaryLocation] m on bd.militaryLocationID_FK = m.militaryLocationID
-            inner join [DATACORE].[Housing].[BuildingClass] bc on bd.buildingClassID_FK = bc.buildingClassID
-            left  join [DATACORE].[Housing].[BuildingRent] br on bd.buildingDetailsID = br.buildingDetailsID_FK and br.buildingRentActive = 1 
-            left join [DATACORE].[Housing].[BuildingRentType] brt on br.buildingRentTypeID_FK = brt.buildingRentTypeID and brt.buildingRentTypeActive =1
+           FROM [Housing].[BuildingDetails] bd
+            inner join  [Housing].[BuildingType] bt on bd.buildingTypeID_FK = bt.buildingTypeID
+            inner join  [Housing].[BuildingUtilityType] but on bd.buildingUtilityTypeID_FK = but.buildingUtilityTypeID
+            inner join  [Housing].[MilitaryLocation] m on bd.militaryLocationID_FK = m.militaryLocationID
+            inner join  [Housing].[BuildingClass] bc on bd.buildingClassID_FK = bc.buildingClassID
+            left  join  [Housing].[BuildingRent] br on bd.buildingDetailsID = br.buildingDetailsID_FK and br.buildingRentActive = 1 
+            left join  [Housing].[BuildingRentType] brt on br.buildingRentTypeID_FK = brt.buildingRentTypeID and brt.buildingRentTypeActive =1
             WHERE bd.buildingDetailsActive = 1 and m.militaryLocationActive = 1 and bt.buildingTypeActive = 1 
             and but.buildingUtilityTypeActive = 1 and m.militaryLocationActive = 1 
             and bc.buildingClassActive = 1 
@@ -65,20 +65,20 @@ BEGIN
 
              -- BuildingUtilityType DDL
             SELECT bu.buildingUtilityTypeID, bu.buildingUtilityTypeName_A,bu.buildingUtilityIsRent
-            FROM [DATACORE].[Housing].[BuildingUtilityType] bu
+            FROM  [Housing].[BuildingUtilityType] bu
             WHERE bu.buildingUtilityTypeActive = 1 and (bu.IdaraId_FK = @idaraID or bu.IdaraId_FK is null);
 
 
             -- BuildingRentType DDL
             SELECT r.buildingRentTypeID, r.buildingRentTypeName_A
-            FROM [DATACORE].[Housing].[BuildingRentType] r
+            FROM  [Housing].[BuildingRentType] r
             WHERE r.buildingRentTypeActive = 1 and r.buildingRentTypeID = 1;
 
             
 
             -- BuildingType DDL
             SELECT r.buildingTypeID, r.buildingTypeName_A
-            FROM [DATACORE].[Housing].[BuildingType] r
+            FROM  [Housing].[BuildingType] r
             WHERE r.buildingTypeActive = 1 and (r.IdaraId_FK = @idaraID or r.IdaraId_FK is null);
 
 
@@ -86,7 +86,7 @@ BEGIN
 
             -- MilitaryLocation DDL
             SELECT r.militaryLocationID, r.militaryLocationName_A
-            FROM [DATACORE].[Housing].[MilitaryLocation] r
+            FROM  [Housing].[MilitaryLocation] r
             WHERE r.militaryLocationActive = 1 --and (r.IdaraId_FK = @idaraID or r.IdaraId_FK is null);
 
 
@@ -94,7 +94,7 @@ BEGIN
 
             -- BuildingClass DDL
             SELECT r.buildingClassID, r.buildingClassName_A
-            FROM [DATACORE].[Housing].[BuildingClass] r
+            FROM  [Housing].[BuildingClass] r
             WHERE r.buildingClassActive = 1 and (r.IdaraId_FK = @idaraID or r.IdaraId_FK is null);
 
 

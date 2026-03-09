@@ -18,7 +18,7 @@ BEGIN
 	 SET @Result = 
 					(
 						SELECT TOP(1) buildingRentAmount
-						FROM KFMC.Housing.BuildingRent
+						FROM  Housing.BuildingRent
 						WHERE buildingRentActive = 1 AND buildingDetailsID_FK = @buildingDetailsID
 						ORDER BY buildingRentID desc
 

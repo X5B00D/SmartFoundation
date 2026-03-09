@@ -22,7 +22,7 @@ BEGIN
  SELECT  [BillChargeTypeID]
                   ,[BillChargeTypeName_A]
       
-        FROM [DATACORE].[Housing].[BillChargeType] 
+        FROM  [Housing].[BillChargeType] 
         where BillChargeTypeActive = 1 and BillChargeTypeID <> 5
         order by BillChargeTypeID asc
 
@@ -103,7 +103,7 @@ BEGIN
       ,d.[entryData]
       ,d.[hostName]
 
-  FROM [DATACORE].[Housing].[DeductList] d
+  FROM  [Housing].[DeductList] d
   inner join Housing.DeductType p on d.deductTypeID_FK = p.deductTypeID
   inner join Housing.BillChargeType c on d.BillChargeTypeID_FK = c.BillChargeTypeID
   where d.deductActive = 1

@@ -20,7 +20,7 @@ BEGIN
                        FROM Housing.BuildingAction ba
 					   WHERE 
 						(	SELECT TOP (1) ba.buildingActionTypeID_FK 
-							from kfmc.Housing.BuildingAction baa	
+							from  Housing.BuildingAction baa	
 							WHERE  baa.buildingDetailsNo = ba.buildingDetailsNo 
 							ORDER BY baa.buildingActionID desc
 						)=@buildingActionTypeID 

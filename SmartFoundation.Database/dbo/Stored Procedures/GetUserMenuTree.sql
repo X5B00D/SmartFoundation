@@ -74,8 +74,8 @@ BEGIN
         
                     (p.RoleID_FK in 
                     (select d.roleID_FK 
-                    from DATACORE.dbo.UserDistributor ud 
-                    inner join DATACORE.dbo.Distributor d on ud.distributorID_FK = d.distributorID
+                    from  dbo.UserDistributor ud 
+                    inner join  dbo.Distributor d on ud.distributorID_FK = d.distributorID
                     where d.distributorActive = 1 and d.roleID_FK is not null and ud.UDActive = 1 
                     and cast(ud.UDStartDate as date) <= cast(GETDATE() as date) 
                     and ((cast(ud.UDEndDate as date) > cast(GETDATE() as date)) or (ud.UDEndDate is null))
@@ -86,8 +86,8 @@ BEGIN
                     (p.DSDID_FK in
                     (
                     select f.DSDID
-                    from DATACORE.dbo.V_GetListUsersInDSD d
-                    inner join DATACORE.dbo.V_GetFullStructureForDSD f on d.DSDID = f.DSDID
+                    from  dbo.V_GetListUsersInDSD d
+                    inner join  dbo.V_GetFullStructureForDSD f on d.DSDID = f.DSDID
                     where d.usersID = @UsersID
                     )
                     )
@@ -96,8 +96,8 @@ BEGIN
                     (p.distributorID_FK in
                     (
                     select d.distributorID 
-                    from DATACORE.dbo.UserDistributor ud 
-                    inner join DATACORE.dbo.Distributor d on ud.distributorID_FK = d.distributorID
+                    from  dbo.UserDistributor ud 
+                    inner join  dbo.Distributor d on ud.distributorID_FK = d.distributorID
                     where d.distributorActive = 1  and ud.UDActive = 1 
                     and cast(ud.UDStartDate as date) <= cast(GETDATE() as date) 
                     and ((cast(ud.UDEndDate as date) > cast(GETDATE() as date)) or (ud.UDEndDate is null))

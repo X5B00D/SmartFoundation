@@ -49,7 +49,7 @@ BEGIN
 
     Declare @MeterServiceCount int
     set @MeterServiceCount =(select count(*) 
-    from DATACORE.Housing.MeterForBuilding m 
+    from  Housing.MeterForBuilding m 
     where m.buildingDetailsID_FK = @buildingDetailsID 
     and m.meterForBuildingActive = 1 
     and (m.meterForBuildingEndDate is null or cast(m.meterForBuildingEndDate as date) > cast(GETDATE() as date))
@@ -114,7 +114,7 @@ BEGIN
             IF NOT EXISTS
             (
                  SELECT 1
-                FROM DATACORE.Housing.V_WaitingList w
+                FROM  Housing.V_WaitingList w
                 WHERE w.ActionID = @ActionID
             )
             BEGIN
@@ -186,7 +186,7 @@ BEGIN
 
 
             
-              INSERT INTO DATACORE.Housing.[MeterRead]
+              INSERT INTO  Housing.[MeterRead]
             (
 
                    [meterReadTypeID_FK]
@@ -257,7 +257,7 @@ BEGIN
             if(@MeterServiceCount = @MeterServiceReaded)
             begin
 
-              INSERT INTO DATACORE.Housing.BuildingAction
+              INSERT INTO  Housing.BuildingAction
             (
                   buildingActionTypeID_FK
                 , residentInfoID_FK
@@ -324,7 +324,7 @@ BEGIN
                 + N',"hostName": "'       + ISNULL(CONVERT(NVARCHAR(MAX), @hostName), '') + N'"'
                 + N'}';
 
-            INSERT INTO DATACORE.dbo.AuditLog
+            INSERT INTO  dbo.AuditLog
             (
                   TableName
                 , ActionType
@@ -366,7 +366,7 @@ BEGIN
             IF NOT EXISTS
             (
                  SELECT 1
-                FROM DATACORE.Housing.V_WaitingList w
+                FROM  Housing.V_WaitingList w
                 WHERE w.ActionID = @ActionID
             )
             BEGIN
@@ -438,7 +438,7 @@ BEGIN
             END
 
 
-            UPDATE DATACORE.Housing.[MeterRead]
+            UPDATE  Housing.[MeterRead]
             set meterReadActive = 0 , CanceledBy = @entryData
             where meterReadID = @meterReadID
 
@@ -447,7 +447,7 @@ BEGIN
                 ;THROW 50002, N'حصل خطأ في تعديل قراءة العداد', 1; -- برمجي
             END
             
-              INSERT INTO DATACORE.Housing.[MeterRead]
+              INSERT INTO  Housing.[MeterRead]
             (
 
                    [meterReadTypeID_FK]
@@ -514,7 +514,7 @@ BEGIN
                 + N',"hostName": "'       + ISNULL(CONVERT(NVARCHAR(MAX), @hostName), '') + N'"'
                 + N'}';
 
-            INSERT INTO DATACORE.dbo.AuditLog
+            INSERT INTO  dbo.AuditLog
             (
                   TableName
                 , ActionType

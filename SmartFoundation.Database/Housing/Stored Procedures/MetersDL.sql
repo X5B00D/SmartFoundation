@@ -48,11 +48,11 @@ BEGIN
 
             
             from 
-            [DATACORE].[Housing].[Meter] m 
-            inner join [DATACORE].[Housing].[MeterType] mt on m.meterTypeID_FK = mt.meterTypeID
-            inner join [DATACORE].[Housing].[MeterServiceType] mst on mt.meterServiceTypeID_FK = mst.meterServiceTypeID
-            inner join [DATACORE].Housing.[MeterServicePrice] msp on msp.meterTypeID_FK = mt.meterTypeID
-            inner join DATACORE.Housing.MeterRead mr on m.meterID = mr.meterID_FK and mr.meterReadActive = 1 and  mr.meterReadTypeID_FK = 4
+             [Housing].[Meter] m 
+            inner join  [Housing].[MeterType] mt on m.meterTypeID_FK = mt.meterTypeID
+            inner join  [Housing].[MeterServiceType] mst on mt.meterServiceTypeID_FK = mst.meterServiceTypeID
+            inner join  Housing.[MeterServicePrice] msp on msp.meterTypeID_FK = mt.meterTypeID
+            inner join  Housing.MeterRead mr on m.meterID = mr.meterID_FK and mr.meterReadActive = 1 and  mr.meterReadTypeID_FK = 4
             where m.idaraID_FK = @idaraID and m.meterActive = 1 and mt.meterTypeActive = 1 and mst.meterServiceTypeActive = 1 and msp.meterServicePriceActive = 1
 
             order by m.meterID desc
@@ -75,9 +75,9 @@ BEGIN
                   ,mm.[entryDate]
                   ,mm.[entryData]
                   ,mm.[hostName]
-              FROM [DATACORE].[Housing].[MeterType] mm
-              inner join DATACORE.Housing.MeterServiceType mst on mm.meterServiceTypeID_FK = mst.meterServiceTypeID
-              inner join DATACORE.Housing.MeterServicePrice msp on mm.meterTypeID = msp.meterTypeID_FK
+              FROM  [Housing].[MeterType] mm
+              inner join  Housing.MeterServiceType mst on mm.meterServiceTypeID_FK = mst.meterServiceTypeID
+              inner join  Housing.MeterServicePrice msp on mm.meterTypeID = msp.meterTypeID_FK
               where mm.IdaraId_FK = @idaraID
               and meterTypeActive = 1
 
@@ -105,9 +105,9 @@ BEGIN
                   ,bd.BuildingIdaraName
                   ,bd.BuildingIdaraID
                   
-                FROM [DATACORE].[Housing].[MeterForBuilding] mbt
-                inner join [DATACORE].[Housing].[Meter] m on mbt.meterID_FK = m.meterID
-                inner join [DATACORE].[Housing].[V_GetGeneralListForBuilding] bd on mbt.buildingDetailsID_FK = bd.buildingDetailsID
+                FROM  [Housing].[MeterForBuilding] mbt
+                inner join  [Housing].[Meter] m on mbt.meterID_FK = m.meterID
+                inner join  [Housing].[V_GetGeneralListForBuilding] bd on mbt.buildingDetailsID_FK = bd.buildingDetailsID
                 where m.idaraID_FK = @idaraID and mbt.meterForBuildingActive = 1 and m.meterActive = 1
                 order by mbt.meterForBuildingID desc
 
@@ -116,17 +116,17 @@ BEGIN
              SELECT [meterServiceTypeID]
                   ,[meterServiceTypeName_A]
                  
-              FROM [DATACORE].[Housing].[MeterServiceType] mst 
-              inner join DATACORE.Housing.MeterServiceTypeLinkedWithIdara mi on mst.meterServiceTypeID = mi.MeterServiceTypeID_FK
+              FROM  [Housing].[MeterServiceType] mst 
+              inner join  Housing.MeterServiceTypeLinkedWithIdara mi on mst.meterServiceTypeID = mi.MeterServiceTypeID_FK
               where mst.meterServiceTypeActive = 1 and mi.MeterServiceTypeLinkedWithIdaraActive = 1 and mi.Idara_FK = @idaraID
 
 
               SELECT mt.meterTypeID
                   ,mt.meterTypeName_A
                  
-              FROM [DATACORE].[Housing].[MeterType] mt 
+              FROM  [Housing].[MeterType] mt 
               inner join Housing.MeterServiceType mst on mt.meterServiceTypeID_FK = mst.meterServiceTypeID
-              inner join DATACORE.Housing.MeterServiceTypeLinkedWithIdara mi on mst.meterServiceTypeID = mi.MeterServiceTypeID_FK
+              inner join  Housing.MeterServiceTypeLinkedWithIdara mi on mst.meterServiceTypeID = mi.MeterServiceTypeID_FK
               where mt.meterTypeActive = 1 
               and mst.meterServiceTypeActive = 1
               and mi.MeterServiceTypeLinkedWithIdaraActive = 1 
@@ -141,9 +141,9 @@ BEGIN
             ,m.[meterTypeID_FK]
 
             from 
-            [DATACORE].[Housing].[Meter] m 
-            inner join [DATACORE].[Housing].[MeterType] mt on m.meterTypeID_FK = mt.meterTypeID
-            left join DATACORE.Housing.MeterForBuilding mbt on m.meterID = mbt.meterID_FK and mbt.meterForBuildingActive = 1
+             [Housing].[Meter] m 
+            inner join  [Housing].[MeterType] mt on m.meterTypeID_FK = mt.meterTypeID
+            left join  Housing.MeterForBuilding mbt on m.meterID = mbt.meterID_FK and mbt.meterForBuildingActive = 1
 
             where m.meterActive = 1  and mt.meterTypeActive = 1 and mbt.meterForBuildingID is null and m.IdaraId_FK = @idaraID
           
@@ -153,7 +153,7 @@ BEGIN
     SELECT
         b.buildingDetailsID,
         b.buildingDetailsNo
-    FROM DATACORE.Housing.V_GetGeneralListForBuilding b
+    FROM  Housing.V_GetGeneralListForBuilding b
     WHERE b.buildingDetailsActive = 1
       AND b.BuildingIdaraID = 1
 ),
@@ -169,14 +169,14 @@ AggService AS
                 N''
             ),
         Cnt = COUNT_BIG(*)
-    FROM DATACORE.Housing.MeterForBuilding mb
-    INNER JOIN DATACORE.Housing.Meter m
+    FROM  Housing.MeterForBuilding mb
+    INNER JOIN  Housing.Meter m
         ON m.meterID = mb.meterID_FK
        AND m.meterActive = 1
-    INNER JOIN DATACORE.Housing.MeterType mt
+    INNER JOIN  Housing.MeterType mt
         ON mt.meterTypeID = m.meterTypeID_FK
        AND mt.meterTypeActive = 1
-    INNER JOIN DATACORE.Housing.MeterServiceType mst
+    INNER JOIN  Housing.MeterServiceType mst
         ON mst.meterServiceTypeID = mt.meterServiceTypeID_FK
        AND mst.meterServiceTypeActive = 1
     WHERE mb.meterForBuildingActive = 1
@@ -220,13 +220,13 @@ ORDER BY b.buildingDetailsNo;
                 --        WHEN ISNULL(x.TotalCnt, 0) = 0 THEN N' (المبنى غير مرتبط باي عداد)'
                 --        ELSE N' (' + x.Summary + N')'
                 --      END AS buildingDetailsNoWithMeters
-                --FROM DATACORE.Housing.V_GetGeneralListForBuilding b
+                --FROM  Housing.V_GetGeneralListForBuilding b
                 --OUTER APPLY
                 --(
                 --    SELECT
                 --        -- مجموع العدادات المرتبطة (علشان نعرف هل فيه ارتباط أو لا)
                 --        (SELECT COUNT(*)
-                --         FROM DATACORE.Housing.MeterForBuilding mb
+                --         FROM  Housing.MeterForBuilding mb
                 --         WHERE mb.buildingDetailsID_FK = b.buildingDetailsID
                 --           AND mb.meterForBuildingActive = 1
                 --        ) AS TotalCnt,
@@ -244,14 +244,14 @@ ORDER BY b.buildingDetailsNo;
                 --                        N''
                 --                    ) AS ServiceNameClean,
                 --                    COUNT(*) AS Cnt
-                --                FROM DATACORE.Housing.MeterForBuilding mb
-                --                INNER JOIN DATACORE.Housing.Meter m
+                --                FROM  Housing.MeterForBuilding mb
+                --                INNER JOIN  Housing.Meter m
                 --                    ON m.meterID = mb.meterID_FK
                 --                   AND m.meterActive = 1
-                --                INNER JOIN DATACORE.Housing.MeterType mt
+                --                INNER JOIN  Housing.MeterType mt
                 --                    ON mt.meterTypeID = m.meterTypeID_FK
                 --                   AND mt.meterTypeActive = 1
-                --                INNER JOIN DATACORE.Housing.MeterServiceType mst
+                --                INNER JOIN  Housing.MeterServiceType mst
                 --                    ON mst.meterServiceTypeID = mt.meterServiceTypeID_FK
                 --                   AND mst.meterServiceTypeActive = 1
                 --                WHERE mb.buildingDetailsID_FK = b.buildingDetailsID

@@ -22,11 +22,11 @@ BEGIN
 		IF (@buildingActionTypeID = 1)
 		BEGIN
 			SET @Result = ( SELECT COUNT(*) 
-			FROM KFMC.Housing.BuildingAction 
+			FROM  Housing.BuildingAction 
 			WHERE buildingActionTypeID_FK = 1 
 			AND generalNo_FK NOT IN (
 			SELECT generalNo_FK 
-			FROM KFMC.Housing.BuildingAction 
+			FROM  Housing.BuildingAction 
 			WHERE buildingActionTypeID_FK = 2
 			))
 		END

@@ -1,9 +1,4 @@
-﻿
-
-
-
-
-CREATE VIEW [Housing].[V_GetGeneralListForBuilding]
+﻿CREATE VIEW [Housing].[V_GetGeneralListForBuilding]
 AS
 
 

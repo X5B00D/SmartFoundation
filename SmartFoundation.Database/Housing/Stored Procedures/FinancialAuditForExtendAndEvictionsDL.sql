@@ -74,8 +74,8 @@ BEGIN
                 ,convert(nvarchar(10),w.LastActionDate,23) LastActionDate
                 ,w.LastActionExtendReasonTypeID
                 
-           FROM [DATACORE].[Housing].V_WaitingList w
-           inner join [DATACORE].[Housing].V_GetFullResidentDetails fr on fr.residentInfoID = w.residentInfoID
+           FROM  [Housing].V_WaitingList w
+           inner join  [Housing].V_GetFullResidentDetails fr on fr.residentInfoID = w.residentInfoID
            inner join Housing.V_buildingWithRent r on w.buildingDetailsID = r.buildingDetailsID
            where w.LastActionTypeID in (51,57) 
            and fr.residentInfoID = @residentInfoID
@@ -127,10 +127,10 @@ SELECT
         ELSE N'2'
     END AS BillsStatusID,
     fr.IdaraID
-FROM DATACORE.Housing.V_WaitingList w
-JOIN DATACORE.Housing.V_GetFullResidentDetails fr
+FROM  Housing.V_WaitingList w
+JOIN  Housing.V_GetFullResidentDetails fr
     ON fr.residentInfoID = w.residentInfoID
-JOIN DATACORE.Housing.V_ResidentBillsFinancialSummary s
+JOIN  Housing.V_ResidentBillsFinancialSummary s
     ON s.residentInfoID = fr.residentInfoID
 CROSS APPLY
 (
@@ -150,7 +150,7 @@ CROSS APPLY
       (s.residentInfoID, 5, s.TotalFineBillsAmount,        s.TotalFineBillsPaid,
        s.TotalFineBillsAmount - s.TotalFineBillsPaid)
 ) x(residentInfoID, BillChargeTypeID, TotalBillsAmount, TotalBillsPaid, BillsAmountresidual)
-JOIN DATACORE.housing.BillChargeType bt
+JOIN  housing.BillChargeType bt
     ON bt.BillChargeTypeID = x.BillChargeTypeID
    AND bt.BillChargeTypeActive = 1
 WHERE
@@ -194,9 +194,9 @@ WHERE
 
 
       ----,(([TotalRentBillsAmount]+[TotalServiceBillsAmount]) - ([TotalRentBillsPaid]+[TotalServiceBillsPaid])) AllAmountresidual
-      --FROM [DATACORE].[Housing].V_WaitingList w
-      --     inner join [DATACORE].[Housing].V_GetFullResidentDetails fr on fr.residentInfoID = w.residentInfoID
-      --  inner join [DATACORE].[Housing].[V_ResidentBillsFinancialSummary] s on fr.residentInfoID = s.residentInfoID
+      --FROM  [Housing].V_WaitingList w
+      --     inner join  [Housing].V_GetFullResidentDetails fr on fr.residentInfoID = w.residentInfoID
+      --  inner join  [Housing].[V_ResidentBillsFinancialSummary] s on fr.residentInfoID = s.residentInfoID
 
       --  where s.residentInfoID = @residentInfoID
       --  AND  w.LastActionTypeID in (51,57)
@@ -215,9 +215,9 @@ WHERE
       ,([TotalServiceBillsAmount] - [TotalServiceBillsPaid]) ServiceBillsAmountresidual
 
 
-        FROM [DATACORE].[Housing].V_WaitingList w
-           inner join [DATACORE].[Housing].V_GetFullResidentDetails fr on fr.residentInfoID = w.residentInfoID
-        inner join [DATACORE].[Housing].[V_ResidentFinancialSummary] s on fr.residentInfoID = s.residentInfoID
+        FROM  [Housing].V_WaitingList w
+           inner join  [Housing].V_GetFullResidentDetails fr on fr.residentInfoID = w.residentInfoID
+        inner join  [Housing].[V_ResidentFinancialSummary] s on fr.residentInfoID = s.residentInfoID
 
         where s.residentInfoID = @residentInfoID
         AND  w.LastActionTypeID in (51,57)
@@ -253,9 +253,9 @@ WHERE
 
      select r.buildingRentAmount * 40 insuranceRentAmount,r.buildingRentAmount
 
-     FROM [DATACORE].[Housing].V_WaitingList w
-        inner join [DATACORE].[Housing].V_GetFullResidentDetails fr on fr.residentInfoID = w.residentInfoID
-        inner join [DATACORE].[Housing].[V_ResidentFinancialSummary] s on fr.residentInfoID = s.residentInfoID
+     FROM  [Housing].V_WaitingList w
+        inner join  [Housing].V_GetFullResidentDetails fr on fr.residentInfoID = w.residentInfoID
+        inner join  [Housing].[V_ResidentFinancialSummary] s on fr.residentInfoID = s.residentInfoID
         inner join Housing.V_buildingWithRent r on w.buildingDetailsID = r.buildingDetailsID
         where s.residentInfoID = @residentInfoID
         AND  w.LastActionTypeID in (51,57)

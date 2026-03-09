@@ -28,15 +28,15 @@ BEGIN
 						 
 select gf.BuildingNo,gf.BuildingTypeID,gf.BuildingClassID,gf.BuildingClassName,gb.ActionTypeID LastAction,gb.ActionDate,gf.LocationName,gf.buildingClassOrder
 INTO #building
-from kfmc.Housing.GetGeneralListForBuilding() gf
-left join kfmc.Housing.GetGeneralListActionForBuildig() gb on gb.BuildingNo = gf.BuildingNo
+from  Housing.GetGeneralListForBuilding() gf
+left join  Housing.GetGeneralListActionForBuildig() gb on gb.BuildingNo = gf.BuildingNo
 INNER join Housing.V_LastActionForBuilding v on gb.ActionID = v.buildingActionID
 where gf.UtilityTypeID in (1,11,15) 
 union ALL
 
 select gb.BuildingNo,gb.BuildingTypeID,gb.BuildingClassID,gb.BuildingClassName,8 AS LastAction, null as ActionDate,gb.LocationName , null as buildingClassOrder
-from kfmc.Housing.GetGeneralListForBuilding() gb
-where gb.BuildingNo not in(select gg.BuildingNo from kfmc.Housing.GetGeneralListActionForBuildig() gg ) and gb.UtilityTypeID in (1,11,15)
+from  Housing.GetGeneralListForBuilding() gb
+where gb.BuildingNo not in(select gg.BuildingNo from  Housing.GetGeneralListActionForBuildig() gg ) and gb.UtilityTypeID in (1,11,15)
 
 
 

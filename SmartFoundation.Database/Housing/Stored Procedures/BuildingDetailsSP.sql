@@ -55,7 +55,7 @@ BEGIN
     DECLARE @IsRent BIT = 0;
     SELECT @IsRent =
         CASE WHEN ISNULL(u.buildingUtilityIsRent,0) = 1 THEN 1 ELSE 0 END
-    FROM DATACORE.Housing.BuildingUtilityType u
+    FROM  Housing.BuildingUtilityType u
     WHERE u.buildingUtilityTypeID = @BuildingUtilityTypeID_INT;
 
     BEGIN TRY
@@ -173,7 +173,7 @@ BEGIN
         BEGIN
             IF EXISTS (
                 SELECT 1
-                FROM DATACORE.Housing.BuildingDetails c
+                FROM  Housing.BuildingDetails c
                 WHERE c.buildingDetailsNo = @buildingDetailsNo
                   AND c.IdaraId_FK = @IdaraID_INT
                   AND c.buildingDetailsActive = 1
@@ -182,7 +182,7 @@ BEGIN
                 ;THROW 50001, N'البيانات مدخلة مسبقا', 1;
             END
 
-            INSERT INTO DATACORE.Housing.BuildingDetails
+            INSERT INTO  Housing.BuildingDetails
             (
                   buildingDetailsNo
                 , buildingDetailsRooms
@@ -233,7 +233,7 @@ BEGIN
 
             IF @IsRent = 1
             BEGIN
-                INSERT INTO DATACORE.Housing.BuildingRent
+                INSERT INTO  Housing.BuildingRent
                 (
                       buildingRentTypeID_FK
                     , buildingDetailsID_FK
@@ -271,7 +271,7 @@ BEGIN
                 + N',"hostName": "' + ISNULL(CONVERT(NVARCHAR(MAX), @hostName), '') + N'"'
                 + N'}';
 
-            INSERT INTO DATACORE.dbo.AuditLog
+            INSERT INTO  dbo.AuditLog
             (
                   TableName
                 , ActionType
@@ -305,7 +305,7 @@ BEGIN
             IF NOT EXISTS
             (
                 SELECT 1
-                FROM DATACORE.Housing.BuildingDetails bd
+                FROM  Housing.BuildingDetails bd
                 WHERE bd.buildingDetailsID = @buildingDetailsID
                   AND bd.buildingDetailsActive = 1
             )
@@ -317,7 +317,7 @@ BEGIN
             IF EXISTS
             (
                 SELECT 1
-                FROM DATACORE.Housing.BuildingDetails c
+                FROM  Housing.BuildingDetails c
                 WHERE c.buildingDetailsNo = @buildingDetailsNo
                   AND c.IdaraId_FK = @IdaraID_INT
                   AND c.buildingDetailsActive = 1
@@ -328,7 +328,7 @@ BEGIN
             END
 
            
-            UPDATE DATACORE.Housing.BuildingDetails
+            UPDATE  Housing.BuildingDetails
             SET
                   buildingDetailsNo          = ISNULL(@buildingDetailsNo, buildingDetailsNo)
                 , buildingDetailsRooms       = ISNULL(@buildingDetailsRooms, buildingDetailsRooms)
@@ -363,12 +363,12 @@ BEGIN
                 IF EXISTS
                 (
                     SELECT 1
-                    FROM DATACORE.Housing.BuildingRent br
+                    FROM  Housing.BuildingRent br
                     WHERE br.buildingDetailsID_FK = @buildingDetailsID
                       AND br.buildingRentActive = 1
                 )
                 BEGIN
-                    UPDATE DATACORE.Housing.BuildingRent
+                    UPDATE  Housing.BuildingRent
                 SET
                       buildingRentActive = 0
                     , buildingRentEndDate = ISNULL(buildingRentEndDate, GETDATE())
@@ -383,7 +383,7 @@ BEGIN
                     END
 
                     
-                    INSERT INTO DATACORE.Housing.BuildingRent
+                    INSERT INTO  Housing.BuildingRent
                     (
                           buildingRentTypeID_FK
                         , buildingDetailsID_FK
@@ -413,7 +413,7 @@ BEGIN
                 END
                 ELSE
                 BEGIN
-                    INSERT INTO DATACORE.Housing.BuildingRent
+                    INSERT INTO  Housing.BuildingRent
                     (
                           buildingRentTypeID_FK
                         , buildingDetailsID_FK
@@ -444,7 +444,7 @@ BEGIN
             END
             ELSE
             BEGIN
-                UPDATE DATACORE.Housing.BuildingRent
+                UPDATE  Housing.BuildingRent
                 SET
                       buildingRentActive = 0
                     , buildingRentEndDate = ISNULL(buildingRentEndDate, GETDATE())
@@ -461,7 +461,7 @@ BEGIN
                 + N',"hostName": "' + ISNULL(CONVERT(NVARCHAR(MAX), @hostName), '') + N'"'
                 + N'}';
 
-            INSERT INTO DATACORE.dbo.AuditLog
+            INSERT INTO  dbo.AuditLog
             (
                   TableName
                 , ActionType
@@ -495,7 +495,7 @@ BEGIN
             IF NOT EXISTS
             (
                 SELECT 1
-                FROM DATACORE.Housing.BuildingDetails bd
+                FROM  Housing.BuildingDetails bd
                 WHERE bd.buildingDetailsID = @buildingDetailsID
                   AND bd.buildingDetailsActive = 1
             )
@@ -503,7 +503,7 @@ BEGIN
                 ;THROW 50001, N'السجل غير موجود', 1;
             END
 
-            UPDATE DATACORE.Housing.BuildingDetails
+            UPDATE  Housing.BuildingDetails
             SET
                   buildingDetailsActive = 0
                 , buildingDetailsEndDate = GETDATE()
@@ -517,7 +517,7 @@ BEGIN
             END
 
             -- اقفال الإيجار (إن وجد)
-            UPDATE DATACORE.Housing.BuildingRent
+            UPDATE  Housing.BuildingRent
             SET
                   buildingRentActive = 0
                 , buildingRentEndDate = GETDATE()
@@ -532,7 +532,7 @@ BEGIN
                 + N',"hostName": "' + ISNULL(CONVERT(NVARCHAR(MAX), @hostName), '') + N'"'
                 + N'}';
 
-            INSERT INTO DATACORE.dbo.AuditLog
+            INSERT INTO  dbo.AuditLog
             (
                   TableName
                 , ActionType

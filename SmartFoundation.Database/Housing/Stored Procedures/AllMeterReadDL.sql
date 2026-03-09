@@ -25,8 +25,8 @@ BEGIN
     -- 1) Current Period (آخر فترة فعّالة لنوع الخدمة والإدارة)
     ----------------------------------------------------------------
     SELECT @CurrentPeriodID = COALESCE(MAX(bp.billPeriodID), -1)
-        FROM DATACORE.Housing.BillPeriod bp
-        JOIN DATACORE.Housing.BillPeriodType bpt
+        FROM  Housing.BillPeriod bp
+        JOIN  Housing.BillPeriodType bpt
           ON bp.billPeriodTypeID_FK = bpt.billPeriodTypeID
         WHERE bpt.meterServiceTypeID_FK = @meterServiceTypeID_FK
           AND bp.IdaraId_FK = @idaraID
@@ -62,7 +62,7 @@ BEGIN
     WHERE EXISTS
     (
         SELECT 1
-        FROM DATACORE.Housing.Bills b
+        FROM  Housing.Bills b
         WHERE b.meterID = em.meterID
           AND b.meterServiceTypeID = @meterServiceTypeID_FK
           AND b.idaraID_FK = @idaraID
@@ -89,8 +89,8 @@ BEGIN
         , @AllMetersCount AS AllMetersCount
         , @AllmeterReaded AS AllmeterReaded
         , (@AllMetersCount - @AllmeterReaded) AS AllMeterNotReaded
-    FROM DATACORE.Housing.BillPeriod bp
-    INNER JOIN DATACORE.Housing.BillPeriodType bpt
+    FROM  Housing.BillPeriod bp
+    INNER JOIN  Housing.BillPeriodType bpt
         ON bp.billPeriodTypeID_FK = bpt.billPeriodTypeID
     WHERE bpt.meterServiceTypeID_FK = @meterServiceTypeID_FK
       AND bp.IdaraId_FK = @idaraID
@@ -118,7 +118,7 @@ BEGIN
             , b.[idaraID_FK]
             , CAST(N'' AS NVARCHAR(30)) AS entryDate
             , b.[entryData]
-        FROM DATACORE.Housing.Bills b
+        FROM  Housing.Bills b
         WHERE 1 = 0;
     END
     ELSE
@@ -185,7 +185,7 @@ BEGIN
             , CONVERT(NVARCHAR(10), b.[entryDate], 23) + N' ' + CONVERT(NVARCHAR(8), b.[entryDate], 108) AS entryDate
             , b.[entryData]
         FROM #EligibleMeters em
-        INNER JOIN DATACORE.Housing.Bills b
+        INNER JOIN  Housing.Bills b
             ON b.meterID = em.meterID
            AND b.meterServiceTypeID = @meterServiceTypeID_FK
            AND b.idaraID_FK = @idaraID
@@ -194,7 +194,7 @@ BEGIN
            AND b.CurrentPeriodID = @CurrentPeriodID
         OUTER APPLY (
             SELECT TOP (1) p.TotalPrice
-            FROM DATACORE.Housing.Bills p
+            FROM  Housing.Bills p
             WHERE p.BillActive = 1
               AND p.BillTypeID_FK = 2
               AND p.residentInfoID_FK = b.residentInfoID_FK
@@ -236,7 +236,7 @@ BEGIN
 
     SELECT em.meterID, em.meterNo
             FROM #EligibleMeters em
-            LEFT JOIN DATACORE.Housing.Bills b
+            LEFT JOIN  Housing.Bills b
               ON  b.meterID = em.meterID
               AND b.meterServiceTypeID = @meterServiceTypeID_FK
               AND b.idaraID_FK = @idaraID
@@ -251,7 +251,7 @@ BEGIN
     BEGIN
     SELECT em.meterID, em.meterNo,em.meterServiceTypeID_FK
             FROM #EligibleMeters em
-            LEFT JOIN DATACORE.Housing.Bills b
+            LEFT JOIN  Housing.Bills b
               ON  b.meterID = em.meterID
               AND b.meterServiceTypeID = @meterServiceTypeID_FK
               AND b.idaraID_FK = @idaraID

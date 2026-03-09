@@ -14,7 +14,7 @@ BEGIN
 Declare @Result int
 	-- Declare the return variable here
 	set @Result =(
-select count(*) count_ from kfmc.dbo.VAC_OldDecision o
+select count(*) count_ from  dbo.VAC_OldDecision o
 where 1=1
 and o.vacOldDecisionUserID_FK = @userID
 and o.entryDate is not null

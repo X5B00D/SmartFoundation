@@ -83,8 +83,8 @@ BEGIN
         INSERT INTO dbo.UserNotifications
         (NotificationId_FK, UserId_FK, IsRead, IsClicked, DeliveredUtc, entryData, hostName)
         SELECT @NotificationId, dsd.usersID, 0, 0, GETDATE(), @entryData, @hostName
-        FROM [DATACORE].[dbo].V_GetListUsersInDSD dsd
-        inner join [DATACORE].[dbo].V_GetFullStructureForDSD f on dsd.DSDID = f.DSDID
+        FROM  [dbo].V_GetListUsersInDSD dsd
+        inner join  [dbo].V_GetFullStructureForDSD f on dsd.DSDID = f.DSDID
         WHERE dsd.DSDID = @DsdID;
     END
     -- حالة 5: ادارة محددة

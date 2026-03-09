@@ -17,9 +17,9 @@ BEGIN
 	-- Add the T-SQL statements to compute the return value here
 	 SET @Result = 
 					(SELECT COUNT(*) 'Rent Type'
-					FROM KFMC.Housing.BuildingDetails bd
-					INNER JOIN KFMC.Housing.BuildingRent br ON bd.buildingDetailsID = br.buildingDetailsID_FK
-					INNER JOIN KFMC.Housing.BuildingRentType brt ON br.buildingRentTypeID_FK = brt.buildingRentTypeID
+					FROM  Housing.BuildingDetails bd
+					INNER JOIN  Housing.BuildingRent br ON bd.buildingDetailsID = br.buildingDetailsID_FK
+					INNER JOIN  Housing.BuildingRentType brt ON br.buildingRentTypeID_FK = brt.buildingRentTypeID
 					WHERE brt.buildingRentTypeActive = 1 AND brt.buildingRentTypeID = @buildingRentTypeID
 
 					)

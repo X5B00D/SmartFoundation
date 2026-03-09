@@ -21,8 +21,8 @@ BEGIN
             un.ReadUtc,
             un.ClickUtc
         FROM 
-            DATACORE.dbo.UserNotifications un
-            INNER JOIN DATACORE.dbo.Notifications n 
+             dbo.UserNotifications un
+            INNER JOIN  dbo.Notifications n 
                 ON un.NotificationId_FK = n.NotificationId
         WHERE 
             un.UserId_FK = @UserID 
@@ -36,7 +36,7 @@ BEGIN
     ELSE IF @Type = 'Count'
     BEGIN
         SELECT COUNT(*) AS NotificationCount
-        FROM DATACORE.dbo.UserNotifications
+        FROM  dbo.UserNotifications
         WHERE UserId_FK = @UserID 
           AND IsRead = 0
           AND ReadUtc IS NULL;
@@ -45,7 +45,7 @@ BEGIN
     -- Mark single notification as clicked
     ELSE IF @Type = 'MarkClicked'
     BEGIN
-        UPDATE DATACORE.dbo.UserNotifications
+        UPDATE  dbo.UserNotifications
         SET 
             IsClicked = 1,
             ClickUtc = GETUTCDATE(),
@@ -61,7 +61,7 @@ BEGIN
     -- ✅ NEW: Mark single notification as read (on hover)
     ELSE IF @Type = 'MarkRead'
     BEGIN
-        UPDATE DATACORE.dbo.UserNotifications
+        UPDATE  dbo.UserNotifications
         SET 
             IsRead = 1,
             ReadUtc = GETUTCDATE()
@@ -76,7 +76,7 @@ BEGIN
     -- Mark all notifications as read
     ELSE IF @Type = 'MarkAllRead'
     BEGIN
-        UPDATE DATACORE.dbo.UserNotifications
+        UPDATE  dbo.UserNotifications
         SET 
             IsRead = 1,
             ReadUtc = GETUTCDATE()
@@ -91,7 +91,7 @@ BEGIN
     -- Mark all notifications as clicked
     ELSE IF @Type = 'MarkAllClicked'
     BEGIN
-        UPDATE DATACORE.dbo.UserNotifications
+        UPDATE  dbo.UserNotifications
         SET 
             IsClicked = 1,
             ClickUtc = GETUTCDATE(),

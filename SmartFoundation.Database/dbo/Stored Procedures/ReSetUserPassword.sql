@@ -22,7 +22,7 @@ BEGIN
     DECLARE @usersIDs bigint;
     set @usersIDs = (
     select TOP(1) u.usersID
-    from DATACORE.dbo.Users u 
+    from  dbo.Users u 
     where u.nationalID = @NationalID
     and u.usersActive = 1 
     and u.usersStartDate is not null 
@@ -62,7 +62,7 @@ BEGIN
         ----------------------------------------------------
         IF NOT EXISTS (
             SELECT 1   
-              from DATACORE.dbo.Users u 
+              from  dbo.Users u 
               where u.usersID = @usersID
               and u.usersActive = 1 
               and u.usersStartDate is not null 
@@ -189,7 +189,7 @@ BEGIN
             ----------------------------------------------------
             IF NOT EXISTS (
                 SELECT 1   
-                FROM DATACORE.dbo.Users u 
+                FROM  dbo.Users u 
                 WHERE u.usersID = @usersID
                   AND u.usersActive = 1 
                   AND u.usersStartDate IS NOT NULL 

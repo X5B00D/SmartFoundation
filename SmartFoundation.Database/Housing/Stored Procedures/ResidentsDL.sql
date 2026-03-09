@@ -63,7 +63,7 @@ BEGIN
 
                 
 
-           FROM [DATACORE].[Housing].V_GetFullResidentDetails fr
+           FROM  [Housing].V_GetFullResidentDetails fr
            where fr.IdaraID = @idaraID
             
            ORDER BY fr.residentInfoID desc;
@@ -71,21 +71,21 @@ BEGIN
 
              -- rank DDL
             SELECT bu.rankID, bu.rankNameA
-            FROM [DATACORE].[dbo].[Rank] bu
+            FROM  [dbo].[Rank] bu
             WHERE bu.rankActive = 1 
             order by bu.rankClassID_FK asc
 
 
             -- militaryUnit DDL
             SELECT r.militaryUnitID, r.militaryUnitName_A
-            FROM [DATACORE].[dbo].[militaryUnit] r
+            FROM  [dbo].[militaryUnit] r
             
 
             
 
             -- MaritalStatus DDL
             SELECT r.maritalStatusID, r.maritalStatusName_A
-            FROM [DATACORE].[dbo].[MaritalStatus] r
+            FROM  [dbo].[MaritalStatus] r
             WHERE r.maritalStatusActive = 1 ;
 
 
@@ -93,7 +93,7 @@ BEGIN
 
             -- Nationality DDL
             SELECT r.nationalityID, r.nationalityName_A
-            FROM [DATACORE].[dbo].[Nationality] r
+            FROM  [dbo].[Nationality] r
             WHERE r.nationalityActive = 1;
 
 
@@ -101,12 +101,12 @@ BEGIN
 
             -- Gender DDL
             SELECT r.genderID, r.genderName_A
-            FROM [DATACORE].[dbo].[Gender] r
+            FROM  [dbo].[Gender] r
             
 
 
             ---- test
-            select r.residentInfoID,FullName_A from [DATACORE].[Housing].V_GetFullResidentDetails r
+            select r.residentInfoID,FullName_A from  [Housing].V_GetFullResidentDetails r
             where IdaraID = @idaraID
 
 

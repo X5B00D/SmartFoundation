@@ -54,7 +54,7 @@ BEGIN
             IF EXISTS
             (
                 SELECT 1
-                FROM DATACORE.Housing.MilitaryLocation ml
+                FROM  Housing.MilitaryLocation ml
                 WHERE ml.militaryLocationName_A = @militaryLocationName_A
                   AND ml.militaryLocationActive = 1
                   AND (ml.IdaraId_FK = @IdaraID_INT OR @IdaraID_INT IS NULL)
@@ -63,7 +63,7 @@ BEGIN
                 ;THROW 50001, N'البيانات مدخلة مسبقا', 1;
             END
 
-            INSERT INTO DATACORE.Housing.MilitaryLocation
+            INSERT INTO  Housing.MilitaryLocation
             (
                   militaryLocationCode
                 , militaryAreaCityID_FK
@@ -115,7 +115,7 @@ BEGIN
                 + N',"hostName": "'                    + ISNULL(CONVERT(NVARCHAR(MAX), @hostName), '') + N'"'
                 + N'}';
 
-            INSERT INTO DATACORE.dbo.AuditLog
+            INSERT INTO  dbo.AuditLog
             (
                   TableName
                 , ActionType
@@ -149,7 +149,7 @@ BEGIN
             IF NOT EXISTS
             (
                 SELECT 1
-                FROM DATACORE.Housing.MilitaryLocation
+                FROM  Housing.MilitaryLocation
                 WHERE militaryLocationID = @militaryLocationID
                   AND militaryLocationActive = 1
             )
@@ -157,7 +157,7 @@ BEGIN
                 ;THROW 50001, N'السجل غير موجود', 1;
             END
 
-            UPDATE DATACORE.Housing.MilitaryLocation
+            UPDATE  Housing.MilitaryLocation
             SET
                   militaryLocationCode        = ISNULL(@militaryLocationCode, militaryLocationCode)
                 , militaryAreaCityID_FK       = ISNULL(@militaryAreaCityID_FK, militaryAreaCityID_FK)
@@ -188,7 +188,7 @@ BEGIN
                 + N',"hostName": "'                    + ISNULL(CONVERT(NVARCHAR(MAX), @hostName), '') + N'"'
                 + N'}';
 
-            INSERT INTO DATACORE.dbo.AuditLog
+            INSERT INTO  dbo.AuditLog
             (
                   TableName
                 , ActionType
@@ -222,7 +222,7 @@ BEGIN
             IF NOT EXISTS
             (
                 SELECT 1
-                FROM DATACORE.Housing.MilitaryLocation
+                FROM  Housing.MilitaryLocation
                 WHERE militaryLocationID = @militaryLocationID
                   AND militaryLocationActive = 1
             )
@@ -230,7 +230,7 @@ BEGIN
                 ;THROW 50001, N'السجل غير موجود', 1;
             END
 
-            UPDATE DATACORE.Housing.MilitaryLocation
+            UPDATE  Housing.MilitaryLocation
             SET
                   militaryLocationActive = 0
                 , entryData = ISNULL(ISNULL(entryData,'')+N','+@entryData, entryData)
@@ -248,7 +248,7 @@ BEGIN
                 + N',"hostName": "'          + ISNULL(CONVERT(NVARCHAR(MAX), @hostName), '') + N'"'
                 + N'}';
 
-            INSERT INTO DATACORE.dbo.AuditLog
+            INSERT INTO  dbo.AuditLog
             (
                   TableName
                 , ActionType

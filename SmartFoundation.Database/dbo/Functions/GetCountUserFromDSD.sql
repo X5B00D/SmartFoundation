@@ -15,7 +15,7 @@ BEGIN
 	SET @Result=(
 					SELECT COUNT(ud.userID_FK) CountUsers
 					FROM UserDistributor AS ud 
-					INNER JOIN DATACORE.dbo.[User] u ON ud.userID_FK=u.userID AND u.userActive=1
+					INNER JOIN  dbo.[User] u ON ud.userID_FK=u.userID AND u.userActive=1
 						INNER JOIN Distributor AS d ON ud.distributorID_FK = d.distributorID
 					WHERE (1=1) 
 								AND (NOT (ud.UDStartDate IS NULL)) 

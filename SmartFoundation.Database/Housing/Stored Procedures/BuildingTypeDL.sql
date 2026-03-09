@@ -24,13 +24,13 @@ BEGIN
                 , t.buildingTypeName_A
                 , t.buildingTypeName_E
                 , t.buildingTypeDescription
-            FROM DATACORE.Housing.BuildingType t
+            FROM  Housing.BuildingType t
             WHERE t.buildingTypeActive = 1 and (t.IdaraId_FK is null or t.IdaraId_FK = @idaraID)
             ORDER BY t.buildingTypeID desc;
 
             -- Cities DDL
             SELECT c.cityID, c.cityName_A
-            FROM DATACORE.dbo.City c
+            FROM  dbo.City c
             WHERE c.cityActive = 1;
     -- Insert statements for procedure here
 END

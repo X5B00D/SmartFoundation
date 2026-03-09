@@ -19,7 +19,7 @@ BEGIN
 	-- Add the T-SQL statements to compute the return value here
 		Set @ResultVar = ( SELECT
 							GSRS.meterSlideMaxValue
-							FROM KFMC.Housing.GetSlideForReadByServiceTypeID(@buildingUtilityTypeID, @meterServiceTypeID, @meterSlideSequence) GSRS)
+							FROM  Housing.GetSlideForReadByServiceTypeID(@buildingUtilityTypeID, @meterServiceTypeID, @meterSlideSequence) GSRS)
 
 	-- Return the result of the function
 	RETURN @ResultVar

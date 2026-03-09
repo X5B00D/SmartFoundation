@@ -79,7 +79,7 @@ BEGIN
 
 
 
-        INSERT INTO [DATACORE].[Housing].[DeductList]
+        INSERT INTO  [Housing].[DeductList]
         (
             [deductTypeID_FK],
             [DeductListStatusID_FK],
@@ -188,7 +188,7 @@ BEGIN
             THROW 50001, @Msg, 1;
         END
 
-        INSERT INTO [DATACORE].[Housing].[BuildingPayment]
+        INSERT INTO  [Housing].[BuildingPayment]
         (
             [buildingPaymentTypeID_FK],
             [generalNo_FK],

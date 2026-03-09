@@ -182,7 +182,7 @@ BEGIN
           IF EXISTS
             (
                 SELECT 1
-                FROM DATACORE.Housing.V_WaitingList w
+                FROM  Housing.V_WaitingList w
                 WHERE w.residentInfoID = @residentInfoID_FK
                   AND w.LastActionTypeID = 32
             )
@@ -195,7 +195,7 @@ BEGIN
             IF EXISTS
             (
                 SELECT 1
-                FROM DATACORE.Housing.V_WaitingList w
+                FROM  Housing.V_WaitingList w
                 WHERE w.residentInfoID = @residentInfoID_FK
                   AND w.WaitingClassID = @WaitingClassID
             )
@@ -208,7 +208,7 @@ BEGIN
             IF EXISTS
             (
                 SELECT 1
-                FROM DATACORE.Housing.V_WaitingList w
+                FROM  Housing.V_WaitingList w
                 WHERE w.residentInfoID = @residentInfoID_FK
                   AND w.LastActionTypeID in(19)
                   AND w.IdaraId = @idaraID_FK
@@ -222,7 +222,7 @@ BEGIN
             IF EXISTS
             (
                 SELECT 1
-                FROM DATACORE.Housing.V_WaitingList w
+                FROM  Housing.V_WaitingList w
                 WHERE w.residentInfoID = @residentInfoID_FK
                   AND w.LastActionTypeID in (53)
                   AND w.IdaraId = @idaraID_FK
@@ -235,7 +235,7 @@ BEGIN
              IF NOT EXISTS
             (
                 SELECT 1
-                FROM DATACORE.Housing.V_GetFullResidentDetails w
+                FROM  Housing.V_GetFullResidentDetails w
                 WHERE w.residentInfoID = @residentInfoID_FK
                   AND w.IdaraID = @idaraID_FK
             )
@@ -244,7 +244,7 @@ BEGIN
             END
 
 
-            INSERT INTO DATACORE.Housing.BuildingAction
+            INSERT INTO  Housing.BuildingAction
             (
                   buildingActionTypeID_FK
                 , residentInfoID_FK
@@ -300,7 +300,7 @@ BEGIN
                 + N',"hostName": "'                 + ISNULL(CONVERT(NVARCHAR(MAX), @hostName), '') + N'"'
                 + N'}';
 
-            INSERT INTO DATACORE.dbo.AuditLog
+            INSERT INTO  dbo.AuditLog
             (
                   TableName
                 , ActionType
@@ -335,7 +335,7 @@ BEGIN
             IF NOT EXISTS
             (
                  SELECT 1
-                FROM DATACORE.Housing.V_WaitingList w
+                FROM  Housing.V_WaitingList w
                 WHERE w.ActionID = @ActionID
             )
             BEGIN
@@ -345,7 +345,7 @@ BEGIN
               IF EXISTS
             (
                 SELECT 1
-                FROM DATACORE.Housing.V_WaitingList w
+                FROM  Housing.V_WaitingList w
                 WHERE w.residentInfoID = @residentInfoID_FK
                   AND w.LastActionTypeID = 32
             )
@@ -357,7 +357,7 @@ BEGIN
             IF EXISTS
             (
                 SELECT 1
-                FROM DATACORE.Housing.V_WaitingList w
+                FROM  Housing.V_WaitingList w
                 WHERE w.residentInfoID = @residentInfoID_FK
                   AND w.LastActionTypeID in(19)
                   AND w.IdaraId = @idaraID_FK
@@ -371,7 +371,7 @@ BEGIN
             IF EXISTS
             (
                 SELECT 1
-                FROM DATACORE.Housing.V_WaitingList w
+                FROM  Housing.V_WaitingList w
                 WHERE w.residentInfoID = @residentInfoID_FK
                   AND w.LastActionTypeID in (53)
                   AND w.IdaraId = @idaraID_FK
@@ -384,7 +384,7 @@ BEGIN
              IF NOT EXISTS
             (
                 SELECT 1
-                FROM DATACORE.Housing.V_GetFullResidentDetails w
+                FROM  Housing.V_GetFullResidentDetails w
                 WHERE w.residentInfoID = @residentInfoID_FK
                   AND w.IdaraID = @idaraID_FK
             )
@@ -393,7 +393,7 @@ BEGIN
             END
 
 
-            UPDATE DATACORE.Housing.BuildingAction
+            UPDATE  Housing.BuildingAction
             SET
 
                   buildingActionDecisionNo      = ISNULL(@buildingActionDecisionNo, buildingActionDecisionNo)
@@ -429,7 +429,7 @@ BEGIN
                 + N',"hostName": "'                 + ISNULL(CONVERT(NVARCHAR(MAX), @hostName), '') + N'"'
                 + N'}';
 
-            INSERT INTO DATACORE.dbo.AuditLog
+            INSERT INTO  dbo.AuditLog
             (
                   TableName
                 , ActionType
@@ -465,7 +465,7 @@ BEGIN
             IF NOT EXISTS
             (
                  SELECT 1
-                FROM DATACORE.Housing.V_WaitingList w
+                FROM  Housing.V_WaitingList w
                 WHERE w.ActionID = @ActionID
             )
             BEGIN
@@ -476,7 +476,7 @@ BEGIN
               IF EXISTS
             (
                 SELECT 1
-                FROM DATACORE.Housing.V_WaitingList w
+                FROM  Housing.V_WaitingList w
                 WHERE w.residentInfoID = @residentInfoID_FK
                   AND w.LastActionTypeID = 32
             )
@@ -489,7 +489,7 @@ BEGIN
             IF EXISTS
             (
                 SELECT 1
-                FROM DATACORE.Housing.V_WaitingList w
+                FROM  Housing.V_WaitingList w
                 WHERE w.residentInfoID = @residentInfoID_FK
                   AND w.LastActionTypeID in(19)
                   AND w.IdaraId = @idaraID_FK
@@ -503,7 +503,7 @@ BEGIN
             IF EXISTS
             (
                 SELECT 1
-                FROM DATACORE.Housing.V_WaitingList w
+                FROM  Housing.V_WaitingList w
                 WHERE w.residentInfoID = @residentInfoID_FK
                   AND w.LastActionTypeID in (53)
                   AND w.IdaraId = @idaraID_FK
@@ -516,7 +516,7 @@ BEGIN
               IF NOT EXISTS
             (
                 SELECT 1
-                FROM DATACORE.Housing.V_GetFullResidentDetails w
+                FROM  Housing.V_GetFullResidentDetails w
                 WHERE w.residentInfoID = @residentInfoID_FK
                   AND w.IdaraID = @idaraID_FK
             )
@@ -526,7 +526,7 @@ BEGIN
 
 
 
-            UPDATE DATACORE.Housing.BuildingAction
+            UPDATE  Housing.BuildingAction
             SET
                   buildingActionActive = 0
                 , entryData = ISNULL(ISNULL(entryData,'')+N','+@entryData, entryData)
@@ -543,7 +543,7 @@ BEGIN
                 + N',"hostName": "'       + ISNULL(CONVERT(NVARCHAR(MAX), @hostName), '') + N'"'
                 + N'}';
 
-            INSERT INTO DATACORE.dbo.AuditLog
+            INSERT INTO  dbo.AuditLog
             (
                   TableName
                 , ActionType
@@ -574,7 +574,7 @@ BEGIN
             IF EXISTS
             (
                 SELECT 1
-                FROM DATACORE.Housing.V_WaitingListByLetter w
+                FROM  Housing.V_WaitingListByLetter w
                 WHERE w.residentInfoID = @residentInfoID_FK
                   AND w.IdaraId = @IdaraID_INT
             )
@@ -586,7 +586,7 @@ BEGIN
               IF EXISTS
             (
                 SELECT 1
-                FROM DATACORE.Housing.V_WaitingList w
+                FROM  Housing.V_WaitingList w
                 WHERE w.residentInfoID = @residentInfoID_FK
                   AND w.LastActionTypeID = 32
             )
@@ -598,7 +598,7 @@ BEGIN
             IF EXISTS
             (
                 SELECT 1
-                FROM DATACORE.Housing.V_WaitingList w
+                FROM  Housing.V_WaitingList w
                 WHERE w.residentInfoID = @residentInfoID_FK
                   AND w.LastActionTypeID in(19)
                   AND w.IdaraId = @idaraID_FK
@@ -612,7 +612,7 @@ BEGIN
             IF EXISTS
             (
                 SELECT 1
-                FROM DATACORE.Housing.V_WaitingList w
+                FROM  Housing.V_WaitingList w
                 WHERE w.residentInfoID = @residentInfoID_FK
                   AND w.LastActionTypeID in (53)
                   AND w.IdaraId = @idaraID_FK
@@ -625,7 +625,7 @@ BEGIN
               IF NOT EXISTS
             (
                 SELECT 1
-                FROM DATACORE.Housing.V_GetFullResidentDetails w
+                FROM  Housing.V_GetFullResidentDetails w
                 WHERE w.residentInfoID = @residentInfoID_FK
                   AND w.IdaraID = @idaraID_FK
             )
@@ -634,7 +634,7 @@ BEGIN
             END
 
 
-            INSERT INTO DATACORE.Housing.BuildingAction
+            INSERT INTO  Housing.BuildingAction
             (
                   buildingActionTypeID_FK
                 , residentInfoID_FK
@@ -690,7 +690,7 @@ BEGIN
                 + N',"hostName": "'                 + ISNULL(CONVERT(NVARCHAR(MAX), @hostName), '') + N'"'
                 + N'}';
 
-            INSERT INTO DATACORE.dbo.AuditLog
+            INSERT INTO  dbo.AuditLog
             (
                   TableName
                 , ActionType
@@ -725,7 +725,7 @@ BEGIN
             IF NOT EXISTS
             (
                  SELECT 1
-                FROM DATACORE.Housing.V_WaitingListByLetter w
+                FROM  Housing.V_WaitingListByLetter w
                 WHERE w.ActionID = @ActionID
             )
             BEGIN
@@ -735,7 +735,7 @@ BEGIN
              IF EXISTS
             (
                 SELECT 1
-                FROM DATACORE.Housing.V_WaitingList w
+                FROM  Housing.V_WaitingList w
                 WHERE w.residentInfoID = @residentInfoID_FK
                   AND w.LastActionTypeID = 32
             )
@@ -748,7 +748,7 @@ BEGIN
             IF EXISTS
             (
                 SELECT 1
-                FROM DATACORE.Housing.V_WaitingList w
+                FROM  Housing.V_WaitingList w
                 WHERE w.residentInfoID = @residentInfoID_FK
                   AND w.LastActionTypeID in(19)
                   AND w.IdaraId = @idaraID_FK
@@ -762,7 +762,7 @@ BEGIN
             IF EXISTS
             (
                 SELECT 1
-                FROM DATACORE.Housing.V_WaitingList w
+                FROM  Housing.V_WaitingList w
                 WHERE w.residentInfoID = @residentInfoID_FK
                   AND w.LastActionTypeID in (53)
                   AND w.IdaraId = @idaraID_FK
@@ -775,7 +775,7 @@ BEGIN
                IF NOT EXISTS
             (
                 SELECT 1
-                FROM DATACORE.Housing.V_GetFullResidentDetails w
+                FROM  Housing.V_GetFullResidentDetails w
                 WHERE w.residentInfoID = @residentInfoID_FK
                   AND w.IdaraID = @idaraID_FK
             )
@@ -785,7 +785,7 @@ BEGIN
 
 
 
-            UPDATE DATACORE.Housing.BuildingAction
+            UPDATE  Housing.BuildingAction
             SET
 
                   buildingActionDecisionNo      = ISNULL(@buildingActionDecisionNo, buildingActionDecisionNo)
@@ -821,7 +821,7 @@ BEGIN
                 + N',"hostName": "'                 + ISNULL(CONVERT(NVARCHAR(MAX), @hostName), '') + N'"'
                 + N'}';
 
-            INSERT INTO DATACORE.dbo.AuditLog
+            INSERT INTO  dbo.AuditLog
             (
                   TableName
                 , ActionType
@@ -860,7 +860,7 @@ BEGIN
             IF NOT EXISTS
             (
                  SELECT 1
-                FROM DATACORE.Housing.V_WaitingListByLetter w
+                FROM  Housing.V_WaitingListByLetter w
                 WHERE w.ActionID = @ActionID
             )
             BEGIN
@@ -870,7 +870,7 @@ BEGIN
              IF EXISTS
             (
                 SELECT 1
-                FROM DATACORE.Housing.V_WaitingList w
+                FROM  Housing.V_WaitingList w
                 WHERE w.residentInfoID = @residentInfoID_FK
                   AND w.LastActionTypeID = 32
             )
@@ -883,7 +883,7 @@ BEGIN
             IF EXISTS
             (
                 SELECT 1
-                FROM DATACORE.Housing.V_WaitingList w
+                FROM  Housing.V_WaitingList w
                 WHERE w.residentInfoID = @residentInfoID_FK
                   AND w.LastActionTypeID in(19)
                   AND w.IdaraId = @idaraID_FK
@@ -897,7 +897,7 @@ BEGIN
             IF EXISTS
             (
                 SELECT 1
-                FROM DATACORE.Housing.V_WaitingList w
+                FROM  Housing.V_WaitingList w
                 WHERE w.residentInfoID = @residentInfoID_FK
                   AND w.LastActionTypeID in (53)
                   AND w.IdaraId = @idaraID_FK
@@ -910,7 +910,7 @@ BEGIN
             IF NOT EXISTS
             (
                 SELECT 1
-                FROM DATACORE.Housing.V_GetFullResidentDetails w
+                FROM  Housing.V_GetFullResidentDetails w
                 WHERE w.residentInfoID = @residentInfoID_FK
                   AND w.IdaraID = @idaraID_FK
             )
@@ -919,7 +919,7 @@ BEGIN
             END
 
 
-            UPDATE DATACORE.Housing.BuildingAction
+            UPDATE  Housing.BuildingAction
             SET
                   buildingActionActive = 0
                 , entryData = ISNULL(ISNULL(entryData,'')+N','+@entryData, entryData)
@@ -936,7 +936,7 @@ BEGIN
                 + N',"hostName": "'       + ISNULL(CONVERT(NVARCHAR(MAX), @hostName), '') + N'"'
                 + N'}';
 
-            INSERT INTO DATACORE.dbo.AuditLog
+            INSERT INTO  dbo.AuditLog
             (
                   TableName
                 , ActionType
@@ -966,7 +966,7 @@ BEGIN
             IF EXISTS
             (
                 SELECT 1
-                FROM DATACORE.Housing.V_MoveWaitingList w
+                FROM  Housing.V_MoveWaitingList w
                 WHERE w.residentInfoID = @residentInfoID_FK and w.LastActionID is null
                   
             )
@@ -989,7 +989,7 @@ BEGIN
              IF EXISTS
             (
                 SELECT 1
-                FROM DATACORE.Housing.V_WaitingList w
+                FROM  Housing.V_WaitingList w
                 WHERE w.residentInfoID = @residentInfoID_FK
                   AND w.LastActionTypeID = 32
             )
@@ -1002,7 +1002,7 @@ BEGIN
              IF EXISTS
             (
                 SELECT 1
-                FROM DATACORE.Housing.V_WaitingList w
+                FROM  Housing.V_WaitingList w
                 WHERE w.residentInfoID = @residentInfoID_FK
                   AND w.LastActionTypeID in(2,24,27,32,33,38,39,40,41,43,45,46,47,48,49,50,51,52)
             )
@@ -1013,7 +1013,7 @@ BEGIN
              IF NOT EXISTS
             (
                 SELECT 1
-                FROM DATACORE.Housing.V_GetFullResidentDetails w
+                FROM  Housing.V_GetFullResidentDetails w
                 WHERE w.residentInfoID = @residentInfoID_FK
                   AND w.IdaraID = @idaraID_FK
             )
@@ -1025,7 +1025,7 @@ BEGIN
             IF EXISTS
             (
                 SELECT 1
-                FROM DATACORE.Housing.V_WaitingList w
+                FROM  Housing.V_WaitingList w
                 WHERE w.residentInfoID = @residentInfoID_FK
                   AND w.LastActionTypeID in(19)
                   AND w.IdaraId = @idaraID_FK
@@ -1039,7 +1039,7 @@ BEGIN
             IF EXISTS
             (
                 SELECT 1
-                FROM DATACORE.Housing.V_WaitingList w
+                FROM  Housing.V_WaitingList w
                 WHERE w.residentInfoID = @residentInfoID_FK
                   AND w.LastActionTypeID in (53)
                   AND w.IdaraId = @idaraID_FK
@@ -1052,7 +1052,7 @@ BEGIN
              IF NOT EXISTS
             (
                 SELECT 1
-                FROM DATACORE.Housing.V_GetFullResidentDetails w
+                FROM  Housing.V_GetFullResidentDetails w
                 WHERE w.residentInfoID = @residentInfoID_FK
                   AND w.IdaraID = @idaraID_FK
             )
@@ -1062,7 +1062,7 @@ BEGIN
 
         
 
-            INSERT INTO DATACORE.Housing.BuildingAction
+            INSERT INTO  Housing.BuildingAction
             (
                   buildingActionTypeID_FK
                 , residentInfoID_FK
@@ -1120,7 +1120,7 @@ BEGIN
                 + N',"hostName": "'                 + ISNULL(CONVERT(NVARCHAR(MAX), @hostName), '') + N'"'
                 + N'}';
 
-            INSERT INTO DATACORE.dbo.AuditLog
+            INSERT INTO  dbo.AuditLog
             (
                   TableName
                 , ActionType
@@ -1158,7 +1158,7 @@ BEGIN
             IF NOT EXISTS
             (
                  SELECT 1
-                FROM DATACORE.Housing.V_MoveWaitingList w
+                FROM  Housing.V_MoveWaitingList w
                 WHERE w.ActionID = @ActionID
             )
             BEGIN
@@ -1169,7 +1169,7 @@ BEGIN
              IF NOT EXISTS
             (
                 SELECT 1
-                FROM DATACORE.Housing.V_MoveWaitingList w
+                FROM  Housing.V_MoveWaitingList w
                 WHERE w.residentInfoID = @residentInfoID_FK and w.LastActionID is null and w.IdaraId = @idaraID_FK
                   
             )
@@ -1182,7 +1182,7 @@ BEGIN
             IF EXISTS
             (
                 SELECT 1
-                FROM DATACORE.Housing.V_WaitingList w
+                FROM  Housing.V_WaitingList w
                 WHERE w.residentInfoID = @residentInfoID_FK
                   AND w.LastActionTypeID in(19)
                   AND w.IdaraId = @idaraID_FK
@@ -1196,7 +1196,7 @@ BEGIN
             IF EXISTS
             (
                 SELECT 1
-                FROM DATACORE.Housing.V_WaitingList w
+                FROM  Housing.V_WaitingList w
                 WHERE w.residentInfoID = @residentInfoID_FK
                   AND w.LastActionTypeID in (53)
                   AND w.IdaraId = @idaraID_FK
@@ -1209,7 +1209,7 @@ BEGIN
               IF NOT EXISTS
             (
                 SELECT 1
-                FROM DATACORE.Housing.V_GetFullResidentDetails w
+                FROM  Housing.V_GetFullResidentDetails w
                 WHERE w.residentInfoID = @residentInfoID_FK
                   AND w.IdaraID = @idaraID_FK
             )
@@ -1222,7 +1222,7 @@ BEGIN
             -- IF EXISTS
             --(
             --    SELECT 1
-            --    FROM DATACORE.Housing.V_MoveWaitingList w
+            --    FROM  Housing.V_MoveWaitingList w
             --    WHERE  w.ActionID = @ActionID and w.ActionStatus <> N'تحت الإجراء'
             --)
             --BEGIN
@@ -1230,7 +1230,7 @@ BEGIN
             --END
 
 
-             INSERT INTO DATACORE.Housing.BuildingAction
+             INSERT INTO  Housing.BuildingAction
             (
                   buildingActionTypeID_FK
                 , residentInfoID_FK
@@ -1315,7 +1315,7 @@ BEGIN
                 + N',"hostName": "'       + ISNULL(CONVERT(NVARCHAR(MAX), @hostName), '') + N'"'
                 + N'}';
 
-            INSERT INTO DATACORE.dbo.AuditLog
+            INSERT INTO  dbo.AuditLog
             (
                   TableName
                 , ActionType
@@ -1351,7 +1351,7 @@ BEGIN
             IF EXISTS
             (
                 SELECT 1
-                FROM DATACORE.Housing.V_MoveWaitingList w
+                FROM  Housing.V_MoveWaitingList w
                 WHERE w.residentInfoID = @residentInfoID_FK and w.LastActionID is null
                   
             )
@@ -1375,7 +1375,7 @@ BEGIN
              IF EXISTS
             (
                 SELECT 1
-                FROM DATACORE.Housing.V_WaitingList w
+                FROM  Housing.V_WaitingList w
                 WHERE w.residentInfoID = @residentInfoID_FK
                   AND w.LastActionTypeID in(2,24,27,32,33,38,39,40,41,43,45,46,47,48,49,50,51,52)
             )
@@ -1387,7 +1387,7 @@ BEGIN
              IF EXISTS
             (
                 SELECT 1
-                FROM DATACORE.Housing.V_WaitingListByLetter w
+                FROM  Housing.V_WaitingListByLetter w
                 WHERE w.residentInfoID = @residentInfoID_FK
                   AND w.LastActionTypeID in(2,24,27,32,33,38,39,40,41,43,45,46,47,48,49,50,51,52)
             )
@@ -1399,7 +1399,7 @@ BEGIN
             IF EXISTS
             (
                 SELECT 1
-                FROM DATACORE.Housing.V_WaitingList w
+                FROM  Housing.V_WaitingList w
                 WHERE w.residentInfoID = @residentInfoID_FK
                   AND w.LastActionTypeID in(19)
                   AND w.IdaraId = @idaraID_FK
@@ -1413,7 +1413,7 @@ BEGIN
             IF EXISTS
             (
                 SELECT 1
-                FROM DATACORE.Housing.V_WaitingList w
+                FROM  Housing.V_WaitingList w
                 WHERE w.residentInfoID = @residentInfoID_FK
                   AND w.LastActionTypeID in (53)
                   AND w.IdaraId = @idaraID_FK
@@ -1426,7 +1426,7 @@ BEGIN
              IF NOT EXISTS
             (
                 SELECT 1
-                FROM DATACORE.Housing.V_GetFullResidentDetails w
+                FROM  Housing.V_GetFullResidentDetails w
                 WHERE w.residentInfoID = @residentInfoID_FK
                   AND w.IdaraID = @idaraID_FK
             )
@@ -1437,7 +1437,7 @@ BEGIN
             
         
 
-            INSERT INTO DATACORE.Housing.BuildingAction
+            INSERT INTO  Housing.BuildingAction
             (
                   buildingActionTypeID_FK
                 , residentInfoID_FK
@@ -1485,7 +1485,7 @@ BEGIN
 
 
 
-            INSERT INTO DATACORE.Housing.BuildingAction
+            INSERT INTO  Housing.BuildingAction
             (
                   buildingActionTypeID_FK
                 , residentInfoID_FK
@@ -1548,7 +1548,7 @@ BEGIN
                 + N',"hostName": "'                 + ISNULL(CONVERT(NVARCHAR(MAX), @hostName), '') + N'"'
                 + N'}';
 
-            INSERT INTO DATACORE.dbo.AuditLog
+            INSERT INTO  dbo.AuditLog
             (
                   TableName
                 , ActionType

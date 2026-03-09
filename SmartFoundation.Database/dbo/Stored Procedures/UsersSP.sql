@@ -209,7 +209,7 @@ END
             IF EXISTS
             (
                 SELECT 1
-                FROM DATACORE.dbo.Users c
+                FROM  dbo.Users c
                 WHERE c.nationalID = @nationalID
                   AND c.usersActive = 1
             )
@@ -218,7 +218,7 @@ END
             END
 
 
-            INSERT INTO DATACORE.dbo.Users
+            INSERT INTO  dbo.Users
             (
                   nationalID
                 , nationalIDTypeID_FK
@@ -258,7 +258,7 @@ END
                 + N',"hostName": "'                 + ISNULL(CONVERT(NVARCHAR(MAX), @hostName), '') + N'"'
                 + N'}';
 
-            INSERT INTO DATACORE.dbo.AuditLog
+            INSERT INTO  dbo.AuditLog
             (
                   TableName
                 , ActionType
@@ -277,7 +277,7 @@ END
 
 
 
-            INSERT INTO DATACORE.dbo.UsersDetails
+            INSERT INTO  dbo.UsersDetails
             (
                  [usersID_FK]
                 ,[GeneralNo]
@@ -373,7 +373,7 @@ END
                 + N',"hostName": "'                 + ISNULL(CONVERT(NVARCHAR(MAX), @hostName), '') + N'"'
                 + N'}';
 
-            INSERT INTO DATACORE.dbo.AuditLog
+            INSERT INTO  dbo.AuditLog
             (
                   TableName
                 , ActionType
@@ -402,7 +402,7 @@ END
 
                 
             
-            INSERT INTO DATACORE.dbo.UserDistributor
+            INSERT INTO  dbo.UserDistributor
             (
                   userID_FK
                 , distributorID_FK
@@ -443,7 +443,7 @@ END
                 + N',"hostName": "'                 + ISNULL(CONVERT(NVARCHAR(MAX), @hostName), '') + N'"'
                 + N'}';
 
-            INSERT INTO DATACORE.dbo.AuditLog
+            INSERT INTO  dbo.AuditLog
             (
                   TableName
                 , ActionType
@@ -620,7 +620,7 @@ END
             IF EXISTS
             (
                 SELECT 1
-                FROM DATACORE.dbo.Users c
+                FROM  dbo.Users c
                 WHERE c.nationalID = @nationalID
                   AND c.usersActive = 1 and c.usersID <> @usersID
             )
@@ -629,7 +629,7 @@ END
             END
 
 
-            UPDATE DATACORE.dbo.Users SET 
+            UPDATE  dbo.Users SET 
             
                   nationalID = @nationalID,
                   updatedby = updatedby +','+cast(@entryData as nvarchar),
@@ -653,7 +653,7 @@ END
                 + N',"hostName": "'                 + ISNULL(CONVERT(NVARCHAR(MAX), @hostName), '') + N'"'
                 + N'}';
 
-            INSERT INTO DATACORE.dbo.AuditLog
+            INSERT INTO  dbo.AuditLog
             (
                   TableName
                 , ActionType
@@ -673,7 +673,7 @@ END
 
 
             
-            UPDATE DATACORE.dbo.UsersDetails SET 
+            UPDATE  dbo.UsersDetails SET 
             
                   userActive = 0
                   where usersID_FK = @usersID
@@ -685,7 +685,7 @@ END
             END
 
 
-            INSERT INTO DATACORE.dbo.UsersDetails
+            INSERT INTO  dbo.UsersDetails
             (
                  [usersID_FK]
                 ,[GeneralNo]
@@ -781,7 +781,7 @@ END
                 + N',"hostName": "'                 + ISNULL(CONVERT(NVARCHAR(MAX), @hostName), '') + N'"'
                 + N'}';
 
-            INSERT INTO DATACORE.dbo.AuditLog
+            INSERT INTO  dbo.AuditLog
             (
                   TableName
                 , ActionType
@@ -812,7 +812,7 @@ END
 
                 
             
-            INSERT INTO DATACORE.dbo.UserDistributor
+            INSERT INTO  dbo.UserDistributor
             (
                   userID_FK
                 , distributorID_FK
@@ -853,7 +853,7 @@ END
                 + N',"hostName": "'                 + ISNULL(CONVERT(NVARCHAR(MAX), @hostName), '') + N'"'
                 + N'}';
 
-            INSERT INTO DATACORE.dbo.AuditLog
+            INSERT INTO  dbo.AuditLog
             (
                   TableName
                 , ActionType
@@ -1008,7 +1008,7 @@ END
 
 
 
-            UPDATE DATACORE.dbo.Users SET 
+            UPDATE  dbo.Users SET 
             
                   usersActive = 0,
                   updatedby = updatedby +','+cast(@entryData as nvarchar),
@@ -1032,7 +1032,7 @@ END
                 + N',"hostName": "'                 + ISNULL(CONVERT(NVARCHAR(MAX), @hostName), '') + N'"'
                 + N'}';
 
-            INSERT INTO DATACORE.dbo.AuditLog
+            INSERT INTO  dbo.AuditLog
             (
                   TableName
                 , ActionType
@@ -1055,7 +1055,7 @@ END
 
 
             
-            UPDATE DATACORE.dbo.UsersDetails SET 
+            UPDATE  dbo.UsersDetails SET 
             
                   userActive = 0
                   where usersID_FK = @usersID
@@ -1102,7 +1102,7 @@ END
                 + N',"hostName": "'                 + ISNULL(CONVERT(NVARCHAR(MAX), @hostName), '') + N'"'
                 + N'}';
 
-            INSERT INTO DATACORE.dbo.AuditLog
+            INSERT INTO  dbo.AuditLog
             (
                   TableName
                 , ActionType

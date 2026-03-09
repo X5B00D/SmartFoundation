@@ -63,7 +63,7 @@ BEGIN
 
      -- AssignPeriod DDL
             SELECT c.AssignPeriodID,c.AssignPeriodDescrption
-            FROM [DATACORE].[Housing].[AssignPeriod] c
+            FROM  [Housing].[AssignPeriod] c
             where  c.IdaraId_FK = @idaraID and c.AssignPeriodActive = 1 and c.AssignPeriodClose = 0 and c.AssignPeriodEnddate is not null
             and c.AssignPeriodFinalEND = 1 and c.AssignPeriodFinalEnddate is null
             order by c.AssignPeriodID asc

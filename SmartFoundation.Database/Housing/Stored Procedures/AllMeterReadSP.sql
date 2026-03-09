@@ -85,24 +85,24 @@ BEGIN
 
         IF EXISTS (
                     SELECT 1
-                    FROM DATACORE.Housing.MeterForBuilding mfb
+                    FROM  Housing.MeterForBuilding mfb
                     WHERE mfb.meterForBuildingActive = 1
                       AND mfb.meterID_FK = @meterID)
                       BEGIN
                         SELECT TOP(1) @buildingDetailsID = mfb.buildingDetailsID_FK, @buildingDetailsNo = bd.buildingDetailsNo
-                        FROM DATACORE.Housing.MeterForBuilding mfb
-                        inner join DATACORE.Housing.BuildingDetails bd on mfb.buildingDetailsID_FK = bd.buildingDetailsID
+                        FROM  Housing.MeterForBuilding mfb
+                        inner join  Housing.BuildingDetails bd on mfb.buildingDetailsID_FK = bd.buildingDetailsID
                         WHERE mfb.meterForBuildingActive = 1
                           AND mfb.meterID_FK = @meterID
                       END
 
          IF EXISTS (
                     SELECT 1
-                    FROM DATACORE.Housing.V_Occupant mfb
+                    FROM  Housing.V_Occupant mfb
                     WHERE mfb.buildingDetailsID = @buildingDetailsID)
 
                       BEGIN
-                        SELECT TOP(1) @residentInfoID = mfb.residentInfoID,@GeneralNo = mfb.GeneralNo FROM DATACORE.Housing.V_Occupant mfb
+                        SELECT TOP(1) @residentInfoID = mfb.residentInfoID,@GeneralNo = mfb.GeneralNo FROM  Housing.V_Occupant mfb
                         WHERE mfb.buildingDetailsID = @buildingDetailsID
                       END
            
@@ -110,16 +110,16 @@ BEGIN
 
 
         set @billPeriodCount = (SELECT COUNT(*)
-                FROM DATACORE.Housing.BillPeriod bp
-                inner join DATACORE.Housing.BillPeriodType bpt on bp.billPeriodTypeID_FK = bpt.billPeriodTypeID
+                FROM  Housing.BillPeriod bp
+                inner join  Housing.BillPeriodType bpt on bp.billPeriodTypeID_FK = bpt.billPeriodTypeID
                 WHERE  bpt.billPeriodTypeActive = 1
                     AND bp.IdaraId_FK = @IdaraId_FK and bpt.meterServiceTypeID_FK = @MeterServiceTypeID and bp.billPeriodActive = 1
         )
 
         
         set @billPeriodIDs = (SELECT top(1) COALESCE(MAX(bp.billPeriodID), -1)
-                FROM DATACORE.Housing.BillPeriod bp
-                inner join DATACORE.Housing.BillPeriodType bpt on bp.billPeriodTypeID_FK = bpt.billPeriodTypeID
+                FROM  Housing.BillPeriod bp
+                inner join  Housing.BillPeriodType bpt on bp.billPeriodTypeID_FK = bpt.billPeriodTypeID
                 WHERE  bpt.billPeriodTypeActive = 1
                     AND bp.IdaraId_FK = @IdaraId_FK and bpt.meterServiceTypeID_FK = @MeterServiceTypeID  and bp.billPeriodActive = 1
                    
@@ -168,8 +168,8 @@ BEGIN
 		,@billPeriodName_E= dATEnaME(MONTH,dateadd(MONTH,0,bp.billPeriodStartDate))
 		
 		
-		from DATACORE.Housing.BillPeriod bp 
-        inner join DATACORE.Housing.BillPeriodType bpt on bp.billPeriodTypeID_FK = bpt.billPeriodTypeID
+		from  Housing.BillPeriod bp 
+        inner join  Housing.BillPeriodType bpt on bp.billPeriodTypeID_FK = bpt.billPeriodTypeID
 		WHERE  bpt.billPeriodTypeActive = 1 AND bp.IdaraId_FK = @IdaraId_FK and bpt.meterServiceTypeID_FK = @MeterServiceTypeID  and bp.billPeriodActive = 1
 		order by bp.billPeriodID desc
 
@@ -218,7 +218,7 @@ BEGIN
        WHERE EXISTS
        (
            SELECT 1
-           FROM DATACORE.Housing.Bills b
+           FROM  Housing.Bills b
            WHERE b.meterID = em.meterID
              AND b.meterServiceTypeID = @MeterServiceTypeID
              AND b.idaraID_FK = @IdaraId_FK
@@ -262,7 +262,7 @@ BEGIN
                 ;THROW 50001, N'يوجد فترة نشطة لهذه الخدمة يجب انهائها اولا', 1;
             END
 
-            INSERT INTO DATACORE.Housing.BillPeriod
+            INSERT INTO  Housing.BillPeriod
             (
                  [billPeriodTypeID_FK]
                 ,[billPeriodName_A]
@@ -320,7 +320,7 @@ BEGIN
 
                 + N'}';
 
-            INSERT INTO DATACORE.dbo.AuditLog
+            INSERT INTO  dbo.AuditLog
             (
                   TableName
                 , ActionType
@@ -409,7 +409,7 @@ BEGIN
 
                 + N'}';
 
-            INSERT INTO DATACORE.dbo.AuditLog
+            INSERT INTO  dbo.AuditLog
             (
                   TableName
                 , ActionType
@@ -482,7 +482,7 @@ BEGIN
            
 
 
-              INSERT INTO DATACORE.Housing.[MeterRead]
+              INSERT INTO  Housing.[MeterRead]
             (
 
                    [meterReadTypeID_FK]
@@ -553,7 +553,7 @@ BEGIN
                             + N',"hostName": "' + ISNULL(CONVERT(NVARCHAR(MAX), @hostName), N'') + N'"'
                             + N'}';
 
-            INSERT INTO DATACORE.dbo.AuditLog
+            INSERT INTO  dbo.AuditLog
             (
                   TableName
                 , ActionType
@@ -649,7 +649,7 @@ BEGIN
     , hostName NVARCHAR(200)
 );
             
-            INSERT INTO [DATACORE].[Housing].[Bills]
+            INSERT INTO  [Housing].[Bills]
 (
       [BillChargeTypeID_FK]
     , [BillTypeID_FK]
@@ -982,7 +982,7 @@ FROM Housing.CalculteElectrictyBills_ByNewReadValue_ForInsert(@meterID, @meterRe
                                 + N'}'
                         FROM @InsertedBills;
 
-           INSERT INTO DATACORE.dbo.AuditLog
+           INSERT INTO  dbo.AuditLog
             (
                   TableName
                 , ActionType
@@ -1096,7 +1096,7 @@ FROM Housing.CalculteElectrictyBills_ByNewReadValue_ForInsert(@meterID, @meterRe
                 + N',"hostName": "' + ISNULL(CONVERT(NVARCHAR(MAX), @hostName), N'') + N'"'
                 + N'}';
 
-            INSERT INTO DATACORE.dbo.AuditLog
+            INSERT INTO  dbo.AuditLog
             (
                   TableName
                 , ActionType
@@ -1145,7 +1145,7 @@ FROM Housing.CalculteElectrictyBills_ByNewReadValue_ForInsert(@meterID, @meterRe
                 + N',"hostName": "' + ISNULL(CONVERT(NVARCHAR(MAX), @hostName), N'') + N'"'
                 + N'}';
 
-            INSERT INTO DATACORE.dbo.AuditLog
+            INSERT INTO  dbo.AuditLog
             (
                   TableName
                 , ActionType
@@ -1165,7 +1165,7 @@ FROM Housing.CalculteElectrictyBills_ByNewReadValue_ForInsert(@meterID, @meterRe
         
 
 
-              INSERT INTO DATACORE.Housing.[MeterRead]
+              INSERT INTO  Housing.[MeterRead]
             (
 
                    [meterReadTypeID_FK]
@@ -1236,7 +1236,7 @@ FROM Housing.CalculteElectrictyBills_ByNewReadValue_ForInsert(@meterID, @meterRe
                             + N',"hostName": "' + ISNULL(CONVERT(NVARCHAR(MAX), @hostName), N'') + N'"'
                             + N'}';
 
-            INSERT INTO DATACORE.dbo.AuditLog
+            INSERT INTO  dbo.AuditLog
             (
                   TableName
                 , ActionType
@@ -1332,7 +1332,7 @@ FROM Housing.CalculteElectrictyBills_ByNewReadValue_ForInsert(@meterID, @meterRe
     , hostName NVARCHAR(200)
 );
             
-            INSERT INTO [DATACORE].[Housing].[Bills]
+            INSERT INTO  [Housing].[Bills]
 (
       [BillChargeTypeID_FK]
     , [BillTypeID_FK]
@@ -1665,7 +1665,7 @@ FROM Housing.CalculteElectrictyBills_ByNewReadValue_ForInsert(@meterID, @meterRe
                                 + N'}'
                         FROM @InsertedBills1;
 
-           INSERT INTO DATACORE.dbo.AuditLog
+           INSERT INTO  dbo.AuditLog
             (
                   TableName
                 , ActionType
@@ -1777,7 +1777,7 @@ FROM Housing.CalculteElectrictyBills_ByNewReadValue_ForInsert(@meterID, @meterRe
                 + N',"hostName": "' + ISNULL(CONVERT(NVARCHAR(MAX), @hostName), N'') + N'"'
                 + N'}';
 
-            INSERT INTO DATACORE.dbo.AuditLog
+            INSERT INTO  dbo.AuditLog
             (
                   TableName
                 , ActionType
@@ -1826,7 +1826,7 @@ FROM Housing.CalculteElectrictyBills_ByNewReadValue_ForInsert(@meterID, @meterRe
                 + N',"hostName": "' + ISNULL(CONVERT(NVARCHAR(MAX), @hostName), N'') + N'"'
                 + N'}';
 
-            INSERT INTO DATACORE.dbo.AuditLog
+            INSERT INTO  dbo.AuditLog
             (
                   TableName
                 , ActionType

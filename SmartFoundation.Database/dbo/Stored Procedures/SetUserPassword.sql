@@ -17,7 +17,7 @@ BEGIN
     DECLARE @usersID bigint;
     set @usersID = (
     select TOP(1) u.usersID
-    from DATACORE.dbo.Users u 
+    from  dbo.Users u 
     where u.nationalID = @NationalID
     and u.usersActive = 1 
     and u.usersStartDate is not null 
@@ -40,7 +40,7 @@ BEGIN
         ----------------------------------------------------
         IF NOT EXISTS (
             SELECT 1   
-              from DATACORE.dbo.Users u 
+              from  dbo.Users u 
               where u.nationalID = @NationalID
               and u.usersActive = 1 
               and u.usersStartDate is not null 

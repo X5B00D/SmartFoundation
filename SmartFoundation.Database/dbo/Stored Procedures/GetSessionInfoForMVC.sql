@@ -12,7 +12,7 @@ BEGIN
 
     SET @usersID = (
         SELECT TOP(1) u.usersID
-        FROM DATACORE.dbo.Users u 
+        FROM  dbo.Users u 
         WHERE u.nationalID = @NationalID
           AND u.usersActive = 1 
           AND u.usersStartDate IS NOT NULL 
@@ -37,7 +37,7 @@ BEGIN
     -- هل يوجد كلمة مرور للمستخدم؟
     IF NOT EXISTS (
         SELECT 1 
-        FROM DATACORE.dbo.usersPassword us
+        FROM  dbo.usersPassword us
         WHERE us.usersID_FK = @usersID AND us.userPasswordActive = 1
     )
     BEGIN
@@ -49,7 +49,7 @@ BEGIN
         SELECT TOP (1)
             @Salt = PasswordSalt,
             @StoredHash = PasswordHash
-        FROM DATACORE.dbo.usersPassword
+        FROM  dbo.usersPassword
         WHERE usersID_FK = @usersID
           AND userPasswordActive = 1
         ORDER BY entryDate DESC;
@@ -65,13 +65,13 @@ BEGIN
         END
     END
 
-    IF (SELECT COUNT(us.usersID) FROM DATACORE.dbo.[Users] us WHERE us.usersID = @usersID) > 0
+    IF (SELECT COUNT(us.usersID) FROM  dbo.[Users] us WHERE us.usersID = @usersID) > 0
     BEGIN
         -- ✅ تعديل ضروري: TRY_CONVERT لتفادي تحويل NVARCHAR إلى BIGINT
         SET @GeneralNo = (
             SELECT TOP(1) TRY_CONVERT(bigint, LTRIM(RTRIM(ud.GeneralNo)))
-            FROM DATACORE.dbo.[Users] us 
-            INNER JOIN DATACORE.dbo.UsersDetails ud ON us.usersID = ud.usersID_FK
+            FROM  dbo.[Users] us 
+            INNER JOIN  dbo.UsersDetails ud ON us.usersID = ud.usersID_FK
             WHERE us.usersID = @usersID
               AND us.usersActive = 1 
               AND us.usersStartDate IS NOT NULL 
@@ -140,9 +140,9 @@ BEGIN
     ELSE
     BEGIN
         IF (SELECT COUNT(*) 
-        FROM DATACORE.dbo.[Users] uu
-        Left JOIN DATACORE.dbo.UsersDetails ud ON uu.usersID = ud.usersID_FK
-        left Join DATACORE.dbo.UsersAuthType ua on ud.usersAuthTypeID_FK = ua.UsersAuthTypeID
+        FROM  dbo.[Users] uu
+        Left JOIN  dbo.UsersDetails ud ON uu.usersID = ud.usersID_FK
+        left Join  dbo.UsersAuthType ua on ud.usersAuthTypeID_FK = ua.UsersAuthTypeID
         WHERE uu.usersID = @usersID 
         AND uu.usersActive = 1 and ud.userActive = 1) > 0
         BEGIN
@@ -172,7 +172,7 @@ BEGIN
                         d.SectionName,
                         d.DivisonID,
                         d.DivisonName,
-                        (SELECT Photo FROM DATACORE.dbo.UsersPhoto up WHERE up.usersID_FK = @usersID) AS Photo,
+                        (SELECT Photo FROM  dbo.UsersPhoto up WHERE up.usersID_FK = @usersID) AS Photo,
                         CASE WHEN t.ThameName IS NULL THEN 'default' ELSE t.ThameName END AS ThameName,
                         d.DeptCode,
                         u.nationalID,
@@ -185,11 +185,11 @@ BEGIN
                         + N' الساعة ' + CONVERT(nvarchar(8), GETDATE(), 108) AS Message_,
                         up.ChangedPassword
                     FROM dbo.[Users] u
-                    Left JOIN DATACORE.dbo.UsersDetails ud ON u.usersID = ud.usersID_FK
-                    left Join DATACORE.dbo.UsersAuthType ua on ud.usersAuthTypeID_FK = ua.UsersAuthTypeID
+                    Left JOIN  dbo.UsersDetails ud ON u.usersID = ud.usersID_FK
+                    left Join  dbo.UsersAuthType ua on ud.usersAuthTypeID_FK = ua.UsersAuthTypeID
                     LEFT JOIN @DepartmentInfo d ON u.usersID = d.UserID
                     LEFT JOIN @ThameInfo t ON u.usersID = t.UserID
-                    inner Join DATACORE.dbo.UsersPassword up on u.usersID = up.usersID_FK and up.userPasswordActive = 1
+                    inner Join  dbo.UsersPassword up on u.usersID = up.usersID_FK and up.userPasswordActive = 1
                     WHERE u.usersID = @usersID AND u.usersActive = 1 And ud.userActive = 1
                     order by u.usersID desc
                     ;

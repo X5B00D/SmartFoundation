@@ -63,7 +63,7 @@ BEGIN
 
      -- WaitingClass DDL
             SELECT c.waitingClassID,c.waitingClassName_A
-            FROM [DATACORE].[Housing].[WaitingClass] c
+            FROM  [Housing].[WaitingClass] c
             where (c.idara_FK is null or c.idara_FK = @idaraID)
             order by c.waitingClassSequence asc
 
@@ -97,7 +97,7 @@ BEGIN
 
              -- Houses DDL
             SELECT c.buildingDetailsID,c.buildingDetailsNo
-            FROM [DATACORE].[Housing].[V_GetGeneralListForBuilding] c
+            FROM  [Housing].[V_GetGeneralListForBuilding] c
             where c.BuildingIdaraID = @idaraID and c.buildingDetailsActive = 1 and c.LastActionTypeID in(5,39,41)
             
 

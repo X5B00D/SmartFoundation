@@ -107,7 +107,7 @@ BEGIN
         BEGIN
             IF (
                 SELECT COUNT(*)
-                FROM DATACORE.dbo.V_GetListUserPermission v
+                FROM  dbo.V_GetListUserPermission v
                 WHERE v.userID = @entrydata
                   AND v.menuName_E = @pageName_
                   AND v.permissionTypeName_E = @ActionType
@@ -216,7 +216,7 @@ BEGIN
         BEGIN
             IF (
                 SELECT COUNT(*)
-                FROM DATACORE.dbo.V_GetListUserPermission v
+                FROM  dbo.V_GetListUserPermission v
                 WHERE v.userID = @entrydata
                   AND v.menuName_E = @pageName_
                   AND v.permissionTypeName_E = @ActionType
@@ -330,7 +330,7 @@ BEGIN
         BEGIN
             IF (
                 SELECT COUNT(*)
-                FROM DATACORE.dbo.V_GetListUserPermission v
+                FROM  dbo.V_GetListUserPermission v
                 WHERE v.userID = @entrydata
                   AND v.menuName_E = @pageName_
                   AND v.permissionTypeName_E = @ActionType
@@ -494,7 +494,7 @@ BEGIN
         BEGIN
             IF (
                 SELECT COUNT(*)
-                FROM DATACORE.dbo.V_GetListUserPermission v
+                FROM  dbo.V_GetListUserPermission v
                 WHERE v.userID = @entrydata
                   AND v.menuName_E = @pageName_
                   AND v.permissionTypeName_E = @ActionType
@@ -568,7 +568,7 @@ BEGIN
         BEGIN
             IF (
                 SELECT COUNT(*)
-                FROM DATACORE.dbo.V_GetListUserPermission v
+                FROM  dbo.V_GetListUserPermission v
                 WHERE v.userID = @entrydata
                   AND v.menuName_E = @pageName_
                   AND v.permissionTypeName_E = @ActionType
@@ -635,7 +635,7 @@ BEGIN
         BEGIN
             IF (
                 SELECT COUNT(*)
-                FROM DATACORE.dbo.V_GetListUserPermission v
+                FROM  dbo.V_GetListUserPermission v
                 WHERE v.userID = @entrydata
                   AND v.menuName_E = @pageName_
                   AND v.permissionTypeName_E = @ActionType
@@ -708,7 +708,7 @@ BEGIN
         BEGIN
             IF (
                 SELECT COUNT(*)
-                FROM DATACORE.dbo.V_GetListUserPermission v
+                FROM  dbo.V_GetListUserPermission v
                 WHERE v.userID = @entrydata
                   AND v.menuName_E = @pageName_
                   AND v.permissionTypeName_E = @ActionType
@@ -792,7 +792,7 @@ BEGIN
           
             IF (
                 SELECT COUNT(*)
-                FROM DATACORE.dbo.V_GetListUserPermission v
+                FROM  dbo.V_GetListUserPermission v
                 WHERE v.userID = @entrydata
                   AND v.menuName_E = @pageName_
                   AND v.permissionTypeName_E = @ActionType
@@ -910,7 +910,7 @@ BEGIN
           
             IF (
                 SELECT COUNT(*)
-                FROM DATACORE.dbo.V_GetListUserPermission v
+                FROM  dbo.V_GetListUserPermission v
                 WHERE v.userID = @entrydata
                   AND v.menuName_E = @pageName_
                   AND v.permissionTypeName_E = @ActionType
@@ -1018,7 +1018,7 @@ BEGIN
         BEGIN
             IF (
                 SELECT COUNT(*)
-                FROM DATACORE.dbo.V_GetListUserPermission v
+                FROM  dbo.V_GetListUserPermission v
                 WHERE v.userID = @entrydata
                   AND v.menuName_E = @pageName_
                   AND v.permissionTypeName_E = @ActionType
@@ -1370,7 +1370,7 @@ BEGIN
         BEGIN
             IF (
                 SELECT COUNT(*)
-                FROM DATACORE.dbo.V_GetListUserPermission v
+                FROM  dbo.V_GetListUserPermission v
                 WHERE v.userID = @entrydata
                   AND v.menuName_E = @pageName_
                   AND v.permissionTypeName_E = @ActionType
@@ -1473,7 +1473,7 @@ BEGIN
         BEGIN
             IF (
                 SELECT COUNT(*)
-                FROM DATACORE.dbo.V_GetListUserPermission v
+                FROM  dbo.V_GetListUserPermission v
                 WHERE v.userID = @entrydata
                   AND v.menuName_E = @pageName_
                   AND v.permissionTypeName_E = @ActionType
@@ -1532,7 +1532,7 @@ BEGIN
         BEGIN
             IF (
                 SELECT COUNT(*)
-                FROM DATACORE.dbo.V_GetListUserPermission v
+                FROM  dbo.V_GetListUserPermission v
                 WHERE v.userID = @entrydata
                   AND v.menuName_E = @pageName_
                   AND v.permissionTypeName_E = @ActionType
@@ -1679,7 +1679,7 @@ BEGIN
         BEGIN
             IF (
                 SELECT COUNT(*)
-                FROM DATACORE.dbo.V_GetListUserPermission v
+                FROM  dbo.V_GetListUserPermission v
                 WHERE v.userID = @entrydata
                   AND v.menuName_E = @pageName_
                   AND v.permissionTypeName_E = @ActionType
@@ -1759,7 +1759,7 @@ BEGIN
         BEGIN
             IF (
                 SELECT COUNT(*)
-                FROM DATACORE.dbo.V_GetListUserPermission v
+                FROM  dbo.V_GetListUserPermission v
                 WHERE v.userID = @entrydata
                   AND v.menuName_E = @pageName_
                   AND v.permissionTypeName_E = @ActionType
@@ -1854,7 +1854,7 @@ BEGIN
         BEGIN
             IF (
                 SELECT COUNT(*)
-                FROM DATACORE.dbo.V_GetListUserPermission v
+                FROM  dbo.V_GetListUserPermission v
                 WHERE v.userID = @entrydata
                   AND v.menuName_E = @pageName_
                   AND v.permissionTypeName_E = @ActionType
@@ -1956,7 +1956,7 @@ BEGIN
         BEGIN
             IF (
                 SELECT COUNT(*)
-                FROM DATACORE.dbo.V_GetListUserPermission v
+                FROM  dbo.V_GetListUserPermission v
                 WHERE v.userID = @entrydata
                   AND v.menuName_E = @pageName_
                   AND v.permissionTypeName_E = @ActionType
@@ -2140,7 +2140,7 @@ BEGIN
         BEGIN
             IF (
                 SELECT COUNT(*)
-                FROM DATACORE.dbo.V_GetListUserPermission v
+                FROM  dbo.V_GetListUserPermission v
                 WHERE v.userID = @entrydata
                   AND v.menuName_E = @pageName_
                   AND v.permissionTypeName_E = @ActionType
@@ -2337,7 +2337,7 @@ BEGIN
         BEGIN
             IF (
                 SELECT COUNT(*)
-                FROM DATACORE.dbo.V_GetListUserPermission v
+                FROM  dbo.V_GetListUserPermission v
                 WHERE v.userID = @entrydata
                   AND v.menuName_E = @pageName_
                   AND v.permissionTypeName_E = @ActionType
@@ -2402,7 +2402,7 @@ BEGIN
         BEGIN
             IF (
                 SELECT COUNT(*)
-                FROM DATACORE.dbo.V_GetListUserPermission v
+                FROM  dbo.V_GetListUserPermission v
                 WHERE v.userID = @entrydata
                   AND v.menuName_E = @pageName_
                   AND v.permissionTypeName_E = @ActionType
@@ -2641,7 +2641,7 @@ BEGIN
         BEGIN
             IF (
                 SELECT COUNT(*)
-                FROM DATACORE.dbo.V_GetListUserPermission v
+                FROM  dbo.V_GetListUserPermission v
                 WHERE v.userID = @entrydata
                   AND v.menuName_E = @pageName_
                   AND v.permissionTypeName_E = @ActionType
@@ -3019,7 +3019,7 @@ Finish:
         -- ✅ أخطاء برمجية/غير متوقعة: نسجلها ونرجع رمز
         ----------------------------------------------------------------
         BEGIN TRY
-            INSERT INTO DATACORE.dbo.ErrorLog
+            INSERT INTO  dbo.ErrorLog
             (
                   ERROR_MESSAGE_
                 , ERROR_SEVERITY_

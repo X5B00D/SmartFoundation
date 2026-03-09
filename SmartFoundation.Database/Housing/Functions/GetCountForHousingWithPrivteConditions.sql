@@ -23,7 +23,7 @@ BEGIN
 		IF (@buildingActionTypeID = 2 AND @bug = 1)
 		BEGIN
 			SET @Result = ( SELECT COUNT(*) N'عدد الساكنين بدون امر سكن'
-			FROM KFMC.Housing.BuildingAction b
+			FROM  Housing.BuildingAction b
 			WHERE b.buildingActionTypeID_FK = 2 
 			AND (b.buildingActionDecisionDate IS NULL OR b.buildingActionDecisionNo IS NULL))
 		END
@@ -33,7 +33,7 @@ BEGIN
 		ELSE IF (@buildingActionTypeID = 2 AND @bug = 2)
 		BEGIN
 			SET @Result = ( SELECT COUNT(*) N'عدد الساكنين مع امر سكن'
-			FROM KFMC.Housing.BuildingAction b
+			FROM  Housing.BuildingAction b
 			WHERE b.buildingActionTypeID_FK = 2 
 			AND (b.buildingActionDecisionDate IS NOT NULL AND b.buildingActionDecisionNo IS NOT NULL))
 		END

@@ -66,7 +66,7 @@ BEGIN
                 ,(select count(*) from Housing.V_WaitingList w where w.NationalID = @NationalID and w.IdaraId = @idaraID and (w.LastActionTypeID IS NULL OR w.LastActionTypeID not in (19,53)) and w.IdaraId = @idaraID) WaitingListCount
                 ,(select count(*) from Housing.V_WaitingListByLetter w where w.NationalID = @NationalID and w.IdaraId = @idaraID and (w.LastActionTypeID IS NULL OR w.LastActionTypeID not in (19,53)) and w.IdaraId = @idaraID) WaitingListByLetterCount
 
-           FROM [DATACORE].[Housing].V_GetFullResidentDetails fr
+           FROM  [Housing].V_GetFullResidentDetails fr
            where fr.NationalID = @NationalID
 
             
@@ -152,7 +152,7 @@ BEGIN
               ,[LastActionEntryData]
               ,[ActionStatus]
               
-          FROM [DATACORE].[Housing].[V_MoveWaitingList] mw
+          FROM  [Housing].[V_MoveWaitingList] mw
           where mw.NationalID = @NationalID 
           and mw.IdaraId = @idaraID
           order by mw.ActionID desc
@@ -163,20 +163,20 @@ BEGIN
 
              -- WaitingClass DDL
             SELECT w.waitingClassID,w.waitingClassName_A
-            FROM [DATACORE].[Housing].[WaitingClass] w
+            FROM  [Housing].[WaitingClass] w
             WHERE w.idara_FK is null or w.idara_FK = @idaraID
             order by w.waitingClassID asc
 
 
             -- WaitingOrderType DDL
             SELECT r.waitingOrderTypeID,r.waitingOrderTypeName_A
-            FROM [DATACORE].[Housing].[WaitingOrderType] r
+            FROM  [Housing].[WaitingOrderType] r
             
 
             
             -- Idaras DDL
             SELECT r.idaraID,r.idaraLongName_A
-            FROM [DATACORE].[dbo].[Idara] r
+            FROM  [dbo].[Idara] r
             where r.idaraID <> @idaraID
             order by r.idaraID asc
             
