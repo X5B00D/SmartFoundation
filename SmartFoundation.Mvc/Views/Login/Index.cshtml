@@ -1,6 +1,8 @@
 ﻿@{
     Layout = null;
-    var lastUser = TempData["LastUser"] as string ?? "";
+    var lastUser = ViewBag.LastUser as string ?? "";
+    var loginMessageType = ViewBag.LoginMessageType as string ?? "";
+    var loginMessage = ViewBag.LoginMessage as string ?? "";
 
 }
 <!DOCTYPE html>
@@ -24,71 +26,10 @@
 
 </head>
 <body class="login-page">
-    <script>
-        document.addEventListener("DOMContentLoaded", function () {
-
-            // أرقام فقط في الهوية
-            const NationalID = document.getElementById("txtNationalID");
-            if (NationalID) {
-                NationalID.addEventListener("input", function () {
-                    this.value = this.value.replace(/[^0-9]/g, "");
-                });
-            }
-
-            // إظهار/إخفاء كلمة المرور
-            const toggle = document.getElementById("togglePassword");
-            const password = document.getElementById("txtPassword");
-            const eye = document.getElementById("eyeIcon");
-
-            if (toggle && password && eye) {
-                toggle.addEventListener("click", () => {
-                    const isPwd = password.type === "password";
-                    password.type = isPwd ? "text" : "password";
-                    eye.classList.toggle("fa-eye");
-                    eye.classList.toggle("fa-eye-slash");
-                });
-            }
-            
-             /* ===============================
-                 تذكرني (Remember Me)
-            =============================== */
-            const rememberMe = document.getElementById("remember-me");
-
-            // عند فتح الصفحة: استرجاع الهوية
-            const savedNationalID = localStorage.getItem("rememberedNationalID");
-            if (savedNationalID && NationalID && rememberMe) {
-                NationalID.value = savedNationalID;
-                rememberMe.checked = true;
-
-                // UX: إذا الهوية موجودة، روح مباشرة لكلمة المرور
-                if (password) password.focus();
-            }
-            const form = document.getElementById("loginForm");
-            const btnLogin = document.getElementById("btnLogin");
-            const btnText = document.getElementById("btnText");
-            const spinner = btnLogin ? btnLogin.querySelector(".spinner-border") : null;
-
-            if (form && btnLogin) {
-                form.addEventListener("submit", function () {
-                    
-                    // حفظ / حذف الهوية
-                    if (rememberMe && rememberMe.checked && NationalID) {
-                        localStorage.setItem("rememberedNationalID", NationalID.value);
-                    } else {
-                        localStorage.removeItem("rememberedNationalID");
-                    }
-                    // UI Loading
-                    // if (btnText) btnText.style.display = "none";
-                    // if (spinner) spinner.style.display = "block";
-                    // btnLogin.disabled = true;
-                            // UI Loading
-                    if (btnText) btnText.style.display = "none";
-                    if (spinner) spinner.style.display = "inline-flex";
-                    btnLogin.disabled = true;
-                });
-            }
-        });
-    </script>
+    <div id="login-page-config"
+         data-message-type="@loginMessageType"
+         data-message="@loginMessage"
+         hidden></div>
     <form id="loginForm" method="post" asp-controller="Login" asp-action="CheckLogin">
         <div class="login-shell relative isolate -m-3 h-screen p-3 contain-paint motion-safe:will-change-transform sm:-mx-8 dark:bg-darkmode-800 xl:dark:bg-darkmode-600 sm:px-8lg:overflow-hiddenxl:bg-white">
             <div class="login-container relative z-10 container sm:px-10">
@@ -134,6 +75,7 @@
                                            value="@lastUser"
                                            placeholder="رقم الهوية الوطنية"
                                            maxlength="10"
+                                           autocomplete="username"
                                            class="form-control intro-x login__input block w-full rounded-md border-slate-200 px-4 py-3 text-sm shadow-sm transition duration-200 ease-in-out placeholder:text-slate-400/90 focus:ring-primary focus:ring-opacity-20 focus:border-primary focus:border-opacity-40 focus:ring-4 disabled:cursor-not-allowed disabled:bg-slate-100 xl:min-w-[350px] dark:bg-darkmode-800 dark:border-transparent dark:focus:ring-opacity-50 dark:disabled:border-transparent dark:placeholder:text-slate-500/80 dark:focus:ring-slate-700" />
 
                                     <span id="nationalIdIcon"
@@ -148,10 +90,11 @@
                                            name="password"
                                            id="txtPassword"
                                            placeholder="كلمة المرور"
+                                           autocomplete="current-password"
                                            class="form-control w-full rounded-md border-slate-200 px-4 py-3 pr-10 text-sm shadow-sm placeholder:text-slate-400/90 focus:ring-primary focus:ring-opacity-20 focus:border-primary focus:border-opacity-40 focus:ring-4 dark:bg-darkmode-800 dark:border-transparent dark:focus:ring-opacity-50 dark:placeholder:text-slate-500/80 dark:focus:ring-slate-700" />
 
                                     <span id="togglePassword" class="absolute inset-y-0 right-0 flex cursor-pointer items-center px-3 hover:text-primary">
-                                        <i class="fa fa-eye-slash" id="eyeIcon" style="font-size:20px;color:black;"></i>
+                                        <i class="fa fa-eye-slash login-eye-icon" id="eyeIcon"></i>
                                     </span>
                                 </div>
                                 <div class="login__input-error text-danger mt-2" id="error-password"></div>
@@ -168,7 +111,7 @@
                                         تذكرني
                                     </label>
                                 </div>
-                                <a href="#" class="text-primary">نسيت كلمة المرور؟</a>
+                                <button type="button" class="text-primary">نسيت كلمة المرور؟</button>
                             </div>
 
                             <div class="intro-x login-actions mt-5">
@@ -196,59 +139,12 @@
         </div>
 
     </form>
-    <script>
-        toastr.options = {
-            closeButton: true,
-            progressBar: true,
-            positionClass: "toast-top-center",
-            timeOut: 7500,
-            rtl: true
-        };
-
-        @* رسائل TempData من LoginController *@
-        @if (TempData["Success"] != null)
-        {
-                <text>toastr.success("@TempData["Success"]");</text>
-        }
-        @if (TempData["Error"] != null)
-        {
-                <text>toastr.error("@TempData["Error"]");</text>
-        }
-        @if (TempData["Warning"] != null)
-        {
-                <text>toastr.warning("@TempData["Warning"]");</text>
-        }
-        @if (TempData["Info"] != null)
-        {
-                <text>toastr.info("@TempData["Info"]");</text>
-        }
-    </script>
-
-    <script>
-        function resetLoginButton() {
-            const btn = document.getElementById("btnLogin");
-            const txt = document.getElementById("btnText");
-            const spn = document.getElementById("btnSpinner");
-
-            if (btn) btn.disabled = false;
-            if (txt) txt.style.display = "inline-flex";
-            if (spn) spn.style.display = "none";
-        }
-        document.addEventListener("DOMContentLoaded", resetLoginButton);
-        window.addEventListener("pageshow", function () {
-            resetLoginButton();
-        });
-    </script>
-
     <!-- Footer: Powered by line at the bottom of the page -->
 
-    <div class="powered-center" style="position:fixed; top:93%; left:50%; transform:translate(-50%,-50%); color:#ffffff; font-size:14px; text-align:center; pointer-events:none; z-index:9999; font-family: 'Sakkal Majalla'">
+    <div class="powered-center login-powered">
         جميع الحقوق محفوظة © مدينة الملك فيصل العسكرية   2025 -     <span id="currentYear"></span>
 
     </div>
-
-    <script>
-        document.getElementById("currentYear").textContent = new Date().getFullYear();
-    </script>
+    <script src="~/js/login-page.js" asp-append-version="true"></script>
 </body>
 </html>

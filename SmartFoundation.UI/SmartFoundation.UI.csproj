@@ -23,5 +23,6 @@
 		<Folder Include="Views\Shared\Components\SmartPrint\Docs\" />
 		<Folder Include="Views\Shared\Components\SmartTableDS\" />
 		<Folder Include="wwwroot\" />
+		<Folder Include="wwwroot\js\" />
 	</ItemGroup>
 </Project>

@@ -26,6 +26,9 @@
     // ✅ Decision logic
      var mustChangePassword = sessionChangedPassword == "0";
     //var mustChangePassword = true;
+    var sidebarMenuJson = JsonSerializer.Serialize(
+        Model ?? new List<MenuItem>(),
+        new JsonSerializerOptions { Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping });
 
 
   
@@ -200,24 +203,9 @@
 </div>
 
 
-<script>
-    (function () {
-        const savedSidebarState = localStorage.getItem('sidebarState');
-        const body = document.body;
+<script src="~/js/sidebar-navbar.js" asp-append-version="true"></script>
 
-        if (!body) return;
-
-        if (window.innerWidth >= 1024) {
-            if (savedSidebarState === 'sidebar-collapsed') {
-                body.classList.add('sidebar-collapsed');
-                body.classList.remove('sidebar-pinned', 'with-sidebar-open');
-            } else {
-                body.classList.add('sidebar-pinned');
-                body.classList.remove('sidebar-collapsed', 'with-sidebar-open');
-            }
-        }
-    })();
-</script>
+<script id="sidebar-menu-data" type="application/json">@Html.Raw(sidebarMenuJson)</script>
 
 <aside id="logo-sidebar"
        data-drawer-placement="right"
@@ -344,831 +332,6 @@
         </div>
     </div>
 </aside>
-<script>
-    // ================================================================
-    // 🔹 Multi-Level Menu Renderer for Sidebar
-    // ================================================================
-
-    const menuData = @Html.Raw(JsonSerializer.Serialize(
-                        Model ?? new List<MenuItem>(),
-                new JsonSerializerOptions { Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping }
-                ));
-
-    function normalizePath(path) {
-        if (!path) return "/";
-
-        path = path.split("?")[0].trim().toLowerCase();
-
-        if (path !== "/" && path.endsWith("/")) {
-            path = path.slice(0, -1);
-        }
-
-        if (path === "" || path === "/home" || path === "/home/index") {
-            return "/home";
-        }
-
-        return path;
-    }
-
-    const currentPath = normalizePath(window.location.pathname);
-
-    function cleanMenuLink(link) {
-        if (!link || typeof link !== "string") return "";
-        let cleaned = link.trim();
-
-        while (cleaned.startsWith("../")) {
-            cleaned = cleaned.substring(3);
-        }
-
-        if (cleaned.startsWith("/")) {
-            cleaned = cleaned.substring(1);
-        }
-
-        if (cleaned.toLowerCase().endsWith(".aspx")) {
-            cleaned = cleaned.substring(0, cleaned.length - 5);
-        }
-
-        return cleaned;
-    }
-
-    function escapeHtml(text) {
-        const div = document.createElement("div");
-        div.textContent = text ?? "";
-        return div.innerHTML;
-    }
-
-    function normalizeArabicText(text) {
-        return (text || "")
-            .toString()
-            .trim()
-            .toLowerCase()
-            .replace(/[أإآا]/g, "ا")
-            .replace(/ة/g, "ه")
-            .replace(/ى/g, "ي")
-            .replace(/ؤ/g, "و")
-            .replace(/ئ/g, "ي")
-            .replace(/\s+/g, " ");
-    }
-
-    function getMenuDisplayName(item) {
-        return (item?.MenuName_A || item?.MenuNameForView || "").toString().trim();
-    }
-
-    function highlightMatch(text, query) {
-        const safeText = text || "";
-        const q = (query || "").trim();
-        if (!q) return escapeHtml(safeText);
-
-        const normalizedText = normalizeArabicText(safeText);
-        const normalizedQuery = normalizeArabicText(q);
-
-        const idx = normalizedText.indexOf(normalizedQuery);
-        if (idx === -1) return escapeHtml(safeText);
-
-        const start = safeText.slice(0, idx);
-        const mid = safeText.slice(idx, idx + q.length);
-        const end = safeText.slice(idx + q.length);
-
-        return `${escapeHtml(start)}<mark class="sidebar-search-match">${escapeHtml(mid)}</mark>${escapeHtml(end)}`;
-    }
-
-    function getItemLink(item) {
-        const rawController = item?.MPLink ?? item?.mpLink ?? "";
-        const rawAction = item?.MenuLink ?? item?.menuLink ?? "";
-
-        const controller = cleanMenuLink(rawController);
-        const action = cleanMenuLink(rawAction);
-
-        const hasChildren = Array.isArray(item?.Children) && item.Children.length > 0;
-        const hasAnyLinkInfo = (controller !== "" || action !== "");
-
-        if (!hasAnyLinkInfo || hasChildren) return "#";
-
-        if (controller && action) return `/${controller}/${action}`;
-        if (action) return `/${action}`;
-        if (controller) return `/${controller}`;
-
-        return "#";
-    }
-
-    function isCurrentMenuItem(item) {
-        const itemLink = getItemLink(item);
-        return itemLink !== "#" && normalizePath(itemLink) === normalizePath(currentPath);
-    }
-
-    function getItemLink(item) {
-        const rawController = item?.MPLink ?? item?.mpLink ?? "";
-        const rawAction = item?.MenuLink ?? item?.menuLink ?? "";
-
-        const controller = cleanMenuLink(rawController);
-        const action = cleanMenuLink(rawAction);
-
-        const hasChildren = Array.isArray(item?.Children) && item.Children.length > 0;
-        const hasAnyLinkInfo = (controller !== "" || action !== "");
-
-        if (!hasAnyLinkInfo || hasChildren) return "#";
-
-        if (controller && action) return `/${controller}/${action}`;
-        if (action) return `/${action}`;
-        if (controller) return `/${controller}`;
-
-        return "#";
-    }
-
-    function isCurrentMenuItem(item) {
-        const itemLink = getItemLink(item);
-        return itemLink !== "#" && normalizePath(itemLink) === normalizePath(currentPath);
-    }
-
-    function itemOrDescendantIsActive(item) {
-        if (!item) return false;
-
-        if (isCurrentMenuItem(item)) return true;
-
-        const children = Array.isArray(item.Children) ? item.Children : [];
-        return children.some(child => itemOrDescendantIsActive(child));
-    }
-
-    function filterMenuTree(items, query) {
-        if (!Array.isArray(items)) return [];
-
-        const normalizedQuery = normalizeArabicText(query);
-        if (!normalizedQuery) return items;
-
-        const result = [];
-
-        for (const item of items) {
-            const children = Array.isArray(item.Children) ? item.Children : [];
-            const filteredChildren = filterMenuTree(children, query);
-
-            const itemName = getMenuDisplayName(item);
-            const isSelfMatch = normalizeArabicText(itemName).includes(normalizedQuery);
-            const isActiveSelf = isCurrentMenuItem(item);
-            const hasActiveDescendant = children.some(child => itemOrDescendantIsActive(child));
-            const hadChildrenOriginally = children.length > 0;
-
-            if (isSelfMatch || filteredChildren.length > 0 || isActiveSelf || hasActiveDescendant) {
-                let finalChildren;
-
-                if (isSelfMatch) {
-                    finalChildren = children;
-                } else {
-                    finalChildren = children
-                        .filter(child => {
-                            const childFiltered = filteredChildren.some(x => x.MPID === child.MPID);
-                            const childActivePath = itemOrDescendantIsActive(child);
-                            return childFiltered || childActivePath;
-                        })
-                        .map(child => {
-                            const existingFiltered = filteredChildren.find(x => x.MPID === child.MPID);
-                            return existingFiltered || child;
-                        });
-                }
-
-                result.push({
-                    ...item,
-                    __matched: isSelfMatch,
-                    __forceOpen: hadChildrenOriginally || finalChildren.length > 0 || hasActiveDescendant,
-                    __hadChildrenOriginally: hadChildrenOriginally,
-                    Children: finalChildren
-                });
-            }
-        }
-
-        return result;
-    }
-
-    function hasActiveChildRecursive(item) {
-        if (!Array.isArray(item.Children)) return false;
-
-        for (const child of item.Children) {
-            const rawController = child.MPLink ?? child.mpLink ?? "";
-            const rawAction = child.MenuLink ?? child.menuLink ?? "";
-
-            const controller = cleanMenuLink(rawController);
-            const action = cleanMenuLink(rawAction);
-
-            const childHasChildren = Array.isArray(child.Children) && child.Children.length > 0;
-            const hasAnyLinkInfo = (controller !== "" || action !== "");
-            const isClickableLink = hasAnyLinkInfo && !childHasChildren;
-
-            let itemLink = "#";
-            if (isClickableLink) {
-                if (controller && action) {
-                    itemLink = `/${controller}/${action}`;
-                } else if (action) {
-                    itemLink = `/${action}`;
-                } else if (controller) {
-                    itemLink = `/${controller}`;
-                }
-            }
-
-            const isActive = isClickableLink && normalizePath(currentPath) === normalizePath(itemLink);
-
-            if (isActive || hasActiveChildRecursive(child)) {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    function buildMenuItem(item, level) {
-        const paddingClass = level > 1 ? " ps-10" : "";
-        const baseClasses =
-            "flex items-center w-full p-2 rounded-md transition duration-75 group hover:bg-slate-700 hover:text-slate-50 text-slate-200";
-        const linkClasses = level === 1 ? baseClasses : baseClasses + paddingClass;
-
-        const rawMenuName = getMenuDisplayName(item);
-        const currentSearchValue = document.getElementById("sidebar-menu-search")?.value || "";
-        const menuName = currentSearchValue
-            ? highlightMatch(rawMenuName, currentSearchValue)
-            : escapeHtml(rawMenuName);
-
-        const rawController = item.MPLink ?? item.mpLink ?? "";
-        const rawAction = item.MenuLink ?? item.menuLink ?? "";
-
-        const controller = cleanMenuLink(rawController);
-        const action = cleanMenuLink(rawAction);
-
-        const hasChildren = (Array.isArray(item.Children) && item.Children.length > 0) || item.__hadChildrenOriginally === true;
-        const hasAnyLinkInfo = (controller !== "" || action !== "");
-        const isClickableLink = hasAnyLinkInfo && !hasChildren;
-
-        let itemLink = "#";
-        if (isClickableLink) {
-            if (controller && action) {
-                itemLink = `/${controller}/${action}`;
-            } else if (action) {
-                itemLink = `/${action}`;
-            } else if (controller) {
-                itemLink = `/${controller}`;
-            }
-        }
-
-        const isActive = isClickableLink && normalizePath(currentPath) === normalizePath(itemLink);
-        const activeClass = isActive ? " bg-slate-700 text-slate-50" : "";
-
-        const iconHtml =
-            item.MPIcon && item.MPIcon.trim() !== ""
-                ? `<i class="${escapeHtml(item.MPIcon)} me-3 h-5 w-5 text-slate-400 transition-colors duration-200 group-hover:text-slate-50"></i>`
-                : "";
-
-        let html = "";
-
-        if (hasChildren) {
-            const collapseId = `dropdown-${item.MPID}`;
-            const isSearching = !!(document.getElementById("sidebar-menu-search")?.value || "").trim();
-            const shouldBeOpen = isSearching || hasActiveChildRecursive(item) || item.__forceOpen === true;
-            const childListClasses = shouldBeOpen ? "py-2 space-y-0" : "hidden py-2 space-y-0";
-            const expandedAttr = shouldBeOpen ? 'aria-expanded="true"' : 'aria-expanded="false"';
-
-            html += `
-            <button type="button"
-                    class="${linkClasses}${activeClass} sidebar-menu-toggle"
-                    data-menu-toggle="${collapseId}"
-                    aria-controls="${collapseId}"
-                    ${expandedAttr}>
-                ${iconHtml}
-                <span class="flex-1 text-right leading-snug break-words whitespace-normal">
-                    ${menuName}
-                </span>
-                <svg class="menu-chevron h-4 w-4 text-slate-400 transition-transform duration-200 group-hover:text-slate-50"
-                     fill="currentColor" viewBox="0 0 20 20">
-                    <path fill-rule="evenodd"
-                          d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
-                          clip-rule="evenodd"></path>
-                </svg>
-            </button>
-            <ul id="${collapseId}" class="${childListClasses}">
-        `;
-
-            const safeChildren = Array.isArray(item.Children) ? item.Children : [];
-
-            safeChildren.forEach((child, idx) => {
-                html += `<li>${idx === 0 ? "" : '<div class="menu-sep sm"></div>'}${buildMenuItem(child, level + 1)}</li>`;
-            });
-
-            html += `</ul>`;
-        }
-        else if (isClickableLink) {
-            html += `
-                    <a href="${escapeHtml(itemLink)}"
-                       class="${linkClasses}${activeClass} sidebar-link"
-                       data-url="${escapeHtml(itemLink)}">
-                        ${iconHtml}
-                        <span class="flex-1 leading-snug break-words whitespace-normal">
-                            ${menuName}
-                        </span>
-                    </a>`;
-        }
-        else {
-            html += `
-                    <div class="${linkClasses}${activeClass}">
-                        ${iconHtml}
-                        <span class="flex-1 leading-snug break-words whitespace-normal">
-                            ${menuName}
-                        </span>
-                    </div>`;
-        }
-
-        return html;
-    }
-
-    function removeDuplicateMenuItems(items) {
-        const seen = new Set();
-        return items.filter(item => {
-            if (seen.has(item.MPID)) return false;
-            seen.add(item.MPID);
-            return true;
-        });
-    }
-
-    function buildMenuItems(items) {
-        const safeItems = Array.isArray(items) ? items : [];
-
-        const rootItems = safeItems
-            .filter(x => x.Levels === 1)
-            .sort((a, b) => (a.MPSerial || 0) - (b.MPSerial || 0));
-
-        let html = "";
-        rootItems.forEach(item => {
-            html += `<li><div class="menu-sep"></div>${buildMenuItem(item, 1)}</li>`;
-        });
-
-        return html;
-    }
-
-    function setActiveSidebar(url) {
-        const path = normalizePath(url || window.location.pathname);
-
-        document.querySelectorAll("a.sidebar-link").forEach(a => {
-            a.classList.remove("bg-slate-700", "text-slate-50");
-
-            const itemUrl = normalizePath(a.getAttribute("data-url") || "");
-            if (itemUrl === path) {
-                a.classList.add("bg-slate-700", "text-slate-50");
-            }
-        });
-    }
-
-    function renderSidebarMenu(searchTerm = "") {
-        const host = document.getElementById("menu-container");
-        const emptyBox = document.getElementById("sidebar-search-empty");
-        if (!host || !Array.isArray(menuData)) return;
-
-        const uniqueMenuData = removeDuplicateMenuItems(menuData);
-        const finalItems = searchTerm?.trim()
-            ? filterMenuTree(uniqueMenuData, searchTerm)
-            : uniqueMenuData;
-
-        host.innerHTML = buildMenuItems(finalItems);
-
-        const hasResults = Array.isArray(finalItems) && finalItems.length > 0;
-        emptyBox?.classList.toggle("hidden", hasResults || !searchTerm?.trim());
-
-        setActiveSidebar(window.location.pathname + window.location.search);
-    }
-
-    function loadPageIntoMainContent(url) {
-        const main = document.getElementById("main-content");
-
-        if (!main) {
-            hideMainLoading();
-            window.location.href = url;
-            return;
-        }
-
-        fetch(url, { headers: { "X-Requested-With": "XMLHttpRequest" } })
-            .then(function(response) { return response.text(); })
-            .then(function(html) {
-                const parser = new DOMParser();
-                const doc = parser.parseFromString(html, "text/html");
-
-                const newMain = doc.getElementById("main-content");
-                if (!newMain) {
-                    hideMainLoading();
-                    document.body.style.pointerEvents = "auto";
-                    window.location.href = url;
-                    return;
-                }
-
-                main.innerHTML = newMain.innerHTML;
-
-                const currentBc = document.querySelector("#page-header .sf-bc-text");
-                const newBc = doc.querySelector("#page-header .sf-bc-text");
-                if (currentBc && newBc) {
-                    currentBc.innerHTML = newBc.innerHTML;
-                }
-
-                if (window.initFlowbite) window.initFlowbite();
-
-                window.history.pushState({}, "", url);
-
-                const titleEl = doc.querySelector("title");
-                if (titleEl && titleEl.textContent) {
-                    document.title = titleEl.textContent;
-                }
-
-                setActiveSidebar(url);
-                hideMainLoading();
-                document.body.style.pointerEvents = "auto";
-            })
-            .catch(function() {
-                hideMainLoading();
-                document.body.style.pointerEvents = "auto";
-                window.location.href = url;
-            });
-    }
-
-    document.addEventListener("DOMContentLoaded", () => {
-        renderSidebarMenu("");
-
-        const searchInput = document.getElementById("sidebar-menu-search");
-        const clearBtn = document.getElementById("sidebar-menu-search-clear");
-
-        if (searchInput) {
-            searchInput.addEventListener("input", function() {
-                const value = this.value || "";
-                clearBtn?.classList.toggle("hidden", !value.trim());
-                renderSidebarMenu(value);
-            });
-
-            searchInput.addEventListener("keydown", function(e) {
-                if (e.key === "Escape") {
-                    this.value = "";
-                    clearBtn?.classList.add("hidden");
-                    renderSidebarMenu("");
-                }
-            });
-        }
-
-        clearBtn?.addEventListener("click", function() {
-            if (!searchInput) return;
-            searchInput.value = "";
-            clearBtn.classList.add("hidden");
-            renderSidebarMenu("");
-            searchInput.focus();
-        });
-
-        document.getElementById("menu-container")?.addEventListener("click", function(e) {
-            const btn = e.target.closest('button[data-menu-toggle]');
-            if (!btn) return;
-
-            if (btn.classList.contains('force-disabled')) return;
-
-            e.preventDefault();
-            e.stopPropagation();
-
-            const id = btn.getAttribute("data-menu-toggle");
-            const target = document.getElementById(id);
-            if (!target) return;
-
-            const willOpen = target.classList.contains("hidden");
-
-            target.classList.toggle("hidden", !willOpen);
-            btn.setAttribute("aria-expanded", willOpen ? "true" : "false");
-        });
-
-        // document.body.addEventListener("click", function(e) {
-        //     const link = e.target.closest('a');
-        //     if (!link) return;
-
-        //     if (
-        //         link.hasAttribute('target') ||
-        //         link.hasAttribute('download') ||
-        //         link.getAttribute('href') === '#' ||
-        //         link.getAttribute('href')?.startsWith('javascript:') ||
-        //         link.closest('[data-modal-toggle]') ||
-        //         link.closest('[data-modal-target]')
-        //     ) {
-        //         return;
-        //     }
-
-        //     if (e.button !== 0 || e.ctrlKey || e.shiftKey || e.metaKey || e.altKey) {
-        //         return;
-        //     }
-
-        //     const href = link.getAttribute('href');
-        //     const dataUrl = link.getAttribute('data-url');
-        //     const url = dataUrl || href;
-
-        //     if (!url) return;
-
-        //     if (url.startsWith('http://') || url.startsWith('https://')) {
-        //         const targetUrl = new URL(url, window.location.origin);
-        //         if (targetUrl.origin !== window.location.origin) return;
-        //     }
-
-        //     if (
-        //         url.startsWith('/Login/Logout') ||
-        //         link.classList.contains('force-disabled')
-        //     ) {
-        //         return;
-        //     }
-
-        //     if (!url.startsWith('/')) return;
-
-        //     const normalizedUrl = normalizePath(url);
-
-            
-        //     if (normalizedUrl === "/home") {
-        //         window.location.href = url;
-        //         return;
-        //     }
-
-        //     e.preventDefault();
-
-        //     showMainLoading();
-        //     document.body.style.pointerEvents = "none";
-        //     loadPageIntoMainContent(url);
-        // });
-
-        document.body.addEventListener("click", function(e) {
-            const link = e.target.closest('#logo-sidebar a.sidebar-link');
-            if (!link) return;
-
-            if (
-                link.hasAttribute('target') ||
-                link.hasAttribute('download') ||
-                link.getAttribute('href') === '#' ||
-                link.getAttribute('href')?.startsWith('javascript:') ||
-                link.closest('[data-modal-toggle]') ||
-                link.closest('[data-modal-target]')
-            ) {
-                return;
-            }
-
-            if (e.button !== 0 || e.ctrlKey || e.shiftKey || e.metaKey || e.altKey) {
-                return;
-            }
-
-            const href = link.getAttribute('href');
-            const dataUrl = link.getAttribute('data-url');
-            const url = dataUrl || href;
-
-            if (!url) return;
-
-            if (url.startsWith('http://') || url.startsWith('https://')) {
-                const targetUrl = new URL(url, window.location.origin);
-                if (targetUrl.origin !== window.location.origin) return;
-            }
-
-            if (
-                url.startsWith('/Login/Logout') ||
-                link.classList.contains('force-disabled')
-            ) {
-                return;
-            }
-
-            if (!url.startsWith('/')) return;
-
-            const normalizedUrl = normalizePath(url);
-
-            if (normalizedUrl === "/home") {
-                window.location.href = url;
-                return;
-            }
-
-            e.preventDefault();
-
-            showMainLoading();
-            document.body.style.pointerEvents = "none";
-            loadPageIntoMainContent(url);
-        });
-
-        window.addEventListener("popstate", function() {
-            loadPageIntoMainContent(window.location.pathname + window.location.search);
-        });
-    });
-</script>
-
-
-
-<script>
-    document.addEventListener('DOMContentLoaded', () => {
-        const body = document.body;
-        const sidebar = document.getElementById('logo-sidebar');
-        const pinBtn = document.getElementById('pin-sidebar');
-        const toggleSidebarBtn = document.getElementById('toggle-sidebar');
-        const mobileToggleBtn = document.querySelector('[data-drawer-toggle="logo-sidebar"]');
-
-        const SIDEBAR_STATES = {
-            PINNED: "sidebar-pinned",
-            COLLAPSED: "sidebar-collapsed",
-            MOBILE_OPEN: "with-sidebar-open"
-        };
-
-        let hoverTimer = null;
-        let isHoverOpen = false;
-
-        // let isHoverTriggered = false;
-
-        function resetSidebarState() {
-        body.classList.remove(
-            SIDEBAR_STATES.PINNED,
-            SIDEBAR_STATES.COLLAPSED,
-            SIDEBAR_STATES.MOBILE_OPEN
-        );
-    }
-
-        function removeSidebarBackdrop() {
-            document.querySelectorAll('.sidebar-backdrop, [drawer-backdrop]').forEach(el => el.remove());
-        }
-
-        function openMobileSidebar() {
-            body.classList.add(SIDEBAR_STATES.MOBILE_OPEN);
-
-            if (!document.querySelector('.sidebar-backdrop')) {
-                const backdrop = document.createElement('div');
-                backdrop.className = 'sidebar-backdrop lg:hidden';
-                backdrop.addEventListener('click', () => {
-                    body.classList.remove(SIDEBAR_STATES.MOBILE_OPEN);
-                    removeSidebarBackdrop();
-                });
-                document.body.appendChild(backdrop);
-            }
-        }
-
-        function closeMobileSidebar() {
-            body.classList.remove(SIDEBAR_STATES.MOBILE_OPEN);
-            sidebar?.classList.add('translate-x-full');
-            removeSidebarBackdrop();
-        }
-
-        // function applyDesktopSidebarState() {
-        //     const savedSidebarState = localStorage.getItem('sidebarState');
-
-        //     resetSidebarState();
-
-        //     if (savedSidebarState === SIDEBAR_STATES.COLLAPSED) {
-        //         body.classList.add(SIDEBAR_STATES.COLLAPSED);
-        //     } else {
-        //         body.classList.add(SIDEBAR_STATES.PINNED);
-        //     }
-        // }
-        function applyDesktopSidebarState() {
-        const savedSidebarState = localStorage.getItem('sidebarState');
-
-        body.classList.remove(SIDEBAR_STATES.MOBILE_OPEN);
-
-        if (savedSidebarState === SIDEBAR_STATES.COLLAPSED) {
-            body.classList.remove(SIDEBAR_STATES.PINNED);
-            body.classList.add(SIDEBAR_STATES.COLLAPSED);
-        } else {
-            body.classList.remove(SIDEBAR_STATES.COLLAPSED);
-            body.classList.add(SIDEBAR_STATES.PINNED);
-        }
-    }
-
-        // function setDesktopSidebarState(state) {
-        //     resetSidebarState();
-        //     body.classList.add(state);
-        //     localStorage.setItem('sidebarState', state);
-        // }
-        function setDesktopSidebarState(state) {
-        if (state === SIDEBAR_STATES.COLLAPSED) {
-            body.classList.remove(SIDEBAR_STATES.PINNED, SIDEBAR_STATES.MOBILE_OPEN);
-            body.classList.add(SIDEBAR_STATES.COLLAPSED);
-        } else if (state === SIDEBAR_STATES.PINNED) {
-            body.classList.remove(SIDEBAR_STATES.COLLAPSED, SIDEBAR_STATES.MOBILE_OPEN);
-            body.classList.add(SIDEBAR_STATES.PINNED);
-        }
-
-        localStorage.setItem('sidebarState', state);
-    }
-
-        // function initSidebarState() {
-        //     if (window.innerWidth >= 1024) {
-        //         applyDesktopSidebarState();
-        //         removeSidebarBackdrop();
-        //         sidebar?.classList.remove('translate-x-full');
-        //     } else {
-        //         resetSidebarState();
-        //         removeSidebarBackdrop();
-        //         sidebar?.classList.add('translate-x-full');
-        //     }
-        // }
-
-        /* ===============================
-       Hover open (delay 1 second)
-    ================================= */
-
-    sidebar?.addEventListener('mouseenter', () => {
-        if (window.innerWidth < 1024) return;
-
-        if (!body.classList.contains(SIDEBAR_STATES.COLLAPSED)) return;
-
-    
-        hoverTimer = setTimeout(() => {
-            body.classList.remove(SIDEBAR_STATES.COLLAPSED);
-            body.classList.add(SIDEBAR_STATES.PINNED);
-            isHoverOpen = true;
-        }, 200);
-    });
-
-    sidebar?.addEventListener('mouseleave', () => {
-        if (window.innerWidth < 1024) return;
-
-    
-        if (hoverTimer) {
-            clearTimeout(hoverTimer);
-            hoverTimer = null;
-        }
-
-    
-        if (isHoverOpen) {
-            body.classList.remove(SIDEBAR_STATES.PINNED);
-            body.classList.add(SIDEBAR_STATES.COLLAPSED);
-            isHoverOpen = false;
-        }
-    });
-
-        function initSidebarState() {
-        if (window.innerWidth >= 1024) {
-            applyDesktopSidebarState();
-            removeSidebarBackdrop();
-            sidebar?.classList.remove('translate-x-full');
-        } else {
-            body.classList.remove(
-                SIDEBAR_STATES.PINNED,
-                SIDEBAR_STATES.COLLAPSED,
-                SIDEBAR_STATES.MOBILE_OPEN
-            );
-            removeSidebarBackdrop();
-            sidebar?.classList.add('translate-x-full');
-        }
-    }
-        /* زر الهيدر */
-        toggleSidebarBtn?.addEventListener('click', () => {
-            if (window.innerWidth < 1024) {
-                const isOpen = body.classList.contains(SIDEBAR_STATES.MOBILE_OPEN);
-                if (isOpen) {
-                    closeMobileSidebar();
-                } else {
-                    openMobileSidebar();
-                    sidebar?.classList.remove('translate-x-full');
-                }
-                return;
-            }
-
-            if (body.classList.contains(SIDEBAR_STATES.PINNED)) {
-                setDesktopSidebarState(SIDEBAR_STATES.COLLAPSED);
-            } else {
-                setDesktopSidebarState(SIDEBAR_STATES.PINNED);
-            }
-        });
-
-        /* زر التثبيت */
-        pinBtn?.addEventListener('click', () => {
-            if (window.innerWidth < 1024) return;
-
-            if (body.classList.contains(SIDEBAR_STATES.PINNED)) {
-                setDesktopSidebarState(SIDEBAR_STATES.COLLAPSED);
-            } else {
-                setDesktopSidebarState(SIDEBAR_STATES.PINNED);
-            }
-        });
-
-        /* زر القائمة للموبايل إذا موجود */
-        mobileToggleBtn?.addEventListener('click', () => {
-            if (window.innerWidth >= 1024) return;
-
-            const isOpen = body.classList.contains(SIDEBAR_STATES.MOBILE_OPEN);
-            if (isOpen) {
-                closeMobileSidebar();
-            } else {
-                openMobileSidebar();
-                sidebar?.classList.remove('translate-x-full');
-            }
-        });
-
-        /* resize */
-        window.addEventListener('resize', () => {
-            initSidebarState();
-        });
-
-        /* روابط السايدبار في الموبايل */
-        document.addEventListener('click', function(e) {
-            const link = e.target.closest('#logo-sidebar a');
-            if (!link) return;
-
-            if (window.innerWidth < 1024) {
-                closeMobileSidebar();
-            }
-        });
-
-        /* RTL */
-        if (document.documentElement.getAttribute('dir') === 'rtl') {
-            sidebar?.classList.add('right-0');
-            sidebar?.classList.remove('left-0');
-        }
-
-        /* تشغيل أولي */
-        initSidebarState();
-    });
-</script>
-
 <!-- Change Password Modal -->
 <div id="change-password-modal" tabindex="-1" aria-hidden="true"
      class="fixed top-0 right-0 left-0 z-50 hidden h-[calc(100%-1rem)] max-h-full w-full items-center justify-center overflow-x-hidden overflow-y-auto md:inset-0">
@@ -1189,6 +352,14 @@
             
             <!-- Modal body -->
             <form id="change-password-form" class="p-4">
+                <input type="text"
+                       name="username"
+                       value="@Context.Session.GetString("nationalID")"
+                       autocomplete="username"
+                       tabindex="-1"
+                       aria-hidden="true"
+                       class="sr-only"
+                       hidden>
                 <div class="space-y-4">
                     <!-- Current Password -->
                     <div>
@@ -1199,15 +370,17 @@
                             <input type="password"
                                    id="current-password"
                                    name="currentPassword"
+                                   autocomplete="current-password"
                                    class="block w-full rounded-lg border border-slate-600 bg-slate-700 p-2.5 pe-10 text-sm text-white focus:border-emerald-500 focus:ring-emerald-500"
                                    placeholder="أدخل كلمة المرور الحالية"
                                    required>
-                            <button type="button"
-                                    class="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400 hover:text-white"
-                                    onclick="togglePasswordVisibility('current-password')">
-                                <i class="fa-solid fa-eye"></i>
-                            </button>
-                        </div>
+                                    <button type="button"
+                                            class="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400 hover:text-white"
+                                            data-password-toggle="current-password"
+                                            data-password-toggle-icon>
+                                        <i class="fa-solid fa-eye"></i>
+                                    </button>
+                                </div>
                     </div>
 
                     <!-- New Password -->
@@ -1219,16 +392,18 @@
                             <input type="password"
                                    id="new-password"
                                    name="newPassword"
+                                   autocomplete="new-password"
                                    class="block w-full rounded-lg border border-slate-600 bg-slate-700 p-2.5 pe-10 text-sm text-white focus:border-emerald-500 focus:ring-emerald-500"
                                    placeholder="أدخل كلمة المرور الجديدة"
                                    minlength="6"
                                    required>
-                            <button type="button"
-                                    class="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400 hover:text-white"
-                                    onclick="togglePasswordVisibility('new-password')">
-                                <i class="fa-solid fa-eye"></i>
-                            </button>
-                        </div>
+                                    <button type="button"
+                                            class="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400 hover:text-white"
+                                            data-password-toggle="new-password"
+                                            data-password-toggle-icon>
+                                        <i class="fa-solid fa-eye"></i>
+                                    </button>
+                                </div>
                         <p class="mt-1 text-xs text-slate-400">الحد الأدنى 8 خانات حروف انجليزية وارقام</p>
                     </div>
 
@@ -1241,15 +416,17 @@
                             <input type="password"
                                    id="confirm-password"
                                    name="confirmPassword"
+                                   autocomplete="new-password"
                                    class="block w-full rounded-lg border border-slate-600 bg-slate-700 p-2.5 pe-10 text-sm text-white focus:border-emerald-500 focus:ring-emerald-500"
                                    placeholder="أعادة إدخال كلمة المرور الجديدة"
                                    required>
-                            <button type="button"
-                                    class="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400 hover:text-white"
-                                    onclick="togglePasswordVisibility('confirm-password')">
-                                <i class="fa-solid fa-eye"></i>
-                            </button>
-                        </div>
+                                    <button type="button"
+                                            class="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400 hover:text-white"
+                                            data-password-toggle="confirm-password"
+                                            data-password-toggle-icon>
+                                        <i class="fa-solid fa-eye"></i>
+                                    </button>
+                                </div>
                     </div>
 
                     <!-- Error Message Area -->
@@ -1301,241 +478,6 @@
         </div>
     </div>
 </div>
-
-<script>
-    function togglePasswordVisibility(inputId) {
-        const input = document.getElementById(inputId);
-        const icon = input.nextElementSibling.querySelector('i');
-        
-        if (input.type === 'password') {
-            input.type = 'text';
-            icon.classList.remove('fa-eye');
-            icon.classList.add('fa-eye-slash');
-        } else {
-            input.type = 'password';
-            icon.classList.remove('fa-eye-slash');
-            icon.classList.add('fa-eye');
-        }
-    }
-
-    document.getElementById('change-password-form')?.addEventListener('submit', async function(e) {
-        e.preventDefault();
-        
-        const errorDiv = document.getElementById('password-error');
-        const submitBtn = this.querySelector('button[type="submit"]');
-        
-        // ✅ FIXED: Add .trim() to remove any hidden spaces
-        const currentPassword = this.currentPassword.value.trim();
-        const newPassword = this.newPassword.value.trim();
-        const confirmPassword = this.confirmPassword.value.trim();
-        
-        // ✅ Debug logging - will help identify the issue
-        console.log('=== Password Validation Debug ===');
-        console.log('Current Password:', JSON.stringify(currentPassword));
-        console.log('New Password:', JSON.stringify(newPassword));
-        console.log('Confirm Password:', JSON.stringify(confirmPassword));
-        console.log('Lengths:', {
-            current: currentPassword.length,
-            new: newPassword.length,
-            confirm: confirmPassword.length
-        });
-        console.log('Are they equal?', newPassword === confirmPassword);
-        console.log('Character codes (new):', Array.from(newPassword).map((c, i) => `${i}: "${c}" (${c.charCodeAt(0)})`));
-        console.log('Character codes (confirm):', Array.from(confirmPassword).map((c, i) => `${i}: "${c}" (${c.charCodeAt(0)})`));
-        
-        errorDiv.classList.add('hidden');
-        
-        // ✅ Check empty fields first
-        if (!currentPassword || !newPassword || !confirmPassword) {
-            errorDiv.textContent = 'جميع الحقول مطلوبة';
-            errorDiv.classList.remove('hidden');
-            return;
-        }
-        
-        // ✅ Check password match
-        if (newPassword !== confirmPassword) {
-            console.error('❌ Passwords do not match!');
-            console.error('New:', newPassword, '(length:', newPassword.length, ')');
-            console.error('Confirm:', confirmPassword, '(length:', confirmPassword.length, ')');
-            
-            errorDiv.innerHTML = `
-                كلمة المرور الجديدة وتأكيد كلمة المرور غير متطابقتين<br>
-                <small class="text-xs opacity-75">
-                    الطول: ${newPassword.length} ≠ ${confirmPassword.length}
-                </small>
-            `;
-            errorDiv.classList.remove('hidden');
-            return;
-        }
-        
-        // ✅ Check minimum length (8 characters)
-        if (newPassword.length < 8) {
-            errorDiv.textContent = 'كلمة المرور يجب أن لا تقل عن 8 خانات';
-            errorDiv.classList.remove('hidden');
-            return;
-        }
-        
-        // ✅ Check contains at least one UPPERCASE letter
-        if (!/[A-Z]/.test(newPassword)) {
-            errorDiv.textContent = 'كلمة المرور يجب أن تحتوي على حرف إنجليزي كبير واحد على الأقل (A-Z)';
-            errorDiv.classList.remove('hidden');
-            return;
-        }
-        
-        // ✅ Check contains at least one lowercase letter
-        if (!/[a-z]/.test(newPassword)) {
-            errorDiv.textContent = 'كلمة المرور يجب أن تحتوي على حرف إنجليزي صغير واحد على الأقل (a-z)';
-            errorDiv.classList.remove('hidden');
-            return;
-        }
-        
-        // ✅ Check contains at least one number
-        if (!/[0-9]/.test(newPassword)) {
-            errorDiv.textContent = 'كلمة المرور يجب أن تحتوي على رقم واحد على الأقل (0-9)';
-            errorDiv.classList.remove('hidden');
-            return;
-        }
-        
-        // ✅ Check not same as current
-        if (currentPassword === newPassword) {
-            errorDiv.textContent = 'كلمة المرور الجديدة يجب أن تختلف عن الحالية';
-            errorDiv.classList.remove('hidden');
-            return;
-        }
-        
-        console.log('✅ All validations passed!');
-        
-        submitBtn.disabled = true;
-        submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin me-2"></i>جاري الحفظ...';
-        
-        try {
-            console.log('📤 Sending request to server...');
-            
-            const response = await fetch('/Login/ChangePassword', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-Requested-With': 'XMLHttpRequest'
-                },
-                body: JSON.stringify({
-                    oldPassword: currentPassword,
-                    newPassword: newPassword
-                })
-            });
-            
-            console.log('📥 Response status:', response.status);
-            
-            const result = await response.json();
-            console.log('📥 Response data:', result);
-            
-            if (result.success) {
-                console.log('✅ Password changed successfully!');
-                
-                if (typeof toastr !== 'undefined') {
-                    toastr.success(result.message || 'تم تغيير كلمة المرور بنجاح');
-                } else {
-                    alert(result.message || 'تم تغيير كلمة المرور بنجاح');
-                }
-                
-                const modalInstance = FlowbiteInstances?.getInstance('Modal', 'change-password-modal');
-                if (modalInstance) modalInstance.hide();
-                
-                this.reset();
-                
-                setTimeout(() => {
-                    window.location.href = '/Login?logout=2';
-                }, 2000);
-                
-            } else {
-                console.error('❌ Server returned error:', result.message);
-                errorDiv.textContent = result.message || 'فشل تغيير كلمة المرور';
-                errorDiv.classList.remove('hidden');
-            }
-            
-        } catch (error) {
-            console.error('❌ Request failed:', error);
-            errorDiv.textContent = 'حدث خطأ أثناء تغيير كلمة المرور';
-            errorDiv.classList.remove('hidden');
-        } finally {
-            submitBtn.disabled = false;
-            submitBtn.innerHTML = '<i class="fa-solid fa-check me-2"></i>حفظ كلمة المرور';
-        }
-    });
-    
-    // ✅ Auto-trim on blur to prevent user confusion
-    document.querySelectorAll('#change-password-form input[type="password"]').forEach(input => {
-        input.addEventListener('blur', function() {
-            this.value = this.value.trim();
-        });
-    });
-</script>
-
-<script>
-    document.getElementById('new-password')?.addEventListener('input', function(e) {
-        const password = e.target.value;
-        const strengthDiv = document.getElementById('password-strength');
-        const strengthBar = document.getElementById('strength-bar');
-        const strengthText = document.getElementById('strength-text');
-        
-        if (password.length === 0) {
-            strengthDiv.classList.add('hidden');
-            return;
-        }
-        
-        strengthDiv.classList.remove('hidden');
-        
-        let strength = 0;
-        const checks = {
-            length: password.length >= 8,
-            uppercase: /[A-Z]/.test(password),
-            lowercase: /[a-z]/.test(password),
-            number: /[0-9]/.test(password)
-        };
-        
-        // Update checkmarks
-        updateCheck('check-length', checks.length);
-        updateCheck('check-uppercase', checks.uppercase);
-        updateCheck('check-lowercase', checks.lowercase);
-        updateCheck('check-number', checks.number);
-        
-        // Calculate strength
-        if (checks.length) strength += 25;
-        if (checks.uppercase) strength += 25;
-        if (checks.lowercase) strength += 25;
-        if (checks.number) strength += 25;
-        
-        let color = '';
-        let text = '';
-        
-        if (strength < 50) {
-            color = 'bg-red-500';
-            text = 'ضعيفة';
-        } else if (strength < 100) {
-            color = 'bg-yellow-500';
-            text = 'متوسطة';
-        } else {
-            color = 'bg-green-500';
-            text = 'قوية';
-        }
-        
-        strengthBar.style.width = strength + '%';
-        strengthBar.className = `h-full transition-all duration-300 ${color}`;
-        strengthText.textContent = text;
-        strengthText.className = `text-xs font-medium ${color.replace('bg-', 'text-')}`;
-    });
-    
-    function updateCheck(id, isValid) {
-        const element = document.getElementById(id);
-        if (!element) return;
-        
-        const icon = element.querySelector('i');
-        if (isValid) {
-            icon.className = 'fa-solid fa-circle-check text-green-400';
-        } else {
-            icon.className = 'fa-solid fa-circle-xmark text-red-400';
-        }
-    }
-</script>
 
 <!-- Force Change Password Modal (Cannot be closed) -->
 @if (mustChangePassword)
@@ -1595,6 +537,14 @@
                     </div>
 
                     <form id="force-change-password-form">
+                        <input type="text"
+                               name="username"
+                               value="@Context.Session.GetString("nationalID")"
+                               autocomplete="username"
+                               tabindex="-1"
+                               aria-hidden="true"
+                               class="sr-only"
+                               hidden>
                         <div class="space-y-3 md:space-y-4">
                             <!-- Current Password -->
                             <div>
@@ -1605,12 +555,14 @@
                                     <input type="password"
                                            id="force-current-password"
                                            name="currentPassword"
+                                           autocomplete="current-password"
                                            class="block w-full rounded-lg border border-slate-600 bg-slate-700 p-2.5 pe-12 text-sm text-white focus:border-red-500 focus:ring-red-500 md:p-3 md:text-base"
                                            placeholder="أدخل كلمة المرور الحالية"
                                            required>
                                     <button type="button"
                                             class="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400 hover:text-white"
-                                            onclick="togglePasswordVisibility('force-current-password')">
+                                            data-password-toggle="force-current-password"
+                                            data-password-toggle-icon>
                                         <i class="fa-solid fa-eye"></i>
                                     </button>
                                 </div>
@@ -1625,13 +577,15 @@
                                     <input type="password"
                                            id="force-new-password"
                                            name="newPassword"
+                                           autocomplete="new-password"
                                            class="block w-full rounded-lg border border-slate-600 bg-slate-700 p-2.5 pe-12 text-sm text-white focus:border-red-500 focus:ring-red-500 md:p-3 md:text-base"
                                            placeholder="أدخل كلمة المرور الجديدة"
                                            minlength="8"
                                            required>
                                     <button type="button"
                                             class="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400 hover:text-white"
-                                            onclick="togglePasswordVisibility('force-new-password')">
+                                            data-password-toggle="force-new-password"
+                                            data-password-toggle-icon>
                                         <i class="fa-solid fa-eye"></i>
                                     </button>
                                 </div>
@@ -1647,12 +601,14 @@
                                     <input type="password"
                                            id="force-confirm-password"
                                            name="confirmPassword"
+                                           autocomplete="new-password"
                                            class="block w-full rounded-lg border border-slate-600 bg-slate-700 p-2.5 pe-12 text-sm text-white focus:border-red-500 focus:ring-red-500 md:p-3 md:text-base"
                                            placeholder="أعادة إدخال كلمة المرور الجديدة"
                                            required>
                                     <button type="button"
                                             class="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400 hover:text-white"
-                                            onclick="togglePasswordVisibility('force-confirm-password')">
+                                            data-password-toggle="force-confirm-password"
+                                            data-password-toggle-icon>
                                         <i class="fa-solid fa-eye"></i>
                                     </button>
                                 </div>
@@ -1708,215 +664,4 @@
             </div>
         </div>
     </div>
-
-    <script>
-        (function() {
-            console.log('🔒 FORCE PASSWORD CHANGE - Simple Mode');
-            
-            // ✅ Simple disable function
-            const disableNavigation = () => {
-                // Disable sidebar menu links
-                document.querySelectorAll('aside#logo-sidebar .sidebar-link').forEach(link => {
-                    link.classList.add('force-disabled');
-                });
-                
-                // Disable header Home link
-                document.querySelectorAll('nav#top-header a[href="/Home"]').forEach(link => {
-                    link.classList.add('force-disabled');
-                });
-                
-                // Disable dropdown items (except logout)
-                document.querySelectorAll('#user-dropdown a:not([href="/Login/Logout"])').forEach(link => {
-                    link.classList.add('force-disabled');
-                });
-                
-                // Disable sidebar controls
-                document.querySelectorAll('aside#logo-sidebar button[data-menu-toggle]').forEach(btn => {
-                    btn.classList.add('force-disabled');
-                });
-                
-                const pinBtn = document.getElementById('pin-sidebar');
-                const toggleBtn = document.getElementById('toggle-sidebar');
-                if (pinBtn) pinBtn.classList.add('force-disabled');
-                if (toggleBtn) toggleBtn.classList.add('force-disabled');
-            };
-            
-            // Execute
-            if (document.readyState === 'loading') {
-                document.addEventListener('DOMContentLoaded', disableNavigation);
-            } else {
-                disableNavigation();
-            }
-            
-            // DOMContentLoaded
-            document.addEventListener('DOMContentLoaded', () => {
-                disableNavigation();
-                document.body.classList.add('modal-open');
-                
-                setTimeout(() => {
-                    document.getElementById('force-current-password')?.focus();
-                }, 500);
-                
-                // Prevent ESC
-                document.addEventListener('keydown', (e) => {
-                    if (e.key === 'Escape') {
-                        e.preventDefault();
-                        return false;
-                    }
-                }, true);
-            });
-            
-            // Password strength
-            document.getElementById('force-new-password')?.addEventListener('input', function(e) {
-                const password = e.target.value;
-                const strengthDiv = document.getElementById('force-password-strength');
-                const strengthBar = document.getElementById('force-strength-bar');
-                const strengthText = document.getElementById('force-strength-text');
-                
-                if (password.length === 0) {
-                    strengthDiv?.classList.add('hidden');
-                    return;
-                }
-                
-                strengthDiv?.classList.remove('hidden');
-                
-                const checks = {
-                    length: password.length >= 8,
-                    uppercase: /[A-Z]/.test(password),
-                    lowercase: /[a-z]/.test(password),
-                    number: /[0-9]/.test(password)
-                };
-                
-                updateForceCheck('force-check-length', checks.length);
-                updateForceCheck('force-check-uppercase', checks.uppercase);
-                updateForceCheck('force-check-lowercase', checks.lowercase);
-                updateForceCheck('force-check-number', checks.number);
-                
-                let strength = 0;
-                if (checks.length) strength += 25;
-                if (checks.uppercase) strength += 25;
-                if (checks.lowercase) strength += 25;
-                if (checks.number) strength += 25;
-                
-                let color = '', text = '';
-                if (strength < 50) { color = 'bg-red-500'; text = 'ضعيفة'; }
-                else if (strength < 100) { color = 'bg-yellow-500'; text = 'متوسطة'; }
-                else { color = 'bg-green-500'; text = 'قوية'; }
-                
-                if (strengthBar) {
-                    strengthBar.style.width = strength + '%';
-                    strengthBar.className = `h-full transition-all duration-300 ${color}`;
-                }
-                if (strengthText) {
-                    strengthText.textContent = text;
-                    strengthText.className = `text-xs font-medium ${color.replace('bg-', 'text-')}`;
-                }
-            });
-            
-            function updateForceCheck(id, isValid) {
-                const element = document.getElementById(id);
-                if (!element) return;
-                const icon = element.querySelector('i');
-                if (icon) {
-                    icon.className = isValid
-                        ? 'fa-solid fa-circle-check text-green-400'
-                        : 'fa-solid fa-circle-xmark text-red-400';
-                }
-            }
-            
-            // Form submission
-            document.getElementById('force-change-password-form')?.addEventListener('submit', async function(e) {
-                e.preventDefault();
-                
-                const errorDiv = document.getElementById('force-password-error');
-                const submitBtn = this.querySelector('button[type="submit"]');
-                
-                const currentPassword = this.currentPassword.value.trim();
-                const newPassword = this.newPassword.value.trim();
-                const confirmPassword = this.confirmPassword.value.trim();
-                
-                errorDiv?.classList.add('hidden');
-                
-                const showError = (msg) => {
-                    if (errorDiv) {
-                        errorDiv.textContent = msg;
-                        errorDiv.classList.remove('hidden');
-                        errorDiv.classList.add('animate-shake');
-                        setTimeout(() => errorDiv.classList.remove('animate-shake'), 500);
-                    }
-                };
-                
-                if (!currentPassword || !newPassword || !confirmPassword) {
-                    showError('❌ جميع الحقول مطلوبة');
-                    return;
-                }
-                if (newPassword !== confirmPassword) {
-                    showError('❌ كلمة المرور الجديدة وتأكيد كلمة المرور غير متطابقتين');
-                    return;
-                }
-                if (newPassword.length < 8) {
-                    showError('❌ كلمة المرور يجب أن لا تقل عن 8 خانات');
-                    return;
-                }
-                if (!/[A-Z]/.test(newPassword)) {
-                    showError('❌ يجب أن تحتوي على حرف كبير (A-Z)');
-                    return;
-                }
-                if (!/[a-z]/.test(newPassword)) {
-                    showError('❌ يجب أن تحتوي على حرف صغير (a-z)');
-                    return;
-                }
-                if (!/[0-9]/.test(newPassword)) {
-                    showError('❌ يجب أن تحتوي على رقم (0-9)');
-                    return;
-                }
-                if (currentPassword === newPassword) {
-                    showError('❌ كلمة المرور الجديدة يجب أن تختلف عن الحالية');
-                    return;
-                }
-                
-                if (submitBtn) {
-                    submitBtn.disabled = true;
-                    submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin me-2"></i>جاري تغيير كلمة المرور...';
-                }
-                
-                try {
-                    const response = await fetch('/Login/ChangePassword', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'X-Requested-With': 'XMLHttpRequest'
-                        },
-                        body: JSON.stringify({
-                            oldPassword: currentPassword,
-                            newPassword: newPassword
-                        })
-                    });
-                    
-                    const result = await response.json();
-                    
-                    if (result.success) {
-                        alert('✅ تم تغيير كلمة المرور بنجاح! سيتم تسجيل خروجك الآن...');
-                        setTimeout(() => {
-                            window.location.href = '/Login?logout=2';
-                        }, 1000);
-                    } else {
-                        showError(result.message || '❌ فشل تغيير كلمة المرور');
-                        if (submitBtn) {
-                            submitBtn.disabled = false;
-                            submitBtn.innerHTML = '<i class="fa-solid fa-shield-halved me-2"></i>تغيير كلمة المرور الآن';
-                        }
-                    }
-                } catch (error) {
-                    console.error('❌ Error:', error);
-                    showError('❌ حدث خطأ أثناء تغيير كلمة المرور');
-                    if (submitBtn) {
-                        submitBtn.disabled = false;
-                        submitBtn.innerHTML = '<i class="fa-solid fa-shield-halved me-2"></i>تغيير كلمة المرور الآن';
-                    }
-                }
-            });
-            
-        })();
-    </script>
 }

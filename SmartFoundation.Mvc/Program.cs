@@ -91,10 +91,52 @@ app.Use(async (context, next) =>
     context.Response.OnStarting(() =>
     {
         var headers = context.Response.Headers;
+        var path = context.Request.Path;
+        var host = context.Request.Host.Host;
+        var isLoginSurface =
+            path == "/" ||
+            path.Equals("/Login", StringComparison.OrdinalIgnoreCase) ||
+            path.Equals("/Login/Index", StringComparison.OrdinalIgnoreCase) ||
+            path.Equals("/Login/CheckLogin", StringComparison.OrdinalIgnoreCase);
+        var isLocalDevelopmentHost =
+            app.Environment.IsDevelopment() &&
+            (string.Equals(host, "localhost", StringComparison.OrdinalIgnoreCase) ||
+             string.Equals(host, "127.0.0.1", StringComparison.OrdinalIgnoreCase) ||
+             string.Equals(host, "::1", StringComparison.OrdinalIgnoreCase));
+
+        var devConnectSrc = isLocalDevelopmentHost
+            ? "connect-src 'self' http://localhost:* ws://localhost:* wss://localhost:*;"
+            : "connect-src 'self';";
+
+        var contentSecurityPolicy = isLoginSurface
+            ? "default-src 'self'; " +
+              "base-uri 'self'; " +
+              "object-src 'none'; " +
+              "frame-ancestors 'self'; " +
+              "form-action 'self'; " +
+              "img-src 'self' data: blob:; " +
+              "font-src 'self' data:; " +
+              "style-src 'self'; " +
+              "script-src 'self'; " +
+              devConnectSrc + " " +
+              "frame-src 'self'; " +
+              "worker-src 'none';"
+            : "default-src 'self'; " +
+              "base-uri 'self'; " +
+              "object-src 'none'; " +
+              "frame-ancestors 'self'; " +
+              "form-action 'self'; " +
+              "img-src 'self' data: blob: https:; " +
+              "font-src 'self' data: https:; " +
+              "style-src 'self' 'unsafe-inline' https:; " +
+              "script-src 'self' 'unsafe-inline' 'unsafe-eval' https:; " +
+              devConnectSrc + " " +
+              "frame-src 'self' https:;";
 
         headers["X-Frame-Options"] = "SAMEORIGIN";
         headers["X-Content-Type-Options"] = "nosniff";
         headers["Strict-Transport-Security"] = "max-age=31536000; includeSubDomains";
+        headers["Content-Security-Policy"] = contentSecurityPolicy;
 
         headers["Cross-Origin-Opener-Policy"] = "same-origin";
         headers["Cross-Origin-Embedder-Policy"] = "require-corp";

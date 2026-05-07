@@ -330,7 +330,7 @@
 
                             <template x-if="hasToolbarMenuActions()">
 
-                                <div class="relative sf-actions-menu"
+                                <div class="sf-actions-menu relative"
                                      x-data="menuPanelState('tb-actions-', 220)"
                                      x-on:keydown.escape.window="closeAllMenus()">
                                     <button type="button"
@@ -567,7 +567,7 @@
                                             <span x-bind:class="cellPillClass(row, col)"
                                                   x-bind:title="cellPillTitle(row, col)">
                                                 <template x-if="cellPillSvg(row, col)">
-                                                    <span class="pill-svg" x-html="cellPillSvg(row, col)"></span>
+                                                    <span class="pill-svg" x-html="renderTrustedSvg(cellPillSvg(row, col))"></span>
                                                 </template>
 
                                                 <template x-if="!cellPillSvg(row, col) && cellPillIcon(row, col)">
@@ -581,7 +581,7 @@
                                         </template>
 
                                         <template x-if="!hasCellPill(row, col)">
-                                            <span x-html="formatCell(row, col)"></span>
+                                            <span x-html="renderCellHtml(row, col)"></span>
                                         </template>
                                     </td>
                                 </template>
@@ -709,7 +709,7 @@
                                     <template x-for="col in profileColumnsList()" x-bind:key="col.field">
                                         <div class="sf-profile__item">
                                             <div class="sf-profile__label" x-text="col.label"></div>
-                                            <div class="sf-profile__value" x-html="formatCell(row, col)"></div>
+                                            <div class="sf-profile__value" x-html="renderCellHtml(row, col)"></div>
                                         </div>
                                     </template>
 
@@ -781,21 +781,23 @@
                     <div class="sf-modal-backdrop" x-transition.opacity>
                         <div class="sf-modal" role="dialog" aria-modal="true" x-transition>
                             <div class="sf-modal-header">
-                                <h3 x-html="modal.title"></h3>
+                                <h3 x-html="renderModalTitleHtml()"></h3>
                                 <button type="button" class="sf-modal-close" x-on:click="closeModal()" aria-label="إغلاق">&times;</button>
                             </div>
 
                             <div class="sf-modal-body">
                                 <template x-if="modal.message">
                                     <div class="mb-7 flex items-center justify-center gap-2 rounded-sm px-4 py-2 text-center"
-                                         x-bind:class="modal.messageClass || 'border border-sky-200 bg-sky-50 text-sky-700'">
+                                         x-bind:class="modal.messageIsHtml
+                                             ? 'mb-7 rounded-sm px-4 py-3 text-center' + (modal.messageClass || 'border border-sky-200 bg-sky-50 text-sky-700')
+                                             : (modal.messageClass || 'border border-sky-200 bg-sky-50 text-sky-700')">
 
                                         <i x-show="modal.messageIcon"
                                            x-bind:class="modal.messageIcon"
                                            class="text-lg opacity-90"></i>
 
                                         <span x-show="!modal.messageIsHtml" x-text="modal.message"></span>
-                                        <span x-show="modal.messageIsHtml" x-html="modal.message"></span>
+                                        <span x-show="modal.messageIsHtml" x-html="renderModalMessageHtml()"></span>
                                     </div>
                                 </template>
 

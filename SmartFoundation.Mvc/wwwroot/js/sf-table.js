@@ -1156,6 +1156,140 @@
                 div.innerHTML = html ?? '';
                 return (div.textContent || div.innerText || '').trim();
             },
+            getSanitizeConfig(mode = "cell") {
+                const presets = {
+                    cell: {
+                        tags: ["span", "a", "img", "strong", "b", "em", "i", "small", "br"],
+                        attrs: ["class", "title", "href", "target", "rel", "src", "alt"]
+                    },
+                    message: {
+                        tags: ["span", "a", "strong", "b", "em", "i", "small", "br"],
+                        attrs: ["class", "title", "href", "target", "rel"]
+                    },
+                    richMessage: {
+                        tags: ["div", "span", "a", "strong", "b", "em", "i", "small", "br", "p"],
+                        attrs: ["class", "title", "href", "target", "rel", "aria-hidden"]
+                    },
+                    title: {
+                        tags: ["span", "strong", "b", "em", "i", "small"],
+                        attrs: ["class", "title", "aria-hidden"]
+                    },
+                    svg: {
+                        tags: ["svg", "path", "circle", "line", "polyline", "polygon", "rect", "g", "ellipse", "title"],
+                        attrs: [
+                            "class", "viewBox", "xmlns", "fill", "stroke", "stroke-width", "stroke-linecap",
+                            "stroke-linejoin", "d", "cx", "cy", "r", "x", "y", "x1", "x2", "y1", "y2",
+                            "points", "width", "height", "rx", "ry", "aria-hidden", "focusable", "role"
+                        ]
+                    }
+                };
+
+                return presets[mode] || presets.cell;
+            },
+            isSafeHtmlUrl(value, tagName, attrName) {
+                const raw = String(value ?? "").trim();
+                if (!raw) return true;
+                if (raw.startsWith("#") || raw.startsWith("/")) return true;
+
+                const lower = raw.toLowerCase();
+                if (lower.startsWith("javascript:")) return false;
+                if (lower.startsWith("vbscript:")) return false;
+
+                if (attrName === "href") {
+                    return lower.startsWith("http://")
+                        || lower.startsWith("https://")
+                        || lower.startsWith("mailto:")
+                        || lower.startsWith("tel:");
+                }
+
+                if (attrName === "src") {
+                    if (lower.startsWith("http://") || lower.startsWith("https://") || lower.startsWith("/")) {
+                        return true;
+                    }
+
+                    return tagName === "img" && lower.startsWith("data:image/");
+                }
+
+                return false;
+            },
+            sanitizeHtml(raw, mode = "cell") {
+                const html = String(raw ?? "");
+                if (!html.trim()) return "";
+
+                const config = this.getSanitizeConfig(mode);
+                const allowedTags = new Set(config.tags);
+                const allowedAttrs = new Set(config.attrs);
+                const template = document.createElement("template");
+                template.innerHTML = html;
+
+                const sanitizeNode = (node) => {
+                    if (!node) return;
+
+                    if (node.nodeType === Node.TEXT_NODE) return;
+
+                    if (node.nodeType !== Node.ELEMENT_NODE) {
+                        node.remove();
+                        return;
+                    }
+
+                    const tagName = node.tagName.toLowerCase();
+                    if (!allowedTags.has(tagName)) {
+                        const parent = node.parentNode;
+                        if (!parent) {
+                            node.remove();
+                            return;
+                        }
+
+                        const movedChildren = Array.from(node.childNodes);
+                        while (node.firstChild) {
+                            parent.insertBefore(node.firstChild, node);
+                        }
+
+                        parent.removeChild(node);
+                        movedChildren.forEach(sanitizeNode);
+                        return;
+                    }
+
+                    for (const attr of Array.from(node.attributes)) {
+                        const attrName = attr.name.toLowerCase();
+                        const isAria = attrName.startsWith("aria-");
+                        const isData = attrName.startsWith("data-");
+                        const keepAttr = allowedAttrs.has(attr.name) || allowedAttrs.has(attrName) || isAria || isData;
+
+                        if (!keepAttr) {
+                            node.removeAttribute(attr.name);
+                            continue;
+                        }
+
+                        if ((attrName === "href" || attrName === "src") && !this.isSafeHtmlUrl(attr.value, tagName, attrName)) {
+                            node.removeAttribute(attr.name);
+                            continue;
+                        }
+
+                        if (attrName === "target") {
+                            node.setAttribute("rel", "noopener noreferrer");
+                        }
+                    }
+
+                    Array.from(node.childNodes).forEach(sanitizeNode);
+                };
+
+                Array.from(template.content.childNodes).forEach(sanitizeNode);
+                return template.innerHTML;
+            },
+            renderCellHtml(row, col) {
+                return this.sanitizeHtml(this.formatCell(row, col), "cell");
+            },
+            renderTrustedSvg(svgMarkup) {
+                return this.sanitizeHtml(svgMarkup, "svg");
+            },
+            renderModalMessageHtml() {
+                const mode = this.modal?.messageIsHtml ? "richMessage" : "message";
+                return this.sanitizeHtml(this.modal?.message || "", mode);
+            },
+            renderModalTitleHtml() {
+                return this.sanitizeHtml(this.modal?.title || "", "title");
+            },
 
             showCellCopied(cellEl, msg = "تم النسخ") {
                 if (!cellEl) return;

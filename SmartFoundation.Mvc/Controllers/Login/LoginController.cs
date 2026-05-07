@@ -26,6 +26,16 @@ namespace SmartFoundation.Mvc.Controllers.Login
 
         private static readonly Dictionary<string, string> _dnsCache = new(StringComparer.OrdinalIgnoreCase);
 
+        private RedirectToActionResult RedirectToLogin(string messageType, string message, string? nationalId = null)
+        {
+            return RedirectToAction(nameof(Index), new
+            {
+                mt = messageType,
+                msg = message,
+                u = nationalId
+            });
+        }
+
         private static string ResolveClientHostName(HttpContext ctx)
         {
             string? forwardedFor = ctx.Request.Headers["X-Forwarded-For"].FirstOrDefault();
@@ -70,7 +80,12 @@ namespace SmartFoundation.Mvc.Controllers.Login
         [ResponseCache(NoStore = true, Location = ResponseCacheLocation.None)]
         public async Task<IActionResult> Index()
         {
-            
+            var lastUser = Request.Query["u"].ToString();
+            ViewBag.LastUser = lastUser;
+
+            var messageType = Request.Query["mt"].ToString();
+            var message = Request.Query["msg"].ToString();
+
             HttpContext.Session.Clear();
             if (Request.Query.ContainsKey("logout"))
             {
@@ -78,16 +93,24 @@ namespace SmartFoundation.Mvc.Controllers.Login
 
                 if (logoutValue == "1")
                 {
-                    TempData["Error"] = "تم تسجيل خروجك من النظام لعدم وجود نشاط";
+                    ViewBag.LoginMessageType = "error";
+                    ViewBag.LoginMessage = "تم تسجيل خروجك من النظام لعدم وجود نشاط";
                 }
                 else if (logoutValue == "2")
                 {
-                    TempData["Success"] = "تم تسجيل خروجك بنجاح";
+                    ViewBag.LoginMessageType = "success";
+                    ViewBag.LoginMessage = "تم تسجيل خروجك بنجاح";
                 }
                 else
                 {
-                    TempData["Error"] = "تم تسجيل الخروج";
+                    ViewBag.LoginMessageType = "error";
+                    ViewBag.LoginMessage = "تم تسجيل الخروج";
                 }
+            }
+            else if (!string.IsNullOrWhiteSpace(messageType) && !string.IsNullOrWhiteSpace(message))
+            {
+                ViewBag.LoginMessageType = messageType;
+                ViewBag.LoginMessage = message;
             }
 
             // Extra anti-cache headers (defense-in-depth)
@@ -107,9 +130,7 @@ namespace SmartFoundation.Mvc.Controllers.Login
 
             if (string.IsNullOrWhiteSpace(NationalID) || string.IsNullOrWhiteSpace(password))
             {
-                TempData["Error"] = "الرجاء اكمال الحقول المطلوبة";
-                TempData["LastUser"] = NationalID;
-                return RedirectToAction(nameof(Index));
+                return RedirectToLogin("error", "الرجاء اكمال الحقول المطلوبة", NationalID);
             }
 
             DataSet ds;
@@ -121,9 +142,7 @@ namespace SmartFoundation.Mvc.Controllers.Login
             }
             catch (Exception ex)
             {
-                TempData["Error"] = "خطأ في الاتصال بالخادم." + ex.Message;
-                TempData["LastUser"] = NationalID;
-                return RedirectToAction(nameof(Index));
+                return RedirectToLogin("error", "خطأ في الاتصال بالخادم." + ex.Message, NationalID);
             }
 
             var auth = _mastersServies.ExtractAuth(ds);
@@ -137,9 +156,7 @@ namespace SmartFoundation.Mvc.Controllers.Login
             }
             catch (Exception ex)
             {
-                TempData["Error"] = "خطأ في معالجة بيانات الدخول: " + ex.Message;
-                TempData["LastUser"] = NationalID;
-                return RedirectToAction(nameof(Index));
+                return RedirectToLogin("error", "خطأ في معالجة بيانات الدخول: " + ex.Message, NationalID);
             }
 
 
@@ -148,11 +165,10 @@ namespace SmartFoundation.Mvc.Controllers.Login
             if (string.IsNullOrWhiteSpace(auth.usersId))
             {
                 // Use SQL message if available, otherwise fallback
-                TempData["Error"] = !string.IsNullOrWhiteSpace(auth.Message_)
-                    ? auth.Message_
-                    : "لايوجد ملف نشط لهذا المستخدم";
-                TempData["LastUser"] = NationalID;
-                return RedirectToAction(nameof(Index));
+                return RedirectToLogin(
+                    "error",
+                    !string.IsNullOrWhiteSpace(auth.Message_) ? auth.Message_ : "لايوجد ملف نشط لهذا المستخدم",
+                    NationalID);
             }
 
 
@@ -160,11 +176,10 @@ namespace SmartFoundation.Mvc.Controllers.Login
             if (auth.usersActive == 0)
             {
                 // ✅ FIXED: Use message from SQL instead of hard-coded
-                TempData["Error"] = !string.IsNullOrWhiteSpace(auth.Message_)
-                    ? auth.Message_  // "عذرا اسم المستخدم او كلمة المرور غير صحيحة"
-                    : "لايوجد حساب نشط لهذا المستخدم";
-                TempData["LastUser"] = NationalID;
-                return RedirectToAction(nameof(Index));
+                return RedirectToLogin(
+                    "error",
+                    !string.IsNullOrWhiteSpace(auth.Message_) ? auth.Message_ : "لايوجد حساب نشط لهذا المستخدم",
+                    NationalID);
             }
 
             //// ✅ Set session data with null-safe approach
@@ -201,36 +216,6 @@ namespace SmartFoundation.Mvc.Controllers.Login
 
 
 
-            // ✅ Add warning message if password needs to be changed
-            if (auth.ChangedPassword == 0)
-            {
-                TempData["Warning"] = "⚠️ لأسباب أمنية تم حجب جميع الانظمة، يجب عليك تغيير كلمة المرور الان.";
-            }
-
-            if (!string.IsNullOrWhiteSpace(auth.Message_))
-            {
-                switch (auth.usersActive)
-                {
-                    case 1:
-                        TempData["Success"] = auth.Message_;
-                        break;
-                    case 2:
-                        TempData["Warning"] = auth.Message_;
-                        break;
-                    case 3:
-                        TempData["Info"] = auth.Message_;
-                        break;
-                    default:
-                        TempData["Success"] = auth.Message_;
-                        break;
-                }
-            }
-            else
-            {
-                // Fallback if SQL didn't provide a message
-                TempData["Success"] = "تم تسجيل الدخول بنجاح";
-            }
-
             //}
             //catch (Exception ex)
             //{
@@ -239,14 +224,21 @@ namespace SmartFoundation.Mvc.Controllers.Login
             //    return RedirectToAction(nameof(Index));
             //}
 
-            //// Set success message based on useractive
-            //switch (auth.useractive)
-            //{
-            //    case 1: TempData["Success"] = auth.Message_ ?? "تم تسجيل الدخول بنجاح."; break;
-            //    case 2: TempData["Warning"] = auth.Message_ ?? "تم تسجيل الدخول مع تحذير."; break;
-            //    case 3: TempData["Info"] = auth.Message_ ?? "معلومة: تم الدخول."; break;
-            //    default: TempData["Success"] = auth.Message_ ?? "تم تسجيل الدخول."; break;
-            //}
+            switch (auth.usersActive)
+            {
+                case 1:
+                    TempData["Success"] = auth.Message_ ?? "تم تسجيل الدخول بنجاح.";
+                    break;
+                case 2:
+                    TempData["Warning"] = auth.Message_ ?? "تم تسجيل الدخول مع تحذير.";
+                    break;
+                case 3:
+                    TempData["Info"] = auth.Message_ ?? "معلومة: تم الدخول.";
+                    break;
+                default:
+                    TempData["Success"] = auth.Message_ ?? "تم تسجيل الدخول.";
+                    break;
+            }
 
 
             return RedirectToAction("Index", "Home");

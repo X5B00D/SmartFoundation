@@ -31,7 +31,6 @@
                 rtl: true
             };
             toastrReady = true;
-            console.debug("[session-guard] Toastr initialized.");
         }
         return true;
     }
@@ -39,7 +38,6 @@
     function waitForToastr(maxAttempts = 40, intervalMs = 300) {
         if (initToastr()) return;
         if (waitAttempts >= maxAttempts) {
-            console.warn("[session-guard] Toastr not found after waiting. Will fallback to alert.");
             return;
         }
         waitAttempts++;
@@ -121,8 +119,8 @@
         if (toastrReady && window.toastr) {
             // Scoped container + custom class so CSS applies only here
             currentWarningToast = toastr.warning(
-                "·√„«‰ Õ”«»ﬂ Ê·⁄œ„ ÊÃÊœ ‰‘«ÿ ⁄·Ï «·‰Ÿ«„ ”Ì „ «‰Â«¡ «·Ã·”… ",
-                " Õ–Ì—",
+                "√°√É√£√á√§ √ç√ì√á√à√ü √¶√°√ö√è√£ √¶√å√¶√è √§√î√á√ò √ö√°√¨ √á√°√§√ô√á√£ √ì√≠√ä√£ √á√§√•√á√Å √á√°√å√°√ì√â ",
+                "√ä√ç√ê√≠√ë",
                 {
                     timeOut: 0,
                     extendedTimeOut: 0,
@@ -136,7 +134,7 @@
                 }
             );
         } else {
-            alert("·√„«‰ Õ”«»ﬂ Ê·⁄œ„ ÊÃÊœ ‰‘«ÿ ⁄·Ï «·‰Ÿ«„ ”Ì „ «‰Â«¡ «·Ã·”… ");
+            alert("√°√É√£√á√§ √ç√ì√á√à√ü √¶√°√ö√è√£ √¶√å√¶√è √§√î√á√ò √ö√°√¨ √á√°√§√ô√á√£ √ì√≠√ä√£ √á√§√•√á√Å √á√°√å√°√ì√â ");
         }
     }
 
@@ -175,5 +173,4 @@
 
     // --- INITIALIZE ---
     markActivity(); // sets lastActivity + schedules timers
-    console.debug("[session-guard] Loaded.");
 })();
