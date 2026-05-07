@@ -232,12 +232,46 @@ html, body {
         opacity: 1;
     }
 
-    .sf-bc-text .current,
-    .sf-bc-text a[aria-current="page"] {
-        color: #1f2937;
-        font-weight: 500;
-        padding: 4px 6px;
-    }
+.sf-bc-text .current,
+.sf-bc-text a[aria-current="page"] {
+    color: #1f2937;
+    font-weight: 500;
+    padding: 4px 6px;
+}
+
+/* Keep breadcrumb colors stable after moving layout CSS to external files */
+#page-header .sf-bc,
+#page-header .sf-bc-text,
+#page-header .sf-bc-text > li {
+    color: #7b8794 !important;
+}
+
+#page-header .sf-bc-text a {
+    color: #7b8794 !important;
+}
+
+#page-header .sf-bc-text a:hover {
+    color: #5f6b7a !important;
+    background: #f5f7f9 !important;
+}
+
+#page-header .sf-bc-text .current,
+#page-header .sf-bc-text a[aria-current="page"] {
+    color: #6b7280 !important;
+}
+
+#page-header .sf-bc .sf-bc-icon {
+    color: #047857 !important;
+}
+
+#page-header .sf-bc::before {
+    background-color: #c8d4ce !important;
+}
+
+#page-header .sf-bc-text .sep {
+    color: #b4c0cb !important;
+    background: transparent !important;
+}
 
 @media (prefers-reduced-motion: reduce) {
     .sf-bc-text a {

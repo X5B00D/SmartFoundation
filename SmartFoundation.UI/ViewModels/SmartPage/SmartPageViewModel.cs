@@ -54,7 +54,7 @@ namespace SmartFoundation.UI.ViewModels.SmartPage
         public string Operation { get; set; } = "select";
 
         public FormConfig? Form { get; set; }
-        public TableConfig? Table { get; set; }
+        public SmartTableDsModel? Table { get; set; }
 
         public SmartTableDsModel? TableDS { get; set; } 
         public SmartTableDsModel? TableDS1 { get; set; } 

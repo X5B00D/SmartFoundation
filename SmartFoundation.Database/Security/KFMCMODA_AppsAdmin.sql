@@ -1,2 +1,0 @@
-﻿CREATE USER [KFMCMODA\AppsAdmin] FOR LOGIN [KFMCMODA\AppsAdmin];
-

@@ -195,7 +195,7 @@ namespace SmartFoundation.UI.ViewModels.SmartForm
         public string? ExtraButtonSlot { get; set; }
         public string? ExtraButtonClass { get; set; }
 
-        public SmartTable.TableConfig? Table { get; set; }
+        public SmartTable.SmartTableDsModel? Table { get; set; }
 
         public string GetResolvedColCss()
         {

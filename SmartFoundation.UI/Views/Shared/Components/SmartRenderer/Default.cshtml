@@ -240,7 +240,7 @@
 
             @if (Model.Table is not null)
             {
-                @await Component.InvokeAsync("SmartTable", new { model = Model.Table, embedded = true })
+                @await Component.InvokeAsync("SmartTableDS", new { model = Model.Table, embedded = true })
             }
         </div>
     </div>
