@@ -88,7 +88,7 @@ namespace SmartFoundation.Mvc.Controllers.Housing
 
 
             string? residentInfoID_ = null;
-            if (dt1 != null && dt1.Columns.Contains("NationalID") && dt1.Columns.Contains("residentInfoID"))
+            if (dt1 != null && dt1.Columns.Contains("residentInfoID") && dt1.Columns.Contains("residentInfoID"))
             {
                 var row = dt1.AsEnumerable()
                     .FirstOrDefault(r => r["NationalID"] != DBNull.Value && r["NationalID"].ToString() == NationalID_);
@@ -100,7 +100,7 @@ namespace SmartFoundation.Mvc.Controllers.Housing
             }
 
             string? generalNo_FK_ = null;
-            if (dt1 != null && dt1.Columns.Contains("NationalID") && dt1.Columns.Contains("generalNo_FK"))
+            if (dt1 != null && dt1.Columns.Contains("generalNo_FK") && dt1.Columns.Contains("generalNo_FK"))
             {
                 var row = dt1.AsEnumerable()
                     .FirstOrDefault(r => r["NationalID"] != DBNull.Value && r["NationalID"].ToString() == NationalID_);
@@ -125,8 +125,7 @@ namespace SmartFoundation.Mvc.Controllers.Housing
             FormConfig form = new();
 
 
-            List<OptionItem> waitingClassOptions = new();
-            List<OptionItem> waitingOrderTypeOptions = new();
+            List<OptionItem> ResidentRentExemptionTypeOptions = new();
 
 
             // ---------------------- DDLValues ----------------------
@@ -142,22 +141,14 @@ namespace SmartFoundation.Mvc.Controllers.Housing
 
             //// ---------------------- WaitingClass ----------------------
             result = await _CrudController.GetDDLValues(
-                "waitingClassName_A", "waitingClassID", "5", nameof(RentExemption), usersId, IdaraId, HostName
+                "ResidentRentExemptionTypeName_A", "ResidentRentExemptionTypeID", "3", nameof(RentExemption), usersId, IdaraId, HostName
            ) as JsonResult;
 
 
             json = JsonSerializer.Serialize(result!.Value);
 
-            waitingClassOptions = JsonSerializer.Deserialize<List<OptionItem>>(json)!;
-            //// ---------------------- militaryUnitOptions ----------------------
-            result = await _CrudController.GetDDLValues(
-                "waitingOrderTypeName_A", "waitingOrderTypeID", "6", nameof(RentExemption), usersId, IdaraId, HostName
-           ) as JsonResult;
-
-
-            json = JsonSerializer.Serialize(result!.Value);
-
-            waitingOrderTypeOptions = JsonSerializer.Deserialize<List<OptionItem>>(json)!;
+            ResidentRentExemptionTypeOptions = JsonSerializer.Deserialize<List<OptionItem>>(json)!;
+          
             
 
             //// ---------------------- END DDL ----------------------
@@ -410,6 +401,8 @@ namespace SmartFoundation.Mvc.Controllers.Housing
                             dict2["p09"] = Get("idaraID_FK");
                             dict2["p10"] = Get("ResidentRentExemptionTypeName_A");
                             dict2["p11"] = Get("ResidentRentExemptionTypePercentage");
+                            dict2["p12"] = Get("generalNo_FK");
+                            dict2["p13"] = Get("NationalID");
                             
 
                             rowsList_dt2.Add(dict2);
@@ -446,21 +439,21 @@ namespace SmartFoundation.Mvc.Controllers.Housing
 
 
 
-                new FieldConfig { Name = "p01", Label = "الرقم المرجعي", Type = "hidden", ColCss = "6", Required = true,Value=residentInfoID_ },
-                new FieldConfig { Name = "p02", Label = "الرقم المرجعي", Type = "hidden", ColCss = "6", Required = true,Value=residentInfoID_ },
-                new FieldConfig { Name = "p03", Label = "رقم الهوية", Type = "hidden", ColCss = "6",Placeholder="1xxxxxxxxx",Value= NationalID_ },
-                new FieldConfig { Name = "p04", Label = "الرقم العام", Type = "hidden", ColCss = "6", Required = true,Value=generalNo_FK_ },
+                new FieldConfig { Name = "p01", Label = "الرقم المرجعي", Type = "text", ColCss = "6", Required = true,Value=residentInfoID_ }, 
+                new FieldConfig { Name = "p13", Label = "رقم الهوية", Type = "text", ColCss = "6",Placeholder="1xxxxxxxxx",Value= NationalID_ },
+                new FieldConfig { Name = "p12", Label = "الرقم العام", Type = "text", ColCss = "6", Required = true,Value=generalNo_FK_ },
 
 
 
 
 
-                new FieldConfig { Name = "p05", Label = "رقم القرار", Type = "text", ColCss = "3", MaxLength = 50, TextMode = "number",Required=true},
-                new FieldConfig { Name = "p06", Label = "تاريخ القرار", Type = "date", ColCss = "3", MaxLength = 50, TextMode = "number",Required=true,Placeholder="YYYY-MM-DD"},
+                new FieldConfig { Name = "p05", Label = "رقم القرار", Type = "text", ColCss = "4", MaxLength = 50,Required=true},
+                new FieldConfig { Name = "p06", Label = "تاريخ القرار", Type = "date", ColCss = "4", MaxLength = 50 ,Required=true,Placeholder="YYYY-MM-DD"},
+                new FieldConfig { Name = "p10", Label = "نوع الاعفاء", Type = "select", ColCss = "4", MaxLength = 50,Required=true,Options=ResidentRentExemptionTypeOptions},
 
-                new FieldConfig { Name = "p07", Label = "تاريخ بداية الاعفاء", Type = "date", ColCss = "3", Required = true },
-                new FieldConfig { Name = "p08", Label = "تاريخ نهاية الاعفاء", Type = "hiddateden", ColCss = "3", Required = false},
-                new FieldConfig { Name = "p09", Label = "ملاحظات", Type = "textarea", ColCss = "3", Required = false },
+                new FieldConfig { Name = "p07", Label = "تاريخ بداية الاعفاء", Type = "date", ColCss = "4", Required = true },
+                new FieldConfig { Name = "p08", Label = "تاريخ نهاية الاعفاء", Type = "date", ColCss = "4", Required = false},
+                new FieldConfig { Name = "p09", Label = "ملاحظات", Type = "textarea", ColCss = "4", Required = false },
             };
 
 
@@ -481,21 +474,21 @@ namespace SmartFoundation.Mvc.Controllers.Housing
 
 
 
-                new FieldConfig { Name = "p01", Label = "الرقم المرجعي", Type = "hidden", ColCss = "6", Required = true,Value=residentInfoID_ },
-                new FieldConfig { Name = "p02", Label = "الرقم المرجعي", Type = "hidden", ColCss = "6", Required = true,Value=residentInfoID_ },
-                new FieldConfig { Name = "p03", Label = "رقم الهوية", Type = "hidden", ColCss = "6",Placeholder="1xxxxxxxxx",Value= NationalID_ },
-                new FieldConfig { Name = "p04", Label = "الرقم العام", Type = "hidden", ColCss = "6", Required = true,Value=generalNo_FK_ },
+                new FieldConfig { Name = "p01", Label = "الرقم المرجعي", Type = "text", ColCss = "6", Required = true },
+                new FieldConfig { Name = "p13", Label = "رقم الهوية", Type = "text", ColCss = "6",Placeholder="1xxxxxxxxx" },
+                new FieldConfig { Name = "p12", Label = "الرقم العام", Type = "text", ColCss = "6", Required = true},
 
 
 
 
 
-                new FieldConfig { Name = "p05", Label = "رقم القرار", Type = "text", ColCss = "3", MaxLength = 50, TextMode = "number",Required=true},
-                new FieldConfig { Name = "p06", Label = "تاريخ القرار", Type = "date", ColCss = "3", MaxLength = 50, TextMode = "number",Required=true,Placeholder="YYYY-MM-DD"},
+                new FieldConfig { Name = "p05", Label = "رقم القرار", Type = "text", ColCss = "4", MaxLength = 50,Required=true},
+                new FieldConfig { Name = "p06", Label = "تاريخ القرار", Type = "date", ColCss = "4", MaxLength = 50, TextMode = "number",Required=true,Placeholder="YYYY-MM-DD"},
+                new FieldConfig { Name = "p02", Label = "نوع الاعفاء", Type = "select", ColCss = "4", MaxLength = 50,Required=true,Options=ResidentRentExemptionTypeOptions},
 
-                new FieldConfig { Name = "p07", Label = "تاريخ بداية الاعفاء", Type = "date", ColCss = "3", Required = false },
-                new FieldConfig { Name = "p08", Label = "تاريخ نهاية الاعفاء", Type = "hiddateden", ColCss = "3", Required = false},
-                new FieldConfig { Name = "p09", Label = "ملاحظات", Type = "textarea", ColCss = "3", Required = false },
+                new FieldConfig { Name = "p07", Label = "تاريخ بداية الاعفاء", Type = "date", ColCss = "4", Required = false },
+                new FieldConfig { Name = "p08", Label = "تاريخ نهاية الاعفاء", Type = "hiddateden", ColCss = "4", Required = false},
+                new FieldConfig { Name = "p09", Label = "ملاحظات", Type = "textarea", ColCss = "4", Required = false },
             };
 
 
@@ -503,33 +496,35 @@ namespace SmartFoundation.Mvc.Controllers.Housing
             // DELETE fields
             var deleteFieldsWaitingList = new List<FieldConfig>
             {
-                new FieldConfig { Name = "redirectAction",     Type = "hidden", Value = PageName },
-                new FieldConfig { Name = "redirectController", Type = "hidden", Value = ControllerName },
+                new FieldConfig { Name = "redirectAction",      Type = "hidden", Value = PageName },
+                new FieldConfig { Name = "redirectController",  Type = "hidden", Value = ControllerName},
                 new FieldConfig { Name = "redirectUrl",  Type = "hidden", Value = currentUrl},
-                new FieldConfig { Name = "pageName_",          Type = "hidden", Value = PageName },
-                new FieldConfig { Name = "ActionType",         Type = "hidden", Value = "DELETEWAITINGLIST" },
-                new FieldConfig { Name = "idaraID",            Type = "hidden", Value = IdaraId.ToString() },
-                new FieldConfig { Name = "entrydata",          Type = "hidden", Value = usersId.ToString() },
-                new FieldConfig { Name = "hostname",           Type = "hidden", Value = Request.Host.Value },
+                new FieldConfig { Name = "pageName_",           Type = "hidden", Value = PageName },
+                new FieldConfig { Name = "ActionType",          Type = "hidden", Value = "UPDATEWAITINGLIST" },
+                new FieldConfig { Name = "idaraID",             Type = "hidden", Value = IdaraId.ToString() },
+                new FieldConfig { Name = "entrydata",           Type = "hidden", Value = usersId.ToString() },
+                new FieldConfig { Name = "hostname",            Type = "hidden", Value = Request.Host.Value },
                 new FieldConfig { Name = "__RequestVerificationToken", Type = "hidden", Value = (Request.Headers["RequestVerificationToken"].FirstOrDefault() ?? "") },
-                new FieldConfig { Name = rowIdField_dt2, Type = "hidden" },
-                new FieldConfig { Name = "p01", Type = "hidden", MirrorName = "ActionID" },
-                new FieldConfig { Name = "p20", Label = "residentInfoID_", Type = "hidden", ColCss = "3",Readonly =true,Value=residentInfoID_},
-                new FieldConfig { Name = "p10", Label = "الاسم", Type = "text", ColCss = "3",Readonly =true},
-                new FieldConfig { Name = "p03", Label = "رقم الهوية الوطنية", Type = "text", ColCss = "3",Placeholder="1xxxxxxxxx",Readonly =true},
-                new FieldConfig { Name = "p04", Label = "الرقم العام", Type = "text", ColCss = "3", Required = true,Readonly =true},
-
-                new FieldConfig { Name = "p11", Label = "فئة سجل الانتظار", Type = "text", ColCss = "3", Required = true,Readonly =true},
-                new FieldConfig { Name = "p12", Label = "نوع سجل الانتظار", Type = "text", ColCss = "3", Required = true,Readonly =true},
+                new FieldConfig { Name = rowIdField_dt2,            Type = "hidden" },
 
 
 
-                new FieldConfig { Name = "p05", Label = "رقم القرار", Type = "text", ColCss = "3", MaxLength = 50, TextMode = "number",Required=true ,Readonly =true},
-                new FieldConfig { Name = "p06", Label = "تاريخ القرار", Type = "text", ColCss = "3", MaxLength = 50, TextMode = "number",Required=true,Placeholder="YYYY-MM-DD" ,Readonly =true},
+
+                new FieldConfig { Name = "p03", Label = "الرقم المرجعي", Type = "text", ColCss = "4", Required = true,Readonly=true },
+                new FieldConfig { Name = "p13", Label = "رقم الهوية", Type = "text", ColCss = "4",Placeholder="1xxxxxxxxx",Readonly=true },
+                new FieldConfig { Name = "p12", Label = "الرقم العام", Type = "text", ColCss = "4", Required = true,Readonly=true },
 
 
-                
-                new FieldConfig { Name = "p09", Label = "ملاحظات", Type = "textarea", ColCss = "3", Required = false,Readonly =true },
+
+
+
+                new FieldConfig { Name = "p05", Label = "رقم القرار", Type = "text", ColCss = "4", MaxLength = 50,Required=true,Readonly=true},
+                new FieldConfig { Name = "p06", Label = "تاريخ القرار", Type = "date", ColCss = "4", MaxLength = 50, TextMode = "number",Required=true,Placeholder="YYYY-MM-DD",Readonly=true},
+                new FieldConfig { Name = "p02", Label = "نوع الاعفاء", Type = "text", ColCss = "4", MaxLength = 50,Required=true,Readonly=true},
+
+                new FieldConfig { Name = "p07", Label = "تاريخ بداية الاعفاء", Type = "date", ColCss = "4", Required = false,Readonly=true },
+                new FieldConfig { Name = "p08", Label = "تاريخ نهاية الاعفاء", Type = "hiddateden", ColCss = "4", Required = false,Readonly=true},
+                new FieldConfig { Name = "p09", Label = "ملاحظات", Type = "textarea", ColCss = "4", Required = false,Readonly=true },
 
             };
 

@@ -11,7 +11,7 @@
     <meta charset="utf-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no, user-scalable=no, minimal-ui" />
-    <link rel="icon" href="~/img/ppng.png" />
+    <link rel="icon" href="~/img/Royal_Saudi_Land_Forces.png" />
 
     <title>تسجيل دخول للبوابة</title>
     <!-- JS -->
@@ -36,11 +36,11 @@
                 <div class="login-center">
                     <div class="login-brand-top">
                         <img class="login-brand-logo"
-                             src="~/img/ppng.png"
+                             src="~/img/Royal_Saudi_Land_Forces.png"
                              alt="KFMC" />
                        
                         <div class="login-brand-title">
-                            البوابة الموحدة لأنظمة إدارة مدينة الملك فيصل العسكرية
+                            المنصة الالكترونية الموحدة للإدارة الهندسية والأشغال بالقوات البرية
                         </div>
                     </div>
                     <div class="login-form-col my-10 flex h-screen py-5 xl:my-0 xl:h-auto xl:py-0">
@@ -111,10 +111,20 @@
                                         تذكرني
                                     </label>
                                 </div>
-                                <button type="button" class="text-primary">نسيت كلمة المرور؟</button>
+                               @*  <button type="button" class="text-primary">نسيت كلمة المرور؟</button> *@
                             </div>
 
-                            <div class="intro-x login-actions mt-5">
+                            <div class="intro-x login-actions login-actions-single mt-5">
+                                <button id="btnLogin"
+                                        type="submit"
+                                        class="login-btn login-btn-primary login-btn-single">
+                                    <span id="btnText" class="btn-content">دخول</span>
+                                    <span id="btnSpinner" class="spinner-border btn-content" role="status">
+                                        <span class="sr-only">Loading...</span>
+                                    </span>
+                                </button>
+                            </div>
+                           @*  <div class="intro-x login-actions mt-5">
                                 <button id="btnLogin"
                                         type="submit"
                                         class="login-btn login-btn-primary">
@@ -128,7 +138,7 @@
                                    class="login-btn login-btn-outline">
                                     تسجيل
                                 </a>
-                            </div>
+                            </div> *@
 
 
                         </div>

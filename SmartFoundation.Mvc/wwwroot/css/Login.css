@@ -733,3 +733,14 @@ button.text-primary {
     z-index: 9999;
     font-family: "Sakkal Majalla", "Tajawal", system-ui, sans-serif;
 }
+
+.login-actions-single {
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
+}
+
+    .login-actions-single .login-btn-single {
+        width: 75% !important;
+        margin: 0 auto !important;
+    }
