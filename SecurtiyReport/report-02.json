@@ -1,8 +1,8 @@
 {
 	"@programName": "ZAP",
 	"@version": "2.17.0",
-	"@generated": "Sun, 10 May 2026 21:42:17",
-	"created": "2026-05-10T21:42:17.202888713Z",
+	"@generated": "Mon, 11 May 2026 22:10:10",
+	"created": "2026-05-11T22:10:10.800892842Z",
 	"insights":[
 		{
 			"level": "Info",
@@ -90,7 +90,7 @@
 			"site": "https://host.docker.internal:7114",
 			"key": "insight.response.slow",
 			"description": "Percentage of slow responses",
-			"statistic": "42"
+			"statistic": "7"
 		}
 	],
 	"site":[ 
@@ -111,7 +111,7 @@
 					"desc": "<p>The application appears to be a modern web application. If you need to explore it automatically then the Ajax Spider may well be more effective than the standard one.</p>",
 					"instances":[ 
 						{
-							"id": "5",
+							"id": "3",
 							"uri": "https://host.docker.internal:7114",
 							"nodeName": "https:\/\/host.docker.internal:7114",
 							"method": "GET",
@@ -121,7 +121,7 @@
 							"otherinfo": "No links have been found while there are scripts, which is an indication that this is a modern web application."
 						},
 						{
-							"id": "6",
+							"id": "16",
 							"uri": "https://host.docker.internal:7114/?msg=%D8%B9%D8%B0%D8%B1%D8%A7%20%D9%84%D8%A7%D9%8A%D9%88%D8%AC%D8%AF%20%D8%AD%D8%B3%D8%A7%D8%A8%20%D9%86%D8%B4%D8%B7%20%D8%A8%D8%A7%D9%84%D9%86%D8%B8%D8%A7%D9%85%20%D9%84%D8%B5%D8%A7%D8%AD%D8%A8%20%D8%A7%D9%84%D9%87%D9%88%D9%8A%D8%A9%20%D8%B1%D9%82%D9%85%20%3A%20ZAP&mt=error&u=ZAP",
 							"nodeName": "https:\/\/host.docker.internal:7114\/ (msg,mt,u)",
 							"method": "GET",
@@ -151,7 +151,7 @@
 					"desc": "<p>The response contents are not storable by caching components such as proxy servers. If the response does not contain sensitive, personal or user-specific information, it may benefit from being stored and cached, to improve performance.</p>",
 					"instances":[ 
 						{
-							"id": "14",
+							"id": "13",
 							"uri": "https://host.docker.internal:7114",
 							"nodeName": "https:\/\/host.docker.internal:7114",
 							"method": "GET",
@@ -159,26 +159,16 @@
 							"attack": "",
 							"evidence": "no-store",
 							"otherinfo": ""
-						},
-						{
-							"id": "16",
-							"uri": "https://host.docker.internal:7114/?msg=%D8%B9%D8%B0%D8%B1%D8%A7%20%D9%84%D8%A7%D9%8A%D9%88%D8%AC%D8%AF%20%D8%AD%D8%B3%D8%A7%D8%A8%20%D9%86%D8%B4%D8%B7%20%D8%A8%D8%A7%D9%84%D9%86%D8%B8%D8%A7%D9%85%20%D9%84%D8%B5%D8%A7%D8%AD%D8%A8%20%D8%A7%D9%84%D9%87%D9%88%D9%8A%D8%A9%20%D8%B1%D9%82%D9%85%20%3A%20ZAP&mt=error&u=ZAP",
-							"nodeName": "https:\/\/host.docker.internal:7114\/ (msg,mt,u)",
-							"method": "GET",
-							"param": "",
-							"attack": "",
-							"evidence": "no-store",
-							"otherinfo": ""
 						}
 					],
-					"count": "2",
+					"count": "1",
 					"systemic": false,
 					"solution": "<p>The content may be marked as storable by ensuring that the following conditions are satisfied:</p><p>The request method must be understood by the cache and defined as being cacheable (\"GET\", \"HEAD\", and \"POST\" are currently defined as cacheable)</p><p>The response status code must be understood by the cache (one of the 1XX, 2XX, 3XX, 4XX, or 5XX response classes are generally understood)</p><p>The \"no-store\" cache directive must not appear in the request or response header fields</p><p>For caching by \"shared\" caches such as \"proxy\" caches, the \"private\" response directive must not appear in the response</p><p>For caching by \"shared\" caches such as \"proxy\" caches, the \"Authorization\" header field must not appear in the request, unless the response explicitly allows it (using one of the \"must-revalidate\", \"public\", or \"s-maxage\" Cache-Control response directives)</p><p>In addition to the conditions above, at least one of the following conditions must also be satisfied by the response:</p><p>It must contain an \"Expires\" header field</p><p>It must contain a \"max-age\" response directive</p><p>For \"shared\" caches such as \"proxy\" caches, it must contain a \"s-maxage\" response directive</p><p>It must contain a \"Cache Control Extension\" that allows it to be cached</p><p>It must have a status code that is defined as cacheable by default (200, 203, 204, 206, 300, 301, 404, 405, 410, 414, 501).</p>",
 					"otherinfo": "",
 					"reference": "<p>https://datatracker.ietf.org/doc/html/rfc7234</p><p>https://datatracker.ietf.org/doc/html/rfc7231</p><p>https://www.w3.org/Protocols/rfc2616/rfc2616-sec13.html</p>",
 					"cweid": "524",
 					"wascid": "13",
-					"sourceid": "7"
+					"sourceid": "1"
 				},
 				{
 					"pluginid": "10112",
@@ -199,26 +189,16 @@
 							"attack": "",
 							"evidence": ".AspNetCore.Antiforgery.x7n_ZwboATw",
 							"otherinfo": "cookie:.AspNetCore.Antiforgery.x7n_ZwboATw"
-						},
-						{
-							"id": "3",
-							"uri": "https://host.docker.internal:7114",
-							"nodeName": "https:\/\/host.docker.internal:7114",
-							"method": "GET",
-							"param": ".AspNetCore.Antiforgery.x7n_ZwboATw",
-							"attack": "",
-							"evidence": ".AspNetCore.Antiforgery.x7n_ZwboATw",
-							"otherinfo": "cookie:.AspNetCore.Antiforgery.x7n_ZwboATw"
 						}
 					],
-					"count": "2",
+					"count": "1",
 					"systemic": false,
 					"solution": "<p>This is an informational alert rather than a vulnerability and so there is nothing to fix.</p>",
 					"otherinfo": "<p>cookie:.AspNetCore.Antiforgery.x7n_ZwboATw</p>",
 					"reference": "<p>https://www.zaproxy.org/docs/desktop/addons/authentication-helper/session-mgmt-id/</p>",
 					"cweid": "-1",
 					"wascid": "-1",
-					"sourceid": "1"
+					"sourceid": "8"
 				},
 				{
 					"pluginid": "10049",
@@ -231,9 +211,9 @@
 					"desc": "<p>The response contents are storable by caching components such as proxy servers, and may be retrieved directly from the cache, rather than from the origin server by the caching servers, in response to similar requests from other users. If the response data is sensitive, personal or user-specific, this may result in sensitive information being leaked. In some cases, this may even result in a user gaining complete control of the session of another user, depending on the configuration of the caching components in use in their environment. This is primarily an issue where \"shared\" caching servers such as \"proxy\" caches are configured on the local network. This configuration is typically found in corporate or educational environments, for instance.</p>",
 					"instances":[ 
 						{
-							"id": "13",
-							"uri": "https://host.docker.internal:7114/css/Fontawesome6-5-0.min.css",
-							"nodeName": "https:\/\/host.docker.internal:7114\/css\/Fontawesome6-5-0.min.css",
+							"id": "7",
+							"uri": "https://host.docker.internal:7114/css/Login.css",
+							"nodeName": "https:\/\/host.docker.internal:7114\/css\/Login.css",
 							"method": "GET",
 							"param": "",
 							"attack": "",
@@ -241,9 +221,9 @@
 							"otherinfo": "In the absence of an explicitly specified caching lifetime directive in the response, a liberal lifetime heuristic of 1 year was assumed. This is permitted by rfc7234."
 						},
 						{
-							"id": "18",
-							"uri": "https://host.docker.internal:7114/js/jquery-3.7.1.min.js",
-							"nodeName": "https:\/\/host.docker.internal:7114\/js\/jquery-3.7.1.min.js",
+							"id": "8",
+							"uri": "https://host.docker.internal:7114/js/login-page.js?v=yw_4YfF1atpsQz521Kq9CgQ4d3fKw05BHUZM4YwjuLc",
+							"nodeName": "https:\/\/host.docker.internal:7114\/js\/login-page.js (v)",
 							"method": "GET",
 							"param": "",
 							"attack": "",
@@ -251,9 +231,9 @@
 							"otherinfo": "In the absence of an explicitly specified caching lifetime directive in the response, a liberal lifetime heuristic of 1 year was assumed. This is permitted by rfc7234."
 						},
 						{
-							"id": "17",
-							"uri": "https://host.docker.internal:7114/js/toastr.min.js",
-							"nodeName": "https:\/\/host.docker.internal:7114\/js\/toastr.min.js",
+							"id": "6",
+							"uri": "https://host.docker.internal:7114/lib/toastr/css/toastr.min.css",
+							"nodeName": "https:\/\/host.docker.internal:7114\/lib\/toastr\/css\/toastr.min.css",
 							"method": "GET",
 							"param": "",
 							"attack": "",
@@ -271,7 +251,7 @@
 							"otherinfo": "In the absence of an explicitly specified caching lifetime directive in the response, a liberal lifetime heuristic of 1 year was assumed. This is permitted by rfc7234."
 						},
 						{
-							"id": "19",
+							"id": "5",
 							"uri": "https://host.docker.internal:7114/sitemap.xml",
 							"nodeName": "https:\/\/host.docker.internal:7114\/sitemap.xml",
 							"method": "GET",
@@ -288,7 +268,7 @@
 					"reference": "<p>https://datatracker.ietf.org/doc/html/rfc7234</p><p>https://datatracker.ietf.org/doc/html/rfc7231</p><p>https://www.w3.org/Protocols/rfc2616/rfc2616-sec13.html</p>",
 					"cweid": "524",
 					"wascid": "13",
-					"sourceid": "31"
+					"sourceid": "17"
 				},
 				{
 					"pluginid": "10031",
@@ -301,7 +281,7 @@
 					"desc": "<p>This check looks at user-supplied input in query string parameters and POST data to identify where certain HTML attribute values might be controlled. This provides hot-spot detection for XSS (cross-site scripting) that will require further review by a security analyst to determine exploitability.</p>",
 					"instances":[ 
 						{
-							"id": "9",
+							"id": "18",
 							"uri": "https://host.docker.internal:7114/?msg=%D8%B9%D8%B0%D8%B1%D8%A7%20%D9%84%D8%A7%D9%8A%D9%88%D8%AC%D8%AF%20%D8%AD%D8%B3%D8%A7%D8%A8%20%D9%86%D8%B4%D8%B7%20%D8%A8%D8%A7%D9%84%D9%86%D8%B8%D8%A7%D9%85%20%D9%84%D8%B5%D8%A7%D8%AD%D8%A8%20%D8%A7%D9%84%D9%87%D9%88%D9%8A%D8%A9%20%D8%B1%D9%82%D9%85%20%3A%20ZAP&mt=error&u=ZAP",
 							"nodeName": "https:\/\/host.docker.internal:7114\/ (msg,mt,u)",
 							"method": "GET",
@@ -311,7 +291,7 @@
 							"otherinfo": "User-controlled HTML attribute values were found. Try injecting special characters to see if XSS might be possible. The page at the following URL:\n\nhttps://host.docker.internal:7114/?msg=%D8%B9%D8%B0%D8%B1%D8%A7%20%D9%84%D8%A7%D9%8A%D9%88%D8%AC%D8%AF%20%D8%AD%D8%B3%D8%A7%D8%A8%20%D9%86%D8%B4%D8%B7%20%D8%A8%D8%A7%D9%84%D9%86%D8%B8%D8%A7%D9%85%20%D9%84%D8%B5%D8%A7%D8%AD%D8%A8%20%D8%A7%D9%84%D9%87%D9%88%D9%8A%D8%A9%20%D8%B1%D9%82%D9%85%20%3A%20ZAP&mt=error&u=ZAP\n\nappears to include user input in:\na(n) [div] tag [data-message] attribute\n\nThe user input found was:\nmsg=\u0639\u0630\u0631\u0627 \u0644\u0627\u064A\u0648\u062C\u062F \u062D\u0633\u0627\u0628 \u0646\u0634\u0637 \u0628\u0627\u0644\u0646\u0638\u0627\u0645 \u0644\u0635\u0627\u062D\u0628 \u0627\u0644\u0647\u0648\u064A\u0629 \u0631\u0642\u0645 : ZAP\n\nThe user-controlled value was:\n\u0639\u0630\u0631\u0627 \u0644\u0627\u064A\u0648\u062C\u062F \u062D\u0633\u0627\u0628 \u0646\u0634\u0637 \u0628\u0627\u0644\u0646\u0638\u0627\u0645 \u0644\u0635\u0627\u062D\u0628 \u0627\u0644\u0647\u0648\u064A\u0629 \u0631\u0642\u0645 : zap"
 						},
 						{
-							"id": "8",
+							"id": "17",
 							"uri": "https://host.docker.internal:7114/?msg=%D8%B9%D8%B0%D8%B1%D8%A7%20%D9%84%D8%A7%D9%8A%D9%88%D8%AC%D8%AF%20%D8%AD%D8%B3%D8%A7%D8%A8%20%D9%86%D8%B4%D8%B7%20%D8%A8%D8%A7%D9%84%D9%86%D8%B8%D8%A7%D9%85%20%D9%84%D8%B5%D8%A7%D8%AD%D8%A8%20%D8%A7%D9%84%D9%87%D9%88%D9%8A%D8%A9%20%D8%B1%D9%82%D9%85%20%3A%20ZAP&mt=error&u=ZAP",
 							"nodeName": "https:\/\/host.docker.internal:7114\/ (msg,mt,u)",
 							"method": "GET",
@@ -321,7 +301,7 @@
 							"otherinfo": "User-controlled HTML attribute values were found. Try injecting special characters to see if XSS might be possible. The page at the following URL:\n\nhttps://host.docker.internal:7114/?msg=%D8%B9%D8%B0%D8%B1%D8%A7%20%D9%84%D8%A7%D9%8A%D9%88%D8%AC%D8%AF%20%D8%AD%D8%B3%D8%A7%D8%A8%20%D9%86%D8%B4%D8%B7%20%D8%A8%D8%A7%D9%84%D9%86%D8%B8%D8%A7%D9%85%20%D9%84%D8%B5%D8%A7%D8%AD%D8%A8%20%D8%A7%D9%84%D9%87%D9%88%D9%8A%D8%A9%20%D8%B1%D9%82%D9%85%20%3A%20ZAP&mt=error&u=ZAP\n\nappears to include user input in:\na(n) [div] tag [data-message-type] attribute\n\nThe user input found was:\nmt=error\n\nThe user-controlled value was:\nerror"
 						},
 						{
-							"id": "10",
+							"id": "19",
 							"uri": "https://host.docker.internal:7114/?msg=%D8%B9%D8%B0%D8%B1%D8%A7%20%D9%84%D8%A7%D9%8A%D9%88%D8%AC%D8%AF%20%D8%AD%D8%B3%D8%A7%D8%A8%20%D9%86%D8%B4%D8%B7%20%D8%A8%D8%A7%D9%84%D9%86%D8%B8%D8%A7%D9%85%20%D9%84%D8%B5%D8%A7%D8%AD%D8%A8%20%D8%A7%D9%84%D9%87%D9%88%D9%8A%D8%A9%20%D8%B1%D9%82%D9%85%20%3A%20ZAP&mt=error&u=ZAP",
 							"nodeName": "https:\/\/host.docker.internal:7114\/ (msg,mt,u)",
 							"method": "GET",

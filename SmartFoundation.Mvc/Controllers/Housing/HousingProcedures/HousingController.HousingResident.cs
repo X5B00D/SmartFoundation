@@ -147,6 +147,7 @@ namespace SmartFoundation.Mvc.Controllers.Housing
                             ["buildingActionTypeResidentAlias"] = "الحالة",
                             ["buildingDetailsNo"] = "رقم المنزل (إن وجد)",
                             ["OccupentDate"] = "تاريخ السكن",
+                            ["OccupentType"] = "نوع طلب التسكين",
                             ["WaitingListOrder"] = "الترتيب"
                         };
 
@@ -173,6 +174,7 @@ namespace SmartFoundation.Mvc.Controllers.Housing
                             bool isLastActionID = c.ColumnName.Equals("LastActionID", StringComparison.OrdinalIgnoreCase);
                             bool isWaitingOrderTypeName = c.ColumnName.Equals("WaitingOrderTypeName", StringComparison.OrdinalIgnoreCase);
                             bool ismeterscount = c.ColumnName.Equals("meterscount", StringComparison.OrdinalIgnoreCase);
+                            bool isActionTypeID = c.ColumnName.Equals("ActionTypeID", StringComparison.OrdinalIgnoreCase);
 
 
 
@@ -185,7 +187,7 @@ namespace SmartFoundation.Mvc.Controllers.Housing
                                 //if u want to hide any column 
                                 ,
                                 Visible = !(isActionID || isWaitingClassID || isWaitingOrderTypeID || iswaitingClassSequence
-                                || isresidentInfoID_FK || isIdaraId || isresidentInfoID  || isAssignPeriodID || isbuildingDetailsID || isLastActionID || isLastActionTypeID || isWaitingOrderTypeName || ismeterscount)
+                                || isresidentInfoID_FK || isIdaraId || isresidentInfoID  || isAssignPeriodID || isbuildingDetailsID || isLastActionID || isLastActionTypeID || isWaitingOrderTypeName || ismeterscount || isActionTypeID)
                             });
                         }
 

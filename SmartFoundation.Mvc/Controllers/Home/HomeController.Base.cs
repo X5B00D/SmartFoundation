@@ -21,6 +21,7 @@ namespace SmartFoundation.Mvc.Controllers.Home
         private readonly IWebHostEnvironment _env;
         private readonly Chart _chartService;
         private readonly ILogger<HomeController> _logger;
+        private readonly IConfiguration _configuration;
 
         // ✅ Constructor واحد فقط
         public HomeController(
@@ -28,13 +29,15 @@ namespace SmartFoundation.Mvc.Controllers.Home
             Chart chartService,
             MastersServies mastersServies,
             CrudController crudController, 
-            IWebHostEnvironment env)
+            IWebHostEnvironment env,
+            IConfiguration configuration)
         {
             _logger = logger;
             _chartService = chartService;
             _mastersServies = mastersServies;
             _CrudController = crudController;
             _env = env;
+            _configuration = configuration;
         }
 
         protected string? ControllerName;

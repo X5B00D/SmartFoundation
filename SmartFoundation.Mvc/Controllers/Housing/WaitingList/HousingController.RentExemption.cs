@@ -59,20 +59,6 @@ namespace SmartFoundation.Mvc.Controllers.Housing
             //string residentInfoIdaraID = "";
             
 
-
-           
-
-
-            //if (dt1 != null && dt1.Rows.Count > 0)
-            //{
-            //    DataRow rows = dt1.Rows[0];
-            //    if (dt1.Columns.Contains("IdaraID") && rows["IdaraID"] != DBNull.Value)
-            //        residentInfoIdaraID = rows["IdaraID"].ToString();
-            //}
-
-
-
-            //  التحقق من الصلاحيات
             if (permissionTable is null || permissionTable.Rows.Count == 0)
             {
                 TempData["Error"] = "تم رصد دخول غير مصرح به انت لاتملك صلاحية للوصول الى هذه الصفحة";
@@ -82,9 +68,11 @@ namespace SmartFoundation.Mvc.Controllers.Housing
 
             if (!string.IsNullOrWhiteSpace(NationalID_) && (dt1 == null || dt1.Rows.Count == 0))
             {
-                TempData["Error"] = "لم يتم العثور على نتائج لرقم الهوية: " + NationalID_;
+                TempData["Error"] = "صاحب الهوية رقم : " + NationalID_ +" غير ساكن حاليا";
                 
             }
+
+
 
 
             string? residentInfoID_ = null;
@@ -111,6 +99,30 @@ namespace SmartFoundation.Mvc.Controllers.Housing
                 }
             }
 
+            string? buildingDetailsNo_ = null;
+            if (dt1 != null && dt1.Columns.Contains("buildingDetailsNo") && dt1.Columns.Contains("buildingDetailsNo"))
+            {
+                var row = dt1.AsEnumerable()
+                    .FirstOrDefault(r => r["NationalID"] != DBNull.Value && r["NationalID"].ToString() == NationalID_);
+                if (row != null)
+                {
+                    var val = row["buildingDetailsNo"];
+                    buildingDetailsNo_ = val == DBNull.Value ? null : val.ToString();
+                }
+            }
+
+            string? buildingDetailsID_ = null;
+            if (dt1 != null && dt1.Columns.Contains("buildingDetailsID") && dt1.Columns.Contains("buildingDetailsID"))
+            {
+                var row = dt1.AsEnumerable()
+                    .FirstOrDefault(r => r["NationalID"] != DBNull.Value && r["NationalID"].ToString() == NationalID_);
+                if (row != null)
+                {
+                    var val = row["buildingDetailsID"];
+                    buildingDetailsID_ = val == DBNull.Value ? null : val.ToString();
+                }
+            }
+
 
 
             string rowIdField = "";
@@ -119,6 +131,8 @@ namespace SmartFoundation.Mvc.Controllers.Housing
             bool canADDRENTEXEMPTION = false;
             bool canEDITRENTEXEMPTION = false;
             bool canDELETERENTEXEMPTION = false;
+
+
            
 
 
@@ -342,6 +356,7 @@ namespace SmartFoundation.Mvc.Controllers.Housing
                             ["residentRentExemptionDescription"] = "ملاحظات",
                             ["ResidentRentExemptionTypeName_A"] = "نوع الاعفاء",
                             ["RentExemptionStatusText"] = "حالة الاعفاء",
+                            ["buildingDetailsNo"] = "رقم المنزل",
                             ["ResidentRentExemptionTypePercentage"] = "نسبة الاعفاء من الايجار"
                         };
 
@@ -356,14 +371,18 @@ namespace SmartFoundation.Mvc.Controllers.Housing
                                      || t == typeof(float) || t == typeof(double) || t == typeof(decimal))
                                 colType = "number";
 
-                            bool isWaitingClassID = c.ColumnName.Equals("WaitingClassID", StringComparison.OrdinalIgnoreCase);
-                            bool isWaitingOrderTypeID = c.ColumnName.Equals("WaitingOrderTypeID", StringComparison.OrdinalIgnoreCase);
-                            bool iswaitingClassSequence = c.ColumnName.Equals("waitingClassSequence", StringComparison.OrdinalIgnoreCase);
-                            bool isresidentInfoID = c.ColumnName.Equals("residentInfoID", StringComparison.OrdinalIgnoreCase);
-                            bool isActionID = c.ColumnName.Equals("ActionID", StringComparison.OrdinalIgnoreCase);
+                            bool isresidentRentExemptionTypeID_FK = c.ColumnName.Equals("residentRentExemptionTypeID_FK", StringComparison.OrdinalIgnoreCase);
+                            bool isbuildingDetailsID = c.ColumnName.Equals("buildingDetailsID", StringComparison.OrdinalIgnoreCase);
+                            bool isresidentRentExemptionActive = c.ColumnName.Equals("residentRentExemptionActive", StringComparison.OrdinalIgnoreCase);
+                            bool isresidentInfoID_FK = c.ColumnName.Equals("residentInfoID_FK", StringComparison.OrdinalIgnoreCase);
+                            bool isIdaraID = c.ColumnName.Equals("idaraID_FK", StringComparison.OrdinalIgnoreCase);
                             bool isNationalID = c.ColumnName.Equals("NationalID", StringComparison.OrdinalIgnoreCase);
-                            bool isFullName_A = c.ColumnName.Equals("FullName_A", StringComparison.OrdinalIgnoreCase);
-                            bool isLastActionTypeID = c.ColumnName.Equals("LastActionTypeID", StringComparison.OrdinalIgnoreCase);
+                            bool isgeneralNo_FK = c.ColumnName.Equals("generalNo_FK", StringComparison.OrdinalIgnoreCase);
+                            bool isentryDate = c.ColumnName.Equals("entryDate", StringComparison.OrdinalIgnoreCase);
+                            bool isentryData = c.ColumnName.Equals("entryData", StringComparison.OrdinalIgnoreCase);
+                            bool isRentExemptionStatus = c.ColumnName.Equals("RentExemptionStatus", StringComparison.OrdinalIgnoreCase);
+                            bool isResidentRentExemptionTypePercentage = c.ColumnName.Equals("ResidentRentExemptionTypePercentage", StringComparison.OrdinalIgnoreCase);
+                            bool ishostName = c.ColumnName.Equals("hostName", StringComparison.OrdinalIgnoreCase);
 
 
 
@@ -374,7 +393,7 @@ namespace SmartFoundation.Mvc.Controllers.Housing
                                 Type = colType,
                                 Sortable = true
                                  ,
-                                Visible = !(isWaitingClassID || isWaitingOrderTypeID || iswaitingClassSequence || isresidentInfoID ||  isNationalID || isFullName_A|| isLastActionTypeID)
+                                Visible = !(isresidentRentExemptionTypeID_FK || isbuildingDetailsID || isresidentRentExemptionActive || isresidentInfoID_FK ||  isNationalID || isIdaraID || isgeneralNo_FK || isentryDate || isRentExemptionStatus || isResidentRentExemptionTypePercentage || ishostName || isentryData)
                             });
                         }
 
@@ -403,7 +422,11 @@ namespace SmartFoundation.Mvc.Controllers.Housing
                             dict2["p11"] = Get("ResidentRentExemptionTypePercentage");
                             dict2["p12"] = Get("generalNo_FK");
                             dict2["p13"] = Get("NationalID");
-                            
+                            dict2["p14"] = Get("residentRentExemptionLetterNo");
+                            dict2["p15"] = Get("residentRentExemptionLetterDate");
+                            dict2["p16"] = Get("buildingDetailsID");
+                            dict2["p17"] = Get("buildingDetailsNo");
+
 
                             rowsList_dt2.Add(dict2);
                         }
@@ -419,17 +442,14 @@ namespace SmartFoundation.Mvc.Controllers.Housing
             var currentUrl = Request.Path + Request.QueryString;
 
 
-
-           
-
             // UPDATE fields
-                var AddFieldsWaitingList = new List<FieldConfig>
+            var AddFieldsWaitingList = new List<FieldConfig>
             {
                 new FieldConfig { Name = "redirectAction",      Type = "hidden", Value = PageName },
                 new FieldConfig { Name = "redirectController",  Type = "hidden", Value = ControllerName},
                 new FieldConfig { Name = "redirectUrl",  Type = "hidden", Value = currentUrl},
                 new FieldConfig { Name = "pageName_",           Type = "hidden", Value = PageName },
-                new FieldConfig { Name = "ActionType",          Type = "hidden", Value = "UPDATEWAITINGLIST" },
+                new FieldConfig { Name = "ActionType",          Type = "hidden", Value = "ADDRENTEXEMPTION" },
                 new FieldConfig { Name = "idaraID",             Type = "hidden", Value = IdaraId.ToString() },
                 new FieldConfig { Name = "entrydata",           Type = "hidden", Value = usersId.ToString() },
                 new FieldConfig { Name = "hostname",            Type = "hidden", Value = Request.Host.Value },
@@ -439,21 +459,21 @@ namespace SmartFoundation.Mvc.Controllers.Housing
 
 
 
-                new FieldConfig { Name = "p01", Label = "الرقم المرجعي", Type = "text", ColCss = "6", Required = true,Value=residentInfoID_ }, 
-                new FieldConfig { Name = "p13", Label = "رقم الهوية", Type = "text", ColCss = "6",Placeholder="1xxxxxxxxx",Value= NationalID_ },
-                new FieldConfig { Name = "p12", Label = "الرقم العام", Type = "text", ColCss = "6", Required = true,Value=generalNo_FK_ },
+                new FieldConfig { Name = "p03", Label = "residentInfoID_FK", Type = "hidden", ColCss = "6", Required = true,Value=residentInfoID_ }, 
+                new FieldConfig { Name = "p13", Label = "رقم الهوية", Type = "hidden", ColCss = "6",Placeholder="1xxxxxxxxx",Value= NationalID_ },
+                new FieldConfig { Name = "p12", Label = "الرقم العام", Type = "hidden", ColCss = "6", Required = true,Value=generalNo_FK_ },
+                new FieldConfig { Name = "p16", Label = "buildingDetailsID_", Type = "text", ColCss = "6", Required = true,Value=buildingDetailsID_ },
+                new FieldConfig { Name = "p17", Label = "buildingDetailsNo", Type = "text", ColCss = "6", Required = true,Value=buildingDetailsNo_ },
 
 
 
+                new FieldConfig { Name = "p14", Label = "رقم القرار", Type = "text", ColCss = "4", MaxLength = 50,Required=true},
+                new FieldConfig { Name = "p15", Label = "تاريخ القرار", Type = "date", ColCss = "4", MaxLength = 50 ,Required=true,Placeholder="YYYY-MM-DD"},
+                new FieldConfig { Name = "p02", Label = "نوع الاعفاء", Type = "select", ColCss = "4", MaxLength = 50,Required=true,Options=ResidentRentExemptionTypeOptions},
 
-
-                new FieldConfig { Name = "p05", Label = "رقم القرار", Type = "text", ColCss = "4", MaxLength = 50,Required=true},
-                new FieldConfig { Name = "p06", Label = "تاريخ القرار", Type = "date", ColCss = "4", MaxLength = 50 ,Required=true,Placeholder="YYYY-MM-DD"},
-                new FieldConfig { Name = "p10", Label = "نوع الاعفاء", Type = "select", ColCss = "4", MaxLength = 50,Required=true,Options=ResidentRentExemptionTypeOptions},
-
-                new FieldConfig { Name = "p07", Label = "تاريخ بداية الاعفاء", Type = "date", ColCss = "4", Required = true },
-                new FieldConfig { Name = "p08", Label = "تاريخ نهاية الاعفاء", Type = "date", ColCss = "4", Required = false},
-                new FieldConfig { Name = "p09", Label = "ملاحظات", Type = "textarea", ColCss = "4", Required = false },
+                new FieldConfig { Name = "p05", Label = "تاريخ بداية الاعفاء", Type = "date", ColCss = "4", Required = true },
+                new FieldConfig { Name = "p06", Label = "تاريخ نهاية الاعفاء", Type = "date", ColCss = "4", Required = false},
+                new FieldConfig { Name = "p27", Label = "ملاحظات", Type = "textarea", ColCss = "4", Required = false },
             };
 
 
@@ -464,7 +484,7 @@ namespace SmartFoundation.Mvc.Controllers.Housing
                 new FieldConfig { Name = "redirectController",  Type = "hidden", Value = ControllerName},
                 new FieldConfig { Name = "redirectUrl",  Type = "hidden", Value = currentUrl},
                 new FieldConfig { Name = "pageName_",           Type = "hidden", Value = PageName },
-                new FieldConfig { Name = "ActionType",          Type = "hidden", Value = "UPDATEWAITINGLIST" },
+                new FieldConfig { Name = "ActionType",          Type = "hidden", Value = "EDITRENTEXEMPTION" },
                 new FieldConfig { Name = "idaraID",             Type = "hidden", Value = IdaraId.ToString() },
                 new FieldConfig { Name = "entrydata",           Type = "hidden", Value = usersId.ToString() },
                 new FieldConfig { Name = "hostname",            Type = "hidden", Value = Request.Host.Value },
@@ -474,21 +494,23 @@ namespace SmartFoundation.Mvc.Controllers.Housing
 
 
 
-                new FieldConfig { Name = "p01", Label = "الرقم المرجعي", Type = "text", ColCss = "6", Required = true },
-                new FieldConfig { Name = "p13", Label = "رقم الهوية", Type = "text", ColCss = "6",Placeholder="1xxxxxxxxx" },
-                new FieldConfig { Name = "p12", Label = "الرقم العام", Type = "text", ColCss = "6", Required = true},
+                  new FieldConfig { Name = "p01", Label = "residentRentExemptionID", Type = "text", ColCss = "6", Required = true },
+                new FieldConfig { Name = "p03", Label = "residentInfoID_FK", Type = "text", ColCss = "6", Required = true,Value=residentInfoID_ },
+                new FieldConfig { Name = "p13", Label = "رقم الهوية", Type = "text", ColCss = "6",Placeholder="1xxxxxxxxx",Value= NationalID_ },
+                new FieldConfig { Name = "p12", Label = "الرقم العام", Type = "text", ColCss = "6", Required = true,Value=generalNo_FK_ },
+                new FieldConfig { Name = "p16", Label = "buildingDetailsID_", Type = "text", ColCss = "6", Required = true },
+                new FieldConfig { Name = "p17", Label = "buildingDetailsNo", Type = "text", ColCss = "6", Required = true },
 
 
 
 
-
-                new FieldConfig { Name = "p05", Label = "رقم القرار", Type = "text", ColCss = "4", MaxLength = 50,Required=true},
-                new FieldConfig { Name = "p06", Label = "تاريخ القرار", Type = "date", ColCss = "4", MaxLength = 50, TextMode = "number",Required=true,Placeholder="YYYY-MM-DD"},
+                new FieldConfig { Name = "p14", Label = "رقم القرار", Type = "text", ColCss = "4", MaxLength = 50,Required=true},
+                new FieldConfig { Name = "p15", Label = "تاريخ القرار", Type = "date", ColCss = "4", MaxLength = 50 ,Required=true,Placeholder="YYYY-MM-DD"},
                 new FieldConfig { Name = "p02", Label = "نوع الاعفاء", Type = "select", ColCss = "4", MaxLength = 50,Required=true,Options=ResidentRentExemptionTypeOptions},
 
-                new FieldConfig { Name = "p07", Label = "تاريخ بداية الاعفاء", Type = "date", ColCss = "4", Required = false },
-                new FieldConfig { Name = "p08", Label = "تاريخ نهاية الاعفاء", Type = "hiddateden", ColCss = "4", Required = false},
-                new FieldConfig { Name = "p09", Label = "ملاحظات", Type = "textarea", ColCss = "4", Required = false },
+                new FieldConfig { Name = "p05", Label = "تاريخ بداية الاعفاء", Type = "date", ColCss = "4", Required = true },
+                new FieldConfig { Name = "p06", Label = "تاريخ نهاية الاعفاء", Type = "date", ColCss = "4", Required = false},
+                new FieldConfig { Name = "p27", Label = "ملاحظات", Type = "textarea", ColCss = "4", Required = false },
             };
 
 
@@ -500,7 +522,7 @@ namespace SmartFoundation.Mvc.Controllers.Housing
                 new FieldConfig { Name = "redirectController",  Type = "hidden", Value = ControllerName},
                 new FieldConfig { Name = "redirectUrl",  Type = "hidden", Value = currentUrl},
                 new FieldConfig { Name = "pageName_",           Type = "hidden", Value = PageName },
-                new FieldConfig { Name = "ActionType",          Type = "hidden", Value = "UPDATEWAITINGLIST" },
+                new FieldConfig { Name = "ActionType",          Type = "hidden", Value = "DELETERENTEXEMPTION" },
                 new FieldConfig { Name = "idaraID",             Type = "hidden", Value = IdaraId.ToString() },
                 new FieldConfig { Name = "entrydata",           Type = "hidden", Value = usersId.ToString() },
                 new FieldConfig { Name = "hostname",            Type = "hidden", Value = Request.Host.Value },
@@ -510,21 +532,24 @@ namespace SmartFoundation.Mvc.Controllers.Housing
 
 
 
-                new FieldConfig { Name = "p03", Label = "الرقم المرجعي", Type = "text", ColCss = "4", Required = true,Readonly=true },
-                new FieldConfig { Name = "p13", Label = "رقم الهوية", Type = "text", ColCss = "4",Placeholder="1xxxxxxxxx",Readonly=true },
-                new FieldConfig { Name = "p12", Label = "الرقم العام", Type = "text", ColCss = "4", Required = true,Readonly=true },
+                new FieldConfig { Name = "p01", Label = "residentRentExemptionID", Type = "text", ColCss = "6", Required = true },
+                new FieldConfig { Name = "p03", Label = "residentInfoID_FK", Type = "text", ColCss = "6", Required = true,Value=residentInfoID_ },
+                new FieldConfig { Name = "p13", Label = "رقم الهوية", Type = "text", ColCss = "6",Placeholder="1xxxxxxxxx",Value= NationalID_ },
+                new FieldConfig { Name = "p12", Label = "الرقم العام", Type = "text", ColCss = "6", Required = true,Value=generalNo_FK_ },
+                new FieldConfig { Name = "p16", Label = "buildingDetailsID_", Type = "text", ColCss = "6", Required = true },
+                new FieldConfig { Name = "p17", Label = "buildingDetailsNo", Type = "text", ColCss = "6", Required = true },
 
 
 
 
 
-                new FieldConfig { Name = "p05", Label = "رقم القرار", Type = "text", ColCss = "4", MaxLength = 50,Required=true,Readonly=true},
-                new FieldConfig { Name = "p06", Label = "تاريخ القرار", Type = "date", ColCss = "4", MaxLength = 50, TextMode = "number",Required=true,Placeholder="YYYY-MM-DD",Readonly=true},
-                new FieldConfig { Name = "p02", Label = "نوع الاعفاء", Type = "text", ColCss = "4", MaxLength = 50,Required=true,Readonly=true},
+                new FieldConfig { Name = "p14", Label = "رقم القرار", Type = "text", ColCss = "4", MaxLength = 50,Required=true},
+                new FieldConfig { Name = "p15", Label = "تاريخ القرار", Type = "date", ColCss = "4", MaxLength = 50 ,Required=true,Placeholder="YYYY-MM-DD"},
+                new FieldConfig { Name = "p02", Label = "نوع الاعفاء", Type = "select", ColCss = "4", MaxLength = 50,Required=true,Options=ResidentRentExemptionTypeOptions},
 
-                new FieldConfig { Name = "p07", Label = "تاريخ بداية الاعفاء", Type = "date", ColCss = "4", Required = false,Readonly=true },
-                new FieldConfig { Name = "p08", Label = "تاريخ نهاية الاعفاء", Type = "hiddateden", ColCss = "4", Required = false,Readonly=true},
-                new FieldConfig { Name = "p09", Label = "ملاحظات", Type = "textarea", ColCss = "4", Required = false,Readonly=true },
+                new FieldConfig { Name = "p05", Label = "تاريخ بداية الاعفاء", Type = "date", ColCss = "4", Required = true },
+                new FieldConfig { Name = "p06", Label = "تاريخ نهاية الاعفاء", Type = "date", ColCss = "4", Required = false},
+                new FieldConfig { Name = "p27", Label = "ملاحظات", Type = "textarea", ColCss = "4", Required = false },
 
             };
 
@@ -628,13 +653,11 @@ namespace SmartFoundation.Mvc.Controllers.Housing
                     ShowColumns = true,
                     ShowExportCsv = false,
                     ShowExportExcel = false,
-                    ShowAdd = true,
-                    ShowEdit = true,
-                    ShowDelete = true,
 
-                    //ShowAdd = canADDRENTEXEMPTION,
-                    //ShowEdit = canEDITRENTEXEMPTION,
-                    //ShowDelete = canDELETERENTEXEMPTION,
+
+                    ShowAdd = canADDRENTEXEMPTION,
+                    ShowEdit = canEDITRENTEXEMPTION,
+                    ShowDelete = canDELETERENTEXEMPTION,
 
                     ShowBulkDelete = false,
                     
@@ -687,7 +710,7 @@ namespace SmartFoundation.Mvc.Controllers.Housing
                             ActionUrl = "/crud/delete",
                             Buttons = new List<FormButtonConfig>
                             {
-                                new FormButtonConfig { Text = "حذف", Type = "submit", Color = "danger", },
+                                new FormButtonConfig { Text = "تعديل", Type = "submit", Color = "success", },
                                 new FormButtonConfig { Text = "إلغاء", Type = "button", Color = "secondary", OnClickJs = "this.closest('.sf-modal').__x.$data.closeModal();" }
                             },
                             Fields = updateFieldsWaitingList

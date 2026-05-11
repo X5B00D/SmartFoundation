@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.Data.SqlClient;
 using SmartFoundation.Application.Services;
 using SmartFoundation.Mvc.Helpers;
 using SmartFoundation.Mvc.Models;
@@ -14,6 +15,8 @@ namespace SmartFoundation.Mvc.Controllers.Home
 {
     public partial class HomeController : Controller
     {
+
+
         [ResponseCache(NoStore = true, Location = ResponseCacheLocation.None)]
         public async Task<IActionResult> Index()
         {
@@ -24,6 +27,8 @@ namespace SmartFoundation.Mvc.Controllers.Home
             {
                 return RedirectToAction("Index", "Login", new { logout = 4 });
             }
+
+            await GenerateMonthlyRentBillsAsync();
 
             ControllerName = nameof(Home);
             PageName = "Home";
@@ -117,6 +122,42 @@ namespace SmartFoundation.Mvc.Controllers.Home
         public IActionResult Error()
         {
             return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+        }
+
+
+        private async Task GenerateMonthlyRentBillsAsync()
+        {
+            try
+            {
+                DateTime previousMonth = DateTime.Now.AddMonths(-1);
+
+                int month = previousMonth.Month;
+                int year = previousMonth.Year;
+
+                await using var conn = new SqlConnection(
+                    _configuration.GetConnectionString("Default"));
+
+                await using var cmd = new SqlCommand("[Housing].[GenerateMonthlyRentBills]", conn);
+
+                cmd.CommandType = CommandType.StoredProcedure;
+                cmd.CommandTimeout = 60;
+
+                cmd.Parameters.Add("@Month", SqlDbType.Int).Value = month;
+                cmd.Parameters.Add("@Year", SqlDbType.Int).Value = year;
+                cmd.Parameters.Add("@entrydata", SqlDbType.NVarChar, 20).Value = usersId ?? "";
+                cmd.Parameters.Add("@hostname", SqlDbType.NVarChar, 200).Value = HostName ?? "";
+                cmd.Parameters.Add("@idaraID", SqlDbType.Int).Value = Convert.ToInt32(IdaraId);
+
+                await conn.OpenAsync();
+                await cmd.ExecuteNonQueryAsync();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex,
+                    "Generate previous month rent bills failed. UserId={UserId}, IdaraId={IdaraId}",
+                    usersId,
+                    IdaraId);
+            }
         }
     }
 }
