@@ -152,6 +152,7 @@ namespace SmartFoundation.UI.ViewModels.SmartTable
 
         // ===== Filters =====
         public bool ShowFilter { get; set; } = false;
+        public bool ShowAdvancedFilter { get; set; } = false;
         public bool FilterRow { get; set; } = true;
         public int FilterDebounce { get; set; } = 250;
 

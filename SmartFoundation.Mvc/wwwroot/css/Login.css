@@ -19,6 +19,12 @@
 :root {
     --brand: #0f6b5d;
     --brand2: #0b5f55;
+    --brand3: #0a4f45;
+    --emerald-700: #064e3b;
+    --accent-primary: #0f6b5d;
+    --accent-primary-hover: #0d6154;
+    --accent-secondary: #64748b;
+    --accent-secondary-hover: #475569;
     --text: #0f172a;
     --muted: #64748b;
     --border: #e5edf3;
@@ -26,6 +32,7 @@
     --card: #ffffff;
     --shadow: 0 24px 60px rgba(0, 0, 0, .16);
     --radius: 18px;
+    --login-scale: 0.9;
 }
 
 /* ---------- Base / Reset ---------- */
@@ -162,24 +169,27 @@ body, input, button, a, h1, h2, h3, h4, h5, h6 {
     width: 100%;
     max-width: 480px;
     background: #ffffff;
-    border-radius: 16px;
-    border: 2.5px solid rgba(15, 107, 93, 0.35);
-    box-shadow: 0 8px 20px rgba(0,0,0,.06), 0 1px 3px rgba(0,0,0,.04);
-    padding: 18px 20px 16px;
+    border-radius: 14px;
+    border: 1px solid rgba(15, 23, 42, .06);
+    box-shadow: none;
+    padding: 22px 22px 18px;
     transform: translateY(-54px);
+    overflow: hidden;
 }
 
 .login-title {
-    margin: 0 0 20px;
+    margin: -22px -22px 22px;
     font-family: "Tajawal", system-ui, -apple-system, "Segoe UI", Arial, sans-serif;
     font-weight: 500;
-    font-size: 22px;
+    font-size: 21px;
     line-height: 1.4;
     letter-spacing: .2px;
     text-align: center;
-    color: #464646;
+    color: #40505d;
     position: relative;
-    padding-bottom: 14px;
+    padding: 18px 22px 16px;
+    background: linear-gradient(180deg, #fbfdfe 0%, #f6fafc 100%);
+    border-bottom: 1px solid #eaf0f5;
 }
 
 .login-title-inner {
@@ -190,11 +200,16 @@ body, input, button, a, h1, h2, h3, h4, h5, h6 {
 }
 
 .login-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
     width: 24px;
     height: 24px;
-    color: #646464;
+    font-size: 20px;
+    line-height: 1;
     position: relative;
-    top: 1px;
+    top: -1px;
+    flex: 0 0 auto;
 }
 
 .login-text {
@@ -224,15 +239,17 @@ body, input, button, a, h1, h2, h3, h4, h5, h6 {
 .form-control {
     width: 100%;
     appearance: none;
-    border: 1px solid var(--border);
-    background: #fff;
-    border-radius: 12px;
-    padding: 11px 14px;
+    border: 1px solid #dbe5ee;
+    background: #ffffff;
+    border-radius: 6px;
+    padding: 10px 14px;
     font-size: 15px; 
     line-height: 1.6; 
     color: var(--text);
     outline: none;
-    transition: border-color .15s ease, box-shadow .15s ease;
+    box-shadow: none;
+    -webkit-box-shadow: none;
+    transition: border-color .15s ease, background-color .15s ease;
 }
 
 
@@ -241,8 +258,12 @@ body, input, button, a, h1, h2, h3, h4, h5, h6 {
     }
 
     .form-control:focus {
-        border-color: rgba(15, 107, 93, .55);
-        box-shadow: 0 0 0 4px rgba(15, 107, 93, .12);
+        border-color: var(--emerald-700);
+        border-width: 1px;
+        background: #fff;
+        outline: none;
+        box-shadow: none !important;
+        -webkit-box-shadow: none !important;
     }
 
 .intro-x.mt-8 {
@@ -272,9 +293,9 @@ body, input, button, a, h1, h2, h3, h4, h5, h6 {
 }
 
 #nationalIdIconI {
-    font-size: 20px; 
-    color: #0f172a !important;
-    opacity: .70;
+    font-size: 18px;
+    color: var(--accent-primary) !important;
+    opacity: 1;
 }
 
 
@@ -285,12 +306,32 @@ body, input, button, a, h1, h2, h3, h4, h5, h6 {
 
 #txtPassword {
     padding-right: 56px;
+    padding-left: 56px;
+}
+
+#passwordLockIcon {
+    position: absolute;
+    top: 0;
+    right: 0;
+    height: 100%;
+    width: 54px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    user-select: none;
+    pointer-events: none;
+}
+
+#passwordLockIconI {
+    font-size: 18px;
+    color: var(--accent-primary) !important;
+    opacity: 1;
 }
 
 #togglePassword {
     position: absolute;
     top: 0;
-    right: 0;
+    left: 0;
     height: 100%;
     width: 54px; /* كان 60 */
     display: flex;
@@ -298,21 +339,34 @@ body, input, button, a, h1, h2, h3, h4, h5, h6 {
     justify-content: center;
     cursor: pointer;
     user-select: none;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity .15s ease;
 }
 
-    #togglePassword i {
-        font-size: 20px;
-        color: #0f172a !important;
-        opacity: .70;
+    #togglePassword.is-visible {
+        opacity: 1;
+        pointer-events: auto;
     }
 
-    #togglePassword:hover i {
+    #togglePassword.is-hidden {
+        opacity: 0;
+        pointer-events: none;
+    }
+
+    #togglePassword i {
+        font-size: 19px;
+        color: var(--accent-secondary) !important;
         opacity: 1;
     }
 
+    #togglePassword:hover i {
+        color: var(--accent-secondary-hover) !important;
+    }
+
 .login-eye-icon {
-    font-size: 20px;
-    color: #000;
+    font-size: 19px;
+    color: var(--accent-secondary) !important;
 }
 
 /* errors */
@@ -337,7 +391,7 @@ body, input, button, a, h1, h2, h3, h4, h5, h6 {
 #remember-me {
     width: 16px;
     height: 16px;
-    accent-color: var(--brand);
+    accent-color: var(--accent-primary);
     margin-left: 2px;
     position: relative;
     top: 3px;
@@ -346,11 +400,9 @@ body, input, button, a, h1, h2, h3, h4, h5, h6 {
 
 a.text-primary,
 button.text-primary {
-    color: #0f6b5d;
+    color: var(--accent-primary);
     text-decoration: none;
     font-weight: 500;
-    position: relative;
-    top: 3px;
     background: transparent;
     border: 0;
     padding: 0;
@@ -361,7 +413,8 @@ button.text-primary {
 
     a.text-primary:hover,
     button.text-primary:hover {
-        opacity: .85;
+        color: var(--accent-primary-hover);
+        opacity: 1;
     }
 
     button.text-primary:focus {
@@ -380,19 +433,25 @@ button.text-primary {
 
 #btnLogin {
     appearance: none;
-    border: 1px solid var(--brand);
-    background: var(--brand);
+    border: 1px solid transparent;
+    background: var(--accent-primary);
     color: #fff;
-    border-radius: 12px;
-    padding: 10px 14px;
-    font-weight: 700;
+    border-radius: 8px;
+    padding: 8px 14px;
+    font-weight: 400;
     cursor: pointer;
     width: 100%;
 }
 
 
     #btnLogin:hover {
-        filter: brightness(.98);
+        background: var(--accent-primary-hover);
+    }
+
+    #btnLogin:focus,
+    #btnLogin:active {
+        background: var(--accent-primary-hover);
+        outline: none;
     }
 
     #btnLogin:disabled {
@@ -402,12 +461,12 @@ button.text-primary {
 
 .intro-x.mt-5 a {
     width: 100%;
-    border: 1px solid #d7e2ec;
-    background: #fff;
+    border: 1px solid #dbe5ee;
+    background: #ffffff;
     color: #334155;
-    border-radius: 12px;
+    border-radius: 8px;
     padding: 12px 16px;
-    font-weight: 700;
+    font-weight: 400;
     text-decoration: none;
     display: inline-flex;
     align-items: center;
@@ -415,27 +474,33 @@ button.text-primary {
 }
 
     .intro-x.mt-5 a:hover {
-        border-color: #c9d6e2;
+        background: #f8fbfc;
+        border-color: #d1dde8;
     }
 /* ---------- Spinner ---------- */
 .btn-content {
     display: inline-flex;
     align-items: center;
     justify-content: center;
+    line-height: 1;
 }
 
 #btnSpinner {
     display: none;
+    align-items: center;
+    justify-content: center;
 }
 
 .spinner-border {
     display: inline-block;
-    width: 1rem;
-    height: 1rem;
-    border: .25em solid currentColor;
+    width: 18px;
+    height: 18px;
+    border: 2px solid currentColor;
     border-left-color: transparent;
     border-radius: 50%;
     animation: spinner-border .75s linear infinite;
+    box-sizing: border-box;
+    vertical-align: middle;
 }
 
 @keyframes spinner-border {
@@ -632,6 +697,8 @@ button.text-primary {
     justify-content: center;
     gap: 12px;
     padding: 22px 0;
+    transform: scale(var(--login-scale));
+    transform-origin: center center;
 }
 
 .login-brand-top {
@@ -647,16 +714,16 @@ button.text-primary {
         max-width: 70%;
         height: auto;
         display: block;
-        margin: 0 auto 10px;
-        filter: drop-shadow(0 16px 26px rgba(0, 0, 0, .22));
+        margin: 0 auto 14px;
     }
 
     .login-brand-top .login-brand-title {
-        font-weight: 500;
-        font-size: 22px;
-        line-height: 1.5;
+        font-weight: 400;
+        font-size: 24px;
+        line-height: 1.6;
+        letter-spacing: .1px;
         margin: 0;
-        text-shadow: 0 10px 18px rgba(0,0,0,.18);
+        max-width: 780px;
     }
 
 @keyframes brandTopIn {
@@ -689,36 +756,47 @@ button.text-primary {
 
 /* base button style (SAME SIZE) */
 .login-btn {
-    height: 44px; 
+    height: 40px; 
     width: 100%;
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    border-radius: 12px;
-    font-size: 14px;
-    font-weight: 700;
+    border-radius: 8px;
+    font-size: 15px;
+    font-weight: 400;
+    letter-spacing: .1px;
     text-decoration: none;
     cursor: pointer;
     border: 1px solid transparent;
+    transition: background-color .18s ease, border-color .18s ease, color .18s ease;
 }
 
 /* primary */
 .login-btn-primary {
-    background: #064E3B;
-    border-color: #334155;
+    background: var(--accent-primary);
+    border-color: transparent;
     color: #fff;
 }
 
 /* outline */
 .login-btn-outline {
-    background: #fff;
-    border-color: #d7e2ec;
+    background: #ffffff;
+    border-color: #dbe5ee;
     color: #334155;
 }
 
 /* hover */
 .login-btn:hover {
-    filter: brightness(.98);
+    filter: none;
+}
+
+.login-btn-primary:hover {
+    background: var(--accent-primary-hover);
+}
+
+.login-btn-outline:hover {
+    background: #f8fbfc;
+    border-color: #d1dde8;
 }
 
 .login-powered {
@@ -726,12 +804,13 @@ button.text-primary {
     top: 93%;
     left: 50%;
     transform: translate(-50%, -50%);
-    color: #ffffff;
-    font-size: 14px;
+    color: rgba(255,255,255,.88);
+    font-size: 13px;
     text-align: center;
     pointer-events: none;
     z-index: 9999;
     font-family: "Sakkal Majalla", "Tajawal", system-ui, sans-serif;
+    letter-spacing: .1px;
 }
 
 .login-actions-single {

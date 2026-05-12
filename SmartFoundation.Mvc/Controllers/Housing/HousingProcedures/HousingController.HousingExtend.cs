@@ -625,7 +625,8 @@ namespace SmartFoundation.Mvc.Controllers.Housing
                 //TabelLabelIcon = "fa-solid fa-user-group",
                 EnableCellCopy = true,
                 ShowColumnVisibility = true,
-                ShowFilter = true,
+                ShowFilter = false,
+                ShowAdvancedFilter = true,
                 FilterRow = true,
                 FilterDebounce = 250,
                 Toolbar = new TableToolbarConfig

@@ -48,12 +48,7 @@
                             
                             <h2 class="intro-x login-title">
                                 <span class="login-title-inner">
-                                    <svg class="login-icon" fill="none" stroke="currentColor" stroke-width="2"
-                                         viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
-                                        <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4" />
-                                        <polyline points="10 17 15 12 10 7" />
-                                        <line x1="15" y1="12" x2="3" y2="12" />
-                                    </svg>
+                                    <span class="login-icon" aria-hidden="true">🔐</span>
                                     <span class="login-text">تسجيل الدخول</span>
                                 </span>
                             </h2>
@@ -85,7 +80,7 @@
                                 </div>
                                 <div class="login__input-error text-danger mt-2" id="error-email"></div>
 
-                                <div class="relative mt-4">
+                                <div class="relative">
                                     <input type="password"
                                            name="password"
                                            id="txtPassword"
@@ -93,7 +88,12 @@
                                            autocomplete="current-password"
                                            class="form-control w-full rounded-md border-slate-200 px-4 py-3 pr-10 text-sm shadow-sm placeholder:text-slate-400/90 focus:ring-primary focus:ring-opacity-20 focus:border-primary focus:border-opacity-40 focus:ring-4 dark:bg-darkmode-800 dark:border-transparent dark:focus:ring-opacity-50 dark:placeholder:text-slate-500/80 dark:focus:ring-slate-700" />
 
-                                    <span id="togglePassword" class="absolute inset-y-0 right-0 flex cursor-pointer items-center px-3 hover:text-primary">
+                                    <span id="passwordLockIcon"
+                                          class="justify-content-center absolute inset-y-0 right-0 flex items-center px-3">
+                                        <i class="fa fa-lock" id="passwordLockIconI"></i>
+                                    </span>
+
+                                    <span id="togglePassword" class="absolute inset-y-0 left-0 flex cursor-pointer items-center px-3 hover:text-primary">
                                         <i class="fa fa-eye-slash login-eye-icon" id="eyeIcon"></i>
                                     </span>
                                 </div>
