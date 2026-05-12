@@ -641,8 +641,8 @@ namespace SmartFoundation.Mvc.Controllers.ElectronicBillSystem
                 // hidden p01 actually posted to SP
                 
                
-                new FieldConfig { Name = "p01", Label = "PeriodID_", Type = "text", ColCss = "3", Required = true, Value = PeriodID_ },
-                 new FieldConfig { Name = "p02", Label = "MeterServiceTypeID_", Type = "text", Value=MeterServiceTypeID_ },
+                new FieldConfig { Name = "p01", Label = "PeriodID_", Type = "hidden", ColCss = "3", Required = true, Value = PeriodID_ },
+                 new FieldConfig { Name = "p02", Label = "MeterServiceTypeID_", Type = "hidden", Value=MeterServiceTypeID_ },
 
 
             };
@@ -1307,7 +1307,7 @@ namespace SmartFoundation.Mvc.Controllers.ElectronicBillSystem
                         Color = "success",
                         OpenModal = true,
                         ModalTitle = "فتح فترة قراءة عدادات",
-                        ModalMessage = "هل أنت متأكد من فترة قراءة عدادات جديدة لهذه الخدمة؟",
+                        ModalMessage = "هل أنت متأكد من فتح فترة قراءة عدادات جديدة لهذه الخدمة؟",
                         ModalMessageClass = "bg-blue-50 text-blue-700",
                         ModalMessageIcon = "fa-solid fa-triangle-exclamation",
                         OpenForm = new FormConfig
@@ -1330,7 +1330,10 @@ namespace SmartFoundation.Mvc.Controllers.ElectronicBillSystem
                         Icon = "fa fa-plus",
                         Color = "danger",
                         OpenModal = true,
-                        ModalTitle = "اغلاق فترة قراءة عداداتت",
+                        ModalTitle = "اغلاق فترة قراءة عدادات",
+                        ModalMessage = "هل أنت متأكد من اغلاق فترة قراءة عدادات هذه الخدمة؟",
+                        ModalMessageClass = "bg-red-50 text-red-700",
+                        ModalMessageIcon = "fa-solid fa-triangle-exclamation",
                         OpenForm = new FormConfig
                         {
                             FormId = "buildingClassInsertForm",
