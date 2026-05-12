@@ -148,6 +148,7 @@ namespace SmartFoundation.Mvc.Controllers.Home
                 cmd.Parameters.Add("@hostname", SqlDbType.NVarChar, 200).Value = HostName ?? "";
                 cmd.Parameters.Add("@idaraID", SqlDbType.Int).Value = Convert.ToInt32(IdaraId);
 
+
                 await conn.OpenAsync();
                 await cmd.ExecuteNonQueryAsync();
             }
