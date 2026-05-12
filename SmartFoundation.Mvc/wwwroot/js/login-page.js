@@ -26,6 +26,20 @@
         const config = getElement("login-page-config");
         const currentYear = getElement("currentYear");
 
+        function syncPasswordToggle() {
+            if (!toggle || !password) return;
+
+            const hasValue = password.value.trim().length > 0;
+            toggle.classList.toggle("is-visible", hasValue);
+            toggle.classList.toggle("is-hidden", !hasValue);
+
+            if (!hasValue && eye) {
+                password.type = "password";
+                eye.classList.remove("fa-eye");
+                eye.classList.add("fa-eye-slash");
+            }
+        }
+
         if (currentYear) {
             currentYear.textContent = new Date().getFullYear().toString();
         }
@@ -53,6 +67,10 @@
         }
 
         if (toggle && password && eye) {
+            syncPasswordToggle();
+
+            password.addEventListener("input", syncPasswordToggle);
+
             toggle.addEventListener("click", function () {
                 const isPwd = password.type === "password";
                 password.type = isPwd ? "text" : "password";
@@ -68,6 +86,8 @@
 
             if (password) password.focus();
         }
+
+        syncPasswordToggle();
 
         if (form && btnLogin) {
             form.addEventListener("submit", function () {

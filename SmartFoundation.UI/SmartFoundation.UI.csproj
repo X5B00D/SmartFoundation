@@ -10,6 +10,12 @@
 		<NuGetAudit>false</NuGetAudit>
 		<WarningsNotAsErrors>NU1900</WarningsNotAsErrors>
 	</PropertyGroup>
+	<ItemGroup>
+	  <Compile Remove="wwwroot\**" />
+	  <Content Remove="wwwroot\**" />
+	  <EmbeddedResource Remove="wwwroot\**" />
+	  <None Remove="wwwroot\**" />
+	</ItemGroup>
 
 	<ItemGroup>
 		<FrameworkReference Include="Microsoft.AspNetCore.App" />
@@ -22,7 +28,5 @@
 	<ItemGroup>
 		<Folder Include="Views\Shared\Components\SmartPrint\Docs\" />
 		<Folder Include="Views\Shared\Components\SmartTableDS\" />
-		<Folder Include="wwwroot\" />
-		<Folder Include="wwwroot\js\" />
 	</ItemGroup>
 </Project>

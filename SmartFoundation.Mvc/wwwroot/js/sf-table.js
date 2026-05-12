@@ -98,6 +98,17 @@
             columnFilters: (cfg.columnFilters && typeof cfg.columnFilters === "object") ? cfg.columnFilters : {},
             showFilters: false,
             filterToggleSeq: 0,
+            advancedFilterOpen: false,
+            advancedFilters: Array.isArray(cfg.advancedFilters) ? cfg.advancedFilters : [],
+            advancedFilterDrag: {
+                active: false,
+                x: 0,
+                y: 0,
+                startX: 0,
+                startY: 0,
+                pointerX: 0,
+                pointerY: 0
+            },
 
             filterOptionsCache: {},
             filterOptionsLoading: {},
@@ -560,6 +571,9 @@
                 }
                 return false;
             },
+            hasAnyActiveFilters() {
+                return this.hasActiveColumnFilters() || this.hasActiveAdvancedFilters();
+            },
 
             // Select2 filter controls
             initFilterSelect2() {
@@ -763,6 +777,347 @@
 
             clearFiltersUI() {
                 this.clearAllColumnFilters();
+                this.clearAdvancedFilters();
+            },
+
+            // Advanced filters
+            advancedFiltersEnabled() {
+                const v = cfg.showAdvancedFilter ?? cfg.ShowAdvancedFilter ?? this.toolbar?.showAdvancedFilter ?? this.toolbar?.ShowAdvancedFilter;
+                return v === true || String(v).toLowerCase() === "true";
+            },
+            advancedFilterColumns() {
+                return (this.visibleColumns?.() || [])
+                    .filter(c => c && c.field && c.visible !== false);
+            },
+            createAdvancedFilterRule(field) {
+                return {
+                    field: field || "",
+                    op: "",
+                    value: "",
+                    valueTo: ""
+                };
+            },
+            ensureAdvancedFilterRule() {
+                if (!Array.isArray(this.advancedFilters)) this.advancedFilters = [];
+                if (!this.advancedFilters.length) {
+                    this.advancedFilters = [this.createAdvancedFilterRule()];
+                }
+            },
+            toggleAdvancedFilters() {
+                this.advancedFilterOpen = !this.advancedFilterOpen;
+                if (this.advancedFilterOpen) {
+                    this.ensureAdvancedFilterRule();
+                    this.preloadSelectFilters?.();
+                }
+            },
+            advancedFilterDialogTransform() {
+                const d = this.advancedFilterDrag || {};
+                const x = Number(d.x || 0);
+                const y = Number(d.y || 0);
+                return `translate(${x}px, ${y}px)`;
+            },
+            startAdvancedFilterDrag(event) {
+                if (!event || event.button !== 0) return;
+                if (event.target?.closest?.("button, input, select, textarea, a")) return;
+
+                const d = this.advancedFilterDrag;
+                d.active = true;
+                d.startX = Number(d.x || 0);
+                d.startY = Number(d.y || 0);
+                d.pointerX = Number(event.clientX || 0);
+                d.pointerY = Number(event.clientY || 0);
+
+                try { event.currentTarget?.setPointerCapture?.(event.pointerId); } catch { }
+                event.preventDefault();
+            },
+            moveAdvancedFilterDrag(event) {
+                const d = this.advancedFilterDrag;
+                if (!d?.active) return;
+
+                d.x = d.startX + (Number(event.clientX || 0) - d.pointerX);
+                d.y = d.startY + (Number(event.clientY || 0) - d.pointerY);
+            },
+            endAdvancedFilterDrag(event) {
+                const d = this.advancedFilterDrag;
+                if (!d?.active) return;
+                d.active = false;
+                try { event.currentTarget?.releasePointerCapture?.(event.pointerId); } catch { }
+            },
+            resetAdvancedFilterPosition() {
+                this.advancedFilterDrag.x = 0;
+                this.advancedFilterDrag.y = 0;
+            },
+            addAdvancedFilterRule() {
+                this.advancedFilters = [
+                    ...(Array.isArray(this.advancedFilters) ? this.advancedFilters : []),
+                    this.createAdvancedFilterRule()
+                ];
+            },
+            removeAdvancedFilterRule(index) {
+                const rules = Array.isArray(this.advancedFilters) ? [...this.advancedFilters] : [];
+                rules.splice(index, 1);
+                this.advancedFilters = rules.length ? rules : [this.createAdvancedFilterRule()];
+                this.onAdvancedFilterInput();
+            },
+            clearAdvancedFilters() {
+                this.advancedFilters = [];
+                this.advancedFilterOpen = false;
+                this.onAdvancedFilterInput();
+            },
+            resetAdvancedFiltersToOne() {
+                this.advancedFilters = [this.createAdvancedFilterRule()];
+                this.onAdvancedFilterInput();
+            },
+            hasActiveAdvancedFilters() {
+                if (!Array.isArray(this.advancedFilters)) return false;
+                return this.advancedFilters.some(rule => this.isAdvancedFilterRuleActive(rule));
+            },
+            activeAdvancedFiltersCount() {
+                if (!Array.isArray(this.advancedFilters)) return 0;
+                return this.advancedFilters.filter(rule => this.isAdvancedFilterRuleActive(rule)).length;
+            },
+            isAdvancedFilterRuleActive(rule) {
+                if (!rule) return false;
+                const op = String(rule.op || "").trim();
+                const field = String(rule.field || "").trim();
+                const value = String(rule.value ?? "").trim();
+                const valueTo = String(rule.valueTo ?? "").trim();
+                if (!field || !op) return false;
+                if (["empty", "notempty"].includes(op)) return true;
+                if (op === "between") return !!value || !!valueTo;
+                return !!value;
+            },
+            getAdvancedFilterColumn(field) {
+                const key = String(field || "").trim();
+                return (this.columns || []).find(c => String(c?.field || "") === key) || null;
+            },
+            getAdvancedFilterType(rule) {
+                const col = this.getAdvancedFilterColumn(rule?.field);
+                return col ? this.getColFilterType(col) : "text";
+            },
+            onAdvancedFilterFieldChanged(rule) {
+                if (!rule) return;
+                if (!rule.field) {
+                    rule.op = "";
+                    rule.value = "";
+                    rule.valueTo = "";
+                    this.onAdvancedFilterInput();
+                    return;
+                }
+
+                const type = this.getAdvancedFilterType(rule);
+                if (type === "bool") rule.op = "eq";
+                else if (type === "select") rule.op = "eq";
+                else if (type === "number" || type === "date") rule.op = "eq";
+                else rule.op = "contains";
+                rule.value = "";
+                rule.valueTo = "";
+                this.onAdvancedFilterInput();
+            },
+            advancedFilterOps(rule) {
+                const type = this.getAdvancedFilterType(rule);
+                const common = [
+                    { value: "empty", text: "فارغ" },
+                    { value: "notempty", text: "غير فارغ" }
+                ];
+
+                if (type === "number" || type === "date") {
+                    return [
+                        { value: "eq", text: "يساوي" },
+                        { value: "neq", text: "لا يساوي" },
+                        { value: "gt", text: "أكبر من" },
+                        { value: "gte", text: "أكبر أو يساوي" },
+                        { value: "lt", text: "أصغر من" },
+                        { value: "lte", text: "أصغر أو يساوي" },
+                        { value: "between", text: "بين" },
+                        ...common
+                    ];
+                }
+
+                if (type === "bool" || type === "select") {
+                    return [
+                        { value: "eq", text: "يساوي" },
+                        { value: "neq", text: "لا يساوي" },
+                        ...common
+                    ];
+                }
+
+                return [
+                    { value: "contains", text: "يحتوي" },
+                    { value: "notcontains", text: "لا يحتوي" },
+                    { value: "eq", text: "يساوي" },
+                    { value: "neq", text: "لا يساوي" },
+                    { value: "starts", text: "يبدأ بـ" },
+                    { value: "ends", text: "ينتهي بـ" },
+                    ...common
+                ];
+            },
+            advancedFilterInputType(rule) {
+                const type = this.getAdvancedFilterType(rule);
+                if (type === "date") return "date";
+                if (type === "number") return "number";
+                return "text";
+            },
+            advancedFilterNeedsValue(rule) {
+                if (!rule?.field || !rule?.op) return false;
+                const op = String(rule?.op || "").trim();
+                return !["empty", "notempty"].includes(op);
+            },
+            advancedFilterNeedsSecondValue(rule) {
+                return String(rule?.op || "").trim() === "between";
+            },
+            advancedFilterOptions(rule) {
+                const col = this.getAdvancedFilterColumn(rule?.field);
+                if (!col) return [];
+                return this.getColFilterOptions(col) || [];
+            },
+            renderPlainSelectOptions(selectEl, options, currentValue) {
+                if (!selectEl) return;
+
+                const normalized = (Array.isArray(options) ? options : []).map(opt => ({
+                    value: String(opt?.value ?? opt?.Value ?? ""),
+                    text: String(opt?.text ?? opt?.Text ?? opt?.value ?? opt?.Value ?? "")
+                }));
+
+                const signature = JSON.stringify(normalized);
+                if (selectEl.dataset.sfOptionsSignature !== signature) {
+                    selectEl.dataset.sfOptionsSignature = signature;
+                    selectEl.innerHTML = "";
+
+                    normalized.forEach(opt => {
+                        const option = document.createElement("option");
+                        option.value = opt.value;
+                        option.textContent = opt.text;
+                        selectEl.appendChild(option);
+                    });
+                }
+
+                const value = String(currentValue ?? "");
+                const exists = normalized.some(opt => opt.value === value);
+                selectEl.value = exists ? value : (normalized[0]?.value ?? "");
+            },
+            renderAdvancedFilterFieldOptions(selectEl, rule) {
+                const options = [
+                    { value: "", text: "الرجاء الاختيار" },
+                    ...this.advancedFilterColumns().map(col => ({
+                        value: col.field,
+                        text: col.label || col.Label || col.field
+                    }))
+                ];
+
+                this.renderPlainSelectOptions(selectEl, options, rule.field);
+            },
+            renderAdvancedFilterOpOptions(selectEl, rule) {
+                if (!rule?.field) {
+                    this.renderPlainSelectOptions(selectEl, [{ value: "", text: "الرجاء الاختيار" }], "");
+                    return;
+                }
+
+                const options = this.advancedFilterOps(rule);
+                const values = options.map(opt => String(opt.value));
+
+                if (!values.includes(String(rule.op || ""))) {
+                    rule.op = options[0]?.value || "contains";
+                    rule.value = "";
+                    rule.valueTo = "";
+                }
+
+                this.renderPlainSelectOptions(selectEl, options, rule.op);
+            },
+            renderAdvancedFilterValueOptions(selectEl, rule) {
+                const options = [
+                    { value: "", text: "اختر" },
+                    ...this.advancedFilterOptions(rule)
+                ];
+
+                this.renderPlainSelectOptions(selectEl, options, rule.value);
+            },
+            renderAdvancedFilterBoolOptions(selectEl, rule) {
+                const options = [
+                    { value: "", text: "اختر" },
+                    { value: "true", text: "نعم" },
+                    { value: "false", text: "لا" }
+                ];
+
+                this.renderPlainSelectOptions(selectEl, options, rule.value);
+            },
+            onAdvancedFilterInput() {
+                clearTimeout(this.filtersTimer);
+                this.filtersTimer = setTimeout(() => {
+                    this.page = 1;
+                    if (this.serverPaging) this.load();
+                    else this.applyFiltersAndSort();
+                    this.savePreferences?.();
+                }, this.filtersDebounce);
+            },
+            normalizeAdvancedCompareValue(value, type) {
+                if (type === "number") {
+                    const n = Number(value);
+                    return Number.isNaN(n) ? null : n;
+                }
+
+                if (type === "date") {
+                    const d = new Date(value);
+                    if (Number.isNaN(d.getTime())) return null;
+                    return new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime();
+                }
+
+                if (type === "bool") {
+                    const s = String(value ?? "").toLowerCase().trim();
+                    if (["1", "true", "نعم", "yes", "y"].includes(s)) return true;
+                    if (["0", "false", "لا", "no", "n"].includes(s)) return false;
+                    return null;
+                }
+
+                return this.normalizeFilterText(value);
+            },
+            rowPassesAdvancedFilter(row, rule) {
+                if (!this.isAdvancedFilterRuleActive(rule)) return true;
+
+                const field = String(rule.field || "").trim();
+                const op = String(rule.op || "").trim();
+                const type = this.getAdvancedFilterType(rule);
+                const rawCell = row?.[field];
+                const rawValue = rule.value ?? "";
+                const rawValueTo = rule.valueTo ?? "";
+                const cellText = String(rawCell ?? "").trim();
+
+                if (op === "empty") return !cellText;
+                if (op === "notempty") return !!cellText;
+
+                if (type === "number" || type === "date" || type === "bool") {
+                    const cell = this.normalizeAdvancedCompareValue(rawCell, type);
+                    const value = this.normalizeAdvancedCompareValue(rawValue, type);
+                    if (cell == null || value == null) return false;
+
+                    if (op === "between") {
+                        const valueTo = this.normalizeAdvancedCompareValue(rawValueTo, type);
+                        const min = value;
+                        const max = valueTo == null ? value : valueTo;
+                        return cell >= Math.min(min, max) && cell <= Math.max(min, max);
+                    }
+
+                    if (op === "neq") return cell !== value;
+                    if (op === "gt") return cell > value;
+                    if (op === "gte") return cell >= value;
+                    if (op === "lt") return cell < value;
+                    if (op === "lte") return cell <= value;
+                    return cell === value;
+                }
+
+                const cell = this.normalizeFilterText(rawCell);
+                const value = this.normalizeFilterText(rawValue);
+                if (!value) return true;
+
+                if (op === "neq") return cell !== value;
+                if (op === "starts") return cell.startsWith(value);
+                if (op === "ends") return cell.endsWith(value);
+                if (op === "notcontains") return !cell.includes(value);
+                return op === "eq" ? cell === value : cell.includes(value);
+            },
+            rowPassesAdvancedFilters(row) {
+                if (!this.hasActiveAdvancedFilters()) return true;
+                return (this.advancedFilters || []).every(rule => this.rowPassesAdvancedFilter(row, rule));
             },
 
             // Table options
@@ -1955,6 +2310,17 @@
                             }
                         }
 
+                        if (Array.isArray(prefs.advancedFilters)) {
+                            this.advancedFilters = prefs.advancedFilters
+                                .filter(x => x && typeof x === "object")
+                                .map(x => ({
+                                    field: String(x.field || ""),
+                                    op: String(x.op || ""),
+                                    value: String(x.value ?? ""),
+                                    valueTo: String(x.valueTo ?? "")
+                                }));
+                        }
+
                         if (prefs.columns && Array.isArray(this.columns)) {
                             this.columns.forEach(col => {
                                 const storedCol = prefs.columns.find(c => c.field === col.field);
@@ -1984,6 +2350,7 @@
                         sort: this.sort,
 
                         columnFilters: this.columnFilters || {},
+                        advancedFilters: Array.isArray(this.advancedFilters) ? this.advancedFilters : [],
 
                         columns: this.columns.map(col => ({
                             field: col.field,
@@ -2169,7 +2536,8 @@
                                 q: this.q || null,
                                 sortField: this.sort.field || null,
                                 sortDir: this.sort.dir || "asc",
-                                columnFilters: this.columnFilters || {}
+                                columnFilters: this.columnFilters || {},
+                                advancedFilters: this.advancedFilters || []
                             }
                         };
                         const json = await this.postJson(this.endpoint, body);
@@ -2264,6 +2632,10 @@
 
                 if (this.filtersEnabled && this.hasActiveColumnFilters?.()) {
                     filtered = filtered.filter(row => this.rowPassesColumnFilters(row));
+                }
+
+                if (this.advancedFiltersEnabled?.() && this.hasActiveAdvancedFilters?.()) {
+                    filtered = filtered.filter(row => this.rowPassesAdvancedFilters(row));
                 }
 
                 if (this.sort.field) {

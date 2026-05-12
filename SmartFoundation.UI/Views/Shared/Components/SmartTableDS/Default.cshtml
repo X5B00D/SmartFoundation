@@ -37,6 +37,7 @@
         enableCellCopy = Model.EnableCellCopy,
 
         filtersEnabled = Model.ShowFilter,
+        showAdvancedFilter = Model.ShowAdvancedFilter || (Model.Toolbar?.ShowAdvancedFilter ?? false),
         filtersRow = Model.FilterRow,
         filtersDebounce = Model.FilterDebounce,
 
@@ -109,6 +110,7 @@
     var headerCellStyle = string.IsNullOrWhiteSpace(Model.HeaderColor) ? "" : $"background-color:{Model.HeaderColor};";
     var rowActionsHeaderStyle = string.IsNullOrWhiteSpace(Model.HeaderColor) ? "background:#0a7257;color:#fff;" : $"background-color:{Model.HeaderColor};color:#fff;";
     var pageSizeItems = Model.PageSizes ?? new List<int>();
+    var showAdvancedFilter = Model.ShowAdvancedFilter || (Model.Toolbar?.ShowAdvancedFilter ?? false);
 }
 
 @{
@@ -179,7 +181,7 @@
 
                                 <button type="button"
                                         class="sf-filter-clear sf-toolbar-tool sf-toolbar-tool--danger"
-                                        x-show="hasActiveColumnFilters()"
+                                        x-show="hasAnyActiveFilters()"
                                         x-on:click="clearFiltersUI()"
                                         title="مسح جميع الفلاتر"
                                         aria-label="مسح الفلاتر">
@@ -191,6 +193,45 @@
                                     </span>
                                     <span class="sf-toolbar-tool__label">مسح الفلاتر</span>
                                 </button>
+                            }
+
+                            @if (!Model.ShowFilter && showAdvancedFilter)
+                            {
+                                <button type="button"
+                                        class="sf-filter-clear sf-toolbar-tool sf-toolbar-tool--danger"
+                                        x-show="hasAnyActiveFilters()"
+                                        x-on:click="clearFiltersUI()"
+                                        title="مسح جميع الفلاتر"
+                                        aria-label="مسح الفلاتر">
+                                    <span class="sf-toolbar-tool__icon" aria-hidden="true">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+                                            <path d="M5 12h10"></path>
+                                            <path d="M15.5 8.5l3.5 3.5-3.5 3.5"></path>
+                                        </svg>
+                                    </span>
+                                    <span class="sf-toolbar-tool__label">مسح الفلاتر</span>
+                                </button>
+                            }
+
+                            @if (showAdvancedFilter)
+                            {
+                                <template x-if="advancedFiltersEnabled()">
+                                    <button type="button"
+                                            class="sf-filter-btn sf-toolbar-tool sf-toolbar-tool--advanced"
+                                            x-on:click="toggleAdvancedFilters()"
+                                            x-bind:aria-expanded="String(!!advancedFilterOpen)"
+                                            x-bind:class="{ 'is-active': !!advancedFilterOpen || hasActiveAdvancedFilters() }"
+                                            title="فلترة متقدمة"
+                                            aria-label="فلترة متقدمة">
+                                        <span class="sf-toolbar-tool__icon" aria-hidden="true">
+                                            <i class="fa fa-sliders"></i>
+                                        </span>
+                                        <span class="sf-toolbar-tool__label">متقدم</span>
+                                        <span class="sf-advanced-filter__count"
+                                              x-show="activeAdvancedFiltersCount() > 0"
+                                              x-text="activeAdvancedFiltersCount()"></span>
+                                    </button>
+                                </template>
                             }
 
                             <template x-if="showColumnVisibility && toolbar && (toolbar.showColumns !== false)">
@@ -383,6 +424,123 @@
                     </div>
                 </div>
             }
+
+            <div class="sf-advanced-filter-modal"
+                 role="dialog"
+                 aria-modal="true"
+                 aria-label="فلترة متقدمة"
+                 x-show="advancedFiltersEnabled() && advancedFilterOpen"
+                 x-on:keydown.escape.window="advancedFilterOpen=false"
+                 x-cloak
+                 style="position:fixed; inset:0; z-index:2147482500; display:flex; align-items:center; justify-content:center; padding:16px; direction:rtl;">
+                <div class="sf-advanced-filter-modal__backdrop"
+                     x-on:click="advancedFilterOpen=false"
+                     style="position:absolute; inset:0; background:rgba(15,23,42,.42);"></div>
+
+                <div class="sf-advanced-filter"
+                     x-transition
+                     x-on:click.stop
+                     x-effect="$el.style.transform = advancedFilterDialogTransform()"
+                     style="position:relative; z-index:1; width:min(760px, calc(100vw - 32px)); max-height:min(78vh, 720px); display:flex; flex-direction:column;">
+                    <div class="sf-advanced-filter__head"
+                         x-on:pointerdown="startAdvancedFilterDrag($event)"
+                         x-on:pointermove="moveAdvancedFilterDrag($event)"
+                         x-on:pointerup="endAdvancedFilterDrag($event)"
+                         x-on:pointercancel="endAdvancedFilterDrag($event)"
+                         x-on:dblclick="resetAdvancedFilterPosition()">
+                        <div class="sf-advanced-filter__title">
+                            <i class="fa fa-sliders"></i>
+                            فلترة متقدمة
+                        </div>
+                    </div>
+
+                    <div class="sf-advanced-filter__body">
+                        <template x-for="(rule, ruleIdx) in advancedFilters" x-bind:key="'adv-' + ruleIdx">
+                            <div class="sf-advanced-filter__rule">
+                                <select class="sf-advanced-filter__control"
+                                        x-model="rule.field"
+                                        x-effect="renderAdvancedFilterFieldOptions($el, rule)"
+                                        x-on:change="rule.field=$el.value; onAdvancedFilterFieldChanged(rule)">
+                                </select>
+
+                                <select class="sf-advanced-filter__control"
+                                        x-model="rule.op"
+                                        x-effect="renderAdvancedFilterOpOptions($el, rule)"
+                                        x-on:change="rule.op=$el.value; rule.value=''; rule.valueTo=''; onAdvancedFilterInput()">
+                                </select>
+
+                                <template x-if="advancedFilterNeedsValue(rule) && getAdvancedFilterType(rule) === 'bool'">
+                                    <select class="sf-advanced-filter__control"
+                                            x-model="rule.value"
+                                            x-effect="renderAdvancedFilterBoolOptions($el, rule)"
+                                            x-on:change="rule.value=$el.value; onAdvancedFilterInput()">
+                                    </select>
+                                </template>
+
+                                <template x-if="advancedFilterNeedsValue(rule) && getAdvancedFilterType(rule) === 'select'">
+                                    <select class="sf-advanced-filter__control"
+                                            x-model="rule.value"
+                                            x-effect="renderAdvancedFilterValueOptions($el, rule)"
+                                            x-on:change="rule.value=$el.value; onAdvancedFilterInput()">
+                                    </select>
+                                </template>
+
+                                <template x-if="advancedFilterNeedsValue(rule) && !['bool','select'].includes(getAdvancedFilterType(rule))">
+                                    <input class="sf-advanced-filter__control"
+                                           x-bind:type="advancedFilterInputType(rule)"
+                                           x-model.trim="rule.value"
+                                           x-on:input.debounce.300ms="onAdvancedFilterInput()"
+                                           placeholder="القيمة" />
+                                </template>
+
+                                <template x-if="advancedFilterNeedsSecondValue(rule)">
+                                    <input class="sf-advanced-filter__control"
+                                           x-bind:type="advancedFilterInputType(rule)"
+                                           x-model.trim="rule.valueTo"
+                                           x-on:input.debounce.300ms="onAdvancedFilterInput()"
+                                           placeholder="إلى" />
+                                </template>
+
+                                <button type="button"
+                                        class="sf-advanced-filter__remove"
+                                        x-on:click="removeAdvancedFilterRule(ruleIdx)"
+                                        title="حذف الشرط"
+                                        aria-label="حذف الشرط">
+                                    حذف
+                                </button>
+                            </div>
+                        </template>
+                    </div>
+
+                    <div class="sf-advanced-filter__foot">
+                        <button type="button"
+                                class="sf-advanced-filter__link"
+                                x-on:click="addAdvancedFilterRule()">
+                            <i class="fa fa-plus"></i>
+                            شرط جديد
+                        </button>
+
+                        <button type="button"
+                                class="sf-advanced-filter__link sf-advanced-filter__link--danger"
+                                x-show="advancedFilters.length > 1 || hasActiveAdvancedFilters()"
+                                x-on:click="resetAdvancedFiltersToOne()">
+                            مسح الكل
+                        </button>
+
+                        <button type="button"
+                                class="sf-advanced-filter__apply"
+                                x-on:click="advancedFilterOpen=false">
+                            تطبيق
+                        </button>
+
+                        <button type="button"
+                                class="sf-advanced-filter__dismiss"
+                                x-on:click="advancedFilterOpen=false">
+                            إغلاق
+                        </button>
+                    </div>
+                </div>
+            </div>
 
             <div class="table-box" x-show="viewMode === 'Table'">
                 <table class="sf-table">
