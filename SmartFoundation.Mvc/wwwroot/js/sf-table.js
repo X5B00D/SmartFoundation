@@ -6613,46 +6613,103 @@
                     return `<div class="sf-detail-empty">لا توجد بيانات</div>`;
                 }
 
-                let html = `<div class="sf-detail-grid">`;
+                const visibleItems = columns
+                    .filter(col => col && col.visible !== false && col.field)
+                    .map(col => {
+                        const value = row[col.field];
+                        if (value == null || value === "") return null;
 
-                columns.forEach(col => {
-                    if (col.visible === false || !col.field) return;
+                        let displayValue = value;
+                        const type = String(col.type || col.Type || "").toLowerCase();
 
-                    const value = row[col.field];
-                    if (value == null || value === "") return;
+                        switch (type) {
+                            case "date":
+                                displayValue = new Date(value).toLocaleDateString("ar-SA");
+                                break;
+                            case "datetime":
+                                displayValue = new Date(value).toLocaleString("ar-SA");
+                                break;
+                            case "bool":
+                            case "boolean":
+                                displayValue = value ? "نعم" : "لا";
+                                break;
+                            case "money":
+                            case "currency":
+                                displayValue = new Intl.NumberFormat("ar-SA", {
+                                    style: "currency",
+                                    currency: "SAR"
+                                }).format(value);
+                                break;
+                            default:
+                                displayValue = value;
+                                break;
+                        }
 
-                    let displayValue = value;
+                        return {
+                            label: String(col.label || col.title || col.header || col.field || ""),
+                            value: String(displayValue),
+                            type
+                        };
+                    })
+                    .filter(Boolean);
 
-                    switch (col.type) {
-                        case "date":
-                            displayValue = new Date(value).toLocaleDateString("ar-SA");
-                            break;
-                        case "datetime":
-                            displayValue = new Date(value).toLocaleString("ar-SA");
-                            break;
-                        case "bool":
-                            displayValue = value ? "نعم" : "لا";
-                            break;
-                        case "money":
-                            displayValue = new Intl.NumberFormat("ar-SA", {
-                                style: "currency",
-                                currency: "SAR"
-                            }).format(value);
-                            break;
-                    }
+                if (!visibleItems.length) {
+                    return `<div class="sf-detail-empty">لا توجد بيانات</div>`;
+                }
 
+                const headerItems = visibleItems.slice(0, Math.min(3, visibleItems.length));
+                const detailItems = visibleItems.slice(headerItems.length);
+
+                let html = `
+                <section class="sf-detail-shell" dir="rtl">
+                    <div class="sf-detail-hero">
+                        <div class="sf-detail-hero__icon" aria-hidden="true">
+                            <i class="fa-solid fa-circle-info"></i>
+                        </div>
+                        <div class="sf-detail-hero__text">
+                            <div class="sf-detail-hero__fields">`;
+
+                headerItems.forEach(item => {
                     html += `
-                    <div class="sf-detail-row">
-                        <div class="sf-detail-label">
-                            ${this.escapeHtml(col.label || col.field)}
-                        </div>
-                        <div class="sf-detail-value">
-                            ${this.escapeHtml(displayValue)}
-                        </div>
-                    </div>`;
+                                <div class="sf-detail-hero__field">
+                                    <span>${this.escapeHtml(item.label)}</span>
+                                    <strong>${this.escapeHtml(item.value)}</strong>
+                                </div>`;
                 });
 
-                html += `</div>`;
+                html += `
+                            </div>
+                        </div>
+                    </div>`;
+
+                if (detailItems.length) {
+                    html += `
+                    <div class="sf-detail-section-title">
+                        <span>البيانات التفصيلية</span>
+                    </div>
+
+                    <div class="sf-detail-list">`;
+
+                    detailItems.forEach(item => {
+                        html += `
+                        <div class="sf-detail-item">
+                            <div class="sf-detail-item__label">${this.escapeHtml(item.label)}</div>
+                            <div class="sf-detail-item__value">${this.escapeHtml(item.value)}</div>
+                        </div>`;
+                    });
+
+                    html += `
+                    </div>`;
+                }
+
+                html += `
+                    <div class="sf-detail-actions">
+                        <button type="button" class="sf-detail-close" data-modal-close>
+                            إغلاق
+                        </button>
+                    </div>
+                </section>`;
+
                 return html;
             },
 
