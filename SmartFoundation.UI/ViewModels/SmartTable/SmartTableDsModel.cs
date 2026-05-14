@@ -18,6 +18,12 @@ namespace SmartFoundation.UI.ViewModels.SmartTable
         Tab
     }
 
+    public enum SmartTableHeaderMode
+    {
+        Simple,
+        Smart
+    }
+
     public class SmartTableDsModel
     {
         public string? PageTitle { get; set; } = "النظام الموحد";
@@ -159,6 +165,10 @@ namespace SmartFoundation.UI.ViewModels.SmartTable
         public bool ShowColumnVisibility { get; set; } = false;
 
         public bool EnableColumnReorder { get; set; } = true;
+
+        // ===== Header UX =====
+        public SmartTableHeaderMode HeaderMode { get; set; } = SmartTableHeaderMode.Smart;
+        public bool EnableColumnHeaderMenu { get; set; } = true;
 
         // ===== Header Color =====
         public string? HeaderColor { get; set; }

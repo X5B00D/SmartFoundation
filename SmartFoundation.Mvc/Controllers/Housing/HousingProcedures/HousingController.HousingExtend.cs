@@ -625,7 +625,9 @@ namespace SmartFoundation.Mvc.Controllers.Housing
                 //TabelLabelIcon = "fa-solid fa-user-group",
                 EnableCellCopy = true,
                 ShowColumnVisibility = true,
-                ShowFilter = false,
+                HeaderMode = SmartTableHeaderMode.Smart, // الافتراضي دائما مو لازم نكتبه في كل كنترول
+                EnableColumnHeaderMenu = true,  // الافتراضي دائما مو لازم نكتبه في كل كنترول
+                ShowFilter = false, 
                 ShowAdvancedFilter = true,
                 FilterRow = true,
                 FilterDebounce = 250,

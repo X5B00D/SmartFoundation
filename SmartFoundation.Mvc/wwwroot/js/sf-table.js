@@ -107,7 +107,11 @@
                 startX: 0,
                 startY: 0,
                 pointerX: 0,
-                pointerY: 0
+                pointerY: 0,
+                minX: 0,
+                maxX: 0,
+                minY: 0,
+                maxY: 0
             },
 
             filterOptionsCache: {},
@@ -821,11 +825,27 @@
                 if (event.target?.closest?.("button, input, select, textarea, a")) return;
 
                 const d = this.advancedFilterDrag;
+                const dialog = event.currentTarget?.closest?.(".sf-advanced-filter");
+                const rect = dialog?.getBoundingClientRect?.();
+                const margin = 8;
+
                 d.active = true;
                 d.startX = Number(d.x || 0);
                 d.startY = Number(d.y || 0);
                 d.pointerX = Number(event.clientX || 0);
                 d.pointerY = Number(event.clientY || 0);
+
+                if (rect) {
+                    const baseLeft = rect.left - d.startX;
+                    const baseTop = rect.top - d.startY;
+                    const vw = window.innerWidth || document.documentElement.clientWidth || 0;
+                    const vh = window.innerHeight || document.documentElement.clientHeight || 0;
+
+                    d.minX = margin - baseLeft;
+                    d.maxX = Math.max(d.minX, vw - margin - rect.width - baseLeft);
+                    d.minY = margin - baseTop;
+                    d.maxY = Math.max(d.minY, vh - margin - rect.height - baseTop);
+                }
 
                 try { event.currentTarget?.setPointerCapture?.(event.pointerId); } catch { }
                 event.preventDefault();
@@ -834,8 +854,11 @@
                 const d = this.advancedFilterDrag;
                 if (!d?.active) return;
 
-                d.x = d.startX + (Number(event.clientX || 0) - d.pointerX);
-                d.y = d.startY + (Number(event.clientY || 0) - d.pointerY);
+                const nextX = d.startX + (Number(event.clientX || 0) - d.pointerX);
+                const nextY = d.startY + (Number(event.clientY || 0) - d.pointerY);
+
+                d.x = Math.min(Math.max(nextX, Number(d.minX || 0)), Number(d.maxX || 0));
+                d.y = Math.min(Math.max(nextY, Number(d.minY || 0)), Number(d.maxY || 0));
             },
             endAdvancedFilterDrag(event) {
                 const d = this.advancedFilterDrag;
@@ -1139,6 +1162,16 @@
             allowExport: !!cfg.allowExport,
             autoRefresh: !!(cfg.autoRefresh || cfg.autoRefreshOnSubmit),
             enableCellCopy: !!cfg.enableCellCopy,
+            headerMode: String(cfg.headerMode || cfg.HeaderMode || "Smart"),
+            enableColumnHeaderMenu: cfg.enableColumnHeaderMenu !== false && cfg.EnableColumnHeaderMenu !== false,
+            columnHeaderMenuField: null,
+            columnHeaderMenuAnchor: null,
+            columnHeaderMenuPoint: null,
+            columnHeaderMenuPlacement: {
+                top: 0,
+                left: 0,
+                width: 224
+            },
 
             columns: Array.isArray(cfg.columns) ? cfg.columns : [],
             actions: Array.isArray(cfg.actions) ? cfg.actions : [],
@@ -1225,6 +1258,183 @@
                 next[col.field] = !now;
                 this.colVisMap = next;
                 this.invalidateColumnCache();
+            },
+
+            normalizeHeaderMode() {
+                return String(this.headerMode || "Smart").trim().toLowerCase();
+            },
+
+            isSmartHeader() {
+                const mode = this.normalizeHeaderMode();
+                return mode === "smart";
+            },
+
+            columnHeaderLabel(col) {
+                return String(col?.label || col?.Label || col?.title || col?.Title || col?.header || col?.Header || col?.field || col?.Field || "").trim();
+            },
+
+            columnField(col) {
+                return String(col?.field || col?.Field || "");
+            },
+
+            activeColumnHeader() {
+                const activeField = String(this.columnHeaderMenuField || "");
+                if (!activeField) return null;
+
+                return (this.columns || []).find(c => this.columnField(c) === activeField) || null;
+            },
+
+            isColumnHeaderMenuOpen(col) {
+                const field = this.columnField(col);
+                return !!field && this.columnHeaderMenuField === field;
+            },
+
+            toggleColumnHeaderMenu(col, event) {
+                event?.preventDefault?.();
+                event?.stopPropagation?.();
+
+                const field = this.columnField(col);
+                if (!field) return;
+
+                if (this.columnHeaderMenuField === field) {
+                    this.closeColumnHeaderMenu();
+                    return;
+                }
+
+                this.columnHeaderMenuField = field;
+                this.columnHeaderMenuAnchor = event?.currentTarget || null;
+                this.columnHeaderMenuPoint = (Number.isFinite(event?.clientX) && Number.isFinite(event?.clientY))
+                    ? { x: event.clientX, y: event.clientY }
+                    : null;
+                this.placeColumnHeaderMenu();
+                this.columnHeaderMenuPoint = null;
+            },
+
+            closeColumnHeaderMenu() {
+                this.columnHeaderMenuField = null;
+                this.columnHeaderMenuAnchor = null;
+                this.columnHeaderMenuPoint = null;
+            },
+
+            placeColumnHeaderMenu() {
+                const width = 224;
+                const gap = 8;
+                const margin = 8;
+                const viewportWidth = window.innerWidth || document.documentElement.clientWidth || 1024;
+                const viewportHeight = window.innerHeight || document.documentElement.clientHeight || 768;
+                const point = this.columnHeaderMenuPoint;
+
+                let anchorX = Number(point?.x);
+                let anchorBottom = Number(point?.y);
+
+                if (!Number.isFinite(anchorX) || !Number.isFinite(anchorBottom)) {
+                    const anchor = this.columnHeaderMenuAnchor;
+                    if (!anchor?.getBoundingClientRect) return;
+
+                    const rect = anchor.getBoundingClientRect();
+                    anchorX = rect.right;
+                    anchorBottom = rect.bottom;
+                }
+
+                let left = anchorX - width + 12;
+                left = Math.max(margin, Math.min(left, viewportWidth - width - margin));
+
+                let top = anchorBottom + gap;
+                if (top + 330 > viewportHeight && anchorBottom > 330) {
+                    top = anchorBottom - 330 - gap;
+                }
+
+                this.columnHeaderMenuPlacement = {
+                    top: Math.max(margin, top),
+                    left,
+                    width
+                };
+            },
+
+            applyColumnHeaderMenuPanelStyle(el) {
+                if (!el) return;
+
+                const p = this.columnHeaderMenuPlacement || {};
+                const top = Number(p.top || 0);
+                const left = Number(p.left || 0);
+                const width = Number(p.width || 224);
+
+                el.style.top = `${top}px`;
+                el.style.left = `${left}px`;
+                el.style.width = `${width}px`;
+            },
+
+            isColumnFiltered(col) {
+                const field = this.columnField(col);
+                if (!field) return false;
+
+                const value = this.normalizeColumnFilterValue(this.columnFilters?.[field]);
+                if (value) return true;
+
+                return (Array.isArray(this.advancedFilters) ? this.advancedFilters : [])
+                    .some(x => String(x?.field || "") === field && (String(x?.value ?? "").trim() || String(x?.valueTo ?? "").trim()));
+            },
+
+            canFilterColumn(col) {
+                return !!(this.filtersEnabled && this.filtersRow && this.isColFilterEnabled(col));
+            },
+
+            canHideColumn(col) {
+                if (!col || this.colVisIsLocked(col)) return false;
+
+                const visibleCount = (this.visibleColumns?.() || []).length;
+                return visibleCount > 1;
+            },
+
+            showColumnFilter(col) {
+                if (!this.canFilterColumn(col)) return;
+
+                this.showFilters = true;
+                this.closeColumnHeaderMenu();
+
+                this.$nextTick(() => {
+                    this.initFilterSelect2?.();
+
+                    const field = this.columnField(col);
+                    const escapedField = window.CSS?.escape ? CSS.escape(field) : field.replace(/"/g, '\\"');
+                    const target = this.$el?.querySelector?.(`.sf-filter-input[data-field="${escapedField}"]`);
+                    target?.focus?.({ preventScroll: true });
+                    target?.scrollIntoView?.({ block: "nearest", inline: "center" });
+                });
+            },
+
+            clearSingleColumnFilter(col) {
+                const field = this.columnField(col);
+                if (!field) return;
+
+                this.setColumnFilterValue(field, "");
+
+                if (Array.isArray(this.advancedFilters)) {
+                    this.advancedFilters = this.advancedFilters.filter(x => String(x?.field || "") !== field);
+                }
+
+                this.closeColumnHeaderMenu();
+                this.onColumnFilterInput();
+                this.savePreferences?.();
+            },
+
+            hideColumnFromHeader(col) {
+                if (!this.canHideColumn(col)) return;
+
+                this.colVisToggle(col);
+                this.closeColumnHeaderMenu();
+                this.savePreferences?.();
+            },
+
+            hasHiddenColumns() {
+                return (this.colVisBaseColumns?.() || this.columns || [])
+                    .some(col => col && !this.colVisIsShown(col));
+            },
+
+            showAllColumnsFromHeader() {
+                this.colVisShowAll();
+                this.closeColumnHeaderMenu();
+                this.savePreferences?.();
             },
 
             colVisShowAll() {
@@ -2928,6 +3138,52 @@
                 } else {
                     this.applyFiltersAndSort();
                 }
+            },
+
+            applyColumnSort(col, dir) {
+                const field = this.columnField(col);
+                if (!field || col?.sortable === false || col?.Sortable === false) return;
+
+                this.sort = {
+                    field,
+                    dir: dir === "desc" ? "desc" : "asc"
+                };
+
+                this.page = 1;
+                this.closeColumnHeaderMenu();
+
+                if (this.serverPaging) {
+                    this.load();
+                } else {
+                    this.applyFiltersAndSort();
+                }
+
+                this.savePreferences?.();
+            },
+
+            sortColumnAsc(col) {
+                this.applyColumnSort(col, "asc");
+            },
+
+            sortColumnDesc(col) {
+                this.applyColumnSort(col, "desc");
+            },
+
+            clearColumnSort(col) {
+                const field = this.columnField(col);
+                if (!field || this.sort.field !== field) return;
+
+                this.sort = { field: null, dir: "asc" };
+                this.page = 1;
+                this.closeColumnHeaderMenu();
+
+                if (this.serverPaging) {
+                    this.load();
+                } else {
+                    this.applyFiltersAndSort();
+                }
+
+                this.savePreferences?.();
             },
 
             toggleRow(row) {
