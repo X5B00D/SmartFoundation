@@ -588,9 +588,9 @@ namespace SmartFoundation.Mvc.Controllers.Housing
                 new FieldConfig { Name = "p29", Label = "buildingRentAmount", Type = "hidden", ColCss = "3", Readonly = true },
                 new FieldConfig { Name = "p30", Label = "مبلغ التأمين", Type = "text", ColCss = "3", Readonly = true,HelpText="*قيمة الايجار مضروبة في 40", Icon = "fa-solid fa-shield-halved"  },
                 new FieldConfig { Name = "p31", Label = "اجمالي التأمين الاحترازي", Type = "text", ColCss = "3", Readonly = true,HelpText="اجمالي المطالبات المتبقية على المستفيد مضاف اليها مبلغ التأمين الاحترازي*", Icon = "fa-solid fa-calculator"  },
-                new FieldConfig { Name = "p35", Label = "تاريخ وثيقة التأمين الاحترازي", Type = "date", ColCss = "3",Required = true, Icon = "fa-regular fa-calendar-days" },
-                new FieldConfig { Name = "p33", Label = "رقم وثيقة التأمين الاحترازي", Type = "text", ColCss = "6",Required = true, Icon = "fa-solid fa-file-contract" },
-                new FieldConfig { Name = "p36", Label = "نوع تحصيل التأمين الاحترازي", Type = "select", ColCss = "3",Required = true, Options = ExtendInsuranceTypeOptions, Icon = "fa-solid fa-hand-holding-dollar" },
+                new FieldConfig { Name = "p35", Label = "تاريخ وثيقة طلب التأمين الاحترازي", Type = "date", ColCss = "3",Required = true, Icon = "fa-regular fa-calendar-days" },
+                new FieldConfig { Name = "p33", Label = "رقم وثيقة طلب التأمين الاحترازي", Type = "text", ColCss = "6",Required = true, Icon = "fa-solid fa-file-contract" },
+                new FieldConfig { Name = "p36", Label = "نوع طلب تحصيل التأمين الاحترازي", Type = "select", ColCss = "3",Required = true, Options = ExtendInsuranceTypeOptions, Icon = "fa-solid fa-hand-holding-dollar" },
 
 
                 new FieldConfig { Name = "p26", Label = "ملاحظات", Type = "textarea", ColCss = "12",Required = true,HelpText="*لايجب ان يتجاوز النص 1000 حرف",MaxLength=1000, Icon = "fa-regular fa-note-sticky" },
