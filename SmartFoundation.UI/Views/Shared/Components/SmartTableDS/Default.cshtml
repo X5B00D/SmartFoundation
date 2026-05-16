@@ -57,6 +57,8 @@
         profileBadges = Model.ProfileBadges ?? new List<ProfileBadge>(),
         showColumnVisibility = Model.ShowColumnVisibility,
         enableColumnReorder = Model.EnableColumnReorder,
+        headerMode = Model.HeaderMode.ToString(),
+        enableColumnHeaderMenu = Model.EnableColumnHeaderMenu,
         renderMode = Model.RenderMode.ToString(),
         renderAsToggle = Model.RenderAsToggle,
         renderAsSection = Model.RenderAsSection,
@@ -425,38 +427,39 @@
                 </div>
             }
 
-            <div class="sf-advanced-filter-modal"
-                 role="dialog"
-                 aria-modal="true"
-                 aria-label="فلترة متقدمة"
-                 x-show="advancedFiltersEnabled() && advancedFilterOpen"
-                 x-on:keydown.escape.window="advancedFilterOpen=false"
-                 x-cloak
-                 style="position:fixed; inset:0; z-index:2147482500; display:flex; align-items:center; justify-content:center; padding:16px; direction:rtl;">
-                <div class="sf-advanced-filter-modal__backdrop"
-                     x-on:click="advancedFilterOpen=false"
-                     style="position:absolute; inset:0; background:rgba(15,23,42,.42);"></div>
+            <template x-teleport="body">
+                <div class="sf-advanced-filter-modal"
+                     role="dialog"
+                     aria-modal="true"
+                     aria-label="فلترة متقدمة"
+                     x-show="advancedFiltersEnabled() && advancedFilterOpen"
+                     x-on:keydown.escape.window="advancedFilterOpen=false"
+                     x-cloak
+                     style="position:fixed; inset:0; z-index:2147482500; display:flex; align-items:center; justify-content:center; padding:16px; direction:rtl;">
+                    <div class="sf-advanced-filter-modal__backdrop"
+                         x-on:click="advancedFilterOpen=false"
+                         style="position:absolute; inset:0; background:rgba(15,23,42,.42);"></div>
 
-                <div class="sf-advanced-filter"
-                     x-transition
-                     x-on:click.stop
-                     x-effect="$el.style.transform = advancedFilterDialogTransform()"
-                     style="position:relative; z-index:1; width:min(760px, calc(100vw - 32px)); max-height:min(78vh, 720px); display:flex; flex-direction:column;">
-                    <div class="sf-advanced-filter__head"
-                         x-on:pointerdown="startAdvancedFilterDrag($event)"
-                         x-on:pointermove="moveAdvancedFilterDrag($event)"
-                         x-on:pointerup="endAdvancedFilterDrag($event)"
-                         x-on:pointercancel="endAdvancedFilterDrag($event)"
-                         x-on:dblclick="resetAdvancedFilterPosition()">
-                        <div class="sf-advanced-filter__title">
-                            <i class="fa fa-sliders"></i>
-                            فلترة متقدمة
+                    <div class="sf-advanced-filter"
+                         x-transition
+                         x-on:click.stop
+                         x-effect="$el.style.transform = advancedFilterDialogTransform()"
+                         style="position:relative; z-index:1; width:min(760px, calc(100vw - 32px)); max-height:min(78vh, 720px); display:flex; flex-direction:column;">
+                        <div class="sf-advanced-filter__head"
+                             x-on:pointerdown="startAdvancedFilterDrag($event)"
+                             x-on:pointermove="moveAdvancedFilterDrag($event)"
+                             x-on:pointerup="endAdvancedFilterDrag($event)"
+                             x-on:pointercancel="endAdvancedFilterDrag($event)"
+                             x-on:dblclick="resetAdvancedFilterPosition()">
+                            <div class="sf-advanced-filter__title">
+                                <i class="fa fa-sliders"></i>
+                                فلترة متقدمة
+                            </div>
                         </div>
-                    </div>
 
-                    <div class="sf-advanced-filter__body">
-                        <template x-for="(rule, ruleIdx) in advancedFilters" x-bind:key="'adv-' + ruleIdx">
-                            <div class="sf-advanced-filter__rule">
+                        <div class="sf-advanced-filter__body">
+                            <template x-for="(rule, ruleIdx) in advancedFilters" x-bind:key="'adv-' + ruleIdx">
+                                <div class="sf-advanced-filter__rule">
                                 <select class="sf-advanced-filter__control"
                                         x-model="rule.field"
                                         x-effect="renderAdvancedFilterFieldOptions($el, rule)"
@@ -541,8 +544,11 @@
                     </div>
                 </div>
             </div>
+            </template>
 
-            <div class="table-box" x-show="viewMode === 'Table'">
+            <div class="table-box"
+                 x-show="viewMode === 'Table'"
+                 x-on:scroll.passive="columnHeaderMenuField && placeColumnHeaderMenu()">
                 <table class="sf-table">
                     <thead x-show="showHeader" class="table-head">
                         <tr>
@@ -557,7 +563,7 @@
                                     x-bind:class="(dragOverColField === col.field ? 'sf-col-drag-over' : '') + (draggingColField === col.field ? 'sf-col-dragging' : '')">
 
                                     <div class="th-inner flex items-center justify-center gap-1"
-                                         x-bind:class="(col.sortable ? 'cursor-pointer' : '') + (enableColumnReorder ? 'sf-col-draggable' : '')"
+                                         x-bind:class="(isSmartHeader() ? 'sf-th-smart' : '') + (col.sortable ? 'cursor-pointer' : '') + (enableColumnReorder ? 'sf-col-draggable' : '')"
                                          x-bind:draggable="enableColumnReorder"
                                          x-on:click="toggleSort(col)"
                                          x-on:dragstart="onColumnDragStart(col, $event)"
@@ -565,14 +571,21 @@
                                          x-on:drop.prevent.stop="onColumnDrop(col, $event)"
                                          x-on:dragend="onColumnDragEnd()">
 
-                                        <span x-text="col.label"></span>
+                                        <span class="sf-th-title" x-text="columnHeaderLabel(col)"></span>
 
-                                        <template x-if="col.sortable && sort.field === col.field">
-                                            <i class="fas ml-1 text-xs text-gray-400"
-                                                   x-bind:class="sort.dir === 'asc' ? 'fa-sort-up' : 'fa-sort-down'">
-                                            </i>
+                                        <template x-if="isSmartHeader() && enableColumnHeaderMenu">
+                                            <button type="button"
+                                                class="sf-th-menu__btn"
+                                                x-bind:class="{ 'is-active': isColumnHeaderMenuOpen(col) }"
+                                                x-bind:aria-expanded="String(isColumnHeaderMenuOpen(col))"
+                                                x-bind:aria-label="'خيارات العمود: ' + columnHeaderLabel(col)"
+                                                x-bind:title="'خيارات العمود: ' + columnHeaderLabel(col)"
+                                                x-on:click.stop="toggleColumnHeaderMenu(col, $event)">
+                                            <i class="fa-solid fa-ellipsis-vertical" aria-hidden="true"></i>
+                                        </button>
                                         </template>
                                     </div>
+
                                 </th>
                             </template>
 
@@ -804,6 +817,90 @@
                     </tbody>
                 </table>
             </div>
+
+            <template x-if="isSmartHeader() && enableColumnHeaderMenu">
+                <template x-teleport="body">
+                    <div class="sf-th-menu__panel"
+                         x-show="!!columnHeaderMenuField"
+                         x-effect="applyColumnHeaderMenuPanelStyle($el)"
+                         x-transition.opacity.scale.origin.top.right
+                         x-on:click.stop
+                         x-on:click.outside="!$event.target.closest('.sf-th-menu__btn') && closeColumnHeaderMenu()"
+                         x-on:keydown.escape.window="closeColumnHeaderMenu()"
+                         x-on:resize.window="columnHeaderMenuField && placeColumnHeaderMenu()"
+                         x-on:scroll.window.passive="columnHeaderMenuField && placeColumnHeaderMenu()"
+                         style="display:none;">
+                        <template x-if="activeColumnHeader()">
+                            <div>
+                                <div class="sf-th-menu__head">
+                                    <span x-text="columnHeaderLabel(activeColumnHeader())"></span>
+                                </div>
+
+                                <button type="button"
+                                        class="sf-th-menu__item"
+                                        x-bind:disabled="!activeColumnHeader().sortable"
+                                        x-on:click="sortColumnAsc(activeColumnHeader())">
+                                    <i class="fa-solid fa-arrow-up-wide-short"></i>
+                                    <span>ترتيب تصاعدي</span>
+                                </button>
+
+                                <button type="button"
+                                        class="sf-th-menu__item"
+                                        x-bind:disabled="!activeColumnHeader().sortable"
+                                        x-on:click="sortColumnDesc(activeColumnHeader())">
+                                    <i class="fa-solid fa-arrow-down-wide-short"></i>
+                                    <span>ترتيب تنازلي</span>
+                                </button>
+
+                                <button type="button"
+                                        class="sf-th-menu__item"
+                                        x-bind:disabled="sort.field !== columnField(activeColumnHeader())"
+                                        x-on:click="clearColumnSort(activeColumnHeader())">
+                                    <i class="fa-solid fa-arrow-rotate-left"></i>
+                                    <span>إلغاء ترتيب العمود</span>
+                                </button>
+
+                                <div class="sf-th-menu__separator"></div>
+
+                                <button type="button"
+                                        class="sf-th-menu__item"
+                                        x-bind:disabled="!canFilterColumn(activeColumnHeader())"
+                                        x-on:click="showColumnFilter(activeColumnHeader())">
+                                    <i class="fa-solid fa-filter"></i>
+                                    <span>فلترة هذا العمود</span>
+                                    <span class="sf-th-menu__mark" x-show="isColumnFiltered(activeColumnHeader())"></span>
+                                </button>
+
+                                <button type="button"
+                                        class="sf-th-menu__item"
+                                        x-bind:disabled="!isColumnFiltered(activeColumnHeader())"
+                                        x-on:click="clearSingleColumnFilter(activeColumnHeader())">
+                                    <i class="fa-solid fa-filter-circle-xmark"></i>
+                                    <span>مسح فلتر العمود</span>
+                                </button>
+
+                                <div class="sf-th-menu__separator"></div>
+
+                                    <button type="button"
+                                            class="sf-th-menu__item sf-th-menu__item--danger"
+                                            x-bind:disabled="!canHideColumn(activeColumnHeader())"
+                                            x-on:click="hideColumnFromHeader(activeColumnHeader())">
+                                        <i class="fa-solid fa-eye-slash"></i>
+                                        <span>إخفاء العمود</span>
+                                    </button>
+
+                                    <button type="button"
+                                            class="sf-th-menu__item"
+                                            x-bind:disabled="!hasHiddenColumns()"
+                                            x-on:click="showAllColumnsFromHeader()">
+                                        <i class="fa-solid fa-eye"></i>
+                                        <span>إظهار جميع الأعمدة</span>
+                                    </button>
+                                </div>
+                            </template>
+                        </div>
+                </template>
+            </template>
 
 
 
