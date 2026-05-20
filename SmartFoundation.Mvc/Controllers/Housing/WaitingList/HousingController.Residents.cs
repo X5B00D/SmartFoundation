@@ -414,9 +414,10 @@ namespace SmartFoundation.Mvc.Controllers.Housing
                 //TabelLabelIcon = "fa-solid fa-user-group",
                 EnableCellCopy = true,
                 ShowFilter = true,
+                ShowAdvancedFilter=true,
                 FilterRow = true,
                 FilterDebounce = 250,
-                ShowColumnVisibility=true,
+                ShowColumnVisibility=false,
                 EnableColumnReorder = true, // الافتراضي تحريك الاعمدة شغال 
 
                 Toolbar = new TableToolbarConfig
