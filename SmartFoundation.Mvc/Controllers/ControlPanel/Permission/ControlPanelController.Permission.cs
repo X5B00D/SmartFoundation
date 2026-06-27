@@ -764,7 +764,7 @@ namespace SmartFoundation.Mvc.Controllers.ControlPanel
                     ShowExportCsv = false,
                     ShowExportExcel = false,
                     ShowAdd = canInsertPERMISSION,
-                    ShowAdd1 = false,
+                    ShowAdd1 = canInsertPERMISSION,
                     ShowEdit = canUpdatePERMISSION,
                     ShowDelete = canDeletePERMISSION,
                     ShowBulkDelete = false,
