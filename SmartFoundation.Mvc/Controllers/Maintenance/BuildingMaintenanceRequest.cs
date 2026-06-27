@@ -60,7 +60,7 @@ namespace SmartFoundation.Mvc.Controllers.Maintenance
 
                     var headerMap = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
                     {
-                        ["RequestID"] = "الرقم الداخلي",
+                        ["RequestID"] = "الرقم المرجعي",
                         ["RequestNo"] = "رقم الطلب",
                         ["RequestDate"] = "تاريخ الطلب",
                         ["BuildingID"] = "المبنى",
@@ -69,10 +69,16 @@ namespace SmartFoundation.Mvc.Controllers.Maintenance
                         ["MaintenanceCategoryFullPath_A"] = "مسار نوع الصيانة",
                         ["PriorityName_A"] = "الأولوية",
                         ["StatusName_A"] = "الحالة",
+                        ["CurrentDSDName"] = "الجهة الحالية",
                         ["CurrentDSDID"] = "الجهة الحالية",
+                        ["OriginalDSDName"] = "الجهة المسؤولة",
+                        ["OriginalDSDID"] = "الجهة المسؤولة",
                         ["LastActionDate"] = "تاريخ آخر إجراء",
                         ["LastActionTypeName_A"] = "آخر إجراء",
                         ["LastActionNote"] = "ملاحظات آخر إجراء",
+                        ["FullName_A"] = "الاسم",
+                        ["buildingDetailsNo"] = "رقم المبنى",
+                        ["ClosedDate"] = "تاريخ اغلاق الطلب",
                         ["Description_A"] = "وصف المشكلة"
                     };
 
@@ -105,13 +111,73 @@ namespace SmartFoundation.Mvc.Controllers.Maintenance
                                  || t == typeof(float) || t == typeof(double) || t == typeof(decimal))
                             colType = "number";
 
+                        bool isHidden = c.ColumnName.Equals("IdaraId", StringComparison.OrdinalIgnoreCase)
+                                          || c.ColumnName.Equals("StatusCode", StringComparison.OrdinalIgnoreCase)
+                                          || c.ColumnName.Equals("PriorityCode", StringComparison.OrdinalIgnoreCase)
+                                          || c.ColumnName.Equals("HasDispute", StringComparison.OrdinalIgnoreCase)
+                                          || c.ColumnName.Equals("EscalationLevel", StringComparison.OrdinalIgnoreCase)
+                                          || c.ColumnName.Equals("TransactionID_FK", StringComparison.OrdinalIgnoreCase)
+                                          || c.ColumnName.Equals("UnitID", StringComparison.OrdinalIgnoreCase)
+                                          || c.ColumnName.Equals("MaintenanceCategoryID", StringComparison.OrdinalIgnoreCase)
+                                          || c.ColumnName.Equals("BuildingID", StringComparison.OrdinalIgnoreCase)
+                                          || c.ColumnName.Equals("ResidentID", StringComparison.OrdinalIgnoreCase)
+                                          || c.ColumnName.Equals("StatusID", StringComparison.OrdinalIgnoreCase)
+                                          || c.ColumnName.Equals("PriorityID", StringComparison.OrdinalIgnoreCase)
+                                          || c.ColumnName.Equals("ParentRequestID", StringComparison.OrdinalIgnoreCase)
+                                          || c.ColumnName.Equals("RootRequestID", StringComparison.OrdinalIgnoreCase)
+                                          || c.ColumnName.Equals("RequestLevel", StringComparison.OrdinalIgnoreCase)
+                                          || c.ColumnName.Equals("RequestID", StringComparison.OrdinalIgnoreCase)
+                                          || c.ColumnName.Equals("CurrentDSDID", StringComparison.OrdinalIgnoreCase)
+                                          || c.ColumnName.Equals("OriginalDSDID", StringComparison.OrdinalIgnoreCase)
+                                          || c.ColumnName.Equals("IsSubRequest", StringComparison.OrdinalIgnoreCase)
+                                          || c.ColumnName.Equals("IsLockedByDecision", StringComparison.OrdinalIgnoreCase)
+                                          || c.ColumnName.Equals("SubRequestsCount", StringComparison.OrdinalIgnoreCase)
+                                          || c.ColumnName.Equals("OpenSubRequestsCount", StringComparison.OrdinalIgnoreCase)
+                                          || c.ColumnName.Equals("IsActive", StringComparison.OrdinalIgnoreCase)
+                                          ;
+
+                        bool isPriorityName_A = c.ColumnName.Equals("PriorityName_A", StringComparison.OrdinalIgnoreCase);
+                        bool isStatusName_A = c.ColumnName.Equals("StatusName_A", StringComparison.OrdinalIgnoreCase);
+                        bool isCurrentDSDName = c.ColumnName.Equals("CurrentDSDName", StringComparison.OrdinalIgnoreCase);
+                        bool isOriginalDSDName = c.ColumnName.Equals("OriginalDSDName", StringComparison.OrdinalIgnoreCase);
+
+                        List<OptionItem> filterOpts = new();
+                        if (isPriorityName_A || isStatusName_A || isCurrentDSDName || isOriginalDSDName)
+                        {
+                            var field = c.ColumnName;
+
+                            var distinctVals = dt1.AsEnumerable()
+                                .Select(r => (r[field] == DBNull.Value ? "" : r[field]?.ToString())?.Trim())
+                                .Where(s => !string.IsNullOrWhiteSpace(s))
+                                .Distinct()
+                                .OrderBy(s => s)
+                                .ToList();
+
+                            filterOpts = distinctVals
+                                .Select(s => new OptionItem { Value = s!, Text = s! })
+                                .ToList();
+                        }
+
+
                         dynamicColumns.Add(new TableColumn
                         {
                             Field = c.ColumnName,
                             Label = headerMap.TryGetValue(c.ColumnName, out var label) ? label : c.ColumnName,
                             Type = colType,
                             Sortable = true,
-                            Visible = !hiddenColumns.Contains(c.ColumnName)
+                            Visible = !(isHidden),
+
+                            Filter = (isPriorityName_A || isStatusName_A || isCurrentDSDName || isOriginalDSDName)
+                                    ? new TableColumnFilter
+                                    {
+                                        Enabled = true,
+                                        Type = "select",
+                                        Options = filterOpts
+                                    }
+                                    : new TableColumnFilter
+                                    {
+                                        Enabled = false
+                                    }
                         });
                     }
 
@@ -226,6 +292,12 @@ namespace SmartFoundation.Mvc.Controllers.Maintenance
                 Searchable = true,
                 AllowExport = true,
                 PanelTitle = "طلبات الصيانة",
+                ShowFilter = true,
+                ShowAdvancedFilter = true,
+                FilterRow = true,
+                FilterDebounce = 250,
+                ShowColumnVisibility = false,
+                EnableColumnReorder = true, // الافتراضي تحريك الاعمدة شغال  
                 Toolbar = new TableToolbarConfig
                 {
                     ShowRefresh = false,
@@ -344,7 +416,43 @@ namespace SmartFoundation.Mvc.Controllers.Maintenance
             {
                 new TableStyleRule
                 {
-                    Target = "row", Field = "StatusCode", Op = "eq", Value = "NEW", Priority = 1,
+                    Target = "row", Field = "PriorityCode", Op = "in", Value = "LOW", Priority = 1,
+                    PillEnabled = true,
+                    PillField = "PriorityName_A",
+                    PillTextField = "PriorityName_A",
+                    PillCssClass = "pill pill-green",
+                    PillMode = "replace"
+                },
+                 new TableStyleRule
+                {
+                    Target = "row", Field = "PriorityCode", Op = "in", Value = "NORMAL", Priority = 1,
+                    PillEnabled = true,
+                    PillField = "PriorityName_A",
+                    PillTextField = "PriorityName_A",
+                    PillCssClass = "pill pill-blue",
+                    PillMode = "replace"
+                },
+                  new TableStyleRule
+                {
+                    Target = "row", Field = "PriorityCode", Op = "in", Value = "HIGH", Priority = 1,
+                    PillEnabled = true,
+                    PillField = "PriorityName_A",
+                    PillTextField = "PriorityName_A",
+                    PillCssClass = "pill pill-yellow",
+                    PillMode = "replace"
+                },
+                   new TableStyleRule
+                {
+                    Target = "row", Field = "PriorityCode", Op = "in", Value = "URGENT", Priority = 1,
+                    PillEnabled = true,
+                    PillField = "PriorityName_A",
+                    PillTextField = "PriorityName_A",
+                    PillCssClass = "pill pill-red",
+                    PillMode = "replace"
+                },
+                new TableStyleRule
+                {
+                    Target = "row", Field = "StatusCode", Op = "in", Value = "COMPLETED", Priority = 1,
                     PillEnabled = true,
                     PillField = "StatusName_A",
                     PillTextField = "StatusName_A",
@@ -353,7 +461,27 @@ namespace SmartFoundation.Mvc.Controllers.Maintenance
                 },
                 new TableStyleRule
                 {
-                    Target = "row", Field = "StatusCode", Op = "eq", Value = "CANCELLED", Priority = 1,
+                    Target = "row", Field = "StatusCode", Op = "in", Value = "NEW", Priority = 1,
+                    PillEnabled = true,
+                    PillField = "StatusName_A",
+                    PillTextField = "StatusName_A",
+                    PillCssClass = "pill pill-blue",
+                    PillMode = "replace"
+                },
+
+                 new TableStyleRule
+                {
+                    Target = "row", Field = "StatusCode", Op = "in", Value = "UNDER_INSPECTION,IN_PROGRESS,WAITING_APPROVAL,WAITING_SUB_REQUEST,DISPUTE", Priority = 1,
+                    PillEnabled = true,
+                    PillField = "StatusName_A",
+                    PillTextField = "StatusName_A",
+                    PillCssClass = "pill pill-yellow",
+                    PillMode = "replace"
+                },
+
+                new TableStyleRule
+                {
+                    Target = "row", Field = "StatusCode", Op = "in", Value = "CANCELLED,CLOSED,REJECTED", Priority = 1,
                     PillEnabled = true,
                     PillField = "StatusName_A",
                     PillTextField = "StatusName_A",

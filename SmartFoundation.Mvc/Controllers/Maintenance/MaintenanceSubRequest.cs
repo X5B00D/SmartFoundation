@@ -68,6 +68,7 @@ namespace SmartFoundation.Mvc.Controllers.Maintenance
                     ["StatusName_A"] = "الحالة",
                     ["PriorityName_A"] = "الأولوية",
                     ["LastActionDate"] = "تاريخ آخر إجراء",
+                    ["LastActionDate"] = "ملاحظة آخر إجراء",
                     ["LastActionTypeName_A"] = "آخر إجراء"
                 };
 
