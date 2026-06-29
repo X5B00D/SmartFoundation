@@ -23,7 +23,7 @@ V2 adds five new capabilities on top of the V1 foundation.
 
 **Hierarchical arbitration.** When two organizational units dispute ownership, the system now resolves the dispute at the correct hierarchical level. Sections escalate to an arbitrator at the branch level. Branches escalate to the department level. Departments escalate to the Idara level. The arbitrator is a new `Distributor` type linked to the parent org's DSDID. This replaces the V1 flat arbitration model with one that mirrors the real chain of authority.
 
-**Parallel children with AND-join.** A parent ticket can now spawn multiple children simultaneously. The parent enters a `BLOCKED` status and stays there until every child reaches a terminal state (resolved, closed, or cancelled). This is an AND-join: all children must complete before the parent can resume. The V1 parent-child model already existed, but V2 makes the blocking semantics explicit and adds the `WAITING_CHILD` pause reason as a first-class concept.
+**Parallel children with AND-join.** A parent ticket can now spawn multiple children simultaneously. The parent enters a `WAITING_CHILD` status and stays there until every child reaches a terminal state (resolved, closed, or cancelled). This is an AND-join: all children must complete before the parent can resume. The V1 parent-child model already existed, but V2 makes the blocking semantics explicit and adds the `WAITING_CHILD` pause reason as a first-class concept.
 
 **Inter-technician clarification.** Clarification is no longer limited to "requester is missing information." V2 supports technician-to-technician coordination between different organizational units. The clarification model now carries both a `RequestedFromDSDID_FK` and a `RequestedFromUsersID_FK`, allowing one technician to ask another unit's technician for input without going through arbitration. This keeps the audit trail clean and avoids unnecessary escalations.
 
@@ -62,7 +62,7 @@ Everything in V1, plus:
 - `WAITING_APPROVAL` ticket status and `WAITING_APPROVAL` pause reason
 - Hierarchical arbitration routing: section disputes to branch arbitrator, branch disputes to department arbitrator, department disputes to Idara arbitrator
 - Arbitrator as a new `Distributor` type linked to parent org DSDID
-- AND-join parent-child semantics: parent enters `BLOCKED` status, resumes only when all children reach terminal state
+- AND-join parent-child semantics: parent enters `WAITING_CHILD` status, resumes only when all children reach terminal state
 - Inter-technician clarification: clarification requests can target a specific DSD and user in another organizational unit
 - Permission matrix entries for all ticket pages and actions
 - Housing-style dynamic frontend pages using `SmartRenderer`, `SmartPageViewModel`, `FormConfig`, `SmartTableDsModel`
@@ -117,7 +117,7 @@ Full V1 scope carried forward:
 13. **Operational type drives workflow, not the other way around.** The operational type (service request, disbursement, execution, inspection) determines which approval chain applies, how routing works, and what resolution looks like. It is not a cosmetic label.
 14. **Approval steps are ordered, stored data, not hardcoded logic.** The chain (technician, supervisor, branch manager, section manager, department manager) lives in `[Tickets].[ApprovalStep]` with an explicit `stepOrder`. This means the chain can differ by operational type and by service without changing stored procedure code.
 15. **Hierarchical arbitration mirrors the real org chart.** Disputes escalate one level: sections to branches, branches to departments, departments to Idara. The arbitrator is identified by org structure, not by configuration.
-16. **AND-join is the only parent-child blocking model.** When a parent spawns parallel children, the parent is blocked until every child completes. There is no partial or OR-join behavior.
+16. **AND-join is the only parent-child blocking model.** When a parent spawns parallel children, the parent waits until every child completes. There is no partial or OR-join behavior.
 17. **Inter-technician clarification is a first-class workflow, not an informal chat.** It creates a traceable row in `[Tickets].[TicketClarification]`, pauses SLA when configured to do so, and requires a formal response before the ticket can proceed.
 
 ## 6. ITIL 4 Practice Alignment
@@ -143,7 +143,7 @@ Full V1 scope carried forward:
 - `[Tickets].[Ticket]` carries `ParentTicketID_FK` and `RootTicketID_FK`.
 - `ticketClassID_FK` distinguishes incident, service request, and problem records.
 - Parent-child chains are used for blocking and root-cause tracking, not just informal grouping.
-- V2 adds AND-join blocking: parent is `BLOCKED` until all children reach terminal state.
+- V2 adds AND-join blocking: parent is `WAITING_CHILD` until all children reach terminal state.
 
 ### 6.5 Continual Improvement
 - "Other" tickets can produce structured rows in `[Tickets].[ServiceCatalogSuggestion]`.
@@ -151,7 +151,7 @@ Full V1 scope carried forward:
 
 ### 6.6 Monitoring and Event Management
 - V1 reporting is view/DL driven through `[Tickets].[TicketReportDL]` and gateway `TicketReports`.
-- Dashboards cover backlog, SLA breach risk, quality review queue, routing errors, clarification aging, major incidents, approval pipeline status, and blocked parents.
+- Dashboards cover backlog, SLA breach risk, quality review queue, routing errors, clarification aging, major incidents, approval pipeline status, and waiting parents.
 
 ### 6.7 Change Enablement
 - Changes to routing rules and SLA policies are made only through `[Tickets].[ServiceCatalogSP]`.
@@ -206,8 +206,8 @@ Full V1 scope carried forward:
 ### 7.7 Parent-Child and Problem Model
 - A child ticket has one `ParentTicketID_FK` and inherits `RootTicketID_FK` from the top node.
 - A problem ticket is represented by `ticketClassID_FK` and may act as the parent/root record for related incidents.
-- V2 adds AND-join blocking: when a parent spawns multiple children simultaneously, the parent enters `BLOCKED` status.
-- The parent stays `BLOCKED` until every child reaches a terminal state (resolved, closed, or cancelled).
+- V2 adds AND-join blocking: when a parent spawns multiple children simultaneously, the parent enters `WAITING_CHILD` status.
+- The parent stays `WAITING_CHILD` until every child reaches a terminal state (resolved, closed, or cancelled).
 - The `WAITING_CHILD` pause reason tracks the blocking period in `[Tickets].[TicketPauseSession]`.
 - Typical use case: a maintenance work order spawns parallel child tickets for electrical, plumbing, and painting. The parent cannot close until all three children complete.
 
@@ -315,20 +315,57 @@ How it works:
 1. A parent ticket (for example, a maintenance work order) needs multiple tasks done in parallel.
 2. The system creates multiple child tickets simultaneously, each with `ParentTicketID_FK` pointing to the parent.
 3. Each child gets its own DSD routing, assignment, SLA, and lifecycle.
-4. The parent ticket enters `BLOCKED` status with a `WAITING_CHILD` pause session.
+4. The parent ticket enters `WAITING_CHILD` status with a `WAITING_CHILD` pause session.
 5. As each child reaches a terminal state (resolved, closed, cancelled), the system checks whether all children of the parent are now terminal.
-6. When the last child reaches terminal state, the parent's `BLOCKED` status is cleared, the `WAITING_CHILD` pause session ends, and the parent resumes its normal lifecycle.
+6. When the last child reaches terminal state, the parent's `WAITING_CHILD` status is cleared, the pause session ends, and the parent resumes its normal lifecycle.
 
 Implementation constraints:
 - Only AND-join is supported. The parent waits for all children, not any child.
 - Children cannot themselves spawn blocking children in V2 (no recursive blocking). A child can have sub-children for tracking purposes, but the parent only blocks on its direct children.
-- A child that is cancelled counts as "complete" for AND-join purposes. The parent does not stay blocked because a child was cancelled.
+- A child that is cancelled counts as "complete" for AND-join purposes. The parent does not stay waiting because a child was cancelled.
 - The parent's SLA accumulates paused time during the blocking period, so the SLA clock is not unfairly consumed by child execution time.
 
 Use cases:
 - Building maintenance: parent is the work order, children are electrical, plumbing, painting, HVAC.
 - Event preparation: parent is the event request, children are venue setup, catering, security, IT setup.
 - Multi-site inspection: parent is the inspection campaign, children are individual site inspections.
+
+### 7.17 Ticket Number Generation
+
+Every ticket receives a human-readable, unique ticket number at creation time. The format is:
+
+```
+TKT-YYYY-NNNNNNN
+```
+
+Where:
+- `TKT` is a fixed prefix
+- `YYYY` is the four-digit year
+- `NNNNNNN` is a zero-padded sequential number starting from 0000001, reset each year
+
+Example: `TKT-2025-0000142`
+
+**Concurrency-safe generation**:
+
+The `INSERTTICKET` action in `[Tickets].[TicketSP]` generates the ticket number using a SQL Server `SEQUENCE`:
+
+```sql
+CREATE SEQUENCE [Tickets].[TicketNoSeq]
+    AS INT
+    START WITH 1
+    INCREMENT BY 1
+    NO CACHE;
+```
+
+Inside `INSERTTICKET`:
+```sql
+DECLARE @seqVal INT = NEXT VALUE FOR [Tickets].[TicketNoSeq];
+SET @ticketNo = FORMAT(@seqVal, 'TKT-' + CAST(YEAR(GETDATE()) AS VARCHAR(4)) + '-{0:0000000}');
+```
+
+Using a `SEQUENCE` with `NO CACHE` ensures that concurrent `INSERTTICKET` calls never produce duplicate numbers. The sequence is not tied to a transaction, so rolled-back inserts will create gaps — this is acceptable and standard practice.
+
+The unique constraint on `ticketNo` (section 11.19) is a safety net, not the primary guard.
 
 ## 8. Data Architecture Decisions
 
@@ -404,7 +441,7 @@ hostName NVARCHAR(200) NULL
 
 ### 8.13 AND-Join Child Data Decision
 - No new table is needed for the AND-join model. The existing `ParentTicketID_FK` on `[Tickets].[Ticket]` already supports parent-child relationships.
-- V2 adds `BLOCKED` to the `TicketStatus` seed rows to represent the parent waiting state.
+- V2 uses `WAITING_CHILD` (already in the `TicketStatus` seed rows) to represent the parent waiting state.
 - V2 adds `WAITING_CHILD` to the `PauseReason` seed rows with `pausesSLA = 1`.
 - The AND-join check is enforced in `[Tickets].[TicketSP]`: when a child reaches a terminal state, the procedure counts remaining active children. If zero, the parent's blocking is cleared.
 
@@ -812,6 +849,7 @@ stepName_E NVARCHAR(200) NOT NULL
 ApproverDSDID_FK BIGINT NOT NULL FK -> [dbo].[DeptSecDiv].[DSDID]
 ApproverDistributorID_FK BIGINT NULL FK -> [dbo].[Distributor].[distributorID]
 isRequired BIT NOT NULL DEFAULT 1
+isAutoApproved BIT NOT NULL DEFAULT 0
 approvalStepActive BIT NULL
 entryDate DATETIME NULL
 entryData NVARCHAR(20) NULL
@@ -1145,6 +1183,7 @@ Action groups:
 - `COMPLETEQUALITYREVIEW`
 - `CLOSETICKET`
 - `REOPENTICKET`
+- `CANCELTICKET`: requester or authorized user cancels the ticket. Sets `ticketStatusID_FK` to `CANCELLED`. Validates that the ticket has not passed a point-of-no-return (e.g., DS-06: disbursement tickets cannot be cancelled after treasury execution step 4). Writes `TicketHistory`, `AuditLog`, closes any open SLA pause session, and sends a notification to assigned technician if one exists.
 - `MARKMAJORINCIDENT`
 - **[v2]** `REQUESTAPPROVAL`: creates `[Tickets].[TicketApproval]` rows from `[Tickets].[ApprovalStep]` template for the ticket's operational type. Each step gets a row with status `PENDING`. The ticket status moves to `WAITING_APPROVAL` and an SLA pause session starts.
 - **[v2]** `APPROVETICKET`: approver approves one `[Tickets].[TicketApproval]` step. The step status moves to `APPROVED`. If all mandatory steps are complete, the ticket advances to `ASSIGNED` and the SLA pause session ends. If further steps remain, the next `PENDING` step becomes actionable and the ticket stays in `WAITING_APPROVAL`.
@@ -1539,6 +1578,10 @@ Page values to add exactly:
 | BR-23 **[v2]** | Parallel children: when a parent ticket has open child tickets, the parent status is `WAITING_CHILD`. The parent cannot resume normal processing until all children reach a terminal status (`RESOLVED`, `CLOSED`, or `CANCELLED`). When the last child reaches a terminal status, the parent's `PAUSETICKET` session ends, the parent SLA unpauses, and the parent status returns to its pre-wait state. The trigger that detects last-child completion must be atomic to avoid race conditions with concurrent child resolutions. | `[Tickets].[TicketSP]` |
 | BR-24 **[v2]** | Inter-technician clarification: when a technician requests clarification from another organizational unit, `RequestedFromDSDID_FK` must be different from the requester's current ticket DSD (`CurrentDSDID_FK`). A clarification request targeting the same DSD as the ticket's current holder is rejected as a self-clarification. | `[Tickets].[TicketSP]` |
 | BR-25 **[v2]** | Hierarchical arbitration: when arbitration is needed because two organizational units dispute responsibility, the arbitration level is determined by finding the lowest common parent DSDID of the two disputing org units. The arbitrator DSD must be at or above this common parent level. If the disputing units share no common parent within the `IdaraID` scope, the arbitration defaults to the Idara-level DSD. | `[Tickets].[TicketSP]` |
+| BR-26 **[v2]** | **Circular reference prevention**: `CREATECHILDTICKET` must reject any attempt to create a child whose `parentTicketID_FK` creates a cycle. The SP checks by walking up the parent chain (parent → grandparent → root) and rejecting if the proposed child's `ticketID` already appears in that chain. This prevents A→B→A loops. | `[Tickets].[TicketSP]` `CREATECHILDTICKET` |
+| BR-27 **[v2]** | **Atomic approval guard**: `APPROVETICKET` must use `UPDATE ... WHERE approvalStatus = 'PENDING'` with `@@ROWCOUNT` verification. If `@@ROWCOUNT = 0`, another approver already acted on this step concurrently. The SP returns a business error: "This approval step has already been actioned by another user." This prevents double-approval race conditions when `ApproverDistributorID_FK` is NULL (any user in DSD can approve). | `[Tickets].[TicketSP]` `APPROVETICKET` |
+| BR-28 **[v2]** | **Parent-child completion atomicity**: when the last child ticket reaches a terminal status, the parent status transition from `WAITING_CHILD` must be atomic. The SP uses `UPDATE ... WITH (UPDLOCK, HOLDLOCK)` on the parent ticket row before counting active children. If another concurrent child resolution has already triggered the parent resume, the SP detects `ticketStatusID_FK != WAITING_CHILD` and skips the redundant transition. | `[Tickets].[TicketSP]` |
+| BR-29 **[v2]** | **New child during WAITING_CHILD**: while a parent is in `WAITING_CHILD` status, additional children can still be created via `CREATECHILDTICKET`. Each new child resets the parent's "all children complete" check. The SP must re-count active children after any child reaches terminal status, not assume the count is stable. This prevents a race where the last existing child completes, the parent begins resuming, but a new child is created in the same instant. | `[Tickets].[TicketSP]` `CREATECHILDTICKET` |
 
 
 This section defines the approval chain subsystem for the ITIL 4 ticketing system. Not every ticket requires approval. When approval is required, the system uses a two-table template/instance model to enforce sequential sign-off before work can begin.
@@ -1568,6 +1611,7 @@ CREATE TABLE [Tickets].[ApprovalStep]
   , ApproverDSDID_FK      BIGINT NOT NULL FOREIGN KEY REFERENCES [dbo].[DeptSecDiv].[DSDID]
   , ApproverDistributorID_FK BIGINT NULL FOREIGN KEY REFERENCES [dbo].[Distributor].[distributorID]
   , isRequired            BIT NOT NULL DEFAULT 1
+  , isAutoApproved        BIT NOT NULL DEFAULT 0
   , approvalStepActive    BIT NULL
   , entryDate             DATETIME NULL
   , entryData             NVARCHAR(20) NULL
@@ -1583,6 +1627,7 @@ Key columns:
 - `ApproverDSDID_FK` identifies the organizational unit that holds the approver.
 - `ApproverDistributorID_FK` identifies a specific role within that unit. When null, any active user in the DSD can approve.
 - `isRequired` determines whether the step can be skipped. A value of 1 means mandatory. A value of 0 means an authorized user can skip it.
+- `isAutoApproved` determines whether the step auto-resolves during `REQUESTAPPROVAL` without human action. When 1, the SP immediately sets `approvalStatus = 'APPROVED'` for this step. This is separate from `isRequired`: a step can be both mandatory AND auto-approved (e.g., a no-cost financial check that must pass but requires no human decision).
 
 Unique constraint: `(IdaraID_FK, operationalTypeID_FK, serviceID_FK, stepOrder)` filtered to active rows.
 
@@ -1637,7 +1682,7 @@ The mandatory/optional distinction works like this:
 - **Mandatory** (`isRequired = 1`): the step must receive an explicit `APPROVED` or `REJECTED` decision. It cannot be skipped.
 - **Optional** (`isRequired = 0`): the step can be skipped by an authorized user. When skipped, the system treats it as resolved for ordering purposes and moves to the next step.
 
-If step 2 is optional and step 3 is mandatory, step 3 remains blocked until step 2 is either approved, rejected, or skipped.
+If step 2 is optional and step 3 is mandatory, step 3 remains waiting until step 2 is either approved, rejected, or skipped.
 
 ## 16.3 Approval Flow (Status Transitions)
 
@@ -1968,28 +2013,32 @@ The procedure `[Tickets].[TicketSP]` handles arbitrator lookup when `REQUESTARBI
 
 SQL sketch for the common ancestor lookup:
 
+**IMPORTANT**: `DeptSecDiv` does NOT have a self-referencing parent DSD column. The hierarchy is implicit through `DSDLevel` (1=Organization, 2=Idara, 3=Department, 4=Section, 5=Division) and FK columns linking each level to its parent entity. The view `[dbo].[V_GetFullStructureForDSD]` exposes the materialized hierarchy path.
+
 ```sql
--- Build ancestor paths for two DSDs, find lowest common ancestor
-;WITH AncestorsA AS (
-    SELECT DSDID, ParentDSDID, 0 AS Level_
-    FROM dbo.DeptSecDiv WHERE DSDID = @DSDID_1
-    UNION ALL
-    SELECT d.DSDID, d.ParentDSDID, a.Level_ + 1
-    FROM dbo.DeptSecDiv d
-    JOIN AncestorsA a ON d.DSDID = a.ParentDSDID
-),
-AncestorsB AS (
-    SELECT DSDID, ParentDSDID, 0 AS Level_
-    FROM dbo.DeptSecDiv WHERE DSDID = @DSDID_2
-    UNION ALL
-    SELECT d.DSDID, d.ParentDSDID, b.Level_ + 1
-    FROM dbo.DeptSecDiv d
-    JOIN AncestorsB b ON d.DSDID = b.ParentDSDID
-)
-SELECT TOP 1 a.DSDID AS CommonAncestorDSDID
-FROM AncestorsA a
-INNER JOIN AncestorsB b ON a.DSDID = b.DSDID
-ORDER BY a.Level_ ASC;
+-- Find the lowest common ancestor DSD using DSDLevel and the hierarchy view.
+-- Both DSDs share the same Idara (guaranteed by IdaraID_FK on tickets).
+
+-- Step 1: Get the hierarchy path and level for both disputing DSDs
+SELECT @pathA = hierarchyPath, @levelA = DSDLevel
+FROM [dbo].[V_GetFullStructureForDSD]
+WHERE DSDID = @DSDID_1;
+
+SELECT @pathB = hierarchyPath, @levelB = DSDLevel
+FROM [dbo].[V_GetFullStructureForDSD]
+WHERE DSDID = @DSDID_2;
+
+-- Step 2: Walk up from the deeper DSD until both are at the same level,
+-- then compare. The first matching ancestor is the lowest common parent.
+-- If both DSDs are at the same level and share the same parent entity
+-- at level-1, that parent is the arbitrator scope.
+-- If they diverge at a higher level, arbitration escalates to the
+-- Idara-level DSD (DSDLevel = 2) as the fallback arbitrator.
+--
+-- Example: Section A (level 4) and Section B (level 4) under the same
+-- Department (level 3) → Department DSD is the common ancestor.
+-- Section A (level 4) under Dept X and Section B (level 4) under Dept Y,
+-- both under the same Idara (level 2) → Idara DSD is the common ancestor.
 ```
 
 ### 17.4 Escalation
@@ -2002,7 +2051,7 @@ If an arbitrator at the current level cannot resolve a dispute, the ticket escal
 4. The ticket status remains `WAITING_ARBITRATION`.
 5. A `TicketHistory` row records the escalation with `historyActionCode = 'ARBITRATION_ESCALATED'`.
 
-Escalation is blocked at the Idara level. If an Idara-level arbitrator attempts to escalate, the SP rejects the action with a business error. The Idara level is the final escalation point.
+Escalation stops at the Idara level. If an Idara-level arbitrator attempts to escalate, the SP rejects the action with a business error. The Idara level is the final escalation point.
 
 The escalation chain is preserved in `[Tickets].[TicketArbitration]` as multiple rows per ticket, each with a different `ArbitratorDSDID_FK`. The `TicketWorkbench` view displays the full escalation history as a timeline.
 
@@ -2134,7 +2183,7 @@ Yes. Residents can submit service requests through the intake form. The resident
 | SR-02 | If `allowResidentRequest = 0` for the selected service and the requester is a resident, the SP rejects with business error. | `[Tickets].[TicketSP]` `INSERTTICKET` |
 | SR-03 | Quality review is required before closure (`requiresQualityReview = 1` on the service). | `[Tickets].[TicketSP]` `CLOSETICKET` |
 | SR-04 | The first approval step auto-approves when `requesterTypeID_FK` maps to the Resident type. | `[Tickets].[TicketSP]` `REQUESTAPPROVAL` |
-| SR-05 | If the financial approval step's `isRequired = 1`, it resolves immediately during `REQUESTAPPROVAL` without waiting for a human actor. | `[Tickets].[TicketSP]` `REQUESTAPPROVAL` |
+| SR-05 | If the financial approval step has `isAutoApproved = 1` (no-cost service), it resolves immediately during `REQUESTAPPROVAL` without waiting for a human actor. | `[Tickets].[TicketSP]` `REQUESTAPPROVAL` |
 
 ### 18.2 DISBURSEMENT (طلب صرف)
 
@@ -2185,7 +2234,7 @@ No. Disbursement is an internal financial process. Residents never create disbur
 |---|---|---|
 | DS-01 | Only internal users can create disbursement tickets. `requesterTypeID_FK` must map to `INTERNAL_USER`. | `[Tickets].[TicketSP]` `INSERTTICKET` |
 | DS-02 | `serviceID_FK` is required. The disbursement type does not support "other" services. | `[Tickets].[TicketSP]` `INSERTTICKET` |
-| DS-03 | All four approval steps are mandatory. Auto-approval (`isRequired = 1`) is rejected for disbursement templates. | `[Tickets].[TicketSP]` `REQUESTAPPROVAL` |
+| DS-03 | All four approval steps are mandatory (`isRequired = 1`). The `isAutoApproved` flag must be 0 for all disbursement steps — auto-approval is not available for disbursement templates. | `[Tickets].[TicketSP]` `REQUESTAPPROVAL` |
 | DS-04 | Quality review is always required. `requiresQualityReview` is forced to 1 for disbursement services regardless of the catalogue setting. | `[Tickets].[TicketSP]` `RESOLVETICKET` |
 | DS-05 | The resolution must include a transaction reference in `resolutionNotes`. The SP validates that `resolutionNotes` is not null and meets a minimum length. | `[Tickets].[TicketSP]` `RESOLVETICKET` |
 | DS-06 | A disbursement ticket cannot be cancelled after step 4 (treasury execution) begins. Cancellation is only possible before the final step. | `[Tickets].[TicketSP]` cancel logic |
@@ -2259,7 +2308,7 @@ Typical examples: "Inspect water damage in Unit 3A," "Verify completion of elect
 |---|---|---|---|
 | 1 | Inspection team supervisor | Acknowledge and assign an inspector | Confirms the inspection is within scope and assigns it to a specific inspector. This step is more about assignment than approval. The supervisor rarely rejects unless the request is outside the team's mandate. |
 
-The single step is auto-approved if the service's approval template has `isRequired = 1`, which is common for routine inspections. In that case, the ticket skips straight to `ASSIGNED`.
+The single step is auto-approved if the service's approval template has `isAutoApproved = 1`, which is common for routine inspections. In that case, the ticket skips straight to `ASSIGNED`.
 
 **Routing Behavior**
 
@@ -2273,7 +2322,7 @@ The single step is auto-approved if the service's approval template has `isRequi
 - Response target: 1 business hour (fast assignment is critical)
 - Resolution target: 1 business day (the inspection itself should happen quickly)
 - SLA clock does not pause for the single approval step (it's too short to matter)
-- SLA clock pauses only if the inspection team requests clarification from the requester (e.g., access to the unit is blocked, resident is not available)
+- SLA clock pauses only if the inspection team requests clarification from the requester (e.g., access to the unit is unavailable, resident is not available)
 - If the inspection requires a follow-up visit, the inspector resolves this ticket and creates a new inspection ticket linked as a child
 
 **Resident Access**
@@ -2287,7 +2336,7 @@ When a resident creates the ticket, the approval step auto-approves (same patter
 | Rule ID | Rule | Enforcement |
 |---|---|---|
 | IN-01 | Residents can create inspection tickets only for services where `allowResidentRequest = 1`. | `[Tickets].[TicketSP]` `INSERTTICKET` |
-| IN-02 | The approval step is auto-approved if the template has `isRequired = 1`. Otherwise, the inspection supervisor must acknowledge within the response SLA window. | `[Tickets].[TicketSP]` `REQUESTAPPROVAL` |
+| IN-02 | The approval step is auto-approved if the template has `isAutoApproved = 1` (routine inspection). Otherwise, the inspection supervisor must acknowledge within the response SLA window. | `[Tickets].[TicketSP]` `REQUESTAPPROVAL` |
 | IN-03 | When the inspection is complete, `resolutionNotes` must contain the inspector's findings. The SP validates that `resolutionNotes` is not null. | `[Tickets].[TicketSP]` `RESOLVETICKET` |
 | IN-04 | Quality review is not required by default for inspections. The inspection result itself serves as the quality artifact. If the service catalogue sets `requiresQualityReview = 1`, the inspection report goes through a second reviewer before final closure. | `[Tickets].[Service]` |
 | IN-05 | An inspection ticket can be the parent of execution tickets. When an inspector identifies work that needs doing, they create a child execution ticket from the workbench. The parent inspection ticket enters `WAITING_CHILD` status, pausing its SLA until the execution completes. | `[Tickets].[TicketSP]` `CREATECHILDTICKET` |
@@ -2484,6 +2533,41 @@ All pages follow the Housing `WaitingListByResident` pattern:
 - Builds `SmartPageViewModel`, `FormConfig`, `SmartTableDsModel` server-side
 - View invokes `SmartRenderer`
 - Writes go through `CrudController` → `/crud/insert|update|delete` with `p01..p50`
+
+### 20.0 Form Field Convention (Housing Pattern)
+
+All ticket forms follow the Housing `CrudController` contract. Visible form fields bind as `p01` through `p50`. The controller converts them to `parameter_01` through `parameter_50` before calling `[Tickets].[TicketSP]` or `[Tickets].[ServiceCatalogSP]` via `Masters_CRUD`.
+
+Every ticket form MUST include these hidden fields:
+
+| Hidden Field | Value Source | Purpose |
+|---|---|---|
+| `pageName_` | Set per page (e.g., `TicketCreate`, `TicketInbox`) | Routes through `Masters_CRUD` to the correct downstream SP |
+| `ActionType` | `insert`, `update`, or `delete` | Selects the action branch in the SP |
+| `idaraID` | Session `IdaraId` | Organizational scope |
+| `entrydata` | Session `usersId` | Acting user identity |
+| `hostname` | `Environment.MachineName` or request host | Audit trail |
+| `redirectUrl` | URL to return to after action | Post-action navigation |
+| `redirectController` | Controller name (e.g., `Tickets`) | Post-action navigation fallback |
+| `redirectAction` | Action name (e.g., `TicketInbox`) | Post-action navigation fallback |
+| `__RequestVerificationToken` | Anti-forgery token | CSRF protection |
+
+Field mapping for `TicketCreate` form:
+
+| p-field | Semantic Name | SP Parameter | Type |
+|---|---|---|---|
+| `p01` | operational type | `parameter_01` | INT (operationalTypeID) |
+| `p02` | service | `parameter_02` | BIGINT (serviceID, 0 if other) |
+| `p03` | ticket title | `parameter_03` | NVARCHAR(200) |
+| `p04` | description | `parameter_04` | NVARCHAR(MAX) |
+| `p05` | requester type | `parameter_05` | INT (requesterTypeID) |
+| `p06` | resident info | `parameter_06` | BIGINT (residentInfoID, NULL if internal) |
+| `p07` | impact | `parameter_07` | INT (impactID) |
+| `p08` | urgency | `parameter_08` | INT (urgencyID) |
+| `p09` | other service text | `parameter_09` | NVARCHAR(500) (NULL if service selected) |
+| `p10` | parent ticket ID | `parameter_10` | BIGINT (NULL if not a child) |
+
+Remaining `p11` through `p50` are reserved for future form fields and default to NULL.
 
 ### 20.1 TicketCreate
 
@@ -2696,66 +2780,68 @@ All pages follow the Housing `WaitingListByResident` pattern:
 
 ### 21.1 Approval Table Specs (Spec 13)
 
-**`[Tickets].[ApprovalStep]`** defines the approval chain for a given service:
+**`[Tickets].[ApprovalStep]`** defines the approval chain template for a given operational type and optionally a specific service:
 
 ```sql
-approvalStepTemplateID BIGINT IDENTITY(1,1) NOT NULL PK
+approvalStepID BIGINT IDENTITY(1,1) NOT NULL PK
 IdaraID_FK BIGINT NOT NULL FK -> [dbo].[Idara].[idaraID]
+operationalTypeID_FK INT NOT NULL FK -> [Tickets].[OperationalType].[operationalTypeID]
 serviceID_FK BIGINT NULL FK -> [Tickets].[Service].[serviceID]
-ticketClassID_FK INT NULL FK -> [Tickets].[TicketClass].[ticketClassID]
-stepNumber INT NOT NULL
+stepOrder INT NOT NULL
 stepName_A NVARCHAR(200) NOT NULL
 stepName_E NVARCHAR(200) NOT NULL
-approverDSDID_FK BIGINT NOT NULL FK -> [dbo].[DeptSecDiv].[DSDID]
-approverDistributorID_FK BIGINT NULL FK -> [dbo].[Distributor].[distributorID]
-isRequired BIT NOT NULL
-effectiveFrom DATETIME NOT NULL
-effectiveTo DATETIME NULL
-approvalStepTemplateActive BIT NULL
+ApproverDSDID_FK BIGINT NOT NULL FK -> [dbo].[DeptSecDiv].[DSDID]
+ApproverDistributorID_FK BIGINT NULL FK -> [dbo].[Distributor].[distributorID]
+isRequired BIT NOT NULL DEFAULT 1
+isAutoApproved BIT NOT NULL DEFAULT 0
+approvalStepActive BIT NULL
 entryDate DATETIME NULL
 entryData NVARCHAR(20) NULL
 hostName NVARCHAR(200) NULL
 ```
 
-Constraints: unique filtered on `(IdaraID_FK, serviceID_FK, ticketClassID_FK, stepNumber)` where active and effective window overlaps. When `serviceID_FK` is null the template applies as a fallback to any service without its own template.
+Constraints: unique filtered on `(IdaraID_FK, operationalTypeID_FK, serviceID_FK, stepOrder)` where active. When `serviceID_FK` is null the step applies as a fallback to all services under that operational type.
 
-**`[Tickets].[TicketApproval]`** tracks the live approval chain for a specific ticket:
+**`[Tickets].[TicketApproval]`** tracks the live approval instances for a specific ticket:
 
 ```sql
-ticketApprovalStepID BIGINT IDENTITY(1,1) NOT NULL PK
+ticketApprovalID BIGINT IDENTITY(1,1) NOT NULL PK
 IdaraID_FK BIGINT NOT NULL FK -> [dbo].[Idara].[idaraID]
 TicketID_FK BIGINT NOT NULL FK -> [Tickets].[Ticket].[ticketID]
-approvalStepTemplateID_FK BIGINT NOT NULL FK -> [Tickets].[ApprovalStep].[approvalStepTemplateID]
-stepNumber INT NOT NULL
-stepStatus NVARCHAR(50) NOT NULL
-AssignedToUsersID_FK BIGINT NULL FK -> [dbo].[Users].[usersID]
-assignedAtDSDID_FK BIGINT NOT NULL FK -> [dbo].[DeptSecDiv].[DSDID]
-actedByUsersID_FK BIGINT NULL FK -> [dbo].[Users].[usersID]
-actedAt DATETIME NULL
+approvalStepID_FK BIGINT NOT NULL FK -> [Tickets].[ApprovalStep].[approvalStepID]
+stepOrder INT NOT NULL
+ApproverDSDID_FK BIGINT NOT NULL FK -> [dbo].[DeptSecDiv].[DSDID]
+ApproverDistributorID_FK BIGINT NULL FK -> [dbo].[Distributor].[distributorID]
+isRequired BIT NOT NULL DEFAULT 1
+approvalStatus NVARCHAR(50) NOT NULL
+ApproverUsersID_FK BIGINT NULL FK -> [dbo].[Users].[usersID]
 approvalNotes NVARCHAR(MAX) NULL
-ticketApprovalStepActive BIT NULL
+requestedAt DATETIME NOT NULL
+decidedAt DATETIME NULL
+ticketApprovalActive BIT NULL
 entryDate DATETIME NULL
 entryData NVARCHAR(20) NULL
 hostName NVARCHAR(200) NULL
 ```
 
-Constraints: `stepStatus` controlled values are `PENDING`, `APPROVED`, `REJECTED`, `SKIPPED`. One ticket can have multiple pending steps in parallel, but a step must be acted on before the next sequential step unlocks. The SP logic decides whether steps are serial or parallel based on the template configuration.
+Constraints: `approvalStatus` controlled values are `PENDING`, `APPROVED`, `REJECTED`, `SKIPPED`. Unique: only one row per `(TicketID_FK, stepOrder)`. Steps execute in `stepOrder` sequence — only the lowest unresolved step is actionable at any time.
 
-**`[Tickets].[ApprovalStepHistory]`** is the append-only audit trail:
+**`[Tickets].[ApprovalStepHistory]`** is the append-only audit trail for approval chain template changes:
 
 ```sql
-ticketApprovalLogID BIGINT IDENTITY(1,1) NOT NULL PK
-IdaraID_FK BIGINT NOT NULL FK -> [dbo].[Idara].[idaraID]
-TicketID_FK BIGINT NOT NULL FK -> [Tickets].[Ticket].[ticketID]
-ticketApprovalStepID_FK BIGINT NOT NULL FK -> [Tickets].[TicketApproval].[ticketApprovalStepID]
-logAction NVARCHAR(100) NOT NULL
-performedByUsersID_FK BIGINT NOT NULL FK -> [dbo].[Users].[usersID]
-logNotes NVARCHAR(MAX) NULL
-performedAt DATETIME NOT NULL
+approvalStepHistoryID BIGINT IDENTITY(1,1) NOT NULL PK
+approvalStepID_FK BIGINT NOT NULL FK -> [Tickets].[ApprovalStep].[approvalStepID]
+fieldName NVARCHAR(100) NOT NULL
+oldValue NVARCHAR(MAX) NULL
+newValue NVARCHAR(MAX) NULL
+changedBy NVARCHAR(100) NOT NULL
+changedAt DATETIME NOT NULL
 entryDate DATETIME NULL
 entryData NVARCHAR(20) NULL
 hostName NVARCHAR(200) NULL
 ```
+
+**NOTE**: Section 21.1 DDL must match sections 11.18 and 16.1 EXACTLY. Those are the canonical definitions. This section is a spec summary that must not introduce new columns or rename existing ones.
 
 ### 21.2 TicketApprovals Page Spec (Spec 14)
 
@@ -2841,7 +2927,7 @@ Approval step template seeding creates default single-step approval templates fo
 - `REJECTAPPROVAL` marks the step rejected, writes log, and returns the ticket to the previous routing DSD
 - approval by unauthorized user (wrong DSD) is rejected with permission error
 - approval on a ticket that is not in an approval-eligible status is rejected with business error
-- auto-approved steps (`isRequired = 1`) skip to `APPROVED` immediately during `REQUESTAPPROVAL`
+- auto-approved steps (`isAutoApproved = 1`) skip to `APPROVED` immediately during `REQUESTAPPROVAL`
 
 ### 22.8 Operational Type Tests
 - `SERVICE_REQUEST` operational type is selectable on `TicketCreate` when permitted
@@ -2924,5 +3010,4 @@ The existing `[support]` schema is explicitly out of scope for this design.
 `[support].[Ticket]`, `[support].[TicketType]`, `[support].[TicketPriority]`, `[support].[TicketStatus]`, `[support].[TicketReply]`, `[support].[TicketAttachment]`, `[support].[TicketTask]`, `[support].[TeamMember]`, and `[support].[TeamMemberRole]` remain the internal website bug-tracking solution for the dev team.
 
 This plan does not merge, rename, extend, or depend on those `[support]` objects. The ITIL 4 ticketing system in this document is a separate business solution implemented only under `[Tickets]` and routed only through the existing Housing-style gateway architecture.
-
 
