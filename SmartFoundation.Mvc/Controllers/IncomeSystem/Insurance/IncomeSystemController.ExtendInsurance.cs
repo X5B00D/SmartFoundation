@@ -345,6 +345,10 @@ namespace SmartFoundation.Mvc.Controllers.IncomeSystem
                         IsEdit = true,
                         OpenModal = true,
                         ModalTitle = "اعتماد التأمين الاحترازي",
+                        ModalMessage = "في حال اعتماد التأمين الاحترازي لايمكن التراجع عن ذلك نهائيا وسيتم اعتماده للمستفيد ومعالجة المطالبات منه لذلك يجب أن تتأكد من جميع البيانات قبل الاعتماد",
+                        ModalMessageClass = "bg-red-50 text-red-700",
+                        ModalMessageIcon = "fa-solid fa-triangle-exclamation",
+
                         OpenForm = new FormConfig
                         {
                             FormId = "BuildingTypeEditForm",
@@ -357,7 +361,26 @@ namespace SmartFoundation.Mvc.Controllers.IncomeSystem
                         },
                         RequireSelection = true,
                         MinSelection = 1,
-                        MaxSelection = 1
+                        MaxSelection = 1,
+
+                        Guards = new TableActionGuards
+                        {
+                            AppliesTo = "any",
+                            DisableWhenAny = new List<TableActionRule>
+                        {
+
+                              new TableActionRule
+                            {
+                                Field = "ExtendInsuranceApprovedStatus",
+                                Op = "eq",
+                                Value = "1",
+                                Message = "تم اعتماد التأمين الاحترازي مسبقا",
+                                Priority = 3
+                            },
+                           
+
+                          }
+                        }
                     },
 
                    

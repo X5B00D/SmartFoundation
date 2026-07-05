@@ -1196,7 +1196,7 @@ namespace SmartFoundation.Mvc.Controllers.Housing
                 TabLabel = "قوائم الانتظار",
                 TabIcon = "fa-solid fa-list",
                 TabDefaultActive = false,
-                ShowTabCount = true,
+                ShowTabCount = false,
                 TabOrder = 3,
 
 
@@ -1398,7 +1398,7 @@ namespace SmartFoundation.Mvc.Controllers.Housing
                 TabLabel = "خطابات التسكين",
                 TabIcon = "fa-solid fa-file-signature",
                 TabDefaultActive = false,
-                ShowTabCount = true,
+                ShowTabCount = false,
                 TabOrder = 4,
 
 

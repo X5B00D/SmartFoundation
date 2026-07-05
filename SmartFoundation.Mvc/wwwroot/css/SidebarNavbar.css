@@ -280,6 +280,20 @@ html, body {
 }
 
 
+/*.sf-content-card {
+    margin: 0; 
+    padding: 0.9rem;
+    width: 100%;
+    max-width: 100%;
+    background: #fff;
+    border: 0;
+    border-radius: 0.5rem;
+    box-shadow: none;
+}*/
+.sf-layout-footer {
+    border-top: none !important;
+}
+
 /* =========================
    منطقة المحتوى الرئيسي (Main Content)
    ========================= */

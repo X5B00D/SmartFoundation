@@ -1646,8 +1646,8 @@ textarea[readonly] {
     flex-direction: column;
     justify-content: center;
     gap: 0.7rem;
-    margin-top: 0.45rem;
-    margin-bottom: 0;
+    margin-top: 0.35rem;
+    margin-bottom: 0.2rem;
     padding: 0.78rem 0.86rem 0.8rem;
     min-height: 4.2rem;
     background: #ffffff;
@@ -4086,7 +4086,6 @@ header,
 
 /* =========================
    Panel (Integrated Page Section)
-   العنوان يحمل الخط الملون على قدر عرضه
    ========================= */
 
 /* الحاوية العامة */
@@ -4095,6 +4094,7 @@ header,
     width: 100%;
     max-width: 100%;
     margin: 1rem 0 1.7rem;
+    margin-top: -10px;
     padding: 0 0.50rem;
     background: transparent;
     border: 0;
@@ -4110,14 +4110,14 @@ header,
     isolation: isolate;
 }
 
-/* رأس القسم */
 .sf-panel-header {
     position: relative;
     display: flex;
     align-items: center;
     justify-content: flex-start;
-    min-height: 50px;
+    min-height: 3rem;
     margin: 0 0 1rem;
+    margin-bottom: 1.1rem;
     padding: 0;
     background: transparent;
     border: 0;
@@ -7358,7 +7358,7 @@ select.sf-advanced-filter__control {
     display: inline-flex;
     align-items: center;
     gap: 8px;
-    font-weight: 600;
+    font-weight: 500;
     color: #166534;
 }
 

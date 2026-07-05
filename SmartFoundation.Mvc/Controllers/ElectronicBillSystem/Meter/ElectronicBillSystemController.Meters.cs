@@ -1529,7 +1529,7 @@ namespace SmartFoundation.Mvc.Controllers.ElectronicBillSystem
                 TabLabel = "ربط العدادات بالمباني",        // النص الظاهر في زر التاب
                 TabIcon = "fa-solid fa-house-signal",      // أيقونة التاب
                 TabDefaultActive = false,                   // هل هذا التاب هو الافتراضي عند فتح الصفحة
-                ShowTabCount = true,                      // إظهار عدد السجلات بجانب التاب
+                ShowTabCount = false,                      // إظهار عدد السجلات بجانب التاب
                 TabOrder = 1,                              // ترتيب التاب داخل المجموعة
 
 
@@ -1658,7 +1658,7 @@ namespace SmartFoundation.Mvc.Controllers.ElectronicBillSystem
                 TabLabel = "إدارة العدادات",
                 TabIcon = "fa-solid fa-gauge-high",
                 TabDefaultActive = false,
-                ShowTabCount = true,
+                ShowTabCount = false,
                 TabOrder = 2,
 
                 Toolbar = new TableToolbarConfig
@@ -1811,7 +1811,7 @@ namespace SmartFoundation.Mvc.Controllers.ElectronicBillSystem
                 TabLabel = "أنواع العدادات",
                 TabIcon = "fa-solid fa-toggle-on",
                 TabDefaultActive = false,
-                ShowTabCount = true,
+                ShowTabCount = false,
                 TabOrder = 3,
 
                 Toolbar = new TableToolbarConfig

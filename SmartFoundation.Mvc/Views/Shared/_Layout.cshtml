@@ -66,7 +66,8 @@
 
     <!-- Main content area -->
     <div id="main-content"
-         class="sf-layout-main relative flex flex-col bg-white transition-all duration-300">
+         class="sf-layout-main relative flex flex-col bg-blend-hard-light transition-all duration-300">
+
 
         <div id="main-loading">
             <div class="loader-inner text-center">
@@ -77,21 +78,23 @@
             </div>
         </div>
 
+        @* <div class="sf-content-card"> *@
         <main class="w-full max-w-full flex-1 overflow-x-hidden px-2 pt-4 sm:px-4 md:px-6">
             <div class="container-fluid mx-auto">
                 @RenderBody()
             </div>
         </main>
-
-        <footer class="sf-layout-footer mt-auto border-t bg-gray-200">
+        @* </div> *@
+        <footer class="sf-layout-footer mt-auto border-t bg-gray-100">
             <div class="grid h-full place-items-center px-4">
-                <div class="text-center text-sm text-gray-400" dir="rtl">
-                    <span class="font-medium text-gray-700">إدارة مدينة الملك فيصل العسكرية</span>
-                    <span class="mx-1 text-gray-400">©</span>
+                <div class="text-center text-sm text-gray-500" dir="rtl">
+                    <span class="font-sm text-gray-500">إدارة مدينة الملك فيصل العسكرية</span>
+                    <span class="mx-1 text-gray-500">©</span>
                     <span class="text-gray-500">@DateTime.UtcNow.Year</span>
                 </div>
             </div>
         </footer>
+       
 
     </div>
 

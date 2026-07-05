@@ -5718,7 +5718,7 @@
 
                     html += `<div class="col-span-12 flex justify-end gap-2 mt-4 sf-modal-actions">`;
 
-                    html += `<button type="submit" class="btn btn-success sf-modal-btn-save"><i class="fas fa-check"></i> تنفيذ</button>`;
+                    html += `<button type="submit" class="btn btn-success sf-modal-btn-save"></i>تنفيذ</button>`;
 
                     html += `<button type="button" class="btn btn-secondary sf-modal-btn-cancel sf-modal-cancel">إلغاء</button>`;
 
@@ -7281,6 +7281,8 @@
                 const end = Math.min(this.page * this.pageSize, this.total);
                 return `${start} - ${end} من ${this.total}`;
             },
+
+
 
             // URL and text helpers
             fillUrl(template, data) {
