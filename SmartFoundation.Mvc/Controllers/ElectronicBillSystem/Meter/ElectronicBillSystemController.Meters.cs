@@ -593,8 +593,8 @@ namespace SmartFoundation.Mvc.Controllers.ElectronicBillSystem
                     HelpText = "اختر طريقة حساب العداد (مفوتر، ثابت)",
                     ShowFieldsWhen = new Dictionary<string, List<string>>
                     {
-                        ["مفوتر"] = new() { "p10", "p11", "p13", "p14", "p15", "p17", "p18" },
-                        ["سعر ثابت"] = new() { "p10", "p11", "p30", "p15", "p18" }
+                        ["1"] = new() { "p10", "p11", "p13", "p14", "p15", "p17", "p18" },
+                        ["2"] = new() { "p10", "p11", "p30", "p15", "p18" }
                     }
                 },
 
