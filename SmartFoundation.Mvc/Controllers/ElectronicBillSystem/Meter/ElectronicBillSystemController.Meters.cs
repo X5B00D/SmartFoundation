@@ -69,6 +69,7 @@ namespace SmartFoundation.Mvc.Controllers.ElectronicBillSystem
             List<OptionItem> meterTypeOptions = new();
             List<OptionItem> MeterServiceTypeOptions = new();
             List<OptionItem> buildingDetailsNoWithMetersOptions = new();
+            List<OptionItem> MeterCalculateTypeOptions = new();
 
             JsonResult? result;
                 string json;
@@ -107,10 +108,21 @@ namespace SmartFoundation.Mvc.Controllers.ElectronicBillSystem
             buildingDetailsNoWithMetersOptions = JsonSerializer.Deserialize<List<OptionItem>>(json)!;
 
 
-                // ----------------------END DDLValues ----------------------
+            //// ---------------------- buildingDetailsNoWithMetersOptions ----------------------
+            result = await _CrudController.GetDDLValues(
+                    "MeterCalculateTypeName_A", "MeterCalculateTypeID", "8", nameof(Meters), usersId, IdaraId, HostName
+               ) as JsonResult;
 
 
-                try
+            json = JsonSerializer.Serialize(result!.Value);
+
+            MeterCalculateTypeOptions = JsonSerializer.Deserialize<List<OptionItem>>(json)!;
+
+
+            // ----------------------END DDLValues ----------------------
+
+
+            try
                 {
                 if (ds != null && ds.Tables.Count > 0 && permissionTable!.Rows.Count > 0)
                 {
@@ -563,7 +575,22 @@ namespace SmartFoundation.Mvc.Controllers.ElectronicBillSystem
                     Icon = "fa-solid fa-server",
                     HelpText = "اختر نوع خدمة العداد (كهرباء، ماء، إلخ)"
                 },
-                
+
+
+                  new FieldConfig
+                {
+                    Name = "p20",
+                    Label = "نوع خدمة العداد",
+                    Type = "select",
+                    ColCss = "6",
+                    Required = true,
+                    Options = MeterCalculateTypeOptions,  // Load from MeterServiceType table if exists
+                    
+                    Icon = "fa-solid fa-server",
+                    HelpText = "اختر نوع خدمة العداد (كهرباء، ماء، إلخ)"
+                },
+
+
                 new FieldConfig 
                 { 
                     Name = "p10", 
@@ -596,7 +623,7 @@ namespace SmartFoundation.Mvc.Controllers.ElectronicBillSystem
                     Name = "p13", 
                     Label = "معامل التحويل", 
                     Type = "number", 
-                    ColCss = "4",
+                    ColCss = "3",
                     Required = true,
                     Icon = "fa-solid fa-calculator",
                     HelpText = "معامل تحويل القراءة إلى وحدة القياس الفعلية"
@@ -645,6 +672,17 @@ namespace SmartFoundation.Mvc.Controllers.ElectronicBillSystem
                     Icon = "fa-solid fa-money-bill-1-wave"
                 },
 
+                     new FieldConfig
+                {
+                    Name = "p170",
+                    Label = "سعر ثابت",
+                    Type = "text",
+                    TextMode="money_sar",
+                    Required = true,
+                    ColCss = "3",
+                    Icon = "fa-solid fa-money-bill-1-wave"
+                },
+
                  new FieldConfig
                 {
                     Name = "p18",
@@ -684,6 +722,7 @@ namespace SmartFoundation.Mvc.Controllers.ElectronicBillSystem
                     HelpText = "اختر نوع خدمة العداد (كهرباء، ماء، إلخ)"
                 },
 
+                
                 new FieldConfig
                 {
                     Name = "p03",
