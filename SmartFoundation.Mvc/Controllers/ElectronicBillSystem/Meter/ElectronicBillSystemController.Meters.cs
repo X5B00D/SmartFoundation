@@ -542,6 +542,8 @@ namespace SmartFoundation.Mvc.Controllers.ElectronicBillSystem
                             dictmeterlinkToBuilding["p14"] = Get("militaryLocationName_A");
                             dictmeterlinkToBuilding["p15"] = Get("BuildingIdaraName");
                             dictmeterlinkToBuilding["p16"] = Get("BuildingIdaraID");
+                            dictmeterlinkToBuilding["p20"] = Get("MeterCalculateTypeID_FK");
+                            dictmeterlinkToBuilding["p21"] = Get("MeterCalculateTypeName_A");
 
 
 
@@ -592,7 +594,7 @@ namespace SmartFoundation.Mvc.Controllers.ElectronicBillSystem
                     ShowFieldsWhen = new Dictionary<string, List<string>>
                     {
                         ["مفوتر"] = new() { "p10", "p11", "p13", "p14", "p15", "p17", "p18" },
-                        ["سعر ثابت"] = new() { "p10", "p11", "p170", "p15", "p18" }
+                        ["سعر ثابت"] = new() { "p10", "p11", "p30", "p15", "p18" }
                     }
                 },
 
@@ -680,7 +682,7 @@ namespace SmartFoundation.Mvc.Controllers.ElectronicBillSystem
 
                      new FieldConfig
                 {
-                    Name = "p170",
+                    Name = "p30",
                     Label = "سعر ثابت",
                     Type = "text",
                     TextMode="money_sar",
