@@ -5168,6 +5168,7 @@
                         }
 
                         this.initDatePickers?.(modalEl);
+                        window.sfInitDynamicFields?.(modalEl);
 
                         (function () {
                             const modal = modalEl;
@@ -6307,7 +6308,16 @@
                             options += `<option value="${this.escapeHtml(optValue)}" ${selected}>${this.escapeHtml(optText)}</option>`;
                         });
 
-                        let onChangeHandler = field.onChangeJs || "";
+                        const showFieldsWhen = field.showFieldsWhen ?? field.ShowFieldsWhen ?? null;
+                        const hasDynamicFields = showFieldsWhen && typeof showFieldsWhen === "object" && Object.keys(showFieldsWhen).length > 0;
+                        const dynamicFieldsAttr = hasDynamicFields
+                            ? `data-sf-show-fields-when="${this.escapeHtml(JSON.stringify(showFieldsWhen))}"`
+                            : "";
+
+                        let onChangeHandler = field.onChangeJs || field.OnChangeJs || "";
+                        if (hasDynamicFields) {
+                            onChangeHandler = `window.sfDynamicFields && sfDynamicFields(this); ${onChangeHandler || ""}`.trim();
+                        }
 
                         if (!(field.dependsUrl && field.dependsOn) && onChangeHandler && !field.dependsUrl) {
                             onChangeHandler = `${onChangeHandler}`;
@@ -6346,6 +6356,7 @@
                                     ${dependsUrlAttr}
                                     ${s2MinAttr}
                                     ${s2PhAttr}
+                                    ${dynamicFieldsAttr}
                                 >
                                     ${options}
                                 </select>
@@ -6713,7 +6724,9 @@
             },
 
             initModalScripts() {
-                const form = this.$el.querySelector('.sf-modal form');
+                const form =
+                    this.$el.querySelector('.sf-modal form') ||
+                    document.querySelector('.sf-modal form');
                 if (form) {
 
                     form.querySelectorAll("[required]").forEach(input => {
@@ -6745,6 +6758,7 @@
                         this.saveModalChanges();
                     });
 
+                    this.setupDependentDropdowns?.(form);
                 }
             },
 
@@ -6757,10 +6771,45 @@
                     const parentFieldName = dependentSelect.getAttribute('data-depends-on');
                     const dependsUrl = dependentSelect.getAttribute('data-depends-url');
 
-                    if (!parentFieldName || !dependsUrl) return;
+                    if (!parentFieldName) return;
 
                     const parentSelect = form.querySelector(`select[name="${parentFieldName}"]`);
                     if (!parentSelect) {
+                        return;
+                    }
+
+                    if (!dependsUrl) {
+                        if (dependentSelect.__sfLocalDependsBound) return;
+                        dependentSelect.__sfLocalDependsBound = true;
+
+                        const syncLocalDependency = (resetDependent = false) => {
+                            const parentValue = String(parentSelect.value || "").trim();
+                            const hasParentValue = !!parentValue && parentValue !== "-1";
+                            const box = dependentSelect.closest(".form-group");
+
+                            dependentSelect.disabled = !hasParentValue;
+                            if (box) box.style.display = hasParentValue ? "" : "none";
+
+                            if (!dependentSelect.dataset.sfDependsOriginalRequired) {
+                                dependentSelect.dataset.sfDependsOriginalRequired = dependentSelect.required ? "1" : "0";
+                            }
+
+                            dependentSelect.required = hasParentValue && dependentSelect.dataset.sfDependsOriginalRequired === "1";
+
+                            if (!hasParentValue || resetDependent) {
+                                dependentSelect.value = "";
+
+                                if (window.jQuery && jQuery.fn.select2 && dependentSelect.classList.contains("js-select2")) {
+                                    jQuery(dependentSelect).val("").trigger("change.select2");
+                                }
+
+                                window.sfDynamicFields?.(dependentSelect);
+                            }
+                        };
+
+                        parentSelect.addEventListener("change", () => syncLocalDependency(true));
+                        parentSelect.addEventListener("input", () => syncLocalDependency(true));
+                        syncLocalDependency();
                         return;
                     }
 
@@ -8507,6 +8556,80 @@ window.sfToggle = function(el, forcedValue) {
         if (target) target.closest('.form-group')?.style.setProperty('display', 'block');
     });
 };
+
+if (!window.sfDynamicFields) {
+window.sfDynamicFields = function (el) {
+    const rawRules = el?.dataset?.sfShowFieldsWhen || "";
+    if (!rawRules || rawRules === "{}") return;
+
+    let rules = {};
+    try {
+        rules = JSON.parse(rawRules);
+    } catch {
+        return;
+    }
+
+    const root = el.closest("form") || document;
+    const value = String(el?.value ?? "").trim();
+    const text = String(el?.selectedOptions?.[0]?.textContent ?? "").trim();
+        const normalize = (x) => String(x ?? "").trim().toLowerCase();
+        const esc = (x) => (window.CSS && CSS.escape) ? CSS.escape(x) : String(x).replace(/"/g, '\\"');
+
+    const allFieldNames = [...new Set(
+        Object.values(rules)
+            .flatMap((fields) => Array.isArray(fields) ? fields : [])
+            .map((name) => String(name || "").trim())
+            .filter(Boolean)
+    )];
+
+    const setBoxState = (fieldName, visible) => {
+        const field = root.querySelector(`[name="${esc(fieldName)}"]`);
+        const box = field?.closest(".form-group");
+        if (!box) return;
+
+        box.style.display = visible ? "" : "none";
+        box.querySelectorAll("input, select, textarea").forEach((control) => {
+            if (!control.dataset.sfDynamicOriginalRequired) {
+                control.dataset.sfDynamicOriginalRequired = control.required ? "1" : "0";
+            }
+
+            control.required = visible && control.dataset.sfDynamicOriginalRequired === "1";
+            control.disabled = !visible;
+        });
+    };
+
+    allFieldNames.forEach((fieldName) => setBoxState(fieldName, false));
+
+    const matched = Object.entries(rules).find(([ruleValue]) => {
+        return normalize(ruleValue) === normalize(value) || normalize(ruleValue) === normalize(text);
+    });
+
+    if (!matched) return;
+
+    const visibleFields = Array.isArray(matched[1]) ? matched[1] : [];
+    visibleFields.forEach((fieldName) => setBoxState(fieldName, true));
+};
+}
+
+if (!window.sfInitDynamicFields) {
+window.sfInitDynamicFields = function (root) {
+    (root || document)
+        .querySelectorAll("[data-sf-show-fields-when]")
+        .forEach((el) => window.sfDynamicFields(el));
+};
+
+document.addEventListener("DOMContentLoaded", function () {
+    window.sfInitDynamicFields(document);
+});
+
+new MutationObserver(function (mutations) {
+    mutations.forEach(function (mutation) {
+        mutation.addedNodes.forEach(function (node) {
+            if (node.nodeType === 1) window.sfInitDynamicFields(node);
+        });
+    });
+}).observe(document.documentElement, { childList: true, subtree: true });
+}
 
 async function sfEnsureLazyExtraLoaded(action, row, ctx) {
     const meta = action?.Meta || action?.meta || {};

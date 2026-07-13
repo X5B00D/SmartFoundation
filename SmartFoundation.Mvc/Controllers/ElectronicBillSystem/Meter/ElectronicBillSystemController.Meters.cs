@@ -580,14 +580,20 @@ namespace SmartFoundation.Mvc.Controllers.ElectronicBillSystem
                   new FieldConfig
                 {
                     Name = "p20",
-                    Label = "نوع خدمة العداد",
+                    Label = "طريقة حساب نوع العداد",
                     Type = "select",
                     ColCss = "6",
                     Required = true,
                     Options = MeterCalculateTypeOptions,  // Load from MeterServiceType table if exists
+                    DependsOn = "p09",
                     
                     Icon = "fa-solid fa-server",
-                    HelpText = "اختر نوع خدمة العداد (كهرباء، ماء، إلخ)"
+                    HelpText = "اختر طريقة حساب العداد (مفوتر، ثابت)",
+                    ShowFieldsWhen = new Dictionary<string, List<string>>
+                    {
+                        ["مفوتر"] = new() { "p10", "p11", "p13", "p14", "p15", "p17", "p18" },
+                        ["سعر ثابت"] = new() { "p10", "p11", "p170", "p15", "p18" }
+                    }
                 },
 
 
@@ -634,7 +640,7 @@ namespace SmartFoundation.Mvc.Controllers.ElectronicBillSystem
                     Name = "p14", 
                     Label = "الحد الأقصى للقراءة", 
                     Type = "number", 
-                    ColCss = "4",
+                    ColCss = "3",
                     Required = true,
                     Icon = "fa-solid fa-gauge-high",
                     HelpText = "أقصى قراءة ممكنة للعداد"
@@ -645,7 +651,7 @@ namespace SmartFoundation.Mvc.Controllers.ElectronicBillSystem
                     Name = "p15", 
                     Label = "تاريخ البدء", 
                     Type = "date", 
-                    ColCss = "4",
+                    ColCss = "3",
                     Required = true,
                     Icon = "fa fa-calendar"
                 },
@@ -655,7 +661,7 @@ namespace SmartFoundation.Mvc.Controllers.ElectronicBillSystem
                     Name = "p16", 
                     Label = "تاريخ الانتهاء", 
                     Type = "hidden", 
-                    ColCss = "4",
+                    ColCss = "3",
                     Icon = "fa fa-calendar",
                     HelpText = "اتركه فارغاً إذا كان نشطاً"
                 },
@@ -668,7 +674,7 @@ namespace SmartFoundation.Mvc.Controllers.ElectronicBillSystem
                     Type = "text",
                     TextMode="money_sar",
                     Required = true,
-                    ColCss = "4",
+                    ColCss = "3",
                     Icon = "fa-solid fa-money-bill-1-wave"
                 },
 
@@ -1890,7 +1896,7 @@ namespace SmartFoundation.Mvc.Controllers.ElectronicBillSystem
                         Icon = "fa fa-plus",  // ✅ Changed icon
                         Color = "success",  // ✅ Changed color to differentiate
                         OpenModal = true,
-                        ModalTitle = "<i class='fa-solid fa-sitemap text-blue-600 text-xl mr-2'></i> إضافة نوع عداد جديد",
+                        ModalTitle = "<i class='fa-solid fa-sitemap text-emerald-600 text-xl mr-2'></i> إضافة نوع عداد جديد",
 
                         OpenForm = new FormConfig
                         {

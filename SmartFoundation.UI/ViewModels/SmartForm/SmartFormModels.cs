@@ -122,6 +122,7 @@ namespace SmartFoundation.UI.ViewModels.SmartForm
         public string? ToggleGroup { get; set; }     // اسم مجموعة الحقول اللي بتنخفي/تظهر
         public string? ToggleMap { get; set; }       // خريطة العرض "1:Users|2:Distributors|..."
         public string? ToggleMode { get; set; }
+        public Dictionary<string, List<string>>? ShowFieldsWhen { get; set; }
 
         public bool SubmitOnEnter { get; set; } = false;
 
