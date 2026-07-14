@@ -160,6 +160,8 @@ namespace SmartFoundation.Mvc.Controllers.ElectronicBillSystem
                             ["meterServiceTypeName_A"] = "نوع الخدمة للعداد",
                             ["meterTypeName_A"] = "نوع العداد",
                             ["meterServicePrice"] = "سعر الخدمة",
+                            ["FixedAmount"] = "السعر الثابت",
+                            ["MeterCalculateTypeName_A"] = "نوع الحسبة",
                             ["IdaraId_FK"] = "الإدارة"
                         };
 
@@ -186,6 +188,8 @@ namespace SmartFoundation.Mvc.Controllers.ElectronicBillSystem
                                           || c.ColumnName.Equals("meterServiceTypeID", StringComparison.OrdinalIgnoreCase)
                                           || c.ColumnName.Equals("meterActive", StringComparison.OrdinalIgnoreCase)
                                           || c.ColumnName.Equals("meterEndDate", StringComparison.OrdinalIgnoreCase)
+                                          || c.ColumnName.Equals("MeterTypeFixedAmountID", StringComparison.OrdinalIgnoreCase)
+                                          || c.ColumnName.Equals("MeterCalculateTypeID", StringComparison.OrdinalIgnoreCase)
                                           || c.ColumnName.Equals("meterServicePriceID", StringComparison.OrdinalIgnoreCase);
 
                             // Add filter for meter type if needed
@@ -304,6 +308,8 @@ namespace SmartFoundation.Mvc.Controllers.ElectronicBillSystem
                             ["meterTypeDescription"] = "الوصف",
                             ["meterTypeStartDate"] = "تاريخ البدء",
                             ["meterMaxRead"] = "اقصى قراءة لنوع العداد",
+                            ["MeterCalculateTypeName_A"] = "نوع الحسبة",
+                            ["FixedAmount"] = "السعر الثابت",
                             ["meterTypeConversionFactor"] = "معامل التحويل"
                         };
 
@@ -332,6 +338,8 @@ namespace SmartFoundation.Mvc.Controllers.ElectronicBillSystem
                                            || c.ColumnName.Equals("meterTypeActive", StringComparison.OrdinalIgnoreCase)
                                            || c.ColumnName.Equals("entryDate", StringComparison.OrdinalIgnoreCase)
                                            || c.ColumnName.Equals("entryData", StringComparison.OrdinalIgnoreCase)
+                                           || c.ColumnName.Equals("MeterCalculateTypeID_FK", StringComparison.OrdinalIgnoreCase)
+                                           || c.ColumnName.Equals("MeterTypeFixedAmountID", StringComparison.OrdinalIgnoreCase)
                                            || c.ColumnName.Equals("hostName", StringComparison.OrdinalIgnoreCase);
 
                             // Add filter for meter type if needed
@@ -408,7 +416,11 @@ namespace SmartFoundation.Mvc.Controllers.ElectronicBillSystem
                             dictmeterType["p13"] = Get("entryData");
                             dictmeterType["p14"] = Get("hostName");
                             dictmeterType["p15"] = Get("meterServicePrice");
-
+                            dictmeterType["p20"] = Get("MeterCalculateTypeID_FK");
+                            dictmeterType["p22"] = Get("MeterCalculateTypeID_FK");
+                            dictmeterType["p21"] = Get("MeterCalculateTypeName_A");
+                            dictmeterType["p23"] = Get("meterServiceTypeID_FK");
+                            dictmeterType["p30"] = Get("FixedAmount");
 
 
                             rowsmeterTypeList.Add(dictmeterType);
@@ -436,7 +448,8 @@ namespace SmartFoundation.Mvc.Controllers.ElectronicBillSystem
                             ["buildingDetailsNo"] = "رقم المبنى",
                             ["buildingClassName_A"] = "فئة المبنى",
                             ["buildingTypeName_A"] = "نوع المبنى",
-                            ["MeterCalculateTypeName_A"] = "نوع الحسبة",
+                            ["MeterCalculateTypeName_A"] = "نوع حسبة العداد",
+                            
                             ["militaryLocationName_A"] = "موقع المبنى"
                         };
 
@@ -463,7 +476,8 @@ namespace SmartFoundation.Mvc.Controllers.ElectronicBillSystem
                                             || c.ColumnName.Equals("meterForBuildingActive", StringComparison.OrdinalIgnoreCase)
                                             || c.ColumnName.Equals("buildingUtilityTypeName_A", StringComparison.OrdinalIgnoreCase)
                                             || c.ColumnName.Equals("BuildingIdaraName", StringComparison.OrdinalIgnoreCase)
-                                            || c.ColumnName.Equals("MeterCalculateTypeID_FK", StringComparison.OrdinalIgnoreCase)
+                                             
+                                            //|| c.ColumnName.Equals("MeterCalculateTypeID_FK", StringComparison.OrdinalIgnoreCase)
                                             || c.ColumnName.Equals("BuildingIdaraID", StringComparison.OrdinalIgnoreCase);
 
                             bool isbuildingClassName_A = c.ColumnName.Equals("buildingClassName_A", StringComparison.OrdinalIgnoreCase);
@@ -726,13 +740,60 @@ namespace SmartFoundation.Mvc.Controllers.ElectronicBillSystem
                     Type = "select",
                     ColCss = "6",
                     Required = true,
-                    Options = meterTypeOptions,  // Load from MeterServiceType table if exists
-                    
+                    Options = MeterServiceTypeOptions,  // Load from MeterServiceType table if exists
+                    Disabled=true,
                     Icon = "fa-solid fa-server",
                     HelpText = "اختر نوع خدمة العداد (كهرباء، ماء، إلخ)"
                 },
 
-                
+                 new FieldConfig
+                {
+                    Name = "p20",
+                    Label = "طريقة حساب نوع العداد",
+                    Type = "select",
+                    ColCss = "6",
+                    Required = true,
+                    Options = MeterCalculateTypeOptions,  // Load from MeterServiceType table if exists
+                    //DependsOn = "p02",
+                    Disabled=true,
+
+                    Icon = "fa-solid fa-server",
+                    HelpText = "اختر طريقة حساب العداد (مفوتر، ثابت)",
+                    ShowFieldsWhen = new Dictionary<string, List<string>>
+                    {
+                        ["1"] = new() { "p03", "p04", "p06", "p07", "p08", "p15", "p18" },
+                        ["2"] = new() { "p03", "p04", "p08", "p30", "p18" }
+                    }
+                },
+
+                  new FieldConfig
+                {
+                    Name = "p22",
+                    Label = "MeterCalculateTypeID_FK",
+                    Type = "hidden",
+                    ColCss = "3",
+                    Required = true,
+                    TextMode = "arabic",
+                    Icon = "fa-solid fa-tag",
+                    MaxLength = 100,
+                    Placeholder = "مثال: عداد كهرباء رقمي"
+                },
+
+                    new FieldConfig
+                {
+                    Name = "p23",
+                    Label = "MeterCalculateTypeID_FK",
+                    Type = "hidden",
+                    ColCss = "3",
+                    Required = true,
+                    TextMode = "arabic",
+                    Icon = "fa-solid fa-tag",
+                    MaxLength = 100,
+                    Placeholder = "مثال: عداد كهرباء رقمي"
+                },
+
+
+
                 new FieldConfig
                 {
                     Name = "p03",
@@ -790,6 +851,17 @@ namespace SmartFoundation.Mvc.Controllers.ElectronicBillSystem
                     ColCss = "4",
                     Required = true,
                     Icon = "fa fa-calendar"
+                },
+
+                 new FieldConfig
+                {
+                    Name = "p30",
+                    Label = "سعر ثابت",
+                    Type = "text",
+                    TextMode="money_sar",
+                    Required = true,
+                    ColCss = "3",
+                    Icon = "fa-solid fa-money-bill-1-wave"
                 },
 
                 new FieldConfig
@@ -1970,6 +2042,107 @@ namespace SmartFoundation.Mvc.Controllers.ElectronicBillSystem
                     },
                 }
             };
+
+
+            dsModelmeterType.StyleRules = new List<TableStyleRule>
+                        {
+
+                            new TableStyleRule
+                            {
+                                Target="row", Field="MeterCalculateTypeID_FK", Op="eq", Value="1", Priority=1,
+                                PillEnabled=true,
+                                PillField="MeterCalculateTypeName_A",
+                                PillTextField="MeterCalculateTypeName_A",
+                                PillCssClass="pill pill-blue",
+                                PillMode="replace"
+                            },
+
+                             new TableStyleRule
+                            {
+                                Target="row", Field="MeterCalculateTypeID_FK", Op="eq", Value="1", Priority=1,
+                                PillEnabled=true,
+                                PillField="meterServicePrice",
+                                PillTextField="meterServicePrice",
+                                PillCssClass="pill pill-blue",
+                                PillMode="replace"
+                            },
+
+
+                              new TableStyleRule
+                            {
+                                Target="row", Field="MeterCalculateTypeID_FK", Op="eq", Value="2", Priority=1,
+                                PillEnabled=true,
+                                PillField="MeterCalculateTypeName_A",
+                                PillTextField="MeterCalculateTypeName_A",
+                                PillCssClass="pill pill-yellow",
+                                PillMode="replace"
+                            },
+
+                             new TableStyleRule
+                            {
+                                Target="row", Field="MeterCalculateTypeID_FK", Op="eq", Value="2", Priority=1,
+                                PillEnabled=true,
+                                PillField="FixedAmount",
+                                PillTextField="FixedAmount",
+                                PillCssClass="pill pill-yellow",
+                                PillMode="replace"
+                            },
+
+
+
+                        };
+
+
+
+            dsModelMeter.StyleRules = new List<TableStyleRule>
+                        {
+
+                            new TableStyleRule
+                            {
+                                Target="row", Field="MeterCalculateTypeID", Op="eq", Value="1", Priority=1,
+                                PillEnabled=true,
+                                PillField="MeterCalculateTypeName_A",
+                                PillTextField="MeterCalculateTypeName_A",
+                                PillCssClass="pill pill-blue",
+                                PillMode="replace"
+                            },
+
+                             new TableStyleRule
+                            {
+                                Target="row", Field="MeterCalculateTypeID", Op="eq", Value="1", Priority=1,
+                                PillEnabled=true,
+                                PillField="meterServicePrice",
+                                PillTextField="meterServicePrice",
+                                PillCssClass="pill pill-blue",
+                                PillMode="replace"
+                            },
+
+
+                              new TableStyleRule
+                            {
+                                Target="row", Field="MeterCalculateTypeID", Op="eq", Value="2", Priority=1,
+                                PillEnabled=true,
+                                PillField="MeterCalculateTypeName_A",
+                                PillTextField="MeterCalculateTypeName_A",
+                                PillCssClass="pill pill-yellow",
+                                PillMode="replace"
+                            },
+
+                             new TableStyleRule
+                            {
+                                Target="row", Field="MeterCalculateTypeID", Op="eq", Value="2", Priority=1,
+                                PillEnabled=true,
+                                PillField="FixedAmount",
+                                PillTextField="FixedAmount",
+                                PillCssClass="pill pill-yellow",
+                                PillMode="replace"
+                            },
+
+
+
+                        };
+
+
 
 
             var page = new SmartPageViewModel

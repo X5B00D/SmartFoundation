@@ -1357,14 +1357,14 @@ namespace SmartFoundation.Mvc.Controllers.ElectronicBillSystem
                             DisableWhenAny = new List<TableActionRule>
                         {
 
-                              new TableActionRule
-                            {
-                                Field = "AllMeterNotReaded",
-                                Op = "neq",
-                                Value = "0",
-                                Message = "لايمكن اغلاق الفترة قبل انهاء قراءة جميع العدادات ",
-                                Priority = 3
-                            },
+                            //  new TableActionRule
+                            //{
+                            //    Field = "AllMeterNotReaded",
+                            //    Op = "neq",
+                            //    Value = "0",
+                            //    Message = "لايمكن اغلاق الفترة قبل انهاء قراءة جميع العدادات ",
+                            //    Priority = 3
+                            //},
 
 
                           }
