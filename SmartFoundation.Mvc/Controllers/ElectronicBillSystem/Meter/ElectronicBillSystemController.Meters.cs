@@ -436,6 +436,7 @@ namespace SmartFoundation.Mvc.Controllers.ElectronicBillSystem
                             ["buildingDetailsNo"] = "رقم المبنى",
                             ["buildingClassName_A"] = "فئة المبنى",
                             ["buildingTypeName_A"] = "نوع المبنى",
+                            ["MeterCalculateTypeName_A"] = "نوع الحسبة",
                             ["militaryLocationName_A"] = "موقع المبنى"
                         };
 
@@ -462,6 +463,7 @@ namespace SmartFoundation.Mvc.Controllers.ElectronicBillSystem
                                             || c.ColumnName.Equals("meterForBuildingActive", StringComparison.OrdinalIgnoreCase)
                                             || c.ColumnName.Equals("buildingUtilityTypeName_A", StringComparison.OrdinalIgnoreCase)
                                             || c.ColumnName.Equals("BuildingIdaraName", StringComparison.OrdinalIgnoreCase)
+                                            || c.ColumnName.Equals("MeterCalculateTypeID_FK", StringComparison.OrdinalIgnoreCase)
                                             || c.ColumnName.Equals("BuildingIdaraID", StringComparison.OrdinalIgnoreCase);
 
                             bool isbuildingClassName_A = c.ColumnName.Equals("buildingClassName_A", StringComparison.OrdinalIgnoreCase);
