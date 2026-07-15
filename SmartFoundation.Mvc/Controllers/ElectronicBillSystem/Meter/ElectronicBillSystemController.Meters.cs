@@ -782,7 +782,7 @@ namespace SmartFoundation.Mvc.Controllers.ElectronicBillSystem
                     new FieldConfig
                 {
                     Name = "p23",
-                    Label = "MeterCalculateTypeID_FK",
+                    Label = "MeterServiceType_FK",
                     Type = "hidden",
                     ColCss = "3",
                     Required = true,
