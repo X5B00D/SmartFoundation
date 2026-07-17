@@ -462,6 +462,57 @@ BEGIN
             FROM  dbo.Distributor d
             WHERE d.distributorActive = 1 and d.distributorType_FK = 2 
             and d.DSDID_FK in (select ds.DSDID from dbo.DeptSecDiv ds where ds.idaraID_FK = @entryDataIdaraID)
+
+            -- Programs DDL
+            SELECT DISTINCT
+                   p.programID,
+                   p.programName_A
+            FROM dbo.Menu m
+            LEFT JOIN dbo.Menu parentMenu
+                ON parentMenu.menuID = m.parentMenuID_FK
+            INNER JOIN dbo.Program p
+                ON p.programID = COALESCE(m.programID_FK, parentMenu.programID_FK)
+            INNER JOIN dbo.MenuDistributor md
+                ON md.menuID_FK = m.menuID
+               AND md.menuDistributorActive = 1
+            INNER JOIN dbo.Distributor d
+                ON d.distributorID = md.distributorID_FK
+               AND d.distributorActive = 1
+            WHERE p.programActive = 1
+              AND m.menuActive = 1
+              AND ISNULL(m.menuLink, '') <> 'MVC'
+              AND (
+                    (@isAdmin = 1 AND m.PageLvl IN (1, 2, 3))
+                 OR (@isAdmin = 2 AND m.PageLvl IN (2, 3))
+                 OR (@isAdmin = 3 AND m.PageLvl IN (3))
+              )
+            ORDER BY p.programName_A;
+
+            -- Pages DDL
+            SELECT DISTINCT
+                   d.distributorID,
+                   m.menuName_A,
+                   COALESCE(m.programID_FK, parentMenu.programID_FK) AS programID_FK,
+                   m.menuID,
+                   m.PageLvl
+            FROM dbo.Menu m
+            LEFT JOIN dbo.Menu parentMenu
+                ON parentMenu.menuID = m.parentMenuID_FK
+            INNER JOIN dbo.MenuDistributor md
+                ON md.menuID_FK = m.menuID
+               AND md.menuDistributorActive = 1
+            INNER JOIN dbo.Distributor d
+                ON d.distributorID = md.distributorID_FK
+               AND d.distributorActive = 1
+            WHERE m.menuActive = 1
+              AND m.menuLink IS NOT NULL
+              AND ISNULL(m.menuLink, '') <> 'MVC'
+              AND (
+                    (@isAdmin = 1 AND m.PageLvl IN (1, 2, 3))
+                 OR (@isAdmin = 2 AND m.PageLvl IN (2, 3))
+                 OR (@isAdmin = 3 AND m.PageLvl IN (3))
+              )
+            ORDER BY m.menuName_A;
           
         END
 
