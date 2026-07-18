@@ -218,12 +218,26 @@ BEGIN
         ----------------------------------------------------------------
         ELSE IF @pageName_ = 'PagesManagment'
         BEGIN
+            DECLARE @PagesManagmentRequiredAction NVARCHAR(200) =
+                CASE
+                    WHEN @ActionType IN ('AddProgram') THEN 'ADDPROGRAM'
+                    WHEN @ActionType IN ('EditProgram') THEN 'EDITPROGRAM'
+                    WHEN @ActionType IN ('DeleteProgram') THEN 'DELETEPROGRAM'
+                    WHEN @ActionType IN ('AddMenuList', 'AddPage') THEN 'ADDMENU'
+                    WHEN @ActionType IN ('EditMenuList', 'EditPage') THEN 'EDITMENU'
+                    WHEN @ActionType IN ('DeleteMenuList', 'DeletePage') THEN 'DELETEMENU'
+                    WHEN @ActionType IN ('AddPagePermission') THEN 'ADDPERMISSION'
+                    WHEN @ActionType IN ('EditPagePermission') THEN 'EDITPERMISSION'
+                    WHEN @ActionType IN ('DeletePagePermission') THEN 'DELETEPERMISSION'
+                    ELSE @ActionType
+                END;
+
             IF (
                 SELECT COUNT(*)
                 FROM  dbo.V_GetListUserPermission v
                 WHERE v.userID = @entrydata
                   AND v.menuName_E = @pageName_
-                  AND v.permissionTypeName_E = @ActionType
+                  AND UPPER(v.permissionTypeName_E) = @PagesManagmentRequiredAction
             ) <= 0
             BEGIN
                 SET @ok = 0;
@@ -242,7 +256,7 @@ BEGIN
                   , @programName_A                   = @parameter_02
                   , @programName_E                   = @parameter_03
                   , @programDescription              = @parameter_04
-                  , @programActive                   = @parameter_09
+                  , @programActive                   = NULL
                   , @programLink                     = @parameter_06
                   , @programIcon                     = @parameter_07
                   , @programSerial                   = @parameter_08
@@ -262,7 +276,7 @@ BEGIN
                   , @programName_A                   = @parameter_02
                   , @programName_E                   = @parameter_03
                   , @programDescription              = @parameter_04
-                  , @programActive                   = @parameter_09
+                  , @programActive                   = NULL
                   , @programLink                     = @parameter_06
                   , @programIcon                     = @parameter_07
                   , @programSerial                   = @parameter_08
@@ -303,6 +317,126 @@ BEGIN
                   , @programSerial                   = @parameter_05
 
 
+                  , @idaraID_FK                      = @idaraID
+                  , @entryData                       = @entrydata
+                  , @hostName                        = @hostName;
+            END
+
+            ELSE IF @ActionType = 'EditMenuList'
+            BEGIN
+               INSERT INTO @Result(IsSuccessful, Message_)
+                EXEC [dbo].[PagesManagmentSP]
+                    @Action                          = @ActionType
+                  , @programID                       = @parameter_09
+                  , @programName_A                   = @parameter_03
+                  , @programName_E                   = @parameter_04
+                  , @programDescription              = @parameter_07
+                  , @programSerial                   = @parameter_10
+                  , @menuID                          = @parameter_02
+                  , @idaraID_FK                      = @idaraID
+                  , @entryData                       = @entrydata
+                  , @hostName                        = @hostName;
+            END
+
+            ELSE IF @ActionType = 'DeleteMenuList'
+            BEGIN
+               INSERT INTO @Result(IsSuccessful, Message_)
+                EXEC [dbo].[PagesManagmentSP]
+                    @Action                          = @ActionType
+                  , @programActive                   = @parameter_11
+                  , @menuID                          = @parameter_02
+                  , @idaraID_FK                      = @idaraID
+                  , @entryData                       = @entrydata
+                  , @hostName                        = @hostName;
+            END
+
+            ELSE IF @ActionType = 'AddPage'
+            BEGIN
+               INSERT INTO @Result(IsSuccessful, Message_)
+                EXEC [dbo].[PagesManagmentSP]
+                    @Action                          = @ActionType
+                  , @programID                       = @parameter_01
+                  , @parentMenuID                    = @parameter_02
+                  , @programName_A                   = @parameter_03
+                  , @programName_E                   = @parameter_04
+                  , @programDescription              = @parameter_05
+                  , @programLink                     = @parameter_06
+                  , @programSerial                   = @parameter_07
+                  , @programActive                   = NULL
+                  , @isDashboard                     = NULL
+                  , @PageLvl                         = @parameter_10
+                  , @idaraID_FK                      = @idaraID
+                  , @entryData                       = @entrydata
+                  , @hostName                        = @hostName;
+            END
+
+            ELSE IF @ActionType = 'EditPage'
+            BEGIN
+               INSERT INTO @Result(IsSuccessful, Message_)
+                EXEC [dbo].[PagesManagmentSP]
+                    @Action                          = @ActionType
+                  , @menuID                          = @parameter_02
+                  , @programName_A                   = @parameter_03
+                  , @programName_E                   = @parameter_04
+                  , @programDescription              = @parameter_07
+                  , @programLink                     = @parameter_06
+                  , @parentMenuID                    = @parameter_08
+                  , @programID                       = @parameter_09
+                  , @programSerial                   = @parameter_10
+                  , @isDashboard                     = NULL
+                  , @PageLvl                         = @parameter_13
+                  , @idaraID_FK                      = @idaraID
+                  , @entryData                       = @entrydata
+                  , @hostName                        = @hostName;
+            END
+
+            ELSE IF @ActionType = 'DeletePage'
+            BEGIN
+               INSERT INTO @Result(IsSuccessful, Message_)
+                EXEC [dbo].[PagesManagmentSP]
+                    @Action                          = @ActionType
+                  , @menuID                          = @parameter_02
+                  , @programActive                   = @parameter_11
+                  , @idaraID_FK                      = @idaraID
+                  , @entryData                       = @entrydata
+                  , @hostName                        = @hostName;
+            END
+
+            ELSE IF @ActionType = 'AddPagePermission'
+            BEGIN
+               INSERT INTO @Result(IsSuccessful, Message_)
+                EXEC [dbo].[PagesManagmentSP]
+                    @Action                          = @ActionType
+                  , @menuID                          = @parameter_02
+                  , @permissionTypeName_A            = @parameter_03
+                  , @permissionTypeName_E            = @parameter_04
+                  , @permissionAuthLvl               = @parameter_05
+                  , @programActive                   = NULL
+                  , @idaraID_FK                      = @idaraID
+                  , @entryData                       = @entrydata
+                  , @hostName                        = @hostName;
+            END
+
+            ELSE IF @ActionType = 'EditPagePermission'
+            BEGIN
+               INSERT INTO @Result(IsSuccessful, Message_)
+                EXEC [dbo].[PagesManagmentSP]
+                    @Action                          = @ActionType
+                  , @distributorPermissionTypeID     = @parameter_01
+                  , @permissionTypeID                = @parameter_02
+                  , @permissionAuthLvl               = @parameter_07
+                  , @idaraID_FK                      = @idaraID
+                  , @entryData                       = @entrydata
+                  , @hostName                        = @hostName;
+            END
+
+            ELSE IF @ActionType = 'DeletePagePermission'
+            BEGIN
+               INSERT INTO @Result(IsSuccessful, Message_)
+                EXEC [dbo].[PagesManagmentSP]
+                    @Action                          = @ActionType
+                  , @distributorPermissionTypeID     = @parameter_01
+                  , @programActive                   = @parameter_06
                   , @idaraID_FK                      = @idaraID
                   , @entryData                       = @entrydata
                   , @hostName                        = @hostName;
