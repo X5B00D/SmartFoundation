@@ -347,7 +347,7 @@ namespace SmartFoundation.Mvc.Controllers.Housing
                 new FieldConfig { Name = "p09", Label = "WaitingOrderTypeID", Type = "hidden", ColCss = "3", Readonly = true },
                 new FieldConfig { Name = "p10", Label = "نوع سجل الانتظار", Type = "hidden", ColCss = "3", Readonly = true },
                 new FieldConfig { Name = "p18", Label = "buildingDetailsID", Type = "hidden", ColCss = "3", Readonly = true },
-                new FieldConfig { Name = "p43", Label = "OccupentDate", Type = "hidden", ColCss = "3", Readonly = true },
+                new FieldConfig { Name = "p43", Label = "OccupentDate", Type = "date", ColCss = "3", Readonly = true },
                 new FieldConfig { Name = "p44", Label = "ExitDate", Type = "hidden", ColCss = "3", Readonly = true },
 
 
@@ -393,7 +393,7 @@ namespace SmartFoundation.Mvc.Controllers.Housing
                 new FieldConfig { Name = "p09", Label = "WaitingOrderTypeID", Type = "hidden", ColCss = "3", Readonly = true },
                 new FieldConfig { Name = "p10", Label = "نوع سجل الانتظار", Type = "hidden", ColCss = "3", Readonly = true },
                 new FieldConfig { Name = "p18", Label = "buildingDetailsID", Type = "hidden", ColCss = "3", Readonly = true },
-                new FieldConfig { Name = "p43", Label = "OccupentDate", Type = "hidden", ColCss = "3", Readonly = true },
+                new FieldConfig { Name = "p43", Label = "OccupentDate", Type = "date", ColCss = "3", Readonly = true },
                 new FieldConfig { Name = "p44", Label = "ExitDate", Type = "hidden", ColCss = "3", Readonly = true },
 
 
