@@ -87,6 +87,7 @@ namespace SmartFoundation.Mvc.Controllers.ControlPanel
             List<OptionItem> divOptions = new();
             List<OptionItem> RoleOptions = new();
             List<OptionItem> distributorToGivepermissionOptions = new();
+            List<OptionItem> programOptions = new();
 
 
             FormConfig form = new();
@@ -190,6 +191,15 @@ namespace SmartFoundation.Mvc.Controllers.ControlPanel
                 json = JsonSerializer.Serialize(result!.Value);
 
                 distributorToGivepermissionOptions = JsonSerializer.Deserialize<List<OptionItem>>(json)!;
+
+                // ---------------------- Programs ----------------------
+                result = await _CrudController.GetDDLValues(
+                    "programName_A", "programID", "11", nameof(Permission), usersId, IdaraId, HostName
+                ) as JsonResult;
+
+                json = JsonSerializer.Serialize(result!.Value);
+
+                programOptions = JsonSerializer.Deserialize<List<OptionItem>>(json)!;
 
                 // ----------------------END DDLValues ----------------------
 
@@ -550,16 +560,29 @@ namespace SmartFoundation.Mvc.Controllers.ControlPanel
                 // keep id hidden first so row id can flow when needed
                 new FieldConfig { Name = rowIdField, Type = "hidden" },
 
-                // your custom textboxes
-               new FieldConfig
+                new FieldConfig
+                {
+                    Name = "p14",
+                    Label = "البرنامج",
+                    Type = "select",
+                    Select2 = true,
+                    Options = programOptions,
+                    ColCss = "4",
+                    Required = true,
+                    Placeholder = "اختر البرنامج"
+                },
+
+                new FieldConfig
                 {
                     Name = "p01",
-                    Label = "الموزع",
+                    Label = "الصفحة",
                     Type = "select",
-                    Select2=true,
-                    Options = distributorOptions,
-                    ColCss = "6",
-                    Required = true
+                    Select2 = true,
+                    Options = new List<OptionItem> { new OptionItem { Value = "-1", Text = "اختر البرنامج أولاً" } },
+                    ColCss = "4",
+                    Required = true,
+                    DependsOn = "p14",
+                    DependsUrl = "/crud/DDLFiltered?FK=programID_FK&textcol=menuName_A&ValueCol=distributorID&PageName=Permission&TableIndex=12"
                 },
 
                 new FieldConfig
@@ -568,8 +591,8 @@ namespace SmartFoundation.Mvc.Controllers.ControlPanel
                     Label = "الصلاحية",
                     Type = "select",
                     Select2 = true,
-                    Options = new List<OptionItem> { new OptionItem { Value = "-1", Text = "اختر الموزع أولاً"     } }, //       Initial empty state
-                    ColCss = "6",
+                    Options = new List<OptionItem> { new OptionItem { Value = "-1", Text = "اختر الصفحة أولاً" } },
+                    ColCss = "4",
                     Required = true,
                     DependsOn = "p01",
                     DependsUrl = "/crud/DDLFiltered?FK=distributorID_FK&textcol=permissionTypeName_A&ValueCol=distributorPermissionTypeID&PageName=Permission&TableIndex=4"
@@ -823,12 +846,12 @@ namespace SmartFoundation.Mvc.Controllers.ControlPanel
                         Color = "info",
                         IsEdit = true,
                         OpenModal = true,
-                        ModalTitle = "تعديل بيانات الموظف",
+                        ModalTitle = "تعديل بيانات الصلاحية",
                         //ModalMessage = "بسم الله الرحمن الرحيم",
                         OpenForm = new FormConfig
                         {
                             FormId = "employeeEditForm",
-                            Title = "تعديل بيانات الموظف",
+                            Title = "تعديل بيانات الصلاحية",
                             Method = "post",
                             ActionUrl = "/crud/update",
                             SubmitText = "حفظ التعديلات",
@@ -851,11 +874,11 @@ namespace SmartFoundation.Mvc.Controllers.ControlPanel
                         OpenModal = true,
                         //ModalTitle = "رسالة تحذيرية",
                         ModalTitle = "<i class='fa fa-exclamation-triangle text-red-600 text-xl mr-2'></i> تحذير",
-                        ModalMessage = "هل أنت متأكد من حذف هذا السجل؟",
+                        ModalMessage = "هل أنت متأكد من حذف هذا الصلاحية؟",
                         OpenForm = new FormConfig
                         {
                             FormId = "employeeDeleteForm",
-                            Title = "تأكيد حذف السجل",
+                            Title = "تأكيد حذف الصلاحية",
                             Method = "post",
                             ActionUrl = "/crud/delete",
                             Buttons = new List<FormButtonConfig>

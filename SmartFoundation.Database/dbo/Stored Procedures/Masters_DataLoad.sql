@@ -462,6 +462,57 @@ BEGIN
             FROM  dbo.Distributor d
             WHERE d.distributorActive = 1 and d.distributorType_FK = 2 
             and d.DSDID_FK in (select ds.DSDID from dbo.DeptSecDiv ds where ds.idaraID_FK = @entryDataIdaraID)
+
+            -- Programs DDL
+            SELECT DISTINCT
+                   p.programID,
+                   p.programName_A
+            FROM dbo.Menu m
+            LEFT JOIN dbo.Menu parentMenu
+                ON parentMenu.menuID = m.parentMenuID_FK
+            INNER JOIN dbo.Program p
+                ON p.programID = COALESCE(m.programID_FK, parentMenu.programID_FK)
+            INNER JOIN dbo.MenuDistributor md
+                ON md.menuID_FK = m.menuID
+               AND md.menuDistributorActive = 1
+            INNER JOIN dbo.Distributor d
+                ON d.distributorID = md.distributorID_FK
+               AND d.distributorActive = 1
+            WHERE p.programActive = 1
+              AND m.menuActive = 1
+              AND ISNULL(m.menuLink, '') <> 'MVC'
+              AND (
+                    (@isAdmin = 1 AND m.PageLvl IN (1, 2, 3))
+                 OR (@isAdmin = 2 AND m.PageLvl IN (2, 3))
+                 OR (@isAdmin = 3 AND m.PageLvl IN (3))
+              )
+            ORDER BY p.programName_A;
+
+            -- Pages DDL
+            SELECT DISTINCT
+                   d.distributorID,
+                   m.menuName_A,
+                   COALESCE(m.programID_FK, parentMenu.programID_FK) AS programID_FK,
+                   m.menuID,
+                   m.PageLvl
+            FROM dbo.Menu m
+            LEFT JOIN dbo.Menu parentMenu
+                ON parentMenu.menuID = m.parentMenuID_FK
+            INNER JOIN dbo.MenuDistributor md
+                ON md.menuID_FK = m.menuID
+               AND md.menuDistributorActive = 1
+            INNER JOIN dbo.Distributor d
+                ON d.distributorID = md.distributorID_FK
+               AND d.distributorActive = 1
+            WHERE m.menuActive = 1
+              AND m.menuLink IS NOT NULL
+              AND ISNULL(m.menuLink, '') <> 'MVC'
+              AND (
+                    (@isAdmin = 1 AND m.PageLvl IN (1, 2, 3))
+                 OR (@isAdmin = 2 AND m.PageLvl IN (2, 3))
+                 OR (@isAdmin = 3 AND m.PageLvl IN (3))
+              )
+            ORDER BY m.menuName_A;
           
         END
 
@@ -633,7 +684,7 @@ BEGIN
 
             from dbo.Menu m
             inner join dbo.Program p on m.programID_FK = p. programID
-            where m.menuLink is null and m.menuID not in 
+            where (m.menuLink is null OR m.menuLink = 'MVC') and m.menuID not in
             (select md.menuID_FK from dbo.MenuDistributor md
             inner join dbo.Distributor d on md.distributorID_FK = d.distributorID and d.distributorType_FK = 4
             where d.distributorType_FK = 4 and d.distributorActive = 1)
@@ -656,15 +707,17 @@ BEGIN
            ,m.[menuDescription]
            ,m.[parentMenuID_FK]
            ,m.[menuLink]
-           ,m.[programID_FK]
+           ,COALESCE(m.[programID_FK], parentMenu.[programID_FK]) AS programID_FK
            ,m.[menuSerial]
            ,m.[menuActive]
            ,m.[isDashboard]
            ,m.[PageLvl]
 
             from dbo.Menu m
-            inner join dbo.MenuDistributor md on m.menuID = md.menuID_FK and md.menuDistributorActive = 1 
-            inner join dbo.Distributor d on d.distributorID = md.distributorID_FK and d.distributorActive = 1 and d.distributorType_FK = 4
+            left join dbo.Menu parentMenu on parentMenu.menuID = m.parentMenuID_FK
+            left join dbo.MenuDistributor md on m.menuID = md.menuID_FK
+            left join dbo.Distributor d on d.distributorID = md.distributorID_FK and d.distributorType_FK = 4
+            where m.menuLink is not null and m.menuLink <> 'MVC'
             --where m.[menuActive] = 1 
             order by m.menuID desc
 
@@ -681,19 +734,16 @@ BEGIN
       ,t.[permissionAuthLvl]
       ,d.distributorName_A
       ,d.distributorType_FK
+      ,pt.permissionTypeName_A
+      ,pt.permissionTypeName_E
+      ,pa.permissionAuthLvlName_A
     
     
   FROM [DATACORE].[dbo].[DistributorPermissionType] t 
   inner join dbo.Distributor d on d.distributorID = t.distributorID_FK and d.distributorActive = 1 and d.distributorType_FK = 4
   inner join dbo.MenuDistributor md on md.distributorID_FK = t.distributorID_FK and md.menuDistributorActive = 1
   inner join dbo.Menu m on m.menuID = md.menuID_FK and m.menuActive = 1
-  inner join dbo.Permission p 
-  on p.DistributorPermissionTypeID_FK = t.distributorPermissionTypeID 
-  and p.permissionActive = 1 
-  and p.permissionStartDate is not null 
-  and cast(p.permissionStartDate as date) <= cast(getdate() as date) 
-  and (p.permissionEndDate is null or cast(p.permissionEndDate as date) > cast(getdate() as date))
-
+  inner join dbo.PermissionType pt on pt.permissionTypeID = t.permissionTypeID_FK
   inner join dbo.permissionAuthLvl pa on pa.permissionAuthLvlID = t.permissionAuthLvl and pa.permissionAuthLvlActive = 1
   where t.distributorPermissionTypeActive = 1
            
@@ -716,6 +766,53 @@ BEGIN
             select u.UsersAuthTypeID,u.UsersAuthTypeName_A
             from dbo.UsersAuthType u
             where u.UsersAuthTypeActive = 1
+
+            -- Side Menus DDL
+            SELECT
+                  m.menuID
+                , m.menuName_A
+                , m.programID_FK
+            FROM dbo.Menu m
+            WHERE m.menuActive = 1
+              AND m.programID_FK IS NOT NULL
+              AND (m.menuLink IS NULL OR m.menuLink = 'MVC')
+            ORDER BY m.menuName_A;
+
+            -- Pages DDL
+            SELECT DISTINCT
+                  m.menuID
+                , m.menuName_A
+                , COALESCE(m.programID_FK, parentMenu.programID_FK) AS programID_FK
+            FROM dbo.Menu m
+            LEFT JOIN dbo.Menu parentMenu
+                ON parentMenu.menuID = m.parentMenuID_FK
+            INNER JOIN dbo.MenuDistributor md
+                ON md.menuID_FK = m.menuID
+               AND md.menuDistributorActive = 1
+            INNER JOIN dbo.Distributor d
+                ON d.distributorID = md.distributorID_FK
+               AND d.distributorActive = 1
+               AND d.distributorType_FK = 4
+            WHERE m.menuActive = 1
+              AND m.menuLink IS NOT NULL
+              AND m.menuLink <> 'MVC'
+            ORDER BY m.menuName_A;
+
+            -- Permission Types DDL
+            SELECT
+                  p.permissionTypeID
+                , p.permissionTypeName_A
+            FROM dbo.PermissionType p
+            WHERE p.permissionTypeActive = 1
+            ORDER BY p.permissionTypeName_A;
+
+            -- Permission Auth Levels DDL
+            SELECT
+                  pa.permissionAuthLvlID
+                , pa.permissionAuthLvlName_A
+            FROM dbo.permissionAuthLvl pa
+            WHERE pa.permissionAuthLvlActive = 1
+            ORDER BY pa.permissionAuthLvlID;
 
 
 END

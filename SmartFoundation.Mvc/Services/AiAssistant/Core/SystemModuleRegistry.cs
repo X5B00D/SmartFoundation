@@ -11,7 +11,8 @@ public static class SystemModuleRegistry
         {
             BuildHousingModule(),
             BuildIncomeSystemModule(),
-            BuildElectronicBillSystemModule()
+            BuildElectronicBillSystemModule(),
+            BuildControlPanelModule()
         };
 
     public static IEnumerable<SystemPageDefinition> GetAllPages()
@@ -68,9 +69,9 @@ public static class SystemModuleRegistry
                     },
                     Actions = new[]
                     {
-                        CreateAction(ActionType.Add, "إضافة", new[] { "INSERT" }, new[] { "أضف", "إضافة", "أنشئ", "سجل" }),
-                        CreateAction(ActionType.Update, "تعديل", new[] { "UPDATE", "UPDATENATIONALIDFORRESIDENT" }, new[] { "عدل", "تعديل", "حدّث", "غيّر" }),
-                        CreateAction(ActionType.Delete, "حذف", new[] { "DELETE" }, new[] { "احذف", "حذف", "إزالة" }),
+                        CreateAction(ActionType.Add, "إضافة", new[] { "INSERTRESIDENTS" }, new[] { "أضف", "إضافة", "أنشئ", "سجل" }),
+                        CreateAction(ActionType.Update, "تعديل", new[] { "UPDATERESIDENTS", "UPDATENATIONALIDFORRESIDENT" }, new[] { "عدل", "تعديل", "حدّث", "غيّر" }),
+                        CreateAction(ActionType.Delete, "حذف", new[] { "DELETERESIDENTS" }, new[] { "احذف", "حذف", "إزالة" }),
                         CreateAction(ActionType.Search, "بحث", Array.Empty<string>(), new[] { "ابحث", "بحث", "اعثر", "وين" }),
                         CreateAction(ActionType.Print, "طباعة", Array.Empty<string>(), new[] { "اطبع", "طباعة", "تقرير" })
                     }
@@ -97,9 +98,9 @@ public static class SystemModuleRegistry
                     },
                     Actions = new[]
                     {
-                        CreateAction(ActionType.Add, "إضافة", new[] { "INSERT" }, new[] { "أضف", "إضافة", "أنشئ" }),
-                        CreateAction(ActionType.Update, "تعديل", new[] { "UPDATE" }, new[] { "عدل", "تعديل" }),
-                        CreateAction(ActionType.Delete, "حذف", new[] { "DELETE" }, new[] { "احذف", "حذف" }),
+                        CreateAction(ActionType.Add, "إضافة", new[] { "INSERTBUILDINGDETAILS" }, new[] { "أضف", "إضافة", "أنشئ" }),
+                        CreateAction(ActionType.Update, "تعديل", new[] { "UPDATEBUILDINGDETAILS" }, new[] { "عدل", "تعديل" }),
+                        CreateAction(ActionType.Delete, "حذف", new[] { "DELETEBUILDINGDETAILS" }, new[] { "احذف", "حذف" }),
                         CreateAction(ActionType.Search, "بحث", Array.Empty<string>(), new[] { "ابحث", "بحث" }),
                         CreateAction(ActionType.Print, "طباعة", Array.Empty<string>(), new[] { "اطبع", "طباعة" })
                     }
@@ -125,9 +126,9 @@ public static class SystemModuleRegistry
                     },
                     Actions = new[]
                     {
-                        CreateAction(ActionType.Add, "إضافة", new[] { "INSERT" }, new[] { "أضف", "إضافة" }),
-                        CreateAction(ActionType.Update, "تعديل", new[] { "UPDATE" }, new[] { "عدل", "تعديل" }),
-                        CreateAction(ActionType.Delete, "حذف", new[] { "DELETE" }, new[] { "احذف", "حذف" }),
+                        CreateAction(ActionType.Add, "إضافة", new[] { "INSERTBUILDINGCLASS" }, new[] { "أضف", "إضافة" }),
+                        CreateAction(ActionType.Update, "تعديل", new[] { "UPDATEBUILDINGCLASS" }, new[] { "عدل", "تعديل" }),
+                        CreateAction(ActionType.Delete, "حذف", new[] { "DELETEBUILDINGCLASS" }, new[] { "احذف", "حذف" }),
                         CreateAction(ActionType.Search, "بحث", Array.Empty<string>(), new[] { "ابحث", "بحث" })
                     }
                 },
@@ -152,9 +153,9 @@ public static class SystemModuleRegistry
                     },
                     Actions = new[]
                     {
-                        CreateAction(ActionType.Add, "إضافة", new[] { "INSERT" }, new[] { "أضف", "إضافة" }),
-                        CreateAction(ActionType.Update, "تعديل", new[] { "UPDATE" }, new[] { "عدل", "تعديل" }),
-                        CreateAction(ActionType.Delete, "حذف", new[] { "DELETE" }, new[] { "احذف", "حذف" }),
+                        CreateAction(ActionType.Add, "إضافة", new[] { "INSERTBUILDINGTYPE" }, new[] { "أضف", "إضافة" }),
+                        CreateAction(ActionType.Update, "تعديل", new[] { "UPDATEBUILDINGTYPE" }, new[] { "عدل", "تعديل" }),
+                        CreateAction(ActionType.Delete, "حذف", new[] { "DELETEBUILDINGTYPE" }, new[] { "احذف", "حذف" }),
                         CreateAction(ActionType.Search, "بحث", Array.Empty<string>(), new[] { "ابحث", "بحث" })
                     }
                 },
@@ -178,9 +179,9 @@ public static class SystemModuleRegistry
                     },
                     Actions = new[]
                     {
-                        CreateAction(ActionType.Add, "إضافة", new[] { "INSERT" }, new[] { "أضف", "إضافة" }),
-                        CreateAction(ActionType.Update, "تعديل", new[] { "UPDATE" }, new[] { "عدل", "تعديل" }),
-                        CreateAction(ActionType.Delete, "حذف", new[] { "DELETE" }, new[] { "احذف", "حذف" })
+                        CreateAction(ActionType.Add, "إضافة", new[] { "INSERTBUILDINGUTILITYTYPE" }, new[] { "أضف", "إضافة" }),
+                        CreateAction(ActionType.Update, "تعديل", new[] { "UPDATEBUILDINGUTILITYTYPE" }, new[] { "عدل", "تعديل" }),
+                        CreateAction(ActionType.Delete, "حذف", new[] { "DELETEBUILDINGUTILITYTYPE" }, new[] { "احذف", "حذف" })
                     }
                 },
 
@@ -203,9 +204,9 @@ public static class SystemModuleRegistry
                     },
                     Actions = new[]
                     {
-                        CreateAction(ActionType.Add, "إضافة", new[] { "INSERT" }, new[] { "أضف", "إضافة" }),
-                        CreateAction(ActionType.Update, "تعديل", new[] { "UPDATE" }, new[] { "عدل", "تعديل" }),
-                        CreateAction(ActionType.Delete, "حذف", new[] { "DELETE" }, new[] { "احذف", "حذف" })
+                        CreateAction(ActionType.Add, "إضافة", new[] { "INSERTMILITARYLOCATION" }, new[] { "أضف", "إضافة" }),
+                        CreateAction(ActionType.Update, "تعديل", new[] { "UPDATEMILITARYLOCATION" }, new[] { "عدل", "تعديل" }),
+                        CreateAction(ActionType.Delete, "حذف", new[] { "DELETEMILITARYLOCATION" }, new[] { "احذف", "حذف" })
                     }
                 },
 
@@ -370,6 +371,8 @@ public static class SystemModuleRegistry
                     Actions = new[]
                     {
                         CreateAction(ActionType.Search, "بحث", Array.Empty<string>(), new[] { "ابحث", "بحث", "تابع" }),
+                        CreateAction(ActionType.Update, "تعديل حالة التخصيص", new[] { "ASSIGNSTATUS" }, new[] { "عدل الحالة", "تعديل حالة التخصيص", "معالجة حالة التخصيص", "حالة التخصيص" }),
+                        CreateAction(ActionType.ClosePeriod, "إنهاء محضر التخصيص", new[] { "ENDASSIGNPERIOD" }, new[] { "إنهاء محضر التخصيص", "انهاء محضر التخصيص", "إغلاق محضر التخصيص", "اغلاق محضر التخصيص" }),
                         CreateAction(ActionType.Print, "طباعة", Array.Empty<string>(), new[] { "اطبع", "طباعة" })
                     }
                 },
@@ -403,11 +406,12 @@ public static class SystemModuleRegistry
                     },
                     Actions = new[]
                     {
-                        CreateAction(ActionType.Add, "إضافة", new[] { "HOUSINGHousingExit" }, new[] { "أضف", "إضافة", "سجل إخلاء" }),
-                        CreateAction(ActionType.Update, "تعديل", new[] { "EDITHOUSINGHousingExit" }, new[] { "عدل", "تعديل" }),
-                        CreateAction(ActionType.Delete, "إلغاء", new[] { "CANCELHOUSINGHousingExit" }, new[] { "إلغاء", "الغاء", "ألغِ" }),
-                        CreateAction(ActionType.Review, "إرسال للمالية", new[] { "SENDHOUSINGHousingExitTOFINANCE" }, new[] { "ارسل للمالية", "إرسال للمالية" }),
-                        CreateAction(ActionType.Approve, "اعتماد", new[] { "APPROVEHousingExit" }, new[] { "اعتمد", "اعتماد" })
+                        CreateAction(ActionType.Add, "إضافة", new[] { "HOUSINGEXIT" }, new[] { "أضف", "إضافة", "سجل إخلاء" }),
+                        CreateAction(ActionType.Update, "تعديل", new[] { "EDITHOUSINGEXIT" }, new[] { "عدل", "تعديل" }),
+                        CreateAction(ActionType.Update, "تسجيل غرامات الإخلاء", new[] { "HOUSINGEXITPENALTYRECORD" }, new[] { "غرامات الإخلاء", "غرامات الاخلاء", "تسجيل غرامات", "سجل غرامات" }),
+                        CreateAction(ActionType.Delete, "إلغاء", new[] { "CANCELHOUSINGEXIT" }, new[] { "إلغاء", "الغاء", "ألغِ" }),
+                        CreateAction(ActionType.Review, "إرسال للمالية", new[] { "SENDHOUSINGEXITTOFINANCE" }, new[] { "ارسل للمالية", "إرسال للمالية" }),
+                        CreateAction(ActionType.Approve, "اعتماد", new[] { "APPROVEHOUSINGEXIT" }, new[] { "اعتمد", "اعتماد" })
                     }
                 },
 
@@ -435,6 +439,7 @@ public static class SystemModuleRegistry
                         CreateAction(ActionType.Update, "تعديل", new[] { "EDITHOUSINGEXTEND" }, new[] { "عدل", "تعديل" }),
                         CreateAction(ActionType.Delete, "إلغاء", new[] { "CANCELHOUSINGEXTEND" }, new[] { "إلغاء", "الغاء" }),
                         CreateAction(ActionType.Review, "إرسال للمالية", new[] { "SENDHOUSINGEXTENDTOFINANCE" }, new[] { "ارسل للمالية", "إرسال للمالية" }),
+                        CreateAction(ActionType.Review, "التأمين الاحترازي", new[] { "EXTENDINSURANCE" }, new[] { "التأمين الاحترازي", "التامين الاحترازي", "تأمين", "تامين" }),
                         CreateAction(ActionType.Approve, "اعتماد", new[] { "APPROVEEXTEND" }, new[] { "اعتمد", "اعتماد" })
                     }
                 },
@@ -458,7 +463,14 @@ public static class SystemModuleRegistry
                     },
                     Actions = new[]
                     {
-                        CreateAction(ActionType.View, "عرض", new[] { "HousingHandover" }, new[] { "عرض", "افتح", "ادخل" }),
+                        CreateAction(ActionType.View, "عرض", new[]
+                        {
+                            "HOUSINGHANDOVERRESPONSIBLEINBUILDINGMAINTENANCEDEPARTMENT",
+                            "HOUSINGHANDOVERRESPONSIBLEINQUALITYDEPARTMENT",
+                            "HOUSINGHANDOVERRESPONSIBLEINGENERALSERVICESDEPARTMENT",
+                            "HOUSINGHANDOVERRESPONSIBLEINHOUSINGDEPARTMENT",
+                            "HOUSINGHANDOVERRESPONSIBLEINEXECUTIONDEPARTMENT"
+                        }, new[] { "عرض", "افتح", "ادخل" }),
                         CreateAction(ActionType.Search, "بحث", Array.Empty<string>(), new[] { "ابحث", "بحث" })
                     }
                 },
@@ -506,8 +518,9 @@ public static class SystemModuleRegistry
                     Actions = new[]
                     {
                         CreateAction(ActionType.Search, "بحث", Array.Empty<string>(), new[] { "ابحث", "بحث" }),
-                        CreateAction(ActionType.Add, "إضافة", Array.Empty<string>(), new[] { "أضف", "إضافة" }),
-                        CreateAction(ActionType.Update, "تعديل", Array.Empty<string>(), new[] { "عدل", "تعديل" }),
+                        CreateAction(ActionType.Add, "إضافة إعفاء", new[] { "ADDRENTEXEMPTION" }, new[] { "أضف", "إضافة", "إضافة إعفاء", "اضافة اعفاء", "سجل إعفاء" }),
+                        CreateAction(ActionType.Update, "تعديل إعفاء", new[] { "EDITRENTEXEMPTION" }, new[] { "عدل", "تعديل", "تعديل إعفاء", "تعديل اعفاء" }),
+                        CreateAction(ActionType.Delete, "حذف إعفاء", new[] { "DELETERENTEXEMPTION" }, new[] { "احذف", "حذف", "حذف إعفاء", "حذف اعفاء" }),
                         CreateAction(ActionType.Approve, "اعتماد", Array.Empty<string>(), new[] { "اعتمد", "اعتماد" })
                     }
                 },
@@ -533,6 +546,30 @@ public static class SystemModuleRegistry
                     {
                         CreateAction(ActionType.Move, "نقل", new[] { "MOVETOOCCUPENTPROCEDURES" }, new[] { "انقل", "نقل", "حوّل" }),
                         CreateAction(ActionType.Search, "بحث", Array.Empty<string>(), new[] { "ابحث", "بحث" })
+                    }
+                },
+
+                new SystemPageDefinition
+                {
+                    Key = "Housing.UploadExcel",
+                    ModuleKey = "Housing",
+                    InternalPageName = "UploadExcel",
+                    ArabicPageName = "رفع ملف Excel",
+                    ModuleType = ModuleType.Import,
+                    KeywordsArabic = new[]
+                    {
+                        "رفع ملف Excel", "رفع إكسل", "رفع اكسل", "استيراد إكسل", "معالجة ملف إكسل"
+                    },
+                    ArabicDescription = "رفع ملف Excel ومعاينة بياناته ثم اختيار الأعمدة المطلوبة لمعالجة الملف واعتماده.",
+                    SuggestedQuestionsArabic = new[]
+                    {
+                        "كيف أرفع ملف Excel؟",
+                        "كيف أعالج ملف Excel بعد الرفع؟"
+                    },
+                    Actions = new[]
+                    {
+                        CreateAction(ActionType.View, "عرض", new[] { "UPLOADEXCEL" }, new[] { "اعرض", "عرض", "افتح", "رفع ملف Excel", "رفع اكسل" }),
+                        CreateAction(ActionType.ImportExcel, "رفع ومعالجة Excel", new[] { "UPLOADEXCEL" }, new[] { "ارفع ملف", "رفع ملف", "استيراد", "معالجة الملف", "اعتماد الملف", "Excel", "اكسل" })
                     }
                 }
             }
@@ -601,6 +638,55 @@ public static class SystemModuleRegistry
                         CreateAction(ActionType.Settlement, "تسوية", new[] { "FINANCIALSETTLEMENT" }, new[] { "تسوية", "سوّ" }),
                         CreateAction(ActionType.Review, "مراجعة", new[] { "REVIEWCLAIMSANDPAYMENTS" }, new[] { "راجع", "مراجعة" }),
                         CreateAction(ActionType.Payment, "سداد واسترداد", new[] { "PAYMENTANDREFUNDFOREXTENDANDEXIT" }, new[] { "سداد", "استرداد", "تحصيل", "إرجاع" })
+                    }
+                },
+
+                new SystemPageDefinition
+                {
+                    Key = "IncomeSystem.ExtendInsurance",
+                    ModuleKey = "IncomeSystem",
+                    InternalPageName = "ExtendInsurance",
+                    ArabicPageName = "التحقق من التأمين الاحترازي",
+                    ModuleType = ModuleType.Operational,
+                    KeywordsArabic = new[]
+                    {
+                        "التأمين الاحترازي", "التامين الاحترازي", "اعتماد التأمين الاحترازي", "التحقق من التأمين"
+                    },
+                    ArabicDescription = "مراجعة طلبات التأمين الاحترازي واعتمادها حسب الصلاحيات.",
+                    RelatedToRegulations = true,
+                    SuggestedQuestionsArabic = new[]
+                    {
+                        "كيف أعتمد التأمين الاحترازي؟",
+                        "كيف أبحث في طلبات التأمين الاحترازي؟"
+                    },
+                    Actions = new[]
+                    {
+                        CreateAction(ActionType.View, "عرض", new[] { "APPROVEEXTENDINSURANCE" }, new[] { "اعرض", "عرض", "افتح", "التأمين الاحترازي", "التامين الاحترازي" }),
+                        CreateAction(ActionType.Approve, "اعتماد التأمين الاحترازي", new[] { "APPROVEEXTENDINSURANCE" }, new[] { "اعتمد", "اعتماد", "اعتماد التأمين الاحترازي", "اعتماد التامين الاحترازي" })
+                    }
+                },
+
+                new SystemPageDefinition
+                {
+                    Key = "IncomeSystem.DeductListReport",
+                    ModuleKey = "IncomeSystem",
+                    InternalPageName = "DeductListReport",
+                    ArabicPageName = "تقرير قائمة الاستقطاع",
+                    ModuleType = ModuleType.Audit,
+                    KeywordsArabic = new[]
+                    {
+                        "تقرير قائمة الاستقطاع", "قائمة الاستقطاع", "تقرير الاستقطاع", "طباعة تقرير الاستقطاع"
+                    },
+                    ArabicDescription = "عرض وطباعة تقرير قائمة الاستقطاع حسب نوع الخدمة وفترة الفاتورة.",
+                    SuggestedQuestionsArabic = new[]
+                    {
+                        "كيف أطبع تقرير قائمة الاستقطاع؟",
+                        "كيف أبحث في تقرير قائمة الاستقطاع؟"
+                    },
+                    Actions = new[]
+                    {
+                        CreateAction(ActionType.View, "عرض", new[] { "PRINTDEDUCTLISTREPORT" }, new[] { "اعرض", "عرض", "افتح", "تقرير الاستقطاع" }),
+                        CreateAction(ActionType.Print, "طباعة تقرير", new[] { "PRINTDEDUCTLISTREPORT" }, new[] { "اطبع", "طباعة", "طباعة تقرير", "تقرير قائمة الاستقطاع" })
                     }
                 },
 
@@ -749,6 +835,73 @@ public static class SystemModuleRegistry
                         CreateAction(ActionType.View, "عرض", new[] { "MeterReadForOccubentAndExit" }, new[] { "اعرض", "افتح" }),
                         CreateAction(ActionType.Update, "تعديل", new[] { "UpdateMeterReadForOccubentAndExit" }, new[] { "عدل", "تعديل" }),
                         CreateAction(ActionType.Approve, "اعتماد", new[] { "APPROVEMETERREADFOROCCUBENTANDEXIT" }, new[] { "اعتمد", "اعتماد" })
+                    }
+                },
+
+                new SystemPageDefinition
+                {
+                    Key = "ElectronicBillSystem.MeterServiceTypeFixedAmount",
+                    ModuleKey = "ElectronicBillSystem",
+                    InternalPageName = "MeterServiceTypeFixedAmount",
+                    ArabicPageName = "أسعار الخدمات الثابتة",
+                    ModuleType = ModuleType.Billing,
+                    KeywordsArabic = new[]
+                    {
+                        "أسعار الخدمات الثابتة", "سعر الخدمة", "مبلغ الخدمة", "المبالغ الثابتة", "الخدمات الثابتة"
+                    },
+                    ArabicDescription = "إدارة أسعار الخدمات الثابتة بإضافة وتعديل وحذف سعر الخدمة حسب الصلاحيات.",
+                    SuggestedQuestionsArabic = new[]
+                    {
+                        "كيف أضيف سعر خدمة ثابت؟",
+                        "كيف أعدل سعر خدمة؟",
+                        "كيف أحذف سعر خدمة؟"
+                    },
+                    Actions = new[]
+                    {
+                        CreateAction(ActionType.View, "عرض", Array.Empty<string>(), new[] { "اعرض", "عرض", "افتح", "أسعار الخدمات الثابتة" }),
+                        CreateAction(ActionType.Add, "إضافة سعر خدمة", new[] { "INSERTSERVICEFIXEDAMOUNT" }, new[] { "أضف", "إضافة", "إضافة سعر خدمة", "اضافة سعر خدمة" }),
+                        CreateAction(ActionType.Update, "تعديل سعر خدمة", new[] { "EDITSERVICEFIXEDAMOUNT" }, new[] { "عدل", "تعديل", "تعديل سعر خدمة" }),
+                        CreateAction(ActionType.Delete, "حذف سعر خدمة", new[] { "DELETESERVICEFIXEDAMOUNT" }, new[] { "احذف", "حذف", "حذف سعر خدمة" })
+                    }
+                }
+            }
+        };
+    }
+
+    private static SystemModuleDefinition BuildControlPanelModule()
+    {
+        return new SystemModuleDefinition
+        {
+            Key = "ControlPanel",
+            ArabicName = "لوحة التحكم",
+            KeywordsArabic = new[]
+            {
+                "لوحة التحكم", "إدارة الصلاحيات", "الصلاحيات", "صلاحيات المستخدمين"
+            },
+            Pages = new[]
+            {
+                new SystemPageDefinition
+                {
+                    Key = "ControlPanel.Permission",
+                    ModuleKey = "ControlPanel",
+                    InternalPageName = "Permission",
+                    ArabicPageName = "إدارة الصلاحيات",
+                    ModuleType = ModuleType.Reference,
+                    KeywordsArabic = new[] { "الصلاحيات", "إدارة الصلاحيات", "صلاحية", "وصول كامل", "صلاحيات المستخدم" },
+                    ArabicDescription = "إدارة صلاحيات المستخدمين والتوزيع والوصول الكامل.",
+                    SuggestedQuestionsArabic = new[]
+                    {
+                        "كيف أضيف صلاحية؟",
+                        "كيف أضيف وصول كامل؟",
+                        "كيف أوقف صلاحية؟"
+                    },
+                    Actions = new[]
+                    {
+                        CreateAction(ActionType.View, "عرض", Array.Empty<string>(), new[] { "اعرض", "عرض", "افتح", "الصلاحيات" }),
+                        CreateAction(ActionType.Add, "إضافة صلاحية", new[] { "INSERTPERMISSION" }, new[] { "أضف صلاحية", "إضافة صلاحية" }),
+                        CreateAction(ActionType.Add, "إضافة وصول كامل", new[] { "INSERTFULLACCESS" }, new[] { "وصول كامل", "إضافة وصول كامل" }),
+                        CreateAction(ActionType.Update, "تعديل صلاحية", new[] { "UPDATEPERMISSION" }, new[] { "عدل صلاحية", "تعديل صلاحية" }),
+                        CreateAction(ActionType.Delete, "إيقاف صلاحية", new[] { "DELETEPERMISSION" }, new[] { "إيقاف صلاحية", "ايقاف صلاحية", "حذف صلاحية" })
                     }
                 }
             }
