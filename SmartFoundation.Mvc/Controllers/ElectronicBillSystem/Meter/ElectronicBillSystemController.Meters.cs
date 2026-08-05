@@ -622,7 +622,7 @@ namespace SmartFoundation.Mvc.Controllers.ElectronicBillSystem
                     Type = "text", 
                     ColCss = "3", 
                     Required = true,
-                    TextMode = "arabic",
+                    TextMode = "arabicnumdash",
                     Icon = "fa-solid fa-tag",
                     MaxLength = 100,
                     Placeholder = "مثال: عداد كهرباء رقمي"
@@ -634,7 +634,7 @@ namespace SmartFoundation.Mvc.Controllers.ElectronicBillSystem
                     Label = "اسم نوع العداد (إنجليزي)", 
                     Type = "text", 
                     ColCss = "3",
-                    TextMode = "english",
+                    TextMode = "englishnum",
                     Icon = "fa-solid fa-tag",
                     MaxLength = 100,
                     Placeholder = "Example: Digital Electric Meter"
@@ -1213,6 +1213,7 @@ namespace SmartFoundation.Mvc.Controllers.ElectronicBillSystem
                     Type = "text",
                     ColCss = "6",
                     Required = true,
+                    TextMode = "englishnumdash",
                     Icon = "fa-solid fa-hashtag",
                     MaxLength = 50
                 },
@@ -1234,7 +1235,7 @@ namespace SmartFoundation.Mvc.Controllers.ElectronicBillSystem
                     Type = "text",
                     ColCss = "6",
                     Required = true,
-                    TextMode = "arabic",
+                    TextMode = "arabicnumdash",
                     Icon = "fa-solid fa-pen",
                     MaxLength = 100
                 },
@@ -1245,7 +1246,7 @@ namespace SmartFoundation.Mvc.Controllers.ElectronicBillSystem
                     Label = "اسم العداد (إنجليزي)",
                     Type = "text",
                     ColCss = "6",
-                    TextMode = "english",
+                    TextMode = "englishnumdash",
                     Icon = "fa-solid fa-pen",
                     MaxLength = 100
                 },

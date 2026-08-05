@@ -5941,9 +5941,31 @@
                         pattern = 'pattern="[\\u0600-\\u06FF\\s]+"';
                         break;
 
+                    case "arabicnum":
+                        oninput = `oninput="this.value=this.value.replace(/[^\\u0600-\\u06FF0-9\\s]/g,'')"`;
+                        pattern = 'pattern="[\\u0600-\\u06FF0-9\\s]+"';
+                        break;
+
+
+                    case "arabicnumdash":
+                        oninput = `oninput="this.value=this.value.replace(/[^\\u0600-\\u06FF0-9\\s-]/g,'')"`;
+                        pattern = 'pattern="[\\u0600-\\u06FF0-9\\s-]+"';
+                        break;
+
                     case "english":
                         oninput = `oninput="this.value=this.value.replace(/[^A-Za-z\\s]/g,'')"`;
                         pattern = 'pattern="[A-Za-z\\s]+"';
+                        break;
+
+                    case "englishnum":
+                        oninput = `oninput="this.value=this.value.replace(/[^A-Za-z0-9\\s]/g,'')"`;
+                        pattern = 'pattern="[A-Za-z0-9\\s]+"';
+                        break;
+
+
+                    case "englishnumdash":
+                        oninput = `oninput="this.value=this.value.replace(/[^A-Za-z0-9\\s-]/g,'')"`;
+                        pattern = 'pattern="[A-Za-z0-9\\s-]+"';
                         break;
 
                     case "numeric":
@@ -5956,10 +5978,7 @@
                         pattern = 'pattern="[A-Za-z0-9\\s]+"';
                         break;
 
-                    case "arabicnum":
-                        oninput = `oninput="this.value=this.value.replace(/[^\\u0600-\\u06FF0-9\\s]/g,'')"`;
-                        pattern = 'pattern="[\\u0600-\\u06FF0-9\\s]+"';
-                        break;
+                    
 
                     case "engsentence":
                         oninput = `oninput="this.value=this.value.replace(/[^A-Za-z0-9\\s.,!?'"()-]/g,'')"`;
