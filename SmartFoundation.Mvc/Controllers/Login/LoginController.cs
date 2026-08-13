@@ -127,6 +127,10 @@ namespace SmartFoundation.Mvc.Controllers.Login
         public async Task<IActionResult> CheckLogin(string NationalID, string password, CancellationToken ct)
         {
 
+            //if (DateTime.Now > new DateTime(2027, 1, 1))
+            //{
+            //    return RedirectToLogin("error", "حصل خطأ ما الرجاء التواصل مع فريق عمل المنصة الموحدة", NationalID);
+            //}
 
             if (string.IsNullOrWhiteSpace(NationalID) || string.IsNullOrWhiteSpace(password))
             {

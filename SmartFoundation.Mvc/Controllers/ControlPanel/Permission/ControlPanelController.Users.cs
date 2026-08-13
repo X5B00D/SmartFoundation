@@ -214,7 +214,7 @@ namespace SmartFoundation.Mvc.Controllers.ControlPanel
                             ["userTypeName_A"] = "الفئة",
                             ["idaraLongName_A"] = "الادارة",
                             ["EntryFullName"] = "منفذ الاجراء",
-                            ["distributorName_A"] = "القسم",
+                            ["DepartmentName"] = "القسم",
                             ["entryDate"] = "تاريخ التنفيذ"
                         };
 
@@ -251,6 +251,9 @@ namespace SmartFoundation.Mvc.Controllers.ControlPanel
                             bool ismaritalStatusID_FK = c.ColumnName.Equals("maritalStatusID_FK", StringComparison.OrdinalIgnoreCase);
                             bool iseducationID_FK = c.ColumnName.Equals("educationID_FK", StringComparison.OrdinalIgnoreCase);
                             bool isdistributorID = c.ColumnName.Equals("distributorID", StringComparison.OrdinalIgnoreCase);
+                            bool isInactiveReason = c.ColumnName.Equals("InactiveReason", StringComparison.OrdinalIgnoreCase);
+                            bool isDepartmentID = c.ColumnName.Equals("DepartmentID", StringComparison.OrdinalIgnoreCase);
+                            bool isdistributorName_A = c.ColumnName.Equals("distributorName_A", StringComparison.OrdinalIgnoreCase);
 
                             dynamicColumns.Add(new TableColumn
                             {
@@ -258,7 +261,7 @@ namespace SmartFoundation.Mvc.Controllers.ControlPanel
                                 Label = headerMap.TryGetValue(c.ColumnName, out var label) ? label : c.ColumnName,
                                 Type = colType,
                                 Sortable = true,
-                                Visible = !(isUsersAuthTypeID || isuserActive || isIdaraID|| isfirstName_A || issecondName_A || isthirdName_A || islastName_A || isfirstName_E || issecondName_E || isthirdName_E || islastName_E || isuserTypeID_FK || isnationalIDIssueDate || isdateOfBirth || isgenderID_FK || isnationalityID_FK || isreligionID_FK || ismaritalStatusID_FK || iseducationID_FK || isdistributorID)
+                                Visible = !(isUsersAuthTypeID || isuserActive || isIdaraID|| isfirstName_A || issecondName_A || isthirdName_A || islastName_A || isfirstName_E || issecondName_E || isthirdName_E || islastName_E || isuserTypeID_FK || isnationalIDIssueDate || isdateOfBirth || isgenderID_FK || isnationalityID_FK || isreligionID_FK || ismaritalStatusID_FK || iseducationID_FK || isdistributorID || isInactiveReason || isDepartmentID || isdistributorName_A)
                             });
                         }
 
