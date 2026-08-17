@@ -48,6 +48,7 @@ namespace SmartFoundation.Mvc.Controllers.Housing
             string rowIdField = "";
             bool canHOUSINGESRESIDENTS = false;
             bool canHOUSINGESRESIDENTSCUSTDY = false;
+            bool canCANCELHOUSINGRESIDENT = false;
            
 
 
@@ -121,6 +122,7 @@ namespace SmartFoundation.Mvc.Controllers.Housing
 
                         if (permissionName == "HOUSINGESRESIDENTS") canHOUSINGESRESIDENTS = true;
                         if (permissionName == "HOUSINGESRESIDENTSCUSTDY") canHOUSINGESRESIDENTSCUSTDY = true;
+                        if (permissionName == "CANCELHOUSINGRESIDENT") canCANCELHOUSINGRESIDENT = true;
                         
                     }
 
@@ -326,8 +328,53 @@ namespace SmartFoundation.Mvc.Controllers.Housing
             };
 
 
+
+            var CANCELHOUSINGRESIDENTFields = new List<FieldConfig>
+            {
+
+                new FieldConfig { Name = "pageName_",          Type = "hidden", Value = PageName },
+                new FieldConfig { Name = "ActionType",         Type = "hidden", Value = "CANCELHOUSINGRESIDENT" },
+                new FieldConfig { Name = "idaraID",            Type = "hidden", Value = IdaraId },
+                new FieldConfig { Name = "entrydata",          Type = "hidden", Value = usersId },
+                new FieldConfig { Name = "hostname",           Type = "hidden", Value = HostName },
+                new FieldConfig { Name = "redirectUrl",     Type = "hidden", Value = currentUrl },
+                new FieldConfig { Name = "redirectAction",     Type = "hidden", Value = PageName },
+                new FieldConfig { Name = "redirectController", Type = "hidden", Value = ControllerName },
+                new FieldConfig { Name = "__RequestVerificationToken", Type = "hidden", Value = (Request.Headers["RequestVerificationToken"].FirstOrDefault() ?? "") },
+                // selection context
+                new FieldConfig { Name = rowIdField, Type = "hidden" },
+                // hidden p01 actually posted to SP
+                new FieldConfig { Name = "p01", Type = "hidden", MirrorName = "ActionID" },
+                new FieldConfig { Name = "p02", Label = "residentInfoID", Type = "hidden", ColCss = "3", Readonly = true },
+                new FieldConfig { Name = "p14", Label = "الترتيب", Type = "hidden", ColCss = "3", Readonly = true },
+                new FieldConfig { Name = "p15", Label = "الاسم", Type = "text", ColCss = "3", Readonly = true, Icon = "fa-solid fa-user" },
+                new FieldConfig { Name = "p03", Label = "رقم الهوية الوطنية", Type = "text", ColCss = "3", Readonly = true, Icon = "fa-solid fa-address-card" },
+                new FieldConfig { Name = "p04", Label = "الرقم العام", Type = "text", ColCss = "3", Readonly = true, Icon = "fa-solid fa-user-tag" },
+                new FieldConfig { Name = "p05", Label = "رقم الطلب", Type = "hidden", ColCss = "3", Readonly = true  },
+                new FieldConfig { Name = "p06", Label = "تاريخ الطلب", Type = "hidden", ColCss = "3", Readonly = true,Icon = "fa fa-calendar" },
+                new FieldConfig { Name = "p07", Label = "WaitingClassID", Type = "hidden", ColCss = "3", Readonly = true },
+                new FieldConfig { Name = "p08", Label = "فئة سجل الانتظار", Type = "text", ColCss = "3", Readonly = true, Icon = "fa-solid fa-layer-group" },
+                new FieldConfig { Name = "p09", Label = "WaitingOrderTypeID", Type = "hidden", ColCss = "3", Readonly = true },
+                new FieldConfig { Name = "p10", Label = "نوع سجل الانتظار", Type = "hidden", ColCss = "3", Readonly = true },
+                new FieldConfig { Name = "p18", Label = "buildingDetailsID", Type = "hidden", ColCss = "3", Readonly = true },
+
+                new FieldConfig { Name = "p25", Label = "تاريخ التسكين", Type = "hidden", ColCss = "3", Required = true, Icon = "fa-regular fa-calendar-days" },
+                new FieldConfig { Name = "p23", Label = "رقم الخطاب الصادر", Type = "hidden", ColCss = "6", Required = true, Icon = "fa-solid fa-file-signature" },
+                new FieldConfig { Name = "p24", Label = "تاريخ الخطاب الصادر", Type = "hidden", ColCss = "3", Required = true, Icon = "fa-regular fa-calendar-days" },
+                new FieldConfig { Name = "p12", Label = "سبب الغاء التسكين", Type = "textarea", ColCss = "12",Required = true,HelpText="لايجب ان يتجاوز النص 4000 حرف*",MaxLength=3900, Icon = "fa-regular fa-note-sticky" },
+
+                new FieldConfig { Name = "p13", Label = "IdaraId", Type = "hidden", ColCss = "3", Readonly = true },
+                new FieldConfig { Name = "p16", Label = "LastActionTypeID", Type = "hidden", ColCss = "3", Readonly = true },
+                new FieldConfig { Name = "p17", Label = "buildingActionTypeResidentAlias", Type = "hidden", ColCss = "3", Readonly = true },
+                new FieldConfig { Name = "p19", Label = "buildingDetailsNo", Type = "hidden", ColCss = "3", Readonly = true },
+                new FieldConfig { Name = "p20", Label = "AssignPeriodID", Type = "hidden", ColCss = "3", Readonly = true },
+                new FieldConfig { Name = "p21", Label = "LastActionID", Type = "hidden", ColCss = "3", Readonly = true },
+
+            };
+
+
             //  UPDATE fields (Form Default / Form 46+)  تجريبي نرجع نمسحه او نعدل عليه
-          
+
             var dsModel = new SmartTableDsModel
             {
                 PageTitle = "المستفيدين",
@@ -354,6 +401,7 @@ namespace SmartFoundation.Mvc.Controllers.Housing
                     ShowExportPdf = true,
                     ShowEdit = canHOUSINGESRESIDENTSCUSTDY,  // Button always visible
                     ShowEdit1 = canHOUSINGESRESIDENTS,  // Button always visible
+                    ShowDelete = canCANCELHOUSINGRESIDENT,  // Button always visible
                     ShowPrint1 = false,
                     ShowBulkDelete = false,
                     
@@ -567,6 +615,75 @@ namespace SmartFoundation.Mvc.Controllers.Housing
                                 Op = "neq",
                                 Value = "47",
                                 Message = "لايمكن تنفيذ هذا الاجراء",
+                                Priority = 3
+                            },
+                          }
+                        }
+                    },
+
+                    Delete = new TableAction
+                    {
+                        Label = "الغاء تسكين مستفيد",
+                        Icon = "fa-solid fa-close",
+                        Color = "danger",
+                        IsEdit = true,
+                        OpenModal = true,
+
+                        ModalTitle = "الغاء تسكين مستفيد",
+                        ModalMessage = "في حال الغاء تسكين المستفيد سيخصم من الفرص المتاحة له حسب النظام وفي حال كان هذا التخصيص الثاني له سيتم الغاء احقيته في السكن ولايمكن التراجع عن ذلك",
+                        ModalMessageClass = "bg-red-50 text-red-700",
+                        ModalMessageIcon = "fa-solid fa-triangle-exclamation",
+
+                        OnBeforeOpenJs = "sfRouteEditForm(table, act);",
+
+                        OpenForm = new FormConfig
+                        {
+                            FormId = "BuildingTypeEditForm",
+                            Title = "",
+                            Method = "post",
+                            ActionUrl = "/crud/update",
+                            SubmitText = "حفظ التعديلات",
+                            CancelText = "إلغاء",
+                            Fields = CANCELHOUSINGRESIDENTFields
+                        },
+
+                        //Meta = new Dictionary<string, object?>
+                        //{
+                        //    ["routeBy"] = "p16",
+                        //    ["routes"] = new Dictionary<string, object?>
+                        //    {
+                        //        ["45"] = new Dictionary<string, object?>
+                        //        {
+                        //            ["title"] = "تسجيل العهد والملاحظات",
+                        //            ["message"] = "ملاحظة في حال وجود عدادت مرتبطة بالمنزل سيتم احالة الطلب للقسم المسؤول لاكمال الاجراءات",
+                        //            ["fields"] = CustdyFields
+                        //        },
+                        //        ["47"] = new Dictionary<string, object?>
+                        //        {
+                        //            ["title"] = "تسكين المستفيد بشكل نهائي",
+                        //            ["message"] = "سيتم تنفيذ تسكين المستفيد بشكل نهائي ولايمكن التراجع عن ذلك",
+                        //            ["fields"] = FinalOccupentFields
+                        //        }
+
+                        //    }
+                        //},
+
+                        RequireSelection = true,
+                        MinSelection = 1,
+                        MaxSelection = 1,
+
+                        Guards = new TableActionGuards
+                        {
+                            AppliesTo = "any",
+                            DisableWhenAny = new List<TableActionRule>
+                        {
+
+                              new TableActionRule
+                            {
+                                Field = "LastActionTypeID",
+                                Op = "notin",
+                                Value = "45,46,47",
+                                Message = "لايمكن الغاء التسكين بعد طلب قراءة العدادات او التسكين النهائي ولكن بإمكانك اخلاء الساكن عن طريق صفحة الاخلاء",
                                 Priority = 3
                             },
                           }
