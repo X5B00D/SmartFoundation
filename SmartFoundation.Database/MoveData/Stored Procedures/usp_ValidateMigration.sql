@@ -1,11 +1,15 @@
-﻿
-CREATE   PROCEDURE [MoveData].[usp_ValidateMigration]
+﻿CREATE PROCEDURE [MoveData].[usp_ValidateMigration]
     @IdaraId bigint = 1,
     @CutoverDate date = NULL,
     @WaterMonthlyAmount decimal(18,2) = 8.25
 AS
 BEGIN
     SET NOCOUNT ON;
+    /* Normalize migration administration: preserve a valid supplied value, otherwise use Idara 1. */
+    IF NOT EXISTS (SELECT 1 FROM dbo.Idara WHERE idaraID = 1)
+        THROW 57990, N'Default migration Idara 1 does not exist.', 1;
+    IF @IdaraId IS NULL OR NOT EXISTS (SELECT 1 FROM dbo.Idara WHERE idaraID = @IdaraId)
+        SET @IdaraId = 1;
     SET XACT_ABORT ON;
 
     DECLARE @Checks TABLE
@@ -1149,37 +1153,88 @@ BEGIN
           AND ISNULL(tc.residentcontactInfoActive,0)=ISNULL(sc.contactInfoActive,0)
     );
 
-    /* Generated-bill uniqueness and pairing. */
+    /* Generated-bill uniqueness and pairing for occupied periods. */
     INSERT @Checks(Category,CheckName,ExpectedValue,ActualValue,Difference,Result,Notes)
-    SELECT N'Generated bills',N'Duplicate rent/water monthly bill groups',0,COUNT_BIG(*),COUNT_BIG(*),
+    SELECT N'Generated bills',N'Duplicate occupied rent/water monthly bill groups',0,COUNT_BIG(*),COUNT_BIG(*),
            CASE WHEN COUNT_BIG(*)=0 THEN 'PASS' ELSE 'FAIL' END,
-           N'One bill per charge type, resident, building, year, and month.'
+           N'One bill per charge type, resident, building, year, and month for occupied periods.'
     FROM
     (
         SELECT BillChargeTypeID_FK,residentInfoID_FK,buildingDetailsID,PeriodYear,PeriodMonth
         FROM Housing.Bills
         WHERE BillChargeTypeID_FK IN(1,3) AND idaraID_FK=@IdaraId AND BillActive=1
+          AND residentInfoID_FK IS NOT NULL
         GROUP BY BillChargeTypeID_FK,residentInfoID_FK,buildingDetailsID,PeriodYear,PeriodMonth
         HAVING COUNT_BIG(*)>1
     ) duplicateGroup;
 
-    ;WITH MonthlyPairs AS
+    ;WITH OccupiedMonthlyPairs AS
     (
         SELECT residentInfoID_FK,buildingDetailsID,PeriodYear,PeriodMonth,
                SUM(CASE WHEN BillChargeTypeID_FK=1 THEN 1 ELSE 0 END) RentCount,
                SUM(CASE WHEN BillChargeTypeID_FK=3 THEN 1 ELSE 0 END) WaterCount
         FROM Housing.Bills
         WHERE BillChargeTypeID_FK IN(1,3) AND idaraID_FK=@IdaraId AND BillActive=1
+          AND residentInfoID_FK IS NOT NULL
         GROUP BY residentInfoID_FK,buildingDetailsID,PeriodYear,PeriodMonth
     )
     INSERT @Checks(Category,CheckName,ExpectedValue,ActualValue,Difference,Result,Notes)
-    SELECT N'Generated bills',N'Unpaired monthly rent/water bills',0,COUNT_BIG(*),COUNT_BIG(*),
+    SELECT N'Generated bills',N'Unpaired occupied monthly rent/water bills',0,COUNT_BIG(*),COUNT_BIG(*),
            CASE WHEN COUNT_BIG(*)=0 THEN 'PASS' ELSE 'FAIL' END,
-           N'From 2024-01 onward, every migrated occupancy month must contain one rent and one water bill.'
-    FROM MonthlyPairs
-    WHERE DATEFROMPARTS(PeriodYear,PeriodMonth,1) >= @WaterChargeStartDate
+           N'From 2024-01 onward, every occupied migrated month must contain one rent and one water bill.'
+    FROM OccupiedMonthlyPairs
+    WHERE DATEFROMPARTS(PeriodYear,PeriodMonth,1)>=@WaterChargeStartDate
       AND (RentCount<>1 OR WaterCount<>1);
 
+    INSERT @Checks(Category,CheckName,ExpectedValue,ActualValue,Difference,Result,Notes)
+    SELECT N'Vacant service bills',N'Rent bills generated for vacant periods',0,COUNT_BIG(*),COUNT_BIG(*),
+           CASE WHEN COUNT_BIG(*)=0 THEN 'PASS' ELSE 'FAIL' END,
+           N'Vacant periods may receive fixed-service bills but must never receive rent bills.'
+    FROM Housing.Bills
+    WHERE BillChargeTypeID_FK=1 AND idaraID_FK=@IdaraId AND BillActive=1
+      AND residentInfoID_FK IS NULL AND generalNo_FK IS NULL;
+
+    INSERT @Checks(Category,CheckName,ExpectedValue,ActualValue,Difference,Result,Notes)
+    SELECT N'Vacant service bills',N'Duplicate exact vacant-water periods',0,COUNT_BIG(*),COUNT_BIG(*),
+           CASE WHEN COUNT_BIG(*)=0 THEN 'PASS' ELSE 'FAIL' END,
+           N'Only one active water bill may represent the same building and exact vacant date range.'
+    FROM
+    (
+        SELECT buildingDetailsID,BillsFromDate,BillsToDate
+        FROM Housing.Bills
+        WHERE BillChargeTypeID_FK=3 AND idaraID_FK=@IdaraId AND BillActive=1
+          AND residentInfoID_FK IS NULL AND generalNo_FK IS NULL
+        GROUP BY buildingDetailsID,BillsFromDate,BillsToDate
+        HAVING COUNT_BIG(*)>1
+    ) duplicateVacancy;
+
+    INSERT @Checks(Category,CheckName,ExpectedValue,ActualValue,Difference,Result,Notes)
+    SELECT N'Vacant service bills',N'Overlapping distinct vacant-water periods',0,COUNT_BIG(*),COUNT_BIG(*),
+           CASE WHEN COUNT_BIG(*)=0 THEN 'PASS' ELSE 'FAIL' END,
+           N'Distinct vacant-water periods for one building must not overlap; separate non-overlapping gaps in one month are valid.'
+    FROM Housing.Bills firstBill
+    JOIN Housing.Bills secondBill
+      ON secondBill.BillsID>firstBill.BillsID
+     AND secondBill.buildingDetailsID=firstBill.buildingDetailsID
+     AND secondBill.BillChargeTypeID_FK=3
+     AND secondBill.idaraID_FK=@IdaraId
+     AND secondBill.BillActive=1
+     AND secondBill.residentInfoID_FK IS NULL
+     AND secondBill.generalNo_FK IS NULL
+     AND secondBill.BillsFromDate<=firstBill.BillsToDate
+     AND secondBill.BillsToDate>=firstBill.BillsFromDate
+     AND NOT (secondBill.BillsFromDate=firstBill.BillsFromDate AND secondBill.BillsToDate=firstBill.BillsToDate)
+    WHERE firstBill.BillChargeTypeID_FK=3 AND firstBill.idaraID_FK=@IdaraId
+      AND firstBill.BillActive=1 AND firstBill.residentInfoID_FK IS NULL
+      AND firstBill.generalNo_FK IS NULL;
+
+    INSERT @Checks(Category,CheckName,ExpectedValue,ActualValue,Difference,Result,Notes)
+    SELECT N'Vacant service bills',N'Vacant water bills carrying a general number',0,COUNT_BIG(*),COUNT_BIG(*),
+           CASE WHEN COUNT_BIG(*)=0 THEN 'PASS' ELSE 'FAIL' END,
+           N'A water bill without a resident must not retain a general number from a previous or later occupant.'
+    FROM Housing.Bills
+    WHERE BillChargeTypeID_FK=3 AND idaraID_FK=@IdaraId AND BillActive=1
+      AND residentInfoID_FK IS NULL AND generalNo_FK IS NOT NULL;
     ;WITH WaterCalculation AS
     (
         SELECT b.BillsID,b.PRICE,b.PRICETAX,b.TotalPrice,
@@ -1235,6 +1290,51 @@ BEGIN
       AND PeriodMonth=MONTH(@CutoverDate)
       AND BillActive=1;
 
+    /* New-system billing-period and fixed-service contract. */
+    INSERT @Checks(Category,CheckName,ExpectedValue,ActualValue,Difference,Result,Notes)
+    SELECT N'Billing periods',N'Water bills without current billing period',0,COUNT_BIG(*),COUNT_BIG(*),CASE WHEN COUNT_BIG(*)=0 THEN 'PASS' ELSE 'FAIL' END,N'Every migrated water bill must link to its generated monthly water period.'
+    FROM Housing.Bills WHERE BillChargeTypeID_FK=3 AND idaraID_FK=@IdaraId AND BillActive=1 AND CurrentPeriodID IS NULL;
+
+    INSERT @Checks(Category,CheckName,ExpectedValue,ActualValue,Difference,Result,Notes)
+    SELECT N'Billing periods',N'Water bills linked to incorrect billing period',0,COUNT_BIG(*),COUNT_BIG(*),CASE WHEN COUNT_BIG(*)=0 THEN 'PASS' ELSE 'FAIL' END,N'The current period must belong to the same administration, water service, and cover the bill dates.'
+    FROM Housing.Bills b
+    LEFT JOIN Housing.BillPeriod bp ON bp.billPeriodID=b.CurrentPeriodID
+    LEFT JOIN Housing.BillPeriodType bpt ON bpt.billPeriodTypeID=bp.billPeriodTypeID_FK
+    WHERE b.BillChargeTypeID_FK=3 AND b.idaraID_FK=@IdaraId AND b.BillActive=1
+      AND (bp.billPeriodID IS NULL OR bp.IdaraId_FK<>@IdaraId OR bpt.meterServiceTypeID_FK<>2 OR CAST(bp.billPeriodStartDate AS date)>CAST(b.BillsFromDate AS date) OR CAST(bp.billPeriodEndDate AS date)<CAST(b.BillsToDate AS date));
+
+    INSERT @Checks(Category,CheckName,ExpectedValue,ActualValue,Difference,Result,Notes)
+    SELECT N'Billing periods',N'Water bills missing an available previous period',0,COUNT_BIG(*),COUNT_BIG(*),CASE WHEN COUNT_BIG(*)=0 THEN 'PASS' ELSE 'FAIL' END,N'PreviousPeriodID is required when an earlier water period exists.'
+    FROM Housing.Bills b
+    JOIN Housing.BillPeriod currentPeriod ON currentPeriod.billPeriodID=b.CurrentPeriodID
+    WHERE b.BillChargeTypeID_FK=3 AND b.idaraID_FK=@IdaraId AND b.BillActive=1 AND b.PerviosPeriodID IS NULL
+      AND EXISTS(SELECT 1 FROM Housing.BillPeriod previousPeriod JOIN Housing.BillPeriodType previousType ON previousType.billPeriodTypeID=previousPeriod.billPeriodTypeID_FK WHERE previousPeriod.IdaraId_FK=@IdaraId AND previousType.meterServiceTypeID_FK=2 AND previousPeriod.billPeriodStartDate<currentPeriod.billPeriodStartDate);
+
+    INSERT @Checks(Category,CheckName,ExpectedValue,ActualValue,Difference,Result,Notes)
+    SELECT N'Bills',N'Water bills missing available building utility type',0,COUNT_BIG(*),COUNT_BIG(*),CASE WHEN COUNT_BIG(*)=0 THEN 'PASS' ELSE 'FAIL' END,N'Water bills must copy buildingUtilityTypeID_FK from BuildingDetails when it is available.'
+    FROM Housing.Bills b JOIN Housing.BuildingDetails building ON building.buildingDetailsID=b.buildingDetailsID
+    WHERE b.BillChargeTypeID_FK=3 AND b.idaraID_FK=@IdaraId AND b.BillActive=1 AND building.buildingUtilityTypeID_FK IS NOT NULL AND b.buildingUtilityTypeID IS NULL;
+
+    INSERT @Checks(Category,CheckName,ExpectedValue,ActualValue,Difference,Result,Notes)
+    SELECT N'Fixed services',N'Missing or mismatched active water fixed amount',0,COUNT_BIG(*),COUNT_BIG(*),CASE WHEN COUNT_BIG(*)=0 THEN 'PASS' ELSE 'FAIL' END,N'Water fixed amount is stored net of 15 percent VAT and must reconcile to WaterMonthlyAmount.'
+    FROM (SELECT 1 RequiredRow) required
+    WHERE NOT EXISTS(SELECT 1 FROM Housing.MeterServiceTypeFixedAmount amount WHERE amount.MeterServiceTypeID_FK=2 AND amount.idaraID_FK=@IdaraId AND amount.MeterServiceTypeFixedAmountActive=1 AND amount.FixedAmount=CAST(ROUND(@WaterMonthlyAmount/CAST(1.15 AS decimal(18,4)),2) AS decimal(18,2)));
+
+    INSERT @Checks(Category,CheckName,ExpectedValue,ActualValue,Difference,Result,Notes)
+    SELECT N'Billing periods',N'Electric bills missing an available previous period',0,COUNT_BIG(*),COUNT_BIG(*),CASE WHEN COUNT_BIG(*)=0 THEN 'PASS' ELSE 'FAIL' END,N'An electricity bill requires PreviousPeriodID when the same meter has an earlier migrated bill.'
+    FROM Housing.Bills b
+    JOIN Housing.BillPeriod currentPeriod ON currentPeriod.billPeriodID=b.CurrentPeriodID
+    WHERE b.BillChargeTypeID_FK=2 AND b.idaraID_FK=@IdaraId AND b.BillActive=1 AND b.meterID IS NOT NULL AND b.PerviosPeriodID IS NULL
+      AND EXISTS(SELECT 1 FROM Housing.Bills previousBill JOIN Housing.BillPeriod previousPeriod ON previousPeriod.billPeriodID=previousBill.CurrentPeriodID WHERE previousBill.BillChargeTypeID_FK=2 AND previousBill.idaraID_FK=@IdaraId AND previousBill.BillActive=1 AND previousBill.meterID=b.meterID AND previousBill.BillsID<>b.BillsID AND previousPeriod.billPeriodStartDate<currentPeriod.billPeriodStartDate);
+
+    INSERT @Checks(Category,CheckName,ExpectedValue,ActualValue,Difference,Result,Notes)
+    SELECT N'Billing periods',N'Electric bills linked to invalid previous period',0,COUNT_BIG(*),COUNT_BIG(*),CASE WHEN COUNT_BIG(*)=0 THEN 'PASS' ELSE 'FAIL' END,N'Previous electricity period must belong to the same administration and service and precede the current period.'
+    FROM Housing.Bills b
+    JOIN Housing.BillPeriod currentPeriod ON currentPeriod.billPeriodID=b.CurrentPeriodID
+    LEFT JOIN Housing.BillPeriod previousPeriod ON previousPeriod.billPeriodID=b.PerviosPeriodID
+    LEFT JOIN Housing.BillPeriodType previousType ON previousType.billPeriodTypeID=previousPeriod.billPeriodTypeID_FK
+    WHERE b.BillChargeTypeID_FK=2 AND b.idaraID_FK=@IdaraId AND b.BillActive=1 AND b.PerviosPeriodID IS NOT NULL
+      AND (previousPeriod.billPeriodID IS NULL OR previousPeriod.IdaraId_FK<>@IdaraId OR previousType.meterServiceTypeID_FK<>1 OR previousPeriod.billPeriodStartDate>=currentPeriod.billPeriodStartDate);
     /* Broken relationships and business invariants. Expected value is zero. */
     INSERT @Checks(Category,CheckName,ExpectedValue,ActualValue,Difference,Result,Notes)
     SELECT N'Integrity',N'ResidentDetails without ResidentInfo',0,COUNT_BIG(*),COUNT_BIG(*),

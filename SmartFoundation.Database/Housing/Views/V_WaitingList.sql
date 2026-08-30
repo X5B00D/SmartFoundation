@@ -9,7 +9,10 @@
 
 
 
-CREATE VIEW [Housing].[V_WaitingList]
+
+
+
+CREATE   VIEW [Housing].[V_WaitingList]
 AS
 WITH d AS
 (
@@ -118,12 +121,10 @@ SELECT
 
     la.buildingActionNote AS LastActionNote,
     la.entryDate AS LastActionEntryDate,
+    custody.CustdyRecord AS CustdyRecord,
     la.entryData AS LastActionEntryData,
     la.ExtendReasonTypeID_FK as LastActionExtendReasonTypeID,
     rd.IdaraId_FK ResidentIdaraID,
-    /* بعض الإجراءات اللاحقة لا تنسخ تاريخ التسكين.
-       نحتفظ بتاريخ الإجراء الأخير عند وجوده، وإلا نعيد تاريخ التسكن الأصلي
-       من الإجراء رقم 2 ضمن سلسلة السجل نفسها. */
     COALESCE(la.OccupentDate, occupancyAction.OccupentDate) AS OccupentDate,
     la.ExitDate
     
@@ -169,6 +170,17 @@ LEFT JOIN dbo.Idara it
     ON l.IdaraId_FK = it.idaraID
 LEFT JOIN dbo.Idara toidara
     ON la.buildingActionExtraInt1 = toidara.idaraID
+
+    OUTER APPLY
+(
+    SELECT TOP (1)
+        c.CustdyRecord
+    FROM Housing.fn_BuildingAction_ChainToRoot(la.buildingActionID) c
+    WHERE NULLIF(LTRIM(RTRIM(c.CustdyRecord)), N'') IS NOT NULL
+    ORDER BY c.Lvl DESC
+) custody
+
+
 WHERE b.buildingActionTypeID_FK in(1,7,25)
   AND b.buildingActionActive = 1;
 

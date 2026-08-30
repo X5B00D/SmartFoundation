@@ -47,7 +47,9 @@ BEGIN
             where m.buildingDetailsID_FK = w.buildingDetailsID 
             and m.IdaraID_FK = w.IdaraId 
             and m.meterForBuildingActive = 1) meterscount,
-            w.ActionTypeID
+            w.ActionTypeID,
+            w.CustdyRecord
+            
             
            
             

@@ -3,7 +3,7 @@
 -- Create date: <Create Date,,>
 -- Description:	<Description,,>
 -- =============================================
-CREATE PROCEDURE [Housing].[ImportExcelForBuildingPaymentDL] 
+CREATE   PROCEDURE [Housing].[ImportExcelForBuildingPaymentDL] 
 	-- Add the parameters for the stored procedure here
 	    @pageName_      NVARCHAR(400)
     , @idaraID        INT
@@ -27,23 +27,46 @@ BEGIN
         order by BillChargeTypeID asc
 
 
-
-
-         DECLARE @StartYear INT = 2017;
-        DECLARE @EndYear   INT = YEAR(GETDATE());
+        DECLARE @StartYear INT = 2017;
+        DECLARE @EndYear INT = YEAR(GETDATE());
         
         ;WITH YearsCTE AS
         (
             SELECT @StartYear AS Year_
+        
             UNION ALL
+        
             SELECT Year_ + 1
             FROM YearsCTE
             WHERE Year_ + 1 <= @EndYear
         )
-        SELECT Year_
-        FROM YearsCTE
-        ORDER BY Year_
-        OPTION (MAXRECURSION 100);
+        SELECT
+    billChargeType.BillChargeTypeID,
+    years.Year_
+FROM YearsCTE years
+CROSS JOIN Housing.BillChargeType billChargeType
+WHERE billChargeType.BillChargeTypeActive = 1
+  AND billChargeType.BillChargeTypeID <> 5
+ORDER BY
+    billChargeType.BillChargeTypeID,
+    years.Year_
+OPTION (MAXRECURSION 100);
+
+        -- DECLARE @StartYear INT = 2017;
+        --DECLARE @EndYear   INT = YEAR(GETDATE());
+        
+        --;WITH YearsCTE AS
+        --(
+        --    SELECT @StartYear AS Year_
+        --    UNION ALL
+        --    SELECT Year_ + 1
+        --    FROM YearsCTE
+        --    WHERE Year_ + 1 <= @EndYear
+        --)
+        --SELECT Year_
+        --FROM YearsCTE
+        --ORDER BY Year_
+        --OPTION (MAXRECURSION 100);
 
 
 
@@ -121,6 +144,33 @@ BEGIN
   ORDER BY reportRow.SentDate DESC,reportRow.DeductListReportID DESC;
 
 
+
+
+  SELECT
+    serviceType.BillChargeTypeID_FK,
+    reportRow.PeriodYear,
+    reportRow.PeriodMonth,
+    reportRow.DeductListReportID,
+    CONCAT(
+        reportRow.ReportNo, N' - ',
+        serviceType.meterServiceTypeName_A, N' - ',
+        reportRow.PeriodYear, N'/',
+        RIGHT(N'0' + CONVERT(NVARCHAR(2), reportRow.PeriodMonth), 2)
+    ) AS DeductListReportName
+FROM Housing.DeductListReport reportRow
+INNER JOIN Housing.MeterServiceType serviceType
+    ON serviceType.meterServiceTypeID =
+       reportRow.MeterServiceTypeID_FK
+WHERE reportRow.IdaraID_FK = @idaraID
+  AND reportRow.ReportStatus = N'SENT'
+  AND reportRow.IsCurrent = 1
+  AND reportRow.BillingType = N'SERVICE'
+  AND reportRow.CalculationMethod = N'METERED'
+ORDER BY
+    serviceType.BillChargeTypeID_FK,
+    reportRow.PeriodYear,
+    reportRow.PeriodMonth,
+    reportRow.ReportNo DESC;
 
    
 END

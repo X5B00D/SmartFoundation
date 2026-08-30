@@ -123,7 +123,29 @@ BEGIN
                 ;THROW 50001, N'تم اتخاذ اجراء للطلب مسبقا', 1;
             END
 
+            IF EXISTS
+            (
+              select 1
+              from Housing.V_WaitingList v 
+              where v.residentInfoID = @residentInfoID_FK
+              and (v.buildingActionRoot = 2 or v.LastActionTypeID in (38,40,45,46,47))
+            )
+            BEGIN
+                ;THROW 50001, N'المستفيد ساكن او تحت اجراءات التسكين بسجل انتظار اخر او مسجل بمحضر تخصيص لفئة اخرى', 1;
+            END
 
+             IF NOT EXISTS
+            (
+                 SELECT 1
+                FROM [DATACORE].[Housing].[V_GetGeneralListForBuilding] c
+                where c.buildingDetailsID = TRY_CONVERT(BIGINT, @buildingDetailsID)
+                  and c.BuildingIdaraID = @IdaraID_INT
+                  and c.buildingDetailsActive = 1
+                  and c.LastActionTypeID in (5,39,41,42,43,44)
+            )
+            BEGIN
+                ;THROW 50001, N'لا يمكن التخصيص؛ المنزل غير متاح أو تم تخصيصه لمستفيد اخر قم بتحديث الصفحه', 1;
+            END
 
               
                 DECLARE @MyOrder int;

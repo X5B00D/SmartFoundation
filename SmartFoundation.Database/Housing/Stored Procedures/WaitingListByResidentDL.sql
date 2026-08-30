@@ -168,8 +168,8 @@ BEGIN
              -- WaitingClass DDL
             SELECT w.waitingClassID,w.waitingClassName_A
             FROM [DATACORE].[Housing].[WaitingClass] w
-            WHERE (w.idara_FK is null or w.idara_FK = @idaraID)
-            order by w.waitingClassID asc
+            WHERE (w.idara_FK is null or w.idara_FK = 1)
+            order by w.waitingClassSequence asc
 
 
             -- WaitingOrderType DDL

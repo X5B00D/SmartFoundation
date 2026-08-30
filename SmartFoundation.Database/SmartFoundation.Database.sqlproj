@@ -668,7 +668,7 @@
     <Build Include="Housing\Stored Procedures\RentExemptionSP.sql" />
     <Build Include="Housing\Stored Procedures\SyncRentExemptionPayments.sql" />
     <Build Include="dbo\Stored Procedures\Masters_DataLoad.sql">
-      <QuotedIdentifier>Off</QuotedIdentifier>
+      <QuotedIdentifier>On</QuotedIdentifier>
     </Build>
     <Build Include="Housing\Stored Procedures\UploadExcel_ImportSelected3Cols.sql" />
     <Build Include="Housing\Stored Procedures\BuildingRentForOneMonth_2026-05-12.sql" />
@@ -684,7 +684,9 @@
     <Build Include="Housing\Stored Procedures\buildingUtilityTypeDL.sql" />
     <Build Include="Housing\Stored Procedures\MilitaryLocationSP.sql" />
     <Build Include="Housing\Stored Procedures\ImportExcelForBuildingPaymentDL.sql" />
-    <Build Include="dbo\Stored Procedures\PagesManagmentSP.sql" />
+    <Build Include="dbo\Stored Procedures\PagesManagmentSP.sql">
+      <QuotedIdentifier>Off</QuotedIdentifier>
+    </Build>
     <Build Include="Housing\Stored Procedures\WaitingListSP.sql" />
     <Build Include="Housing\Stored Procedures\FinancialAuditForUserDL.sql" />
     <Build Include="VIC\Stored Procedures\Admin_VehicleDocumentType_List_DL.sql" />
@@ -808,6 +810,11 @@
     </Build>
     <Build Include="Security\MoveData.sql" />
     <Build Include="Security\Maintenance.sql" />
+    <Build Include="Housing\Stored Procedures\OtherWaitingListManagmentSP.sql" />
+    <Build Include="Housing\Stored Procedures\OtherWaitingListManagmentDL.sql" />
+    <Build Include="Housing\Stored Procedures\HousingResidentSP_2026_08_26.sql" />
+    <Build Include="Housing\Stored Procedures\BackfillResidentServiceBills_2026_08_26.sql" />
+    <Build Include="Housing\Stored Procedures\AllMeterReadSP_2026_08_26.sql" />
   </ItemGroup>
   <ItemGroup>
     <ArtifactReference Include="$(DacPacRootPath)\Extensions\Microsoft\SQLDB\Extensions\SqlServer\150\SqlSchemas\master.dacpac">

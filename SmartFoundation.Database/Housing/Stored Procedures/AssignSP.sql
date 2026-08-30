@@ -234,7 +234,7 @@ BEGIN
             ,w.LastActionNote
             ,w.LastActionbuildingActionParentID
             ,@AssignPeriodID
-            , 0
+            , 1
             ,@idaraID_FK
             ,@entryData
             ,@hostName
@@ -242,8 +242,9 @@ BEGIN
             From Housing.V_WaitingList w
             where 
                  w.IdaraId = @idaraID_FK
-                 AND  w.LastActionTypeID in (27,38,39,37,41)
-
+                 AND  (w.LastActionTypeID in (27,39,41)
+                 OR ((w.LastActionTypeID in (38,40)) and (w.InAssignPeriod IS NULL or w.InAssignPeriod <> 1)))
+                 and w.WaitingClassID = @WaitingClassID
 
             
             IF @@ROWCOUNT = 0
@@ -392,11 +393,23 @@ BEGIN
                 where c.buildingDetailsID = TRY_CONVERT(BIGINT, @buildingDetailsID)
                   and c.BuildingIdaraID = @IdaraID_INT
                   and c.buildingDetailsActive = 1
-                  and c.LastActionTypeID in (5,39,41,42)
+                  and c.LastActionTypeID in (5,39,41,42,43,44)
             )
             BEGIN
                 ;THROW 50001, N'لا يمكن التخصيص؛ المنزل غير متاح أو تم تخصيصه لمستفيد اخر قم بتحديث الصفحه', 1;
             END
+
+            IF EXISTS
+            (
+              select 1
+              from Housing.V_WaitingList v 
+              where v.residentInfoID = @residentInfoID
+              and (v.buildingActionRoot = 2 or v.LastActionTypeID in (38,40,45,46,47))
+            )
+            BEGIN
+                ;THROW 50001, N'المستفيد ساكن او تحت اجراءات التسكين بسجل انتظار اخر او مسجل بمحضر تخصيص لفئة اخرى قم بتحديث الصفحه', 1;
+            END
+
 
 
               INSERT INTO  Housing.BuildingAction
@@ -412,7 +425,7 @@ BEGIN
                 , buildingActionNote
                 , buildingActionParentID
                 , AssignPeriodID_FK
-                , InAssignPeriod
+                --, InAssignPeriod
                 , IdaraId_FK
                 , entryData
                 , hostName
@@ -431,7 +444,7 @@ BEGIN
                 , @Notes
                 , @LastActionID
                 , @AssignPeriodID
-                , 1
+                --, 1
                 , @IdaraID_INT
                 , @entryData
                 , @hostName
@@ -609,7 +622,7 @@ BEGIN
                 , buildingActionNote
                 , buildingActionParentID
                 , AssignPeriodID_FK
-                , InAssignPeriod
+                --, InAssignPeriod
                 , IdaraId_FK
                 , entryData
                 , hostName
@@ -629,7 +642,7 @@ BEGIN
                 , NULL
                 , @TakeOffResidentFromAssignPeriodIdentity
                 , NULL
-                , NULL
+                --, NULL
                 , @IdaraID_INT
                 , @entryData
                 , @hostName
@@ -825,7 +838,7 @@ BEGIN
                 , buildingActionNote
                 , buildingActionParentID
                 , AssignPeriodID_FK
-                , InAssignPeriod
+                --, InAssignPeriod
                 , IdaraId_FK
                 , entryData
                 , hostName
@@ -845,7 +858,7 @@ BEGIN
                 , @Notes
                 , @changeHouseIdentity
                 , @AssignPeriodID
-                , 1
+                --, 1
                 , @IdaraID_INT
                 , @entryData
                 , @hostName

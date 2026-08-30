@@ -1,4 +1,4 @@
-CREATE PROCEDURE [Housing].[HousingExtendFollowUpDL]
+﻿CREATE PROCEDURE [Housing].[HousingExtendFollowUpDL]
       @pageName_ NVARCHAR(400)
     , @idaraID INT
     , @entrydata INT
@@ -11,20 +11,15 @@ BEGIN
 
     SELECT
           w.ActionID
-        , ROW_NUMBER() OVER (ORDER BY w.buildingActionToDate ASC, w.GeneralNo ASC) AS WaitingListOrder
         , rd.FullName_A
         , w.NationalID
         , w.GeneralNo
         , rd.rankNameA
+        , CONVERT(NVARCHAR(10), w.OccupentDate, 23) AS OccupentDate
         , w.LastActionDecisionNo
         , CONVERT(NVARCHAR(10), w.LastActionDecisionDate, 23) AS LastActionDecisionDate
         , CONVERT(NVARCHAR(10), w.buildingActionFromDate, 23) AS ExtendFromDate
         , CONVERT(NVARCHAR(10), w.buildingActionToDate, 23) AS ExtendToDate
-        , w.WaitingClassID
-        , w.WaitingClassName
-        , w.WaitingOrderTypeID
-        , w.WaitingOrderTypeName
-        , w.waitingClassSequence
         , w.residentInfoID
         , w.LastActionID
         , w.LastActionTypeID
@@ -36,11 +31,6 @@ BEGIN
         , ert.ExtendReasonTypeName_A
         , ISNULL(w.LastActionNote, w.ActionNote) AS ActionNote
         , w.IdaraId
-        , CONVERT(NVARCHAR(10), w.OccupentDate, 23) AS OccupentDate
-        , ISNULL(sum_.Remaining, 0.00) AS Remaining
-        , ISNULL(br.buildingRentAmount, 0.00) AS buildingRentAmount
-        , ISNULL(br.buildingRentAmount, 0.00) * 40 AS InsuranceAmount
-        , (ISNULL(br.buildingRentAmount, 0.00) * 40) + ISNULL(sum_.Remaining, 0.00) AS InsuranceAmountWithRemaining
         , DATEDIFF(DAY, @Today, CAST(w.buildingActionToDate AS DATE)) AS ExtendRemainingDays
         , CASE
               WHEN CAST(w.buildingActionToDate AS DATE) < @Today
@@ -70,22 +60,6 @@ BEGIN
         ON w.residentInfoID = i.residentInfoID_FK
         AND w.buildingDetailsID = i.buildingDetailsID_FK
         AND i.ExtendInsuranceActive = 1
-    LEFT JOIN Housing.V_buildingWithRent br
-        ON w.buildingDetailsID = br.buildingDetailsID
-    LEFT JOIN
-    (
-        SELECT
-              e.residentInfoID
-            , e.buildingDetailsID
-            , CASE
-                  WHEN SUM(e.Remaining) < 0 THEN SUM(e.Remaining) * -1
-                  ELSE SUM(e.Remaining)
-              END AS Remaining
-        FROM Housing.V_SumBillsTotalPriceAndTotalPaidForResident e
-        GROUP BY e.residentInfoID, e.buildingDetailsID
-    ) sum_
-        ON w.residentInfoID = sum_.residentInfoID
-        AND w.buildingDetailsID = sum_.buildingDetailsID
     WHERE w.IdaraId = @idaraID
       AND w.LastActionTypeID = 24
       AND w.buildingActionToDate IS NOT NULL

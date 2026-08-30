@@ -1,4 +1,4 @@
-﻿CREATE   PROCEDURE [MoveData].[usp_MigrateSystemUsers]
+﻿CREATE PROCEDURE [MoveData].[usp_MigrateSystemUsers]
     @IdaraId int = 1,
     @DepartmentId int = NULL,
     @DefaultPassword nvarchar(200) = N'Aa123456',
@@ -7,6 +7,11 @@
 AS
 BEGIN
     SET NOCOUNT ON;
+    /* Normalize migration administration: preserve a valid supplied value, otherwise use Idara 1. */
+    IF NOT EXISTS (SELECT 1 FROM dbo.Idara WHERE idaraID = 1)
+        THROW 57990, N'Default migration Idara 1 does not exist.', 1;
+    IF @IdaraId IS NULL OR NOT EXISTS (SELECT 1 FROM dbo.Idara WHERE idaraID = @IdaraId)
+        SET @IdaraId = 1;
     SET XACT_ABORT ON;
 
     IF NOT EXISTS (SELECT 1 FROM dbo.Idara WHERE idaraID = @IdaraId)

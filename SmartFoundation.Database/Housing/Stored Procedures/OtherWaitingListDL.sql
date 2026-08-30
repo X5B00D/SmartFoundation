@@ -59,15 +59,26 @@ FROM Housing.V_WaitingList w
             SELECT c.waitingClassID,c.waitingClassName_A
             FROM [DATACORE].[Housing].[WaitingClass] c
             where (c.WaitingClassID not in(1,2,3,4,11)) and (c.idara_FK = @idaraID)
+            AND c.waitingClassActive = 1
             order by c.waitingClassSequence asc
 
 
 
        -- Houses DDL
-            SELECT c.buildingDetailsID,c.buildingDetailsNo
-            FROM [DATACORE].[Housing].[V_GetGeneralListForBuilding] c
-            where c.BuildingIdaraID = @idaraID and c.buildingDetailsActive = 1
-            and (c.LastActionTypeID in(5,39,41) or c.LastActionTypeID is null )
+            SELECT
+      c.buildingDetailsID
+    , c.buildingDetailsNo
+FROM Housing.V_GetGeneralListForBuilding c
+WHERE c.BuildingIdaraID = @idaraID
+  AND c.buildingDetailsActive = 1
+  AND (c.LastActionTypeID IN (5, 39, 41, 42, 43, 44)
+       OR c.LastActionTypeID IS NULL)
+  AND NOT EXISTS
+  (
+      SELECT 1
+      FROM Housing.V_Occupant occupant
+      WHERE occupant.buildingDetailsID = c.buildingDetailsID
+  );
   
             
 

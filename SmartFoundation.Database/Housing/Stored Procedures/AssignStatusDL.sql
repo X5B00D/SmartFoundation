@@ -62,8 +62,19 @@ BEGIN
     WHERE w.AssignPeriodID = @AssignPeriodID
       AND w.IdaraId = @idaraID
       AND  w.LastActionTypeID in (38,39,40,41,42,45)
-      AND (w.InAssignPeriod = 0 or w.InAssignPeriod is null)
-      order by   w.waitingClassSequence asc
+      order by 
+      case 
+      when w.LastActionTypeID = 38 then 1
+      when w.LastActionTypeID = 40 then 2
+      when w.LastActionTypeID = 45 then 3
+      when w.LastActionTypeID = 39 then 4
+      when w.LastActionTypeID = 41 then 5
+      when w.LastActionTypeID = 42 then 6
+      ELSE 999
+      END asc
+
+      --AND (w.InAssignPeriod = 0 or w.InAssignPeriod is null)
+      --order by   w.waitingClassSequence asc
       --or w.LastActionTypeID in (2,3,18,19,20,21,22,23,24,26,27,28,33,34,35)
 
 

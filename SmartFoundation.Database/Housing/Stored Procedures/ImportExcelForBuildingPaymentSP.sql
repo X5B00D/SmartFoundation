@@ -1,6 +1,6 @@
 ﻿
 
-CREATE PROCEDURE [Housing].[ImportExcelForBuildingPaymentSP]
+CREATE   PROCEDURE [Housing].[ImportExcelForBuildingPaymentSP]
 (
     @NationalIDs NVARCHAR(255) = NULL,
     @UnitNumbers NVARCHAR(255) = NULL,
@@ -72,21 +72,32 @@ BEGIN
 
 
 
-        DECLARE @DeductListName NVARCHAR(255) =
+        DECLARE @BillChargeTypeName_AA NVARCHAR(100) =
+(
+    SELECT TOP (1) BillChargeTypeName_A
+    FROM Housing.BillChargeType
+    WHERE BillChargeTypeID = @BillChargeTypeID
+);
+
+DECLARE @DeductListName NVARCHAR(255) =
     CONCAT(
-        N'مسير استقطاع ايجار المساكن برقم ',
+        N'مسير استقطاع ',
+        ISNULL(@BillChargeTypeName_AA, N'غير محدد'),
+        N' المساكن برقم ',
         @DeductListNo,
         N' وتاريخ ',
-        CONVERT(NVARCHAR(10), @DeductListDate, 111),
+        CONVERT(NVARCHAR(10), TRY_CONVERT(date, @DeductListDate), 111),
         N' لشهر ',
         RIGHT(N'0' + CAST(@IssueMonth AS NVARCHAR(2)), 2),
         N' لعام ',
         @IssueYear,
         N' للإدارة ',
         ISNULL(
-            (SELECT TOP (1) a.IdaraName
-             FROM dbo.V_GetListIdara a
-             WHERE IdaraID = @IdaraId_FK),
+            (
+                SELECT TOP (1) IdaraName
+                FROM dbo.V_GetListIdara
+                WHERE IdaraID = @IdaraId_FK
+            ),
             N'غير محددة'
         )
     );

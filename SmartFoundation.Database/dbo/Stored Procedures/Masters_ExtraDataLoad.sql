@@ -387,12 +387,14 @@ END
             bp.buildingDetailsID_FK AS buildingDetailsID,
             bd.buildingDetailsNo,
             vgrd.FullName_A,
-            d.deductName
+            d.deductName,
+            bt.buildingPaymentTypeName_A
             FROM   Housing.BuildingPayment AS bp INNER JOIN
                          Housing.DeductList AS d ON bp.deductListID_FK = d.deductListID INNER JOIN
                          Housing.BillChargeType AS t ON bp.BillChargeTypeID_FK = t.BillChargeTypeID INNER JOIN
                          Housing.BuildingDetails AS bd ON bp.buildingDetailsID_FK = bd.buildingDetailsID LEFT JOIN
-                         Housing.V_GetFullResidentDetails AS vgrd ON bp.residentInfoID_FK = vgrd.residentInfoID
+                         Housing.V_GetFullResidentDetails AS vgrd ON bp.residentInfoID_FK = vgrd.residentInfoID LEFT JOIN
+                         Housing.BuildingPaymentType bt on bp.buildingPaymentTypeID_FK = bt.buildingPaymentTypeID
                         
             WHERE 
             (d.deductActive = 1) 
@@ -466,13 +468,16 @@ END
             bp.buildingDetailsID_FK AS buildingDetailsID,
             bd.buildingDetailsNo,
             vgrd.FullName_A,
+            d.deductName,
             bt.buildingPaymentTypeName_A
+            
             FROM   Housing.BuildingPayment AS bp INNER JOIN
                          Housing.DeductList AS d ON bp.deductListID_FK = d.deductListID INNER JOIN
                          Housing.BillChargeType AS t ON bp.BillChargeTypeID_FK = t.BillChargeTypeID INNER JOIN
                          Housing.BuildingDetails AS bd ON bp.buildingDetailsID_FK = bd.buildingDetailsID LEFT JOIN
                          Housing.V_GetFullResidentDetails AS vgrd ON bp.residentInfoID_FK = vgrd.residentInfoID LEFT JOIN
-                         Housing.BuildingPaymentType AS bt ON bp.buildingPaymentTypeID_FK = bt.buildingPaymentTypeID
+                          Housing.BuildingPaymentType bt on bp.buildingPaymentTypeID_FK = bt.buildingPaymentTypeID
+
             WHERE 
             (d.deductActive = 1) 
             AND (bp.buildingPayementActive = 1) 
@@ -523,6 +528,86 @@ END
 
 
         END
+
+    -------------------------------------------------------------------
+    --                  DeductListReport
+    -------------------------------------------------------------------
+
+
+        ELSE IF @pageName_ = N'DeductListReport'
+BEGIN
+    IF @ActionType = N'GetDeductListReportDetails'
+    BEGIN
+        SELECT
+              detailRow.DeductListReportDetailsID
+            , detailRow.BillNumber
+            , detailRow.ResidentFullName_A
+            , detailRow.GeneralNo_FK
+            , detailRow.MilitaryUnitName_A
+            , detailRow.BuildingDetailsNo
+            , detailRow.BillsFromDate
+            , detailRow.BillsToDate
+            , detailRow.TotalAmount
+        FROM Housing.DeductListReportDetails detailRow
+        INNER JOIN Housing.DeductListReport reportRow
+            ON reportRow.DeductListReportID =
+               detailRow.DeductListReportID_FK
+        WHERE reportRow.DeductListReportID =
+              TRY_CONVERT(BIGINT, @parameter_01)
+          AND reportRow.IdaraID_FK = @idaraID
+        ORDER BY ISNULL(detailRow.MilitaryUnitName_A,N''), detailRow.GeneralNo_FK, detailRow.DeductListReportDetailsID;
+    END
+
+    ELSE IF @ActionType = N'GetDeductListReportPrint'
+    BEGIN
+        /* الجدول الأول: رأس المسير */
+        SELECT
+              reportRow.DeductListReportID
+            , reportRow.ReportNo
+            , reportRow.PeriodYear
+            , reportRow.PeriodMonth
+            , reportRow.BillingType
+            , reportRow.CalculationMethod
+            , serviceType.meterServiceTypeName_A
+            , reportRow.InvoiceCount
+            , reportRow.AmountBeforeTax
+            , reportRow.TaxAmount
+            , reportRow.TotalAmount
+            , idara.idaraLongName_A
+        FROM Housing.DeductListReport reportRow
+        INNER JOIN dbo.Idara idara
+            ON idara.idaraID = reportRow.IdaraID_FK
+        LEFT JOIN Housing.MeterServiceType serviceType
+            ON serviceType.meterServiceTypeID =
+               reportRow.MeterServiceTypeID_FK
+        WHERE reportRow.DeductListReportID =
+              TRY_CONVERT(BIGINT, @parameter_01)
+          AND reportRow.IdaraID_FK = @idaraID;
+
+        /* الجدول الثاني: تفاصيل المسير */
+        SELECT
+              detailRow.DeductListReportDetailsID
+            , detailRow.BillNumber
+            , detailRow.ResidentFullName_A
+            , detailRow.GeneralNo_FK
+            , detailRow.MilitaryUnitName_A
+            , detailRow.BuildingDetailsNo
+            , detailRow.BillsFromDate
+            , detailRow.BillsToDate
+            , detailRow.AmountBeforeTax
+            , detailRow.TaxAmount
+            , detailRow.TotalAmount
+        FROM Housing.DeductListReportDetails detailRow
+        INNER JOIN Housing.DeductListReport reportRow
+            ON reportRow.DeductListReportID =
+               detailRow.DeductListReportID_FK
+        WHERE reportRow.DeductListReportID =
+              TRY_CONVERT(BIGINT, @parameter_01)
+          AND reportRow.IdaraID_FK = @idaraID
+        ORDER BY ISNULL(detailRow.MilitaryUnitName_A,N''), detailRow.GeneralNo_FK, detailRow.DeductListReportDetailsID;
+    END
+END
+
 
 
 

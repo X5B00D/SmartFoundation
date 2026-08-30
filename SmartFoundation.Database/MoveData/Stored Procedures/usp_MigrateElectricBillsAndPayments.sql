@@ -1,10 +1,14 @@
-﻿
-CREATE   PROCEDURE [MoveData].[usp_MigrateElectricBillsAndPayments]
+﻿CREATE PROCEDURE [MoveData].[usp_MigrateElectricBillsAndPayments]
     @IdaraId bigint,
     @RollbackAfterTest bit = 1
 AS
 BEGIN
     SET NOCOUNT ON;
+    /* Normalize migration administration: preserve a valid supplied value, otherwise use Idara 1. */
+    IF NOT EXISTS (SELECT 1 FROM dbo.Idara WHERE idaraID = 1)
+        THROW 57990, N'Default migration Idara 1 does not exist.', 1;
+    IF @IdaraId IS NULL OR NOT EXISTS (SELECT 1 FROM dbo.Idara WHERE idaraID = @IdaraId)
+        SET @IdaraId = 1;
     SET XACT_ABORT ON;
 
     IF NOT EXISTS (SELECT 1 FROM dbo.Idara WHERE idaraID=@IdaraId)
@@ -89,24 +93,45 @@ BEGIN
         meterSlideMinValue1,meterSlideMaxValue1,SlidePriceFactor1,PriceForSlide1,
         meterSlideMinValue2,meterSlideMaxValue2,SlidePriceFactor2,PriceForSlide2,
         meterSlideMinValue3,meterSlideMaxValue3,SlidePriceFactor3,PriceForSlide3,
-        PRICE,PRICETAX,meterServicePrice,meterServicePriceTAX,TotalPrice,
+        PRICE,PRICETAX,meterServicePrice,meterServicePriceTAX,TotalPrice,BillsFromDate,BillsToDate,
         BillActive,idaraID_FK,entryDate,entryData,hostName
       )
       SELECT
-        CONVERT(bigint,s.BillsID),s.BillsUID,2,s.BillTypeID_FK,s.PerviosPeriodID,s.CurrentPeriodID,
+        CONVERT(bigint,s.BillsID),s.BillsUID,2,s.BillTypeID_FK,COALESCE(CASE WHEN validPreviousType.meterServiceTypeID_FK=charge.MeterServiceTypeID_FK AND validPrevious.billPeriodStartDate<billDate.CurrentPeriodStart THEN validPrevious.billPeriodID END,derivedPrevious.billPeriodID),COALESCE(CASE WHEN validPeriodType.meterServiceTypeID_FK=charge.MeterServiceTypeID_FK THEN validPeriod.billPeriodID END,CASE WHEN readPeriodType.meterServiceTypeID_FK=charge.MeterServiceTypeID_FK THEN readPeriod.billPeriodID END),
         s.PeriodMonth,s.PeriodYear,s.CurrentPeriodTax,s.meterNo,s.meterID,s.meterName_A,s.meterName_E,
         s.meterDescription,s.buildingDetailsNo,s.buildingUtilityTypeID,s.buildingDetailsID,s.meterTypeID,
-        s.meterServiceTypeID,s.meterReadID,CONVERT(bigint,r.residentInfoID),CONVERT(bigint,s.generalNo_FK),
+        COALESCE(s.meterServiceTypeID,charge.MeterServiceTypeID_FK),s.meterReadID,occupancy.residentInfoID_FK,occupancy.generalNo_FK,
         s.CurrentRead,s.LastRead,s.ReadDiff,
         s.meterSlideMinValue1,s.meterSlideMaxValue1,s.SlidePriceFactor1,s.PriceForSlide1,
         s.meterSlideMinValue2,s.meterSlideMaxValue2,s.SlidePriceFactor2,s.PriceForSlide2,
         s.meterSlideMinValue3,s.meterSlideMaxValue3,s.SlidePriceFactor3,s.PriceForSlide3,
         s.PRICE,s.PRICETAX,s.meterServicePrice,s.meterServicePriceTAX,s.TotalPrice,
+        billDate.BillFromDate,billDate.BillToDate,
         s.BillActive,@IdaraId,s.entryDate,entryMap.MappedEntryData,
         CASE WHEN entryMap.MappedEntryData IS NULL THEN s.hostName
              ELSE CONCAT(ISNULL(s.hostName,N''),N'-',NULLIF(LTRIM(RTRIM(CONVERT(nvarchar(40),s.entryData))),N'')) END
       FROM SourceBills s
-      LEFT JOIN KFMC.Housing.ResidentInfo r ON r.generalNo=s.generalNo_FK
+      JOIN Housing.BillChargeType charge ON charge.BillChargeTypeID=2
+      LEFT JOIN Housing.BillPeriod validPeriod ON validPeriod.billPeriodID=s.CurrentPeriodID AND validPeriod.IdaraId_FK=@IdaraId
+      LEFT JOIN Housing.BillPeriodType validPeriodType ON validPeriodType.billPeriodTypeID=validPeriod.billPeriodTypeID_FK
+      LEFT JOIN Housing.BillPeriod validPrevious ON validPrevious.billPeriodID=s.PerviosPeriodID AND validPrevious.IdaraId_FK=@IdaraId
+      LEFT JOIN Housing.BillPeriodType validPreviousType ON validPreviousType.billPeriodTypeID=validPrevious.billPeriodTypeID_FK
+      LEFT JOIN Housing.MeterRead targetRead ON targetRead.meterReadID=CONVERT(bigint,s.meterReadID)
+      LEFT JOIN Housing.BillPeriod readPeriod ON readPeriod.billPeriodID=targetRead.billPeriodID_FK AND readPeriod.IdaraId_FK=@IdaraId
+      LEFT JOIN Housing.BillPeriodType readPeriodType ON readPeriodType.billPeriodTypeID=readPeriod.billPeriodTypeID_FK
+      OUTER APPLY (SELECT COALESCE(CASE WHEN validPeriodType.meterServiceTypeID_FK=charge.MeterServiceTypeID_FK THEN CAST(validPeriod.billPeriodStartDate AS date) END,CASE WHEN readPeriodType.meterServiceTypeID_FK=charge.MeterServiceTypeID_FK THEN CAST(readPeriod.billPeriodStartDate AS date) END,CASE WHEN s.PeriodYear BETWEEN 1753 AND 9999 AND s.PeriodMonth BETWEEN 1 AND 12 THEN DATEFROMPARTS(s.PeriodYear,s.PeriodMonth,1) END) BillFromDate,COALESCE(CASE WHEN validPeriodType.meterServiceTypeID_FK=charge.MeterServiceTypeID_FK THEN CAST(validPeriod.billPeriodEndDate AS date) END,CASE WHEN readPeriodType.meterServiceTypeID_FK=charge.MeterServiceTypeID_FK THEN CAST(readPeriod.billPeriodEndDate AS date) END,CASE WHEN s.PeriodYear BETWEEN 1753 AND 9999 AND s.PeriodMonth BETWEEN 1 AND 12 THEN EOMONTH(DATEFROMPARTS(s.PeriodYear,s.PeriodMonth,1)) END) BillToDate,COALESCE(CASE WHEN validPeriodType.meterServiceTypeID_FK=charge.MeterServiceTypeID_FK THEN validPeriod.billPeriodStartDate END,CASE WHEN readPeriodType.meterServiceTypeID_FK=charge.MeterServiceTypeID_FK THEN readPeriod.billPeriodStartDate END) CurrentPeriodStart) billDate
+      OUTER APPLY (SELECT TOP (1) bp.billPeriodID FROM Housing.BillPeriod bp JOIN Housing.BillPeriodType bpt ON bpt.billPeriodTypeID=bp.billPeriodTypeID_FK WHERE bp.IdaraId_FK=@IdaraId AND bpt.meterServiceTypeID_FK=charge.MeterServiceTypeID_FK AND bp.billPeriodStartDate<billDate.CurrentPeriodStart ORDER BY bp.billPeriodStartDate DESC,bp.billPeriodID DESC) derivedPrevious
+      OUTER APPLY
+      (
+        SELECT TOP (1) occ.residentInfoID_FK,occ.generalNo_FK
+        FROM Housing.BuildingAction occ
+        OUTER APPLY (SELECT TOP (1) CAST(COALESCE(x.ExitDate,x.buildingActionDate) AS date) ExitDate FROM Housing.BuildingAction x WHERE x.buildingDetailsID_FK=occ.buildingDetailsID_FK AND x.residentInfoID_FK=occ.residentInfoID_FK AND x.buildingActionTypeID_FK IN (3,57,58,59) AND x.buildingActionActive=1 AND COALESCE(x.ExitDate,x.buildingActionDate)>=COALESCE(occ.OccupentDate,occ.buildingActionDate) ORDER BY COALESCE(x.ExitDate,x.buildingActionDate),x.buildingActionID) evacuation
+        OUTER APPLY (SELECT TOP (1) CAST(COALESCE(n.OccupentDate,n.buildingActionDate) AS date) NextDate FROM Housing.BuildingAction n WHERE n.buildingDetailsID_FK=occ.buildingDetailsID_FK AND n.buildingActionTypeID_FK=2 AND n.buildingActionActive=1 AND COALESCE(n.OccupentDate,n.buildingActionDate)>COALESCE(occ.OccupentDate,occ.buildingActionDate) ORDER BY COALESCE(n.OccupentDate,n.buildingActionDate),n.buildingActionID) nextOccupancy
+        WHERE occ.buildingActionTypeID_FK=2 AND occ.buildingActionActive=1 AND occ.buildingDetailsID_FK=CONVERT(bigint,s.buildingDetailsID)
+          AND billDate.BillFromDate>=CAST(COALESCE(occ.OccupentDate,occ.buildingActionDate) AS date)
+          AND billDate.BillToDate<=COALESCE(evacuation.ExitDate,DATEADD(day,-1,nextOccupancy.NextDate),CONVERT(date,'99991231',112))
+        ORDER BY COALESCE(occ.OccupentDate,occ.buildingActionDate) DESC,occ.buildingActionID DESC
+      ) occupancy
       JOIN #EntryDataMap entryMap ON entryMap.EntryDataKey=ISNULL(CONVERT(nvarchar(40),s.entryData),N'')
       WHERE s.migrationRowNo=1
         AND NOT EXISTS(SELECT 1 FROM Housing.Bills t WHERE t.BillsID=CONVERT(bigint,s.BillsID));

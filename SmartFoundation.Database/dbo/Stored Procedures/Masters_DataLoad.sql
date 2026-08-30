@@ -1,4 +1,4 @@
-﻿CREATE PROCEDURE [dbo].[Masters_DataLoad]
+﻿CREATE   PROCEDURE [dbo].[Masters_DataLoad]
       @pageName_      NVARCHAR(400)
     , @idaraID        INT
     , @entrydata      INT
@@ -1178,20 +1178,17 @@ ELSE IF @pageName_ = 'buildingUtilityType'
         END
 
 
-    -------------------------------------------------------------------
+            -------------------------------------------------------------------
     --                     PAGE: HousingExtendFollowUp
     -------------------------------------------------------------------
-        ELSE IF @pageName_ = 'HousingExtendFollowUp'
-        BEGIN
-            EXEC [Housing].[HousingExtendFollowUpDL]
-                  @pageName_ = @pageName_
-                , @idaraID = @idaraID
-                , @entrydata = @entrydata
-                , @hostname = @hostname;
-        END
-
-
-
+    ELSE IF @pageName_ = 'HousingExtendFollowUp'
+    BEGIN
+        EXEC [Housing].[HousingExtendFollowUpDL]
+              @pageName_ = @pageName_
+            , @idaraID = @idaraID
+            , @entrydata = @entrydata
+            , @hostname = @hostname;
+    END
 
 
     -------------------------------------------------------------------
@@ -1392,6 +1389,49 @@ ELSE IF @pageName_ = 'buildingUtilityType'
            
 
 
+        END
+
+
+
+         -------------------------------------------------------------------
+    --                     PAGE: MonthlyBillingMonitor
+    -------------------------------------------------------------------
+
+         ELSE IF @pageName_ = N'MonthlyBillingMonitor'
+        BEGIN
+            DECLARE @MonitorYear INT = TRY_CONVERT(INT, @parameter_01);
+            DECLARE @MonitorMonth INT = TRY_CONVERT(INT, @parameter_02);
+            DECLARE @MonitorIdaraID BIGINT = CASE
+                WHEN @isAdmin = 1 THEN TRY_CONVERT(BIGINT, @parameter_03)
+                ELSE @idaraID
+            END;
+
+
+            EXEC Housing.MonthlyBillingMonitorDL
+                  @Year = @MonitorYear
+                , @Month = @MonitorMonth
+                , @IdaraID = @MonitorIdaraID;
+        END
+
+
+
+         -------------------------------------------------------------------
+    --                     PAGE: DeductListReport
+    -------------------------------------------------------------------
+
+        ELSE IF @pageName_ = N'DeductListReport'
+        BEGIN
+           
+            DECLARE @DeductReportID BIGINT=TRY_CONVERT(BIGINT,@parameter_03);
+
+            EXEC Housing.DeductListReportDL
+                  @pageName_                      = @pageName_
+                , @idaraID                        = @idaraID
+                , @entryData                      = @entrydata
+                , @hostName                       = @hostName
+                , @Year                           = @parameter_01
+                , @Month                          = @parameter_02
+                , @ReportID                       = @DeductReportID;
         END
 
 
@@ -2287,28 +2327,7 @@ END
     --                     PAGE NOT FOUND
     --            DO NOT TOUCH DOWN THIS LINE PLEASE
     -------------------------------------------------------------------
-        ELSE IF @pageName_ = N'MonthlyBillingMonitor'
-        BEGIN
-            DECLARE @MonitorYear INT = TRY_CONVERT(INT, @parameter_01);
-            DECLARE @MonitorMonth INT = TRY_CONVERT(INT, @parameter_02);
-            DECLARE @MonitorIdaraID BIGINT = CASE
-                WHEN @isAdmin = 1 THEN TRY_CONVERT(BIGINT, @parameter_03)
-                ELSE @idaraID
-            END;
-            EXEC Housing.MonthlyBillingMonitorDL
-                  @Year = @MonitorYear
-                , @Month = @MonitorMonth
-                , @IdaraID = @MonitorIdaraID;
-        END
-        ELSE IF @pageName_ = N'DeductListReport'
-        BEGIN
-            DECLARE @DeductReportYear INT=TRY_CONVERT(INT,@parameter_01);
-            DECLARE @DeductReportMonth INT=TRY_CONVERT(INT,@parameter_02);
-            DECLARE @DeductReportID BIGINT=TRY_CONVERT(BIGINT,@parameter_03);
-            EXEC Housing.DeductListReportDL
-                  @IdaraID=@idaraID
-                , @Year=@DeductReportYear, @Month=@DeductReportMonth, @ReportID=@DeductReportID;
-        END
+       
         ELSE
         BEGIN
             SELECT 0 AS IsSuccessful, N'الصفحة المرسلة مقيدة. PageName' AS Message_;

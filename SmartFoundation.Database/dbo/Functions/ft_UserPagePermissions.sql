@@ -18,45 +18,45 @@ RETURN
         (
             (p.UsersID_FK = @UsersID)
         
-                    OR
+                    --OR
         
-                    (p.RoleID_FK in 
-                    (select d.roleID_FK 
-                    from  dbo.UserDistributor ud 
-                    inner join  dbo.Distributor d on ud.distributorID_FK = d.distributorID
-                    where d.distributorActive = 1 and d.roleID_FK is not null and ud.UDActive = 1 
-                    and cast(ud.UDStartDate as date) <= cast(GETDATE() as date) 
-                    and ((cast(ud.UDEndDate as date) > cast(GETDATE() as date)) or (ud.UDEndDate is null))
-                    and ud.userID_FK = @UsersID
-                    ))
+                    --(p.RoleID_FK in 
+                    --(select d.roleID_FK 
+                    --from  dbo.UserDistributor ud 
+                    --inner join  dbo.Distributor d on ud.distributorID_FK = d.distributorID
+                    --where d.distributorActive = 1 and d.roleID_FK is not null and ud.UDActive = 1 
+                    --and cast(ud.UDStartDate as date) <= cast(GETDATE() as date) 
+                    --and ((cast(ud.UDEndDate as date) > cast(GETDATE() as date)) or (ud.UDEndDate is null))
+                    --and ud.userID_FK = @UsersID
+                    --))
         
-                    OR
-                    (p.DSDID_FK in
-                    (
-                    select f.DSDID
-                    from  dbo.V_GetListUsersInDSD d
-                    inner join  dbo.V_GetFullStructureForDSD f on d.DSDID = f.DSDID
-                    where d.usersID = @UsersID
-                    )
-                    )
+                    --OR
+                    --(p.DSDID_FK in
+                    --(
+                    --select f.DSDID
+                    --from  dbo.V_GetListUsersInDSD d
+                    --inner join  dbo.V_GetFullStructureForDSD f on d.DSDID = f.DSDID
+                    --where d.usersID = @UsersID
+                    --)
+                    --)
 
-                    OR
-                    (p.distributorID_FK in
-                    (
-                    select d.distributorID 
-                    from  dbo.UserDistributor ud 
-                    inner join  dbo.Distributor d on ud.distributorID_FK = d.distributorID
-                    where d.distributorActive = 1  and ud.UDActive = 1 
-                    and cast(ud.UDStartDate as date) <= cast(GETDATE() as date) 
-                    and ((cast(ud.UDEndDate as date) > cast(GETDATE() as date)) or (ud.UDEndDate is null))
-                    and ud.userID_FK = @UsersID
-                    )
-                    )
+                    --OR
+                    --(p.distributorID_FK in
+                    --(
+                    --select d.distributorID 
+                    --from  dbo.UserDistributor ud 
+                    --inner join  dbo.Distributor d on ud.distributorID_FK = d.distributorID
+                    --where d.distributorActive = 1  and ud.UDActive = 1 
+                    --and cast(ud.UDStartDate as date) <= cast(GETDATE() as date) 
+                    --and ((cast(ud.UDEndDate as date) > cast(GETDATE() as date)) or (ud.UDEndDate is null))
+                    --and ud.userID_FK = @UsersID
+                    --)
+                    --)
 
-                    OR
-                    (
-                    p.UsersID_FK IS NULL AND p.DSDID_FK IS NULL AND p.RoleID_FK IS NULL
-                    )
+                    --OR
+                    --(
+                    --p.UsersID_FK IS NULL AND p.DSDID_FK IS NULL AND p.RoleID_FK IS NULL
+                    --)
         )
         -- فلترة الصفحة
         AND v.menuName_E = @PageName

@@ -724,7 +724,7 @@ SET @dateOfBirth_DT         = TRY_CONVERT(date, @dateOfBirth, 23);
 
             INSERT INTO dbo.Distributor
             (
-                distributorName_A, distributorName_E, distributorDescription, distributorCode,
+                distributorName_A, distributorName_E, distributorDescription,
                 distributorActive, distributorType_FK, entryDate, entryData, hostName
             )
             VALUES
@@ -732,7 +732,7 @@ SET @dateOfBirth_DT         = TRY_CONVERT(date, @dateOfBirth, 23);
                 LTRIM(RTRIM(@programName_A)),
                 LTRIM(RTRIM(@programName_E)),
                 LTRIM(RTRIM(@programDescription)),
-                LTRIM(RTRIM(@programName_E)),
+                
                 @menuActive_AddPage,
                 4,
                 GETDATE(),

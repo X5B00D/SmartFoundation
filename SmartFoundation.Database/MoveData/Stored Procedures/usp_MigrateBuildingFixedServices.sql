@@ -1,9 +1,14 @@
-CREATE PROCEDURE [MoveData].[usp_MigrateBuildingFixedServices]
+﻿CREATE PROCEDURE [MoveData].[usp_MigrateBuildingFixedServices]
     @IdaraId bigint,
     @RollbackAfterTest bit = 1
 AS
 BEGIN
     SET NOCOUNT ON;
+    /* Normalize migration administration: preserve a valid supplied value, otherwise use Idara 1. */
+    IF NOT EXISTS (SELECT 1 FROM dbo.Idara WHERE idaraID = 1)
+        THROW 57990, N'Default migration Idara 1 does not exist.', 1;
+    IF @IdaraId IS NULL OR NOT EXISTS (SELECT 1 FROM dbo.Idara WHERE idaraID = @IdaraId)
+        SET @IdaraId = 1;
     SET XACT_ABORT ON;
 
     IF NOT EXISTS (SELECT 1 FROM dbo.Idara WHERE idaraID = @IdaraId)
@@ -59,14 +64,6 @@ BEGIN
                     AND serviceLink.Idara_FK = @IdaraId
                     AND serviceLink.MeterServiceTypeLinkedWithIdaraActive = 1
               )
-              AND EXISTS
-              (
-                  SELECT 1
-                  FROM Housing.MeterServiceTypeFixedAmount fixedAmount
-                  WHERE fixedAmount.MeterServiceTypeID_FK = charge.MeterServiceTypeID_FK
-                    AND fixedAmount.idaraID_FK = @IdaraId
-                    AND fixedAmount.MeterServiceTypeFixedAmountActive = 1
-              )
         )
         UPDATE bill
            SET meterServiceTypeID = source.MeterServiceTypeID
@@ -112,14 +109,6 @@ BEGIN
                   WHERE serviceLink.MeterServiceTypeID_FK = charge.MeterServiceTypeID_FK
                     AND serviceLink.Idara_FK = @IdaraId
                     AND serviceLink.MeterServiceTypeLinkedWithIdaraActive = 1
-              )
-              AND EXISTS
-              (
-                  SELECT 1
-                  FROM Housing.MeterServiceTypeFixedAmount fixedAmount
-                  WHERE fixedAmount.MeterServiceTypeID_FK = charge.MeterServiceTypeID_FK
-                    AND fixedAmount.idaraID_FK = @IdaraId
-                    AND fixedAmount.MeterServiceTypeFixedAmountActive = 1
               )
             GROUP BY bill.buildingDetailsID, charge.MeterServiceTypeID_FK
         )

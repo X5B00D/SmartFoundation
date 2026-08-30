@@ -43,6 +43,7 @@ SELECT
     CONVERT(nvarchar(10), w.ActionDecisionDate, 23) AS ActionDecisionDate,
     w.WaitingClassID,
     w.WaitingClassName,
+    fr.rankNameA,
     w.WaitingOrderTypeID,
     w.WaitingOrderTypeName,
     w.waitingClassSequence,
@@ -69,14 +70,20 @@ OUTER APPLY
     SELECT AssignPeriodID
     FROM CurrentAssignPeriod
 ) cap
+left join Housing.V_GetFullResidentDetails fr on w.residentInfoID = fr.residentInfoID
 WHERE w.WaitingClassID = @WaitingClassID
   AND w.IdaraId = @idaraID
   --AND w.LastActionTypeID IN (27,39,41);
 
-  AND w.LastActionTypeID IN (27,39,41,42)
-  or( w.InAssignPeriod = 1 and w.LastActionTypeID IN (38,40))
+  AND (w.LastActionTypeID IN (27,39,41)
+  or( w.InAssignPeriod = 0 and w.LastActionTypeID IN (38,40)
+  or( w.InAssignPeriod IS NULL and w.LastActionTypeID IN (38,40))
+  ))
+  AND (select count(*) from Housing.V_WaitingList v where v.residentInfoID = w.residentInfoID and v.WaitingClassID <> w.WaitingClassID and (v.buildingActionRoot = 2 or v.LastActionTypeID in (38,40,45,46,47))) = 0
 
-  order by w.LastActionEntryDate desc
+  order by w.LastActionEntryDate desc,ROW_NUMBER() OVER (
+        ORDER BY w.ActionDecisionDate ASC, w.GeneralNo ASC
+    ) asc
 
       --or w.LastActionTypeID in (2,3,18,19,20,21,22,23,24,26,27,28,33,34,35)
 
@@ -136,10 +143,20 @@ WHERE w.WaitingClassID = @WaitingClassID
 
 
              -- Houses DDL
-            SELECT c.buildingDetailsID,c.buildingDetailsNo
-            FROM [DATACORE].[Housing].[V_GetGeneralListForBuilding] c
-            where c.BuildingIdaraID = @idaraID and c.buildingDetailsActive = 1 
-            and (c.LastActionTypeID in(5,39,41,42) or c.LastActionTypeID is null )
+            SELECT
+      c.buildingDetailsID
+    , c.buildingDetailsNo
+FROM Housing.V_GetGeneralListForBuilding c
+WHERE c.BuildingIdaraID = @idaraID
+  AND c.buildingDetailsActive = 1
+  AND (c.LastActionTypeID IN (5, 39, 41, 42, 43, 44)
+       OR c.LastActionTypeID IS NULL)
+  AND NOT EXISTS
+  (
+      SELECT 1
+      FROM Housing.V_Occupant occupant
+      WHERE occupant.buildingDetailsID = c.buildingDetailsID
+  );
             
 
 
