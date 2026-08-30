@@ -25,19 +25,27 @@ BEGIN
 
 
 
-          -- Residents Data
+          -- Meter Data
             select 
              m.[meterID]
             ,m.[meterNo]
             ,m.[meterName_A]
             ,m.[meterName_E]
             ,mst.meterServiceTypeName_A
-            ,m.[meterTypeID_FK]
             ,mt.[meterTypeName_A]
+            ,mct.MeterCalculateTypeID
+            ,mct.MeterCalculateTypeName_A
+            ,m.[meterTypeID_FK]
+            
             ,mst.meterServiceTypeID
             
+            ,mf.MeterTypeFixedAmountID
+            ,mf.FixedAmount
+
             ,msp.meterServicePriceID
             ,msp.meterServicePrice
+
+            
             
             ,m.[meterDescription]
             ,convert(nvarchar(10),m.[meterStartDate],23) as meterStartDate
@@ -45,15 +53,18 @@ BEGIN
             ,m.[meterActive]
             ,mr.meterReadValue as firstReadValue
             ,m.[IdaraId_FK]
+            
 
             
             from 
             [DATACORE].[Housing].[Meter] m 
             inner join [DATACORE].[Housing].[MeterType] mt on m.meterTypeID_FK = mt.meterTypeID
+            inner join [DATACORE].[Housing].MeterCalculateType mct on mt.MeterCalculateTypeID_FK = mct.MeterCalculateTypeID
             inner join [DATACORE].[Housing].[MeterServiceType] mst on mt.meterServiceTypeID_FK = mst.meterServiceTypeID
-            inner join [DATACORE].Housing.[MeterServicePrice] msp on msp.meterTypeID_FK = mt.meterTypeID
-            inner join  Housing.MeterRead mr on m.meterID = mr.meterID_FK and mr.meterReadActive = 1 and  mr.meterReadTypeID_FK = 4
-            where m.idaraID_FK = @idaraID and m.meterActive = 1 and mt.meterTypeActive = 1 and mst.meterServiceTypeActive = 1 and msp.meterServicePriceActive = 1
+            left join [DATACORE].Housing.[MeterServicePrice] msp on msp.meterTypeID_FK = mt.meterTypeID and msp.meterServicePriceActive = 1
+            left join [DATACORE].Housing.[MeterTypeFixedAmount] mf on mf.meterTypeID_FK = mt.meterTypeID and mf.MeterTypeFixedAmountActive =1
+            left join  Housing.MeterRead mr on m.meterID = mr.meterID_FK and mr.meterReadActive = 1 and  mr.meterReadTypeID_FK = 4
+            where m.idaraID_FK = @idaraID and m.meterActive = 1 and mt.meterTypeActive = 1 and mst.meterServiceTypeActive = 1 --and msp.meterServicePriceActive = 1
 
             order by m.meterID desc
 
@@ -62,7 +73,13 @@ BEGIN
             SELECT mm.[meterTypeID]
                   ,mm.[meterServiceTypeID_FK]
                   ,mst.[meterServiceTypeName_A]
+                  ,mct.MeterCalculateTypeName_A
+
+                  ,mf.MeterTypeFixedAmountID
+                  ,mf.FixedAmount
+
                   ,msp.meterServicePrice
+                  
                   ,mm.[meterTypeName_A]
                   ,mm.[meterTypeName_E]
                   ,mm.[meterTypeDescription]
@@ -75,9 +92,13 @@ BEGIN
                   ,mm.[entryDate]
                   ,mm.[entryData]
                   ,mm.[hostName]
+                  ,mm.MeterCalculateTypeID_FK
+                  
               FROM [DATACORE].[Housing].[MeterType] mm
+              inner join [DATACORE].[Housing].MeterCalculateType mct on mm.MeterCalculateTypeID_FK = mct.MeterCalculateTypeID
               inner join  Housing.MeterServiceType mst on mm.meterServiceTypeID_FK = mst.meterServiceTypeID
-              inner join  Housing.MeterServicePrice msp on mm.meterTypeID = msp.meterTypeID_FK
+              left join  Housing.MeterServicePrice msp on mm.meterTypeID = msp.meterTypeID_FK and msp.meterServicePriceActive = 1
+              left join [DATACORE].Housing.[MeterTypeFixedAmount] mf on mf.meterTypeID_FK = mm.meterTypeID and mf.MeterTypeFixedAmountActive = 1
               where mm.IdaraId_FK = @idaraID
               and meterTypeActive = 1
 
@@ -94,6 +115,8 @@ BEGIN
                   ,mbt.[meterForBuildingEndDate]
                   ,mbt.[meterForBuildingActive]
                   ,m.meterNo
+                  , mm.meterTypeName_A
+                  ,mct.MeterCalculateTypeName_A
                   ,m.meterName_A
                   ,m.meterName_E
                   ,bd.buildingDetailsNo
@@ -108,6 +131,8 @@ BEGIN
                 FROM [DATACORE].[Housing].[MeterForBuilding] mbt
                 inner join [DATACORE].[Housing].[Meter] m on mbt.meterID_FK = m.meterID
                 inner join [DATACORE].[Housing].[V_GetGeneralListForBuilding] bd on mbt.buildingDetailsID_FK = bd.buildingDetailsID
+                inner join [DATACORE].[Housing].[MeterType] mm on m.meterTypeID_FK = mm.meterTypeID
+                inner join [DATACORE].[Housing].MeterCalculateType mct on mm.MeterCalculateTypeID_FK = mct.MeterCalculateTypeID
                 where m.idaraID_FK = @idaraID and mbt.meterForBuildingActive = 1 and m.meterActive = 1
                 order by mbt.meterForBuildingID desc
 
@@ -212,6 +237,10 @@ LEFT JOIN Agg a
     ON a.buildingDetailsID = b.buildingDetailsID
 ORDER BY b.buildingDetailsNo;
 
+
+
+select mt.MeterCalculateTypeID,mt.MeterCalculateTypeName_A 
+from DATACORE.Housing.MeterCalculateType mt where mt.MeterCalculateTypeActive = 1
 
                 --SELECT
                 --    b.buildingDetailsID,

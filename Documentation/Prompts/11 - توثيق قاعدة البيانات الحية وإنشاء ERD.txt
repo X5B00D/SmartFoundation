@@ -1,0 +1,13 @@
+نواصل مشروع توثيق SmartFoundation.
+
+اقرأ AGENTS.md وجميع ملفات Documentation المكتملة و07A ومستندات البرامج. نفذ التحليل النهائي لقاعدة البيانات ضمن البرامج Included فقط.
+
+DATACORE الحية هي مصدر الحقيقة. استخدم SELECT من sys.schemas/objects/tables/columns/types/keys/indexes/foreign_keys/views/procedures/parameters/sql_modules/triggers/sql_expression_dependencies/default_constraints.
+
+وثق Schemas والجداول وPK/FK والقيود والأعمدة والـViews والإجراءات والمعاملات وResult Sets المستنتجة والجداول المقروءة أوالمعدلة والFunctions والTriggers والJobs إن أمكن بأمان وGateway routing وSchema drift.
+
+لا تنفذ Business SP أوDML/DDL أوBackup/Restore، ولا تعرض بيانات فعلية أوأسراراً، ولا تعدل خارج Documentation/.
+
+أنشئ ERD عاماً وERD للصلاحيات وHousing وIncome/ElectronicBillSystem. لا تخترع FK؛ صنف العلاقات المنطقية المستنتجة بوضوح. حدّث المستندات السابقة عند ظهور تصحيح حي وحدث Coverage وملف التقدم.
+
+في النهاية اعرض أعداد الكائنات وSchema drift والرسومات والعلاقات والفجوات والملفات، واجعل المرحلة التالية Operations, Integrations and Deployment.

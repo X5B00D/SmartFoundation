@@ -12,7 +12,14 @@
 );
 
 
+
+
 GO
 CREATE NONCLUSTERED INDEX [IX_MSTLinked_Idara_Active_Dates]
     ON [Housing].[MeterServiceTypeLinkedWithIdara]([Idara_FK] ASC, [MeterServiceTypeLinkedWithIdaraActive] ASC, [MeterServiceTypeID_FK] ASC, [MeterServiceTypeLinkedWithIdaraStartDate] ASC, [MeterServiceTypeLinkedWithIdaraEndDate] ASC);
+
+
+GO
+CREATE NONCLUSTERED INDEX [IX_ServiceLinkedWithIdara_Search]
+    ON [Housing].[MeterServiceTypeLinkedWithIdara]([MeterServiceTypeID_FK] ASC, [Idara_FK] ASC, [MeterServiceTypeLinkedWithIdaraActive] ASC);
 

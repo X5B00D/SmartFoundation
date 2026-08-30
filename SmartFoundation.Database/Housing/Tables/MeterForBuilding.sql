@@ -19,6 +19,8 @@
 );
 
 
+
+
 GO
 CREATE NONCLUSTERED INDEX [IX_MeterForBuilding_Active_Building]
     ON [Housing].[MeterForBuilding]([buildingDetailsID_FK] ASC, [meterForBuildingActive] ASC)
@@ -35,4 +37,10 @@ GO
 CREATE NONCLUSTERED INDEX [IX_MeterForBuilding_Building_Active_Dates]
     ON [Housing].[MeterForBuilding]([buildingDetailsID_FK] ASC, [meterForBuildingActive] ASC, [meterForBuildingStartDate] ASC, [meterForBuildingEndDate] ASC)
     INCLUDE([meterID_FK]);
+
+
+GO
+CREATE NONCLUSTERED INDEX [IX_MeterForBuilding_ActiveBuilding]
+    ON [Housing].[MeterForBuilding]([buildingDetailsID_FK] ASC, [meterForBuildingActive] ASC)
+    INCLUDE([meterID_FK], [meterForBuildingID]);
 

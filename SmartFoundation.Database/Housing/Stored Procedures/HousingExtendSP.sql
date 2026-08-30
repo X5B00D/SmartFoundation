@@ -916,6 +916,38 @@ BEGIN
        
 
 
+       DECLARE
+      @InsuranceAmountValue              DECIMAL(18, 2)
+    , @RemainingValue                    DECIMAL(18, 2)
+    , @InsuranceAmountWithRemainingValue DECIMAL(18, 2)
+    , @CurrentLastActionTypeID            INT
+    , @InsuranceRequired                 BIT;
+
+
+SET @InsuranceAmountValue =
+    TRY_CONVERT
+    (
+        DECIMAL(18, 2),
+        NULLIF(LTRIM(RTRIM(@InsuranceAmount)), N'')
+    );
+
+
+SET @RemainingValue =
+    TRY_CONVERT
+    (
+        DECIMAL(18, 2),
+        NULLIF(LTRIM(RTRIM(@Remaining)), N'')
+    );
+
+
+SET @InsuranceAmountWithRemainingValue =
+    TRY_CONVERT
+    (
+        DECIMAL(18, 2),
+        NULLIF(LTRIM(RTRIM(@InsuranceAmountWithRemaining)), N'')
+    );
+
+
             IF @ActionID IS NULL
             BEGIN
                 ;THROW 50001, N'رقم السجل مطلوب للتحديث', 1;
@@ -965,10 +997,33 @@ BEGIN
             END
 
 
-            if(@InsuranceAmountWithRemaining = 0.00 or @InsuranceAmountWithRemaining = 0.00)
-            BEGIN
-                ;THROW 50001, N'لايمكن ان يكون التأمين الاحترازي صفر', 1;
-            END
+            IF @InsuranceAmountValue IS NULL
+BEGIN
+    ;THROW 50001, N'قيمة مبلغ التأمين الاحترازي غير صحيحة', 1;
+END;
+
+
+IF @RemainingValue IS NULL
+BEGIN
+    ;THROW 50001, N'قيمة المتبقي غير صحيحة', 1;
+END;
+
+
+IF @InsuranceAmountWithRemainingValue IS NULL
+BEGIN
+    ;THROW 50001, N'إجمالي التأمين الاحترازي مع المتبقي غير صحيح', 1;
+END;
+
+
+IF @InsuranceAmountWithRemainingValue <= 0
+BEGIN
+    ;THROW 50001, N'لا يمكن أن يكون التأمين الاحترازي صفراً أو أقل من صفر', 1;
+END;
+
+            --if(@InsuranceAmountWithRemaining = 0 or @InsuranceAmountWithRemaining = 0)
+            --BEGIN
+            --    ;THROW 50001, N'لايمكن ان يكون التأمين الاحترازي صفر', 1;
+            --END
 
 
               INSERT INTO  Housing.BuildingAction

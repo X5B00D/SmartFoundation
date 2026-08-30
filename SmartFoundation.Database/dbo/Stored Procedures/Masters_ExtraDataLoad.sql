@@ -465,12 +465,14 @@ END
             t.BillChargeTypeName_A,
             bp.buildingDetailsID_FK AS buildingDetailsID,
             bd.buildingDetailsNo,
-            vgrd.FullName_A
+            vgrd.FullName_A,
+            bt.buildingPaymentTypeName_A
             FROM   Housing.BuildingPayment AS bp INNER JOIN
                          Housing.DeductList AS d ON bp.deductListID_FK = d.deductListID INNER JOIN
                          Housing.BillChargeType AS t ON bp.BillChargeTypeID_FK = t.BillChargeTypeID INNER JOIN
                          Housing.BuildingDetails AS bd ON bp.buildingDetailsID_FK = bd.buildingDetailsID LEFT JOIN
-                         Housing.V_GetFullResidentDetails AS vgrd ON bp.residentInfoID_FK = vgrd.residentInfoID
+                         Housing.V_GetFullResidentDetails AS vgrd ON bp.residentInfoID_FK = vgrd.residentInfoID LEFT JOIN
+                         Housing.BuildingPaymentType AS bt ON bp.buildingPaymentTypeID_FK = bt.buildingPaymentTypeID
             WHERE 
             (d.deductActive = 1) 
             AND (bp.buildingPayementActive = 1) 

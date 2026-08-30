@@ -41,6 +41,8 @@ namespace SmartFoundation.UI.ViewModels.SmartForm
         public string? Icon { get; set; }
         public string? OnChangeJs { get; set; }
         public string? DependsOn { get; set; }
+
+        public string? DependsOnFields { get; set; }
         public string? DependsUrl { get; set; }
         public string? SectionTitle { get; set; }
         public Dictionary<string, object?>? ExtraButton { get; set; }

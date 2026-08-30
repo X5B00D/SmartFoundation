@@ -480,10 +480,9 @@ namespace SmartFoundation.Mvc.Controllers.Housing
 
                 }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                ViewBag.DataSetError = ex.Message;
-                //TempData["info"] = ex.Message;
+                ViewBag.DataSetError = "حدث خطأ أثناء تحميل البيانات. يرجى المحاولة مرة أخرى.";
             }
 
 
@@ -600,9 +599,6 @@ namespace SmartFoundation.Mvc.Controllers.Housing
 
             // ✅ Inject required hidden headers (مرة واحدة فقط)
             addFields.Insert(0, new FieldConfig { Name = "__RequestVerificationToken", Type = "hidden", Value = (Request.Headers["RequestVerificationToken"].FirstOrDefault() ?? "") });
-            addFields.Insert(0, new FieldConfig { Name = "hostname", Type = "hidden", Value = HostName });
-            addFields.Insert(0, new FieldConfig { Name = "entrydata", Type = "hidden", Value = usersId });
-            addFields.Insert(0, new FieldConfig { Name = "idaraID", Type = "hidden", Value = IdaraId });
             addFields.Insert(0, new FieldConfig { Name = "ActionType", Type = "hidden", Value = "INSERTBUILDINGDETAILS" });
             addFields.Insert(0, new FieldConfig { Name = "pageName_", Type = "hidden", Value = PageName });
 
@@ -621,9 +617,6 @@ namespace SmartFoundation.Mvc.Controllers.Housing
                 new FieldConfig { Name = "redirectUrl",  Type = "hidden", Value = currentUrl },
                 new FieldConfig { Name = "pageName_",           Type = "hidden", Value = PageName },
                 new FieldConfig { Name = "ActionType",          Type = "hidden", Value = "UPDATEBUILDINGDETAILS" },
-                new FieldConfig { Name = "idaraID",             Type = "hidden", Value = IdaraId },
-                new FieldConfig { Name = "entrydata",           Type = "hidden", Value = usersId },
-                new FieldConfig { Name = "hostname",            Type = "hidden", Value = HostName},
                 new FieldConfig { Name = "__RequestVerificationToken", Type = "hidden", Value = (Request.Headers["RequestVerificationToken"].FirstOrDefault() ?? "") },
                 new FieldConfig { Name = rowIdField,            Type = "hidden" },
 
@@ -732,9 +725,6 @@ namespace SmartFoundation.Mvc.Controllers.Housing
 
                 new FieldConfig { Name = "pageName_",          Type = "hidden", Value = PageName },
                 new FieldConfig { Name = "ActionType",         Type = "hidden", Value = "DELETEBUILDINGDETAILS" },
-                new FieldConfig { Name = "idaraID",            Type = "hidden", Value = IdaraId },
-                new FieldConfig { Name = "entrydata",          Type = "hidden", Value = usersId },
-                new FieldConfig { Name = "hostname",           Type = "hidden", Value = HostName },
 
                 new FieldConfig { Name = "redirectUrl",     Type = "hidden", Value = currentUrl },
                 new FieldConfig { Name = "redirectAction",     Type = "hidden", Value = PageName },

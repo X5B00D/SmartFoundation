@@ -512,9 +512,9 @@ namespace SmartFoundation.Mvc.Controllers.ControlPanel
                     }
                 }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                ViewBag.DataSetError = ex.Message;
+                ViewBag.DataSetError = "حدث خطأ أثناء تحميل البيانات. يرجى المحاولة مرة أخرى.";
             }
 
             var currentUrl = Request.Path + Request.QueryString;
@@ -531,9 +531,6 @@ namespace SmartFoundation.Mvc.Controllers.ControlPanel
 
                 new FieldConfig { Name = "pageName_",          Type = "hidden", Value = PageName },
                 new FieldConfig { Name = "ActionType",         Type = "hidden", Value = "AddProgram" },
-                new FieldConfig { Name = "idaraID",            Type = "hidden", Value = IdaraId },
-                new FieldConfig { Name = "entrydata",          Type = "hidden", Value = usersId },
-                new FieldConfig { Name = "hostname",           Type = "hidden", Value = HostName },
                 new FieldConfig { Name = "redirectUrl",     Type = "hidden", Value = currentUrl },
                 new FieldConfig { Name = "redirectAction",     Type = "hidden", Value = PageName },
                 new FieldConfig { Name = "redirectController", Type = "hidden", Value = ControllerName },
@@ -562,9 +559,6 @@ namespace SmartFoundation.Mvc.Controllers.ControlPanel
 
                  new FieldConfig { Name = "pageName_",          Type = "hidden", Value = PageName },
                 new FieldConfig { Name = "ActionType",         Type = "hidden", Value = "EditProgram" },
-                new FieldConfig { Name = "idaraID",            Type = "hidden", Value = IdaraId },
-                new FieldConfig { Name = "entrydata",          Type = "hidden", Value = usersId },
-                new FieldConfig { Name = "hostname",           Type = "hidden", Value = HostName },
                 new FieldConfig { Name = "redirectUrl",     Type = "hidden", Value = currentUrl },
                 new FieldConfig { Name = "redirectAction",     Type = "hidden", Value = PageName },
                 new FieldConfig { Name = "redirectController", Type = "hidden", Value = ControllerName },
@@ -591,9 +585,6 @@ namespace SmartFoundation.Mvc.Controllers.ControlPanel
 
                   new FieldConfig { Name = "pageName_",          Type = "hidden", Value = PageName },
                 new FieldConfig { Name = "ActionType",         Type = "hidden", Value = "DeleteProgram" },
-                new FieldConfig { Name = "idaraID",            Type = "hidden", Value = IdaraId },
-                new FieldConfig { Name = "entrydata",          Type = "hidden", Value = usersId },
-                new FieldConfig { Name = "hostname",           Type = "hidden", Value = HostName },
                 new FieldConfig { Name = "redirectUrl",     Type = "hidden", Value = currentUrl },
                 new FieldConfig { Name = "redirectAction",     Type = "hidden", Value = PageName },
                 new FieldConfig { Name = "redirectController", Type = "hidden", Value = ControllerName },
@@ -620,9 +611,6 @@ namespace SmartFoundation.Mvc.Controllers.ControlPanel
             
                 new FieldConfig { Name = "pageName_",          Type = "hidden", Value = PageName },
                 new FieldConfig { Name = "ActionType",         Type = "hidden", Value = "AddMenuList" },
-                new FieldConfig { Name = "idaraID",            Type = "hidden", Value = IdaraId },
-                new FieldConfig { Name = "entrydata",          Type = "hidden", Value = usersId },
-                new FieldConfig { Name = "hostname",           Type = "hidden", Value = HostName },
                 new FieldConfig { Name = "redirectUrl",     Type = "hidden", Value = currentUrl },
                 new FieldConfig { Name = "redirectAction",     Type = "hidden", Value = PageName },
                 new FieldConfig { Name = "redirectController", Type = "hidden", Value = ControllerName },
@@ -645,9 +633,6 @@ namespace SmartFoundation.Mvc.Controllers.ControlPanel
             {
                 new FieldConfig { Name = "pageName_",          Type = "hidden", Value = PageName },
                 new FieldConfig { Name = "ActionType",         Type = "hidden", Value = "EditMenuList" },
-                new FieldConfig { Name = "idaraID",            Type = "hidden", Value = IdaraId },
-                new FieldConfig { Name = "entrydata",          Type = "hidden", Value = usersId },
-                new FieldConfig { Name = "hostname",           Type = "hidden", Value = HostName },
                 new FieldConfig { Name = "redirectUrl",        Type = "hidden", Value = currentUrl },
                 new FieldConfig { Name = "redirectAction",     Type = "hidden", Value = PageName },
                 new FieldConfig { Name = "redirectController", Type = "hidden", Value = ControllerName },
@@ -665,9 +650,6 @@ namespace SmartFoundation.Mvc.Controllers.ControlPanel
             {
                 new FieldConfig { Name = "pageName_",          Type = "hidden", Value = PageName },
                 new FieldConfig { Name = "ActionType",         Type = "hidden", Value = "DeleteMenuList" },
-                new FieldConfig { Name = "idaraID",            Type = "hidden", Value = IdaraId },
-                new FieldConfig { Name = "entrydata",          Type = "hidden", Value = usersId },
-                new FieldConfig { Name = "hostname",           Type = "hidden", Value = HostName },
                 new FieldConfig { Name = "redirectUrl",        Type = "hidden", Value = currentUrl },
                 new FieldConfig { Name = "redirectAction",     Type = "hidden", Value = PageName },
                 new FieldConfig { Name = "redirectController", Type = "hidden", Value = ControllerName },
@@ -682,9 +664,6 @@ namespace SmartFoundation.Mvc.Controllers.ControlPanel
             {
                 new FieldConfig { Name = "pageName_",          Type = "hidden", Value = PageName },
                 new FieldConfig { Name = "ActionType",         Type = "hidden", Value = "AddPage" },
-                new FieldConfig { Name = "idaraID",            Type = "hidden", Value = IdaraId },
-                new FieldConfig { Name = "entrydata",          Type = "hidden", Value = usersId },
-                new FieldConfig { Name = "hostname",           Type = "hidden", Value = HostName },
                 new FieldConfig { Name = "redirectUrl",        Type = "hidden", Value = currentUrl },
                 new FieldConfig { Name = "redirectAction",     Type = "hidden", Value = PageName },
                 new FieldConfig { Name = "redirectController", Type = "hidden", Value = ControllerName },
@@ -715,9 +694,6 @@ namespace SmartFoundation.Mvc.Controllers.ControlPanel
             {
                 new FieldConfig { Name = "pageName_",          Type = "hidden", Value = PageName },
                 new FieldConfig { Name = "ActionType",         Type = "hidden", Value = "EditPage" },
-                new FieldConfig { Name = "idaraID",            Type = "hidden", Value = IdaraId },
-                new FieldConfig { Name = "entrydata",          Type = "hidden", Value = usersId },
-                new FieldConfig { Name = "hostname",           Type = "hidden", Value = HostName },
                 new FieldConfig { Name = "redirectUrl",        Type = "hidden", Value = currentUrl },
                 new FieldConfig { Name = "redirectAction",     Type = "hidden", Value = PageName },
                 new FieldConfig { Name = "redirectController", Type = "hidden", Value = ControllerName },
@@ -738,9 +714,6 @@ namespace SmartFoundation.Mvc.Controllers.ControlPanel
             {
                 new FieldConfig { Name = "pageName_",          Type = "hidden", Value = PageName },
                 new FieldConfig { Name = "ActionType",         Type = "hidden", Value = "DeletePage" },
-                new FieldConfig { Name = "idaraID",            Type = "hidden", Value = IdaraId },
-                new FieldConfig { Name = "entrydata",          Type = "hidden", Value = usersId },
-                new FieldConfig { Name = "hostname",           Type = "hidden", Value = HostName },
                 new FieldConfig { Name = "redirectUrl",        Type = "hidden", Value = currentUrl },
                 new FieldConfig { Name = "redirectAction",     Type = "hidden", Value = PageName },
                 new FieldConfig { Name = "redirectController", Type = "hidden", Value = ControllerName },
@@ -755,9 +728,6 @@ namespace SmartFoundation.Mvc.Controllers.ControlPanel
             {
                 new FieldConfig { Name = "pageName_",          Type = "hidden", Value = PageName },
                 new FieldConfig { Name = "ActionType",         Type = "hidden", Value = "AddPagePermission" },
-                new FieldConfig { Name = "idaraID",            Type = "hidden", Value = IdaraId },
-                new FieldConfig { Name = "entrydata",          Type = "hidden", Value = usersId },
-                new FieldConfig { Name = "hostname",           Type = "hidden", Value = HostName },
                 new FieldConfig { Name = "redirectUrl",        Type = "hidden", Value = currentUrl },
                 new FieldConfig { Name = "redirectAction",     Type = "hidden", Value = PageName },
                 new FieldConfig { Name = "redirectController", Type = "hidden", Value = ControllerName },
@@ -785,9 +755,6 @@ namespace SmartFoundation.Mvc.Controllers.ControlPanel
             {
                 new FieldConfig { Name = "pageName_",          Type = "hidden", Value = PageName },
                 new FieldConfig { Name = "ActionType",         Type = "hidden", Value = "EditPagePermission" },
-                new FieldConfig { Name = "idaraID",            Type = "hidden", Value = IdaraId },
-                new FieldConfig { Name = "entrydata",          Type = "hidden", Value = usersId },
-                new FieldConfig { Name = "hostname",           Type = "hidden", Value = HostName },
                 new FieldConfig { Name = "redirectUrl",        Type = "hidden", Value = currentUrl },
                 new FieldConfig { Name = "redirectAction",     Type = "hidden", Value = PageName },
                 new FieldConfig { Name = "redirectController", Type = "hidden", Value = ControllerName },
@@ -802,9 +769,6 @@ namespace SmartFoundation.Mvc.Controllers.ControlPanel
             {
                 new FieldConfig { Name = "pageName_",          Type = "hidden", Value = PageName },
                 new FieldConfig { Name = "ActionType",         Type = "hidden", Value = "DeletePagePermission" },
-                new FieldConfig { Name = "idaraID",            Type = "hidden", Value = IdaraId },
-                new FieldConfig { Name = "entrydata",          Type = "hidden", Value = usersId },
-                new FieldConfig { Name = "hostname",           Type = "hidden", Value = HostName },
                 new FieldConfig { Name = "redirectUrl",        Type = "hidden", Value = currentUrl },
                 new FieldConfig { Name = "redirectAction",     Type = "hidden", Value = PageName },
                 new FieldConfig { Name = "redirectController", Type = "hidden", Value = ControllerName },

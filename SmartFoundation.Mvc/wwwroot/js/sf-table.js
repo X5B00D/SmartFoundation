@@ -2120,8 +2120,13 @@
                 html: "",
                 action: null,
                 loading: false,
+                isSubmitting: false,
                 error: null
             },
+
+            // Keep the legacy timed submit lock available as a fallback, but
+            // use the request-bound lock by default.
+            useSafeModalSubmitLock: true,
 
             // Style rules
             styleRules: Array.isArray(cfg.styleRules) ? cfg.styleRules : [],
@@ -2672,7 +2677,20 @@
                     const form = parentSelect.closest('form');
                     if (!form) return;
 
-                    const dependentSelects = form.querySelectorAll(`select[data-depends-on="${parentName}"]`);
+                    const dependentSelects = Array.from(
+                        form.querySelectorAll('select[data-depends-on]')
+                    ).filter(dependentSelect => {
+                        const multiFields = dependentSelect.getAttribute('data-depends-on-fields');
+
+                        if (multiFields) {
+                            return multiFields
+                                .split(',')
+                                .map(x => x.trim())
+                                .includes(parentName);
+                        }
+
+                        return dependentSelect.getAttribute('data-depends-on') === parentName;
+                    });
 
                     for (const dependentSelect of dependentSelects) {
                         const dependsUrl = dependentSelect.getAttribute('data-depends-url');
@@ -2680,6 +2698,53 @@
 
                         const parentValue = parentSelect.value;
 
+                        // ألصق كود تعدد الحقول هنا
+                        const multiFields = dependentSelect.getAttribute('data-depends-on-fields');
+
+                        if (multiFields) {
+                            const fieldNames = multiFields.split(',').map(x => x.trim()).filter(Boolean);
+
+                            const filterValues = fieldNames.map(fieldName => {
+                                const source = form.querySelector(`[name="${fieldName}"]`);
+                                return source ? source.value : "";
+                            });
+
+                            if (filterValues.some(value => !value || value === '-1' || value === '-99999')) {
+                                dependentSelect.innerHTML =
+                                    '<option value="-1">الرجاء اختيار نوع المسير والسنة والشهر</option>';
+                                continue;
+                            }
+
+                            const originalHtml = dependentSelect.innerHTML;
+                            dependentSelect.innerHTML = '<option value="-1">جاري التحميل...</option>';
+                            dependentSelect.disabled = true;
+
+                            try {
+                                const url =
+                                    `${dependsUrl}${dependsUrl.includes('?') ? '&' : '?'}FilterValues=${encodeURIComponent(filterValues.join(','))}`;
+
+                                const response = await fetch(url, { credentials: 'same-origin' });
+                                if (!response.ok) throw new Error(`HTTP ${response.status}`);
+
+                                const data = await response.json();
+                                dependentSelect.innerHTML = '';
+
+                                for (const item of data) {
+                                    const option = document.createElement('option');
+                                    option.value = item.value;
+                                    option.textContent = item.text;
+                                    dependentSelect.appendChild(option);
+                                }
+                            } catch {
+                                dependentSelect.innerHTML = '<option value="-1">تعذر تحميل المسيرات</option>';
+                            } finally {
+                                dependentSelect.disabled = false;
+                            }
+
+                            continue;
+                        }
+
+                        // هذا الكود القديم يبقى بعد الإضافة كما هو
                         if (!parentValue || parentValue === '-1') {
                             dependentSelect.innerHTML = '<option value="-1">الرجاء الاختيار</option>';
                             continue;
@@ -3295,6 +3360,7 @@
                 this.modal.messageClass = "";
                 this.modal.messageIcon = "";
                 this.modal.messageIsHtml = false;
+                this.modal.isSubmitting = false;
                 this.modal.loading = false;
                 this.modal.error = null;
                 const defaultCount = 1;
@@ -5136,20 +5202,23 @@
 
                                 btn.__saving = true;
                                 btn.__originalText = btn.textContent;
+                                btn.__originalDisabled = btn.disabled;
 
                                 btn.disabled = true;
                                 btn.classList.add("opacity-60", "pointer-events-none");
                                 btn.textContent = "جاري الحفظ ..";
 
                                 clearTimeout(btn.__restoreTimer);
-                                btn.__restoreTimer = setTimeout(() => {
-                                    if (this.modal?.open) {
-                                        btn.disabled = false;
-                                        btn.classList.remove("opacity-60", "pointer-events-none");
-                                        btn.textContent = btn.__originalText || "حفظ";
-                                        btn.__saving = false;
-                                    }
-                                }, 15000);
+                                if (!this.useSafeModalSubmitLock) {
+                                    btn.__restoreTimer = setTimeout(() => {
+                                        if (this.modal?.open) {
+                                            btn.disabled = false;
+                                            btn.classList.remove("opacity-60", "pointer-events-none");
+                                            btn.textContent = btn.__originalText || "حفظ";
+                                            btn.__saving = false;
+                                        }
+                                    }, 15000);
+                                }
                             });
 
                             form.addEventListener("invalid", (e) => {
@@ -5637,6 +5706,7 @@
 
             // Modal lifecycle
             closeModal() {
+                if (this.modal.isSubmitting) return;
 
                 if (this.__printHandle && typeof this.__printHandle.cancel === "function") {
                     this.__printHandle.cancel();
@@ -5652,6 +5722,7 @@
                 this.modal.messageClass = "";
                 this.modal.messageIcon = "";
                 this.modal.messageIsHtml = false;
+                this.modal.isSubmitting = false;
 
                 this.modal.extraPage = 1;
                 this.modal.extraQuery = "";
@@ -5673,17 +5744,41 @@
                 const method = formConfig.method || "POST";
                 const action = formConfig.actionUrl || "#";
 
+                const csrfToken =
+                    document.querySelector('meta[name="request-verification-token"]')?.content || "";
+
                 let html = `<form id="${formId}" method="${method}" action="${action}" class="sf-modal-form">`;
+
+                if (csrfToken) {
+                    html += `
+            <input type="hidden"
+                   name="__RequestVerificationToken"
+                   value="${this.escapeHtml(csrfToken)}">
+        `;
+                }
+
                 html += `<div class="grid grid-cols-12 gap-4">`;
 
                 (formConfig.fields || []).forEach(field => {
+
+                    // يتم توليد Antiforgery token مركزيًا أعلاه
+                    if (
+                        String(field?.name || "").trim().toLowerCase() ===
+                        "__requestverificationtoken".toLowerCase()
+                    ) {
+                        return;
+                    }
+
                     if (field.isHidden || field.type === "hidden") {
-                        const value = rowData ? (rowData[field.name] || field.value || "") : (field.value || "");
-                        const extraButtonText = field.extraButtonText ?? field.ExtraButtonText ?? "";
-                        const extraButtonSlot = field.extraButtonSlot ?? field.ExtraButtonSlot ?? "";
-                        const extraButtonClass = field.extraButtonClass ?? field.ExtraButtonClass ?? "btn btn-info";
-                        const hasExtraButton = !!(extraButtonText && extraButtonSlot);
-                        html += `<input type="hidden" name="${this.escapeHtml(field.name)}" value="${this.escapeHtml(value)}">`;
+                        const value = rowData
+                            ? (rowData[field.name] || field.value || "")
+                            : (field.value || "");
+
+                        html += `
+                <input type="hidden"
+                       name="${this.escapeHtml(field.name)}"
+                       value="${this.escapeHtml(value)}">
+            `;
                     } else {
                         html += this.generateFieldHtml(field, rowData);
                     }
@@ -5691,41 +5786,67 @@
 
                 if (formConfig.buttons && formConfig.buttons.length > 0) {
                     html += `<div class="col-span-12 flex justify-end gap-2 mt-4">`;
+
                     formConfig.buttons.forEach(btn => {
                         if (btn.show !== false) {
                             const btnType = btn.type || "button";
 
                             const isCancel =
                                 btn.isCancel === true ||
-                                btn.role === 'cancel' ||
+                                btn.role === "cancel" ||
                                 (btn.text && (
-                                    btn.text === 'إلغاء' ||
-                                    btn.text === 'الغاء' ||
-                                    btn.text.toLowerCase() === 'cancel'
+                                    btn.text === "إلغاء" ||
+                                    btn.text === "الغاء" ||
+                                    btn.text.toLowerCase() === "cancel"
                                 ));
 
-                            const extraClasses = isCancel ? ' sf-modal-cancel' : '';
-                            const btnClass = `btn btn-${btn.color || 'secondary'}${extraClasses}`;
+                            const extraClasses = isCancel ? " sf-modal-cancel" : "";
+                            const submitClass = btnType === "submit" ? " sf-modal-btn-save" : "";
+                            const btnClass = `btn btn-${btn.color || "secondary"}${extraClasses}${submitClass}`;
                             const icon = btn.icon ? `<i class="${btn.icon}"></i> ` : "";
 
-                            const onClick = (!isCancel && btn.type !== 'submit') ? (btn.onClickJs || "") : "";
+                            const onClick =
+                                (!isCancel && btn.type !== "submit")
+                                    ? (btn.onClickJs || "")
+                                    : "";
 
-                            html += `<button type="${btnType}" class="${btnClass}" ${onClick ? `onclick="${onClick}"` : ""}>${icon}${btn.text}</button>`;
+                            html += `
+                    <button type="${btnType}"
+                            class="${btnClass}"
+                            ${btnType === "submit" ? ':disabled="modal.isSubmitting" :class="{ \'opacity-60 pointer-events-none\': modal.isSubmitting }"' : ""}
+                            ${onClick ? `onclick="${onClick}"` : ""}>
+                        ${icon}${btn.text}
+                    </button>
+                `;
                         }
                     });
+
                     html += `</div>`;
                 } else {
 
                     html += `<div class="col-span-12 flex justify-end gap-2 mt-4 sf-modal-actions">`;
 
-                    html += `<button type="submit" class="btn btn-success sf-modal-btn-save"></i>تنفيذ</button>`;
+                    html += `
+            <button type="submit"
+                    class="btn btn-success sf-modal-btn-save"
+                    :disabled="modal.isSubmitting"
+                    :class="{ 'opacity-60 pointer-events-none': modal.isSubmitting }">
+                تنفيذ
+            </button>
+        `;
 
-                    html += `<button type="button" class="btn btn-secondary sf-modal-btn-cancel sf-modal-cancel">إلغاء</button>`;
+                    html += `
+            <button type="button"
+                    class="btn btn-secondary sf-modal-btn-cancel sf-modal-cancel">
+                إلغاء
+            </button>
+        `;
 
                     html += `</div>`;
-
                 }
+
                 html += `</div></form>`;
+
                 return html;
             },
 
@@ -5891,6 +6012,7 @@
                 (rootEl || document)
                     .querySelectorAll("input.js-date")
                     .forEach(el => {
+                        if (el.readOnly) return;
                         if (el._flatpickr) return;
                         flatpickr(el, {
                             locale: flatpickr.l10ns.ar,
@@ -6317,6 +6439,14 @@
                     case "select": {
                         let options = "";
 
+                        const isReadonlySelect = !!(field.readonly ?? field.Readonly);
+                        const fieldName = this.escapeHtml(field.name);
+                        const selectNameAttr = isReadonlySelect ? "" : `name="${fieldName}"`;
+                        const selectDisabledAttr = isReadonlySelect ? "disabled" : disabled;
+                        const readonlyValueInput = isReadonlySelect
+                            ? `<input type="hidden" name="${fieldName}" value="${this.escapeHtml(value)}" />`
+                            : "";
+
                         options += `<option value="" disabled ${!value ? "selected" : ""}>${this.escapeHtml(field.placeholder || "الرجاء الاختيار")}</option>`;
 
                         (field.options || []).forEach(opt => {
@@ -6342,6 +6472,11 @@
                         }
                         const onChangeAttr = onChangeHandler ? `onchange="${this.escapeHtml(onChangeHandler)}"` : "";
                         const dependsOnAttr = field.dependsOn ? `data-depends-on="${this.escapeHtml(field.dependsOn)}"` : "";
+
+                        const dependsOnFieldsAttr = field.dependsOnFields
+                            ? `data-depends-on-fields="${this.escapeHtml(field.dependsOnFields)}"`
+                            : "";
+
                         const dependsUrlAttr = field.dependsUrl ? `data-depends-url="${this.escapeHtml(field.dependsUrl)}"` : "";
 
                         const useSelect2 = !!(field.select2 ?? field.Select2);
@@ -6364,13 +6499,15 @@
                             </label>
 
                             <div class="sf-select-wrap">
+                                ${readonlyValueInput}
                                 <select
-                                    name="${this.escapeHtml(field.name)}"
+                                    ${selectNameAttr}
                                     class="sf-modal-input sf-modal-select ${select2Class}"
                                     ${required}
-                                    ${disabled}
+                                    ${selectDisabledAttr}
                                     ${onChangeAttr}
                                     ${dependsOnAttr}
+                                    ${dependsOnFieldsAttr}
                                     ${dependsUrlAttr}
                                     ${s2MinAttr}
                                     ${s2PhAttr}
@@ -6847,7 +6984,99 @@
                 });
             },
 
-            async saveModalChanges() {
+            saveModalChanges() {
+                return this.useSafeModalSubmitLock
+                    ? this.saveModalChangesSafe()
+                    : this.saveModalChangesLegacy();
+            },
+
+            async saveModalChangesSafe() {
+                if (!this.modal.action || this.modal.isSubmitting) return;
+
+                const form = this.$el.querySelector('.sf-modal form');
+                if (!form) return;
+
+                const submitControls = Array.from(
+                    form.querySelectorAll('.sf-modal-btn-save, button[type="submit"], input[type="submit"]')
+                );
+                const previousSubmitState = submitControls.map(control => ({
+                    control,
+                    disabled: control.__originalDisabled ?? control.disabled,
+                    html: control.tagName === "BUTTON" ? control.innerHTML : null,
+                    value: control.tagName === "INPUT" ? control.value : null
+                }));
+
+                const lockSubmitControls = () => {
+                    submitControls.forEach(control => {
+                        control.disabled = true;
+                        if (control.tagName === "BUTTON") {
+                            control.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> جاري التنفيذ...';
+                        } else {
+                            control.value = "جاري التنفيذ...";
+                        }
+                    });
+                };
+
+                const restoreSubmitControls = () => {
+                    previousSubmitState.forEach(state => {
+                        clearTimeout(state.control.__restoreTimer);
+                        state.control.disabled = state.disabled;
+                        if (state.html !== null) state.control.innerHTML = state.html;
+                        if (state.value !== null) state.control.value = state.value;
+                        state.control.__saving = false;
+                        delete state.control.__originalDisabled;
+                    });
+                };
+
+                this.modal.isSubmitting = true;
+                this.modal.error = null;
+                lockSubmitControls();
+
+                try {
+                    const formData = this.serializeForm(form);
+                    const result = await this.executeSpStrict(
+                        this.modal.action.saveSp,
+                        this.modal.action.saveOp || (this.modal.action.isEdit ? "update" : "insert"),
+                        formData
+                    );
+
+                    if (!result) {
+                        throw new Error("لم تصل نتيجة واضحة من الخادم");
+                    }
+
+                    try {
+                        if (this.serverPaging) {
+                            await this.load();
+                        } else {
+                            const saved = result.data || result.row || result.item || null;
+                            const id = (saved && saved[this.rowIdField]) ?? formData[this.rowIdField];
+
+                            if (saved) {
+                                const idx = this.allRows.findIndex(r => r[this.rowIdField] == id);
+                                if (idx >= 0) this.allRows[idx] = { ...this.allRows[idx], ...saved };
+                                else this.allRows.unshift(saved);
+                                this.invalidateRowCaches();
+                            }
+
+                            this.applyFiltersAndSort();
+                        }
+                    } catch (refreshError) {
+                        this.showToast("تمت العملية بنجاح، وتعذر تحديث الجدول تلقائياً", "warning");
+                    }
+
+                    this.modal.isSubmitting = false;
+                    this.closeModal();
+                    this.clearSelection();
+                } catch (e) {
+                    this.showToast("⚠️ " + (e.message || "فشل العملية"), "error");
+                    if (e.server?.errors) this.applyServerErrors(e.server.errors);
+
+                    this.modal.isSubmitting = false;
+                    restoreSubmitControls();
+                }
+            },
+
+            async saveModalChangesLegacy() {
                 if (!this.modal.action) return;
 
                 const form = this.$el.querySelector('.sf-modal form');
@@ -7061,6 +7290,18 @@
 
                     return null;
                 }
+            },
+
+            async executeSpStrict(spName, operation, params) {
+                const body = {
+                    Component: "Form",
+                    SpName: spName,
+                    Operation: operation,
+                    Params: params || {}
+                };
+                const result = await this.postJson(this.endpoint, body);
+                if (result?.message) this.showToast(result.message, "success");
+                return result;
             },
 
             async postJson(url, body) {

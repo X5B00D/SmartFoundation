@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.Logging;
+using System.Security.Claims;
 
 namespace SmartFoundation.Mvc.Controllers.Login
 {
@@ -78,7 +79,7 @@ namespace SmartFoundation.Mvc.Controllers.Login
         [HttpGet]
         [AllowAnonymous]
         [ResponseCache(NoStore = true, Location = ResponseCacheLocation.None)]
-        public async Task<IActionResult> Index()
+        public IActionResult Index()
         {
             var lastUser = Request.Query["u"].ToString();
             ViewBag.LastUser = lastUser;
@@ -144,9 +145,9 @@ namespace SmartFoundation.Mvc.Controllers.Login
             {
                 ds = await _mastersServies.GetLoginsDataSetAsync(spParameters);
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                return RedirectToLogin("error", "خطأ في الاتصال بالخادم." + ex.Message, NationalID);
+                return RedirectToLogin("error", "حدث خطأ أثناء الاتصال بالخادم. يرجى المحاولة مرة أخرى.", NationalID);
             }
 
             var auth = _mastersServies.ExtractAuth(ds);
@@ -158,9 +159,9 @@ namespace SmartFoundation.Mvc.Controllers.Login
                
 
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                return RedirectToLogin("error", "خطأ في معالجة بيانات الدخول: " + ex.Message, NationalID);
+                return RedirectToLogin("error", "حدث خطأ أثناء معالجة بيانات الدخول. يرجى المحاولة مرة أخرى.", NationalID);
             }
 
 
@@ -218,12 +219,29 @@ namespace SmartFoundation.Mvc.Controllers.Login
             HttpContext.Session.SetString("OrganaiztionLogo", auth.OrganaiztionLogo ?? "");  // ✅ FIXED: Changed from auth.Photo to auth.photoBase64
             HttpContext.Session.SetString("IdaraLogo", auth.IdaraLogo ?? "");  // ✅ FIXED: Changed from auth.Photo to auth.photoBase64
 
+            var claims = new List<Claim>
+            {
+                new(ClaimTypes.NameIdentifier, auth.usersId!),
+                new(ClaimTypes.Name, auth.fullName ?? string.Empty)
+            };
+            var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+            var principal = new ClaimsPrincipal(identity);
+
+            await HttpContext.SignInAsync(
+                CookieAuthenticationDefaults.AuthenticationScheme,
+                principal,
+                new AuthenticationProperties
+                {
+                    IsPersistent = false,
+                    AllowRefresh = true,
+                    ExpiresUtc = DateTimeOffset.UtcNow.AddMinutes(10)
+                });
+
 
 
             //}
             //catch (Exception ex)
             //{
-            //    TempData["Error"] = "خطأ في حفظ بيانات الجلسة: " + ex.Message;
             //    TempData["LastUser"] = NationalID;
             //    return RedirectToAction(nameof(Index));
             //}
@@ -248,16 +266,25 @@ namespace SmartFoundation.Mvc.Controllers.Login
             return RedirectToAction("Index", "Home");
         }
 
-        [HttpGet]
-        public IActionResult Logout()
+        [HttpPost]
+        public async Task<IActionResult> Logout()
         {
-            // حذف جميع السيشنات
-            HttpContext.Session.Clear();
-
-            // حذف الكوكيز إذا كنت تستخدم Cookie Authentication (اختياري)
-            // await HttpContext.SignOutAsync();
+            await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
 
             return RedirectToAction("Index", "Login", new { logout = 2 });
+        }
+
+        [HttpGet]
+        public IActionResult ChangePasswordRequired()
+        {
+            var userId = HttpContext.Session.GetString("usersID");
+            if (string.IsNullOrWhiteSpace(userId))
+                return RedirectToAction(nameof(Index));
+
+            if (HttpContext.Session.GetString("ChangedPassword") != "0")
+                return RedirectToAction("Index", "Home");
+
+            return View();
         }
 
         [HttpPost]
@@ -319,12 +346,17 @@ namespace SmartFoundation.Mvc.Controllers.Login
                     
                     if (success)
                     {
-                        // ✅ CRITICAL: Update session to mark password as changed
-                        HttpContext.Session.SetString("ChangedPassword", "1");
-                        _logger.LogInformation("Password changed successfully for user {UserId}, session updated", userId);
+                        await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+                        HttpContext.Session.Clear();
+                        _logger.LogInformation("Password changed successfully for user {UserId}; session cleared", userId);
                     }
                     
-                    return Json(new { success = success, message = message });
+                    return Json(new
+                    {
+                        success,
+                        message,
+                        redirectUrl = success ? Url.Action(nameof(Index), "Login", new { logout = 2 }) : null
+                    });
                 }
                 
                 return Json(new { success = false, message = "لم يتم إرجاع نتيجة من قاعدة البيانات" });

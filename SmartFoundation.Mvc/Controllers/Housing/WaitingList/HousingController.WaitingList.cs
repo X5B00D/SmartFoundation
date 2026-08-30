@@ -335,10 +335,9 @@ namespace SmartFoundation.Mvc.Controllers.Housing
 
                 }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                ViewBag.DataSetError = ex.Message;
-                //TempData["info"] = ex.Message;
+                ViewBag.DataSetError = "حدث خطأ أثناء تحميل البيانات. يرجى المحاولة مرة أخرى.";
             }
 
             //ADD
@@ -353,9 +352,6 @@ namespace SmartFoundation.Mvc.Controllers.Housing
 
                 new FieldConfig { Name = "pageName_",          Type = "hidden", Value = PageName },
                 new FieldConfig { Name = "ActionType",         Type = "hidden", Value = "MOVETOASSIGNLIST" },
-                new FieldConfig { Name = "idaraID",            Type = "hidden", Value = IdaraId },
-                new FieldConfig { Name = "entrydata",          Type = "hidden", Value = usersId },
-                new FieldConfig { Name = "hostname",           Type = "hidden", Value = HostName },
 
                 new FieldConfig { Name = "redirectUrl",     Type = "hidden", Value = currentUrl },
                 new FieldConfig { Name = "redirectAction",     Type = "hidden", Value = PageName },
@@ -382,7 +378,7 @@ namespace SmartFoundation.Mvc.Controllers.Housing
                 new FieldConfig { Name = "p08", Label = "فئة سجل الانتظار", Type = "text", ColCss = "3", Readonly = true },
                 new FieldConfig { Name = "p09", Label = "WaitingOrderTypeID", Type = "hidden", ColCss = "3", Readonly = true },
                 new FieldConfig { Name = "p10", Label = "نوع سجل الانتظار", Type = "text", ColCss = "3", Readonly = true },
-                new FieldConfig { Name = "p12", Label = "ملاحظات", Type = "text", ColCss = "6" },
+                new FieldConfig { Name = "p22", Label = "ملاحظات", Type = "text", ColCss = "6" },
                 new FieldConfig { Name = "p13", Label = "IdaraId", Type = "hidden", ColCss = "3", Readonly = true },
 
 

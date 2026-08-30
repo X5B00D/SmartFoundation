@@ -161,9 +161,6 @@ namespace SmartFoundation.Mvc.Controllers.Vehicle
             {
                 new FieldConfig { Name="pageName_", Type="hidden", Value="MaintenanceDetails_Upsert" },
                 new FieldConfig { Name="ActionType", Type="hidden", Value="INSERT" },
-                new FieldConfig { Name="idaraID", Type="hidden", Value=IdaraId },
-                new FieldConfig { Name="entrydata", Type="hidden", Value=usersId },
-                new FieldConfig { Name="hostname", Type="hidden", Value=HostName },
                 new FieldConfig { Name="redirectUrl", Type="hidden", Value=currentUrl },
                 new FieldConfig { Name="redirectAction", Type="hidden", Value="MaintenanceDetails" },
                 new FieldConfig { Name="redirectController", Type="hidden", Value="Vehicle" },

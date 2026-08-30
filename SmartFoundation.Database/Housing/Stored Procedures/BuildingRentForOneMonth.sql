@@ -19,13 +19,7 @@ BEGIN
         , o.buildingDetailsID
         , 1 AS buildingRentTypeID_FK
 
-        , CAST(
-            CASE 
-                WHEN w.RentForMonth - ISNULL(exm.ExemptionAmount, 0) < 0 
-                    THEN 0
-                ELSE w.RentForMonth - ISNULL(exm.ExemptionAmount, 0)
-            END
-          AS DECIMAL(18,2)) AS rentBillsAmount
+        , CAST(w.RentForMonth AS DECIMAL(18,2)) AS rentBillsAmount
 
         , w.CalcFromDate AS rentBillsFromDate
         , w.CalcToDate   AS rentBillsToDate
@@ -43,7 +37,7 @@ BEGIN
         , CAST(o.OccupentDate AS date)
         , @Year
         , @Month
-        , NULL
+        , CAST(o.ExitDate AS date)
     ) w
 
    OUTER APPLY
@@ -109,6 +103,7 @@ BEGIN
 ) exm
 
     WHERE CAST(o.OccupentDate AS date) <= @MonthEnd
+      AND (o.ExitDate IS NULL OR CAST(o.ExitDate AS date) >= @MonthStart)
       AND o.IdaraId = @idaraID
 
     ORDER BY o.buildingDetailsID ASC;

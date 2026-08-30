@@ -91,9 +91,9 @@ namespace SmartFoundation.Mvc.Controllers.Support
                     }
                 }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                TempData["Error"] = ex.Message;
+                TempData["Error"] = "حدث خطأ أثناء تحميل المهام. يرجى المحاولة مرة أخرى.";
                 return RedirectToAction("Index", "Home");
             }
 
@@ -297,9 +297,6 @@ namespace SmartFoundation.Mvc.Controllers.Support
                 new FieldConfig { Name = "p13", Label = "حالة المهمة", Type = "select", ColCss = "6", Required = true, Placeholder = "", Options = statusOptions }
             };
             updateTaskStatusFields.Insert(0, new FieldConfig { Name = "__RequestVerificationToken", Type = "hidden", Value = (Request.Headers["RequestVerificationToken"].FirstOrDefault() ?? "") });
-            updateTaskStatusFields.Insert(0, new FieldConfig { Name = "hostname", Type = "hidden", Value = Request.Host.Value });
-            updateTaskStatusFields.Insert(0, new FieldConfig { Name = "entrydata", Type = "hidden", Value = usersId?.ToString() });
-            updateTaskStatusFields.Insert(0, new FieldConfig { Name = "idaraID", Type = "hidden", Value = IdaraId?.ToString() });
             updateTaskStatusFields.Insert(0, new FieldConfig { Name = "ActionType", Type = "hidden", Value = "SMY_UPDATE_TASK_STATUS" });
             updateTaskStatusFields.Insert(0, new FieldConfig { Name = "pageName_", Type = "hidden", Value = "SupportMyTasks" });
             updateTaskStatusFields.Insert(0, new FieldConfig { Name = "redirectAction", Type = "hidden", Value = PageName });

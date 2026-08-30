@@ -10,8 +10,26 @@ BEGIN
     SET NOCOUNT ON;
     SET XACT_ABORT ON;
 
-    -- تحقق أن الشات موجود في AiChatHistory (الجدول الصحيح)
-    IF NOT EXISTS (SELECT 1 FROM dbo.AiChatHistory WHERE ChatId = @ChatId)
+    DECLARE @CurrentUserId BIGINT = TRY_CONVERT(BIGINT, @UsersId);
+
+    IF @CurrentUserId IS NULL
+       OR NOT EXISTS (
+            SELECT 1
+            FROM dbo.Users
+            WHERE usersID = @CurrentUserId
+              AND ISNULL(usersActive, 0) = 1
+       )
+    BEGIN
+        SELECT CAST(0 AS bit) AS IsSuccessful, N'المستخدم الحالي غير صالح' AS Message_;
+        RETURN;
+    END
+
+    IF NOT EXISTS (
+        SELECT 1
+        FROM dbo.AiChatHistory
+        WHERE ChatId = @ChatId
+          AND UserId = @CurrentUserId
+    )
     BEGIN
         SELECT CAST(0 AS bit) AS IsSuccessful, N'ChatId غير موجود في AiChatHistory' AS Message_;
         RETURN;
@@ -28,7 +46,8 @@ BEGIN
             UserFeedback    = @UserFeedback,
             FeedbackComment = @FeedbackComment,
             FeedbackDate    = SYSUTCDATETIME()
-        WHERE ChatId = @ChatId;
+        WHERE ChatId = @ChatId
+          AND UserId = @CurrentUserId;
 
         -- ✅ (اختياري) خزّن سجل تفصيلي في جدول AiChatFeedback
         INSERT INTO dbo.AiChatFeedback

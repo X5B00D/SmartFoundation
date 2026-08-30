@@ -3,7 +3,8 @@
     @Year int,
     @entrydata nvarchar(20),
     @hostname nvarchar(200),
-    @idaraID int
+    @idaraID int,
+    @ReturnResult bit = 1
 AS
 BEGIN
     SET NOCOUNT ON;
@@ -11,6 +12,8 @@ BEGIN
 
     DECLARE @InsertedCount int = 0;
     DECLARE @ExpectedCount int = 0;
+    DECLARE @BillingMonthStart date = DATEFROMPARTS(@Year, @Month, 1);
+    DECLARE @BillingMonthEnd date = EOMONTH(DATEFROMPARTS(@Year, @Month, 1));
 
     DECLARE @Bills TABLE
     (
@@ -44,6 +47,7 @@ BEGIN
         (
               BillsUID
             , BillChargeTypeID_FK
+            , BillTypeID_FK
             , PeriodMonth
             , PeriodYear
             , buildingDetailsID
@@ -63,6 +67,7 @@ BEGIN
         SELECT
               NEWID()
             , 1
+            , 2
             , @Month
             , @Year
             , b.buildingDetailsID
@@ -84,20 +89,51 @@ BEGIN
             SELECT 1
             FROM Housing.Bills x WITH (UPDLOCK, HOLDLOCK)
             WHERE x.BillChargeTypeID_FK = 1
-              AND x.PeriodMonth = @Month
-              AND x.PeriodYear = @Year
               AND x.idaraID_FK = @idaraID
               AND x.residentInfoID_FK = b.residentInfoID
               AND x.buildingDetailsID = b.buildingDetailsID
-              AND x.buildingRentTypeID_FK = b.buildingRentTypeID_FK
               AND x.BillActive = 1
+              AND CAST(x.BillsFromDate AS date) <= b.rentBillsToDate
+              AND CAST(x.BillsToDate AS date) >= b.rentBillsFromDate
         );
 
         SET @InsertedCount = @@ROWCOUNT;
 
+        DECLARE @ResidentRentExemptionID BIGINT;
+        DECLARE exemptionCursor CURSOR LOCAL FAST_FORWARD FOR
+        SELECT exemption.residentRentExemptionID
+        FROM Housing.ResidentRentExemption exemption
+        WHERE exemption.residentRentExemptionActive = 1
+          AND exemption.idaraID_FK = @idaraID
+          AND CAST(exemption.residentRentExemptionStartDate AS date) <= @BillingMonthEnd
+          AND
+          (
+              exemption.residentRentExemptionEndDate IS NULL
+              OR CAST(exemption.residentRentExemptionEndDate AS date) >= @BillingMonthStart
+          );
+
+        OPEN exemptionCursor;
+        FETCH NEXT FROM exemptionCursor INTO @ResidentRentExemptionID;
+
+        WHILE @@FETCH_STATUS = 0
+        BEGIN
+            EXEC Housing.SyncRentExemptionPayments
+                  @Action = N'GENERATE'
+                , @ResidentRentExemptionID = @ResidentRentExemptionID
+                , @ThroughDate = @BillingMonthEnd
+                , @SourceType = N'MONTHLY'
+                , @EntryData = @entrydata
+                , @HostName = @hostname;
+
+            FETCH NEXT FROM exemptionCursor INTO @ResidentRentExemptionID;
+        END;
+
+        CLOSE exemptionCursor;
+        DEALLOCATE exemptionCursor;
+
         COMMIT TRAN;
 
-        SELECT 
+        IF @ReturnResult=1 SELECT
               1 AS IsSuccessful
             , CASE 
                 WHEN @ExpectedCount = 0 
@@ -113,10 +149,12 @@ BEGIN
         IF @@TRANCOUNT > 0
             ROLLBACK TRAN;
 
-        SELECT 
+        IF @ReturnResult=1 SELECT
               0 AS IsSuccessful
             , ERROR_MESSAGE() AS Message_
             , @ExpectedCount AS ExpectedCount
             , @InsertedCount AS InsertedCount;
+        ELSE
+            THROW;
     END CATCH
 END

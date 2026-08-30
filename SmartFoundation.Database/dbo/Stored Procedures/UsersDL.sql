@@ -3,7 +3,7 @@
 -- Create date: <Create Date,,>
 -- Description:	<Description,,>
 -- =============================================
-CREATE PROCEDURE [dbo].[UsersDL] 
+CREATE   PROCEDURE [dbo].[UsersDL] 
 	-- Add the parameters for the stored procedure here
 	  @pageName_      NVARCHAR(400)
     , @idaraID        INT
@@ -58,6 +58,7 @@ BEGIN
         d.userActive,
         d.IdaraID,
         d.idaraLongName_A,
+        currentDepartment.DepartmentName,
         d.EntryFullName,
         d.entryDateText AS entryDate,
         d.nationalIDIssueDate,
@@ -66,8 +67,34 @@ BEGIN
         d.nationalityID_FK,
         d.religionID_FK,
         d.maritalStatusID_FK,
-        d.educationID_FK
+        d.educationID_FK,
+        currentDepartment.distributorID,
+        currentDepartment.distributorName_A,
+        currentDepartment.DepartmentID
     FROM [DATACORE].[dbo].[V_GetFullSystemUsersDetails] d
+    OUTER APPLY
+    (
+        SELECT TOP (1)
+            distributor.distributorID,
+            distributor.distributorName_A,
+            structure.DepartmentID,
+            structure.DepartmentName
+        FROM dbo.UserDistributor userDistributor
+        JOIN dbo.Distributor distributor
+          ON distributor.distributorID = userDistributor.distributorID_FK
+        JOIN dbo.V_GetFullStructureForDSD structure
+          ON structure.DSDID = distributor.DSDID_FK
+        WHERE userDistributor.userID_FK = d.usersID
+          AND ISNULL(userDistributor.UDActive, 0) = 1
+          AND userDistributor.UDStartDate IS NOT NULL
+          AND CONVERT(date, userDistributor.UDStartDate) <= CONVERT(date, GETDATE())
+          AND userDistributor.UDEndDate IS NULL
+          AND ISNULL(distributor.distributorActive, 0) = 1
+          AND distributor.distributorType_FK = 1
+          AND distributor.roleID_FK IS NULL
+          AND structure.DSDLevel = 3
+        ORDER BY userDistributor.UDStartDate DESC, userDistributor.UDID DESC
+    ) currentDepartment
     ORDER BY d.usersID DESC, d.entryDate DESC;
 END 
 
@@ -95,6 +122,7 @@ BEGIN
         d.userActive,
         d.IdaraID,
         d.idaraLongName_A,
+        currentDepartment.DepartmentName,
         d.EntryFullName,
         d.entryDateText AS entryDate,
         d.nationalIDIssueDate,
@@ -103,8 +131,34 @@ BEGIN
         d.nationalityID_FK,
         d.religionID_FK,
         d.maritalStatusID_FK,
-        d.educationID_FK
+        d.educationID_FK,
+        currentDepartment.distributorID,
+        currentDepartment.distributorName_A,
+        currentDepartment.DepartmentID
     FROM [DATACORE].[dbo].[V_GetFullSystemUsersDetails] d
+    OUTER APPLY
+    (
+        SELECT TOP (1)
+            distributor.distributorID,
+            distributor.distributorName_A,
+            structure.DepartmentID,
+            structure.DepartmentName
+        FROM dbo.UserDistributor userDistributor
+        JOIN dbo.Distributor distributor
+          ON distributor.distributorID = userDistributor.distributorID_FK
+        JOIN dbo.V_GetFullStructureForDSD structure
+          ON structure.DSDID = distributor.DSDID_FK
+        WHERE userDistributor.userID_FK = d.usersID
+          AND ISNULL(userDistributor.UDActive, 0) = 1
+          AND userDistributor.UDStartDate IS NOT NULL
+          AND CONVERT(date, userDistributor.UDStartDate) <= CONVERT(date, GETDATE())
+          AND userDistributor.UDEndDate IS NULL
+          AND ISNULL(distributor.distributorActive, 0) = 1
+          AND distributor.distributorType_FK = 1
+          AND distributor.roleID_FK IS NULL
+          AND structure.DSDLevel = 3
+        ORDER BY userDistributor.UDStartDate DESC, userDistributor.UDID DESC
+    ) currentDepartment
     WHERE d.IdaraID = @idaraID
     ORDER BY d.usersID DESC;
 END
@@ -133,6 +187,7 @@ BEGIN
         d.userActive,
         d.IdaraID,
         d.idaraLongName_A,
+        currentDepartment.DepartmentName,
         d.EntryFullName,
         d.entryDateText AS entryDate,
         d.nationalIDIssueDate,
@@ -141,8 +196,34 @@ BEGIN
         d.nationalityID_FK,
         d.religionID_FK,
         d.maritalStatusID_FK,
-        d.educationID_FK
+        d.educationID_FK,
+        currentDepartment.distributorID,
+        currentDepartment.distributorName_A,
+        currentDepartment.DepartmentID
     FROM [DATACORE].[dbo].[V_GetFullSystemUsersDetails] d
+    OUTER APPLY
+    (
+        SELECT TOP (1)
+            distributor.distributorID,
+            distributor.distributorName_A,
+            structure.DepartmentID,
+            structure.DepartmentName
+        FROM dbo.UserDistributor userDistributor
+        JOIN dbo.Distributor distributor
+          ON distributor.distributorID = userDistributor.distributorID_FK
+        JOIN dbo.V_GetFullStructureForDSD structure
+          ON structure.DSDID = distributor.DSDID_FK
+        WHERE userDistributor.userID_FK = d.usersID
+          AND ISNULL(userDistributor.UDActive, 0) = 1
+          AND userDistributor.UDStartDate IS NOT NULL
+          AND CONVERT(date, userDistributor.UDStartDate) <= CONVERT(date, GETDATE())
+          AND userDistributor.UDEndDate IS NULL
+          AND ISNULL(distributor.distributorActive, 0) = 1
+          AND distributor.distributorType_FK = 1
+          AND distributor.roleID_FK IS NULL
+          AND structure.DSDLevel = 3
+        ORDER BY userDistributor.UDStartDate DESC, userDistributor.UDID DESC
+    ) currentDepartment
     WHERE d.IdaraID = @idaraID
     ORDER BY d.usersID DESC;
 END

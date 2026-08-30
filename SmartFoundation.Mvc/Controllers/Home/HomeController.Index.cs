@@ -28,7 +28,11 @@ namespace SmartFoundation.Mvc.Controllers.Home
                 return RedirectToAction("Index", "Login", new { logout = 4 });
             }
 
-            await GenerateMonthlyRentBillsAsync();
+            // احتفظنا بمشغل Home كخيار رجوع فقط. التشغيل الطبيعي أصبح من SQL Agent.
+            if (_configuration.GetValue<bool>("MonthlyBilling:RunFromHome"))
+            {
+                await GenerateMonthlyRentBillsAsync();
+            }
 
             ControllerName = nameof(Home);
             PageName = "Home";
@@ -151,11 +155,24 @@ namespace SmartFoundation.Mvc.Controllers.Home
 
                 await conn.OpenAsync();
                 await cmd.ExecuteNonQueryAsync();
+
+                await using var fixedServicesCmd = new SqlCommand(
+                    "[Housing].[GenerateMonthlyFixedServiceBills]", conn);
+
+                fixedServicesCmd.CommandType = CommandType.StoredProcedure;
+                fixedServicesCmd.CommandTimeout = 120;
+                fixedServicesCmd.Parameters.Add("@Month", SqlDbType.Int).Value = month;
+                fixedServicesCmd.Parameters.Add("@Year", SqlDbType.Int).Value = year;
+                fixedServicesCmd.Parameters.Add("@EntryData", SqlDbType.NVarChar, 20).Value = usersId ?? "";
+                fixedServicesCmd.Parameters.Add("@HostName", SqlDbType.NVarChar, 200).Value = HostName ?? "";
+                fixedServicesCmd.Parameters.Add("@IdaraID", SqlDbType.BigInt).Value = Convert.ToInt64(IdaraId);
+
+                await fixedServicesCmd.ExecuteNonQueryAsync();
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex,
-                    "Generate previous month rent bills failed. UserId={UserId}, IdaraId={IdaraId}",
+                    "Generate previous month rent/fixed-service bills failed. UserId={UserId}, IdaraId={IdaraId}",
                     usersId,
                     IdaraId);
             }

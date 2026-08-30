@@ -746,6 +746,7 @@ BEGIN
   inner join dbo.PermissionType pt on pt.permissionTypeID = t.permissionTypeID_FK
   inner join dbo.permissionAuthLvl pa on pa.permissionAuthLvlID = t.permissionAuthLvl and pa.permissionAuthLvlActive = 1
   where t.distributorPermissionTypeActive = 1
+  order by t.distributorPermissionTypeID desc
            
         
 
@@ -1174,6 +1175,19 @@ ELSE IF @pageName_ = 'buildingUtilityType'
 
    
 
+        END
+
+
+    -------------------------------------------------------------------
+    --                     PAGE: HousingExtendFollowUp
+    -------------------------------------------------------------------
+        ELSE IF @pageName_ = 'HousingExtendFollowUp'
+        BEGIN
+            EXEC [Housing].[HousingExtendFollowUpDL]
+                  @pageName_ = @pageName_
+                , @idaraID = @idaraID
+                , @entrydata = @entrydata
+                , @hostname = @hostname;
         END
 
 
@@ -2273,6 +2287,28 @@ END
     --                     PAGE NOT FOUND
     --            DO NOT TOUCH DOWN THIS LINE PLEASE
     -------------------------------------------------------------------
+        ELSE IF @pageName_ = N'MonthlyBillingMonitor'
+        BEGIN
+            DECLARE @MonitorYear INT = TRY_CONVERT(INT, @parameter_01);
+            DECLARE @MonitorMonth INT = TRY_CONVERT(INT, @parameter_02);
+            DECLARE @MonitorIdaraID BIGINT = CASE
+                WHEN @isAdmin = 1 THEN TRY_CONVERT(BIGINT, @parameter_03)
+                ELSE @idaraID
+            END;
+            EXEC Housing.MonthlyBillingMonitorDL
+                  @Year = @MonitorYear
+                , @Month = @MonitorMonth
+                , @IdaraID = @MonitorIdaraID;
+        END
+        ELSE IF @pageName_ = N'DeductListReport'
+        BEGIN
+            DECLARE @DeductReportYear INT=TRY_CONVERT(INT,@parameter_01);
+            DECLARE @DeductReportMonth INT=TRY_CONVERT(INT,@parameter_02);
+            DECLARE @DeductReportID BIGINT=TRY_CONVERT(BIGINT,@parameter_03);
+            EXEC Housing.DeductListReportDL
+                  @IdaraID=@idaraID
+                , @Year=@DeductReportYear, @Month=@DeductReportMonth, @ReportID=@DeductReportID;
+        END
         ELSE
         BEGIN
             SELECT 0 AS IsSuccessful, N'الصفحة المرسلة مقيدة. PageName' AS Message_;

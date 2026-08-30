@@ -1,0 +1,13 @@
+نواصل مشروع توثيق SmartFoundation.
+
+اقرأ AGENTS.md وDocumentation/Documentation-Progress.json وInventory ومستند المعمارية. نفذ مرحلة الأمان فقط.
+
+حلل Login/Logout وAuthentication وAuthorization وSession وRoles وPermissions وClaims وحماية Controllers وActions وpermissionTypeName_E وft_UserPagePermissions وإدارة المستخدمين وكلمات المرور وAuditLog وErrorLog وNotifications وAntiforgery وCookies وHSTS.
+
+استخرج تعريفات SQL من DATACORE الحية باستخدام SELECT من sys catalogs فقط. لا تعتمد على Snapshot إلا للمقارنة، ولا تنفذ أي Business SP أوتغيير بيانات.
+
+أنشئ Authentication Flow وAuthorization Flow. سجل المخاطر بدرجتها ومصدر إثباتها، ولا تعرض كلمات مرور أوبيانات مستخدمين أوConnection Strings.
+
+لا تعدل خارج Documentation/. حدّث ملف التقدم واحفظ مستند الأمان والرسومات.
+
+في النهاية اعرض التدفقات والكائنات الحية والمخاطر والفجوات والملفات وCoverage والمرحلة التالية. لا تبدأ توثيق برنامج.

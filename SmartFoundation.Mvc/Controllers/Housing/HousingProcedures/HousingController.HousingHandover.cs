@@ -279,10 +279,9 @@ namespace SmartFoundation.Mvc.Controllers.Housing
 
                 }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                ViewBag.DataSetError = ex.Message;
-                //TempData["info"] = ex.Message;
+                ViewBag.DataSetError = "حدث خطأ أثناء تحميل البيانات. يرجى المحاولة مرة أخرى.";
             }
 
 
@@ -305,9 +304,6 @@ namespace SmartFoundation.Mvc.Controllers.Housing
 {
     new FieldConfig { Name = "pageName_",          Type = "hidden", Value = PageName },
     new FieldConfig { Name = "ActionType",         Type = "hidden", Value = "HousingHandoverAction" },
-    new FieldConfig { Name = "idaraID",            Type = "hidden", Value = IdaraId },
-    new FieldConfig { Name = "entrydata",          Type = "hidden", Value = usersId },
-    new FieldConfig { Name = "hostname",           Type = "hidden", Value = HostName },
     new FieldConfig { Name = "redirectUrl",     Type = "hidden", Value = currentUrl },
     new FieldConfig { Name = "redirectAction",     Type = "hidden", Value = PageName },
     new FieldConfig { Name = "redirectController", Type = "hidden", Value = ControllerName },

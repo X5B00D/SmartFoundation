@@ -168,9 +168,9 @@ namespace SmartFoundation.Mvc.Controllers.Support
                     }
                 }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                ViewBag.supportInboxDataSetError = ex.Message;
+                ViewBag.supportInboxDataSetError = "حدث خطأ أثناء تحميل صندوق الدعم. يرجى المحاولة مرة أخرى.";
             }
 
             var assignFields = new List<FieldConfig>
@@ -180,9 +180,6 @@ namespace SmartFoundation.Mvc.Controllers.Support
                 new FieldConfig { Name = "p04", Label = "ملاحظة", Type = "textarea", ColCss = "12", Required = false }
             };
             assignFields.Insert(0, new FieldConfig { Name = "__RequestVerificationToken", Type = "hidden", Value = (Request.Headers["RequestVerificationToken"].FirstOrDefault() ?? "") });
-            assignFields.Insert(0, new FieldConfig { Name = "hostname", Type = "hidden", Value = Request.Host.Value });
-            assignFields.Insert(0, new FieldConfig { Name = "entrydata", Type = "hidden", Value = usersId?.ToString() });
-            assignFields.Insert(0, new FieldConfig { Name = "idaraID", Type = "hidden", Value = IdaraId?.ToString() });
             assignFields.Insert(0, new FieldConfig { Name = "ActionType", Type = "hidden", Value = "SIN_ASSIGN" });
             assignFields.Insert(0, new FieldConfig { Name = "pageName_", Type = "hidden", Value = PageName });
             assignFields.Insert(0, new FieldConfig { Name = "redirectAction", Type = "hidden", Value = PageName });
@@ -194,9 +191,6 @@ namespace SmartFoundation.Mvc.Controllers.Support
                 new FieldConfig { Name = "p02", Label = "حالة التذكرة", Type = "select", ColCss = "6", Required = true, Placeholder = "", Options = statusOptions }
             };
             changeStatusFields.Insert(0, new FieldConfig { Name = "__RequestVerificationToken", Type = "hidden", Value = (Request.Headers["RequestVerificationToken"].FirstOrDefault() ?? "") });
-            changeStatusFields.Insert(0, new FieldConfig { Name = "hostname", Type = "hidden", Value = Request.Host.Value });
-            changeStatusFields.Insert(0, new FieldConfig { Name = "entrydata", Type = "hidden", Value = usersId?.ToString() });
-            changeStatusFields.Insert(0, new FieldConfig { Name = "idaraID", Type = "hidden", Value = IdaraId?.ToString() });
             changeStatusFields.Insert(0, new FieldConfig { Name = "ActionType", Type = "hidden", Value = "SIN_CHANGE_STATUS" });
             changeStatusFields.Insert(0, new FieldConfig { Name = "pageName_", Type = "hidden", Value = PageName });
             changeStatusFields.Insert(0, new FieldConfig { Name = "redirectAction", Type = "hidden", Value = PageName });
@@ -209,9 +203,6 @@ namespace SmartFoundation.Mvc.Controllers.Support
                 new FieldConfig { Name = "p05", Label = "أرقام التذاكر (CSV)", Type = "textarea", ColCss = "12", Required = true, Placeholder = "مثال: 101,102,103" }
             };
             bulkAssignFields.Insert(0, new FieldConfig { Name = "__RequestVerificationToken", Type = "hidden", Value = (Request.Headers["RequestVerificationToken"].FirstOrDefault() ?? "") });
-            bulkAssignFields.Insert(0, new FieldConfig { Name = "hostname", Type = "hidden", Value = Request.Host.Value });
-            bulkAssignFields.Insert(0, new FieldConfig { Name = "entrydata", Type = "hidden", Value = usersId?.ToString() });
-            bulkAssignFields.Insert(0, new FieldConfig { Name = "idaraID", Type = "hidden", Value = IdaraId?.ToString() });
             bulkAssignFields.Insert(0, new FieldConfig { Name = "ActionType", Type = "hidden", Value = "SIN_BULK_ASSIGN" });
             bulkAssignFields.Insert(0, new FieldConfig { Name = "pageName_", Type = "hidden", Value = PageName });
             bulkAssignFields.Insert(0, new FieldConfig { Name = "redirectAction", Type = "hidden", Value = PageName });

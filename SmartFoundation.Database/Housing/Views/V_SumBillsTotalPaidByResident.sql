@@ -1,11 +1,25 @@
-﻿CREATE VIEW Housing.[V_SumBillsTotalPaidByResident]
+﻿
+/* سدادات المباني: الحالة 1 فقط. */
+CREATE   VIEW [Housing].[V_SumBillsTotalPaidByResident]
 AS
-SELECT SUM(bp.amount) AS SumTotalPaidBills, bp.residentInfoID_FK AS residentInfoID, bp.BillChargeTypeID_FK AS BillChargeTypeID, t.BillChargeTypeName_A, bp.buildingDetailsID_FK AS buildingDetailsID
-FROM   Housing.BuildingPayment AS bp INNER JOIN
-             Housing.DeductList AS d ON bp.deductListID_FK = d.deductListID INNER JOIN
-             Housing.BillChargeType AS t ON bp.BillChargeTypeID_FK = t.BillChargeTypeID
-WHERE (d.deductActive = 1) AND (bp.buildingPayementActive = 1)
-GROUP BY bp.residentInfoID_FK, bp.BillChargeTypeID_FK, t.BillChargeTypeName_A, bp.buildingDetailsID_FK
+SELECT
+    SUM(paymentRow.[amount]) [SumTotalPaidBills],
+    paymentRow.[residentInfoID_FK] [residentInfoID],
+    paymentRow.[BillChargeTypeID_FK] [BillChargeTypeID],
+    chargeType.[BillChargeTypeName_A],
+    paymentRow.[buildingDetailsID_FK] [buildingDetailsID]
+FROM [Housing].[BuildingPayment] paymentRow
+JOIN [Housing].[DeductList] deductRow
+  ON deductRow.[deductListID] = paymentRow.[deductListID_FK]
+JOIN [Housing].[BillChargeType] chargeType
+  ON chargeType.[BillChargeTypeID] = paymentRow.[BillChargeTypeID_FK]
+WHERE deductRow.[deductActive] = 1
+  AND paymentRow.[buildingPayementActive] = 1
+  AND paymentRow.[buildingPaymentLinkStatusID_FK] = 1
+  AND paymentRow.[residentInfoID_FK] IS NOT NULL
+  AND NULLIF(LTRIM(RTRIM(paymentRow.[buildingDetailsID_FK])), N'') IS NOT NULL
+GROUP BY paymentRow.[residentInfoID_FK], paymentRow.[BillChargeTypeID_FK],
+         chargeType.[BillChargeTypeName_A], paymentRow.[buildingDetailsID_FK];
 
 GO
 EXECUTE sp_addextendedproperty @name = N'MS_DiagramPane1', @value = N'[0E232FF0-B466-11cf-A24F-00AA00A3EFFF, 1.00]

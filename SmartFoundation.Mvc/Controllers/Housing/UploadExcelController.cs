@@ -22,7 +22,7 @@ namespace SmartFoundation.Mvc.Controllers.Housing
      * IMPORTANT (Program.cs) - مرة واحدة فقط:
      *  System.Text.Encoding.RegisterProvider(System.Text.CodePagesEncodingProvider.Instance);
      */
-
+    [NonController]
     public class UploadExcelController : Controller
     {
         private readonly IWebHostEnvironment _env;
@@ -154,9 +154,6 @@ namespace SmartFoundation.Mvc.Controllers.Housing
         [ResponseCache(NoStore = true, Location = ResponseCacheLocation.None)]
         public IActionResult Index()
         {
-            if (IsBrowserRefresh())
-                ClearExcelSession(deletePhysicalFile: true);
-
             var previewCols = GetPreviewColumns();
             var previewRows = GetPreviewRows();
 
@@ -399,9 +396,9 @@ namespace SmartFoundation.Mvc.Controllers.Housing
                     refresh = true
                 });
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                return RespondError("فشل رفع/قراءة ملف الإكسل: " + ex.Message);
+                return RespondError("حدث خطأ أثناء رفع أو قراءة ملف الإكسل. يرجى المحاولة مرة أخرى.");
             }
         }
 
@@ -531,13 +528,13 @@ namespace SmartFoundation.Mvc.Controllers.Housing
                         refresh = true
                     });
             }
-            catch (SqlException ex)
+            catch (SqlException)
             {
-                return RespondError("خطأ SQL أثناء الإدخال: " + ex.Message);
+                return RespondError("حدث خطأ أثناء إدخال البيانات. يرجى المحاولة مرة أخرى.");
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                return RespondError("فشل الإدخال: " + ex.Message);
+                return RespondError("حدث خطأ أثناء إدخال البيانات. يرجى المحاولة مرة أخرى.");
             }
         }
 

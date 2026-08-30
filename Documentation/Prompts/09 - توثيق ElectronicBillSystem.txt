@@ -1,0 +1,12 @@
+نواصل مشروع توثيق SmartFoundation.
+
+اقرأ AGENTS.md وDocumentation/Documentation-Progress.json و07A وجميع المستندات المكتملة. نفذ ElectronicBillSystem فقط:
+Meters, AllMeterRead, MeterReadForOccubentAndExit, MeterServiceTypeFixedAmount.
+
+وثق الهدف وControllers/Actions/Views وModels/ViewModels والخدمات وData Access وResult Sets وDDL وأنواع العدادات والخدمات والقراءات والعمليات والصلاحيات وValidation وBusiness Rules والعلاقة مع Housing وIncomeSystem والتقارير وWorkflows ودليل المستخدم.
+
+تتبع View -> Controller -> MastersServies -> Gateway -> Live DL/SP -> Tables/Views/Functions. الكود النشط مصدر التطبيق وDATACORE الحية مصدر SQL النهائي وSnapshot للمقارنة فقط.
+
+تحقق من pageName_/ActionType وحالة الأحرف والمعاملات وResult Sets والجداول المقروءة والمعدلة. استخدم SELECT من sys catalogs فقط. لا تنفذ Business SP أوكتابة ولا تعرض أسراراً ولا تعدل خارج Documentation/.
+
+أنشئ الرسومات وحدّث Coverage وملف التقدم. في النهاية اعرض كل صفحة ومسار حي وصلاحية وتكامل واختلاف وفجوة وملف، واجعل المرحلة التالية Home وLogin.

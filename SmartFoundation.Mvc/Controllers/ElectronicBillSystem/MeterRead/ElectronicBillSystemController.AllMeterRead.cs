@@ -579,9 +579,9 @@ namespace SmartFoundation.Mvc.Controllers.ElectronicBillSystem
 
                 }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                ViewBag.BuildingTypeDataSetError = ex.Message;
+                ViewBag.BuildingTypeDataSetError = "حدث خطأ أثناء تحميل البيانات. يرجى المحاولة مرة أخرى.";
             }
 
 
@@ -594,9 +594,6 @@ namespace SmartFoundation.Mvc.Controllers.ElectronicBillSystem
 
                 new FieldConfig { Name = "pageName_",          Type = "hidden", Value = PageName },
                 new FieldConfig { Name = "ActionType",         Type = "hidden", Value = "OPENMETERREADPERIOD" },
-                new FieldConfig { Name = "idaraID",            Type = "hidden", Value = IdaraId },
-                new FieldConfig { Name = "entrydata",          Type = "hidden", Value = usersId },
-                new FieldConfig { Name = "hostname",           Type = "hidden", Value = HostName },
 
                 new FieldConfig { Name = "redirectUrl",     Type = "hidden", Value = currentUrl },
                 new FieldConfig { Name = "redirectAction",     Type = "hidden", Value = PageName },
@@ -622,9 +619,6 @@ namespace SmartFoundation.Mvc.Controllers.ElectronicBillSystem
 
                 new FieldConfig { Name = "pageName_",          Type = "hidden", Value = PageName },
                 new FieldConfig { Name = "ActionType",         Type = "hidden", Value = "CLOSEMETERREADPERIOD" },
-                new FieldConfig { Name = "idaraID",            Type = "hidden", Value = IdaraId },
-                new FieldConfig { Name = "entrydata",          Type = "hidden", Value = usersId },
-                new FieldConfig { Name = "hostname",           Type = "hidden", Value = HostName },
 
                 new FieldConfig { Name = "redirectUrl",     Type = "hidden", Value = currentUrl },
                 new FieldConfig { Name = "redirectAction",     Type = "hidden", Value = PageName },
@@ -653,9 +647,6 @@ namespace SmartFoundation.Mvc.Controllers.ElectronicBillSystem
 
                 new FieldConfig { Name = "pageName_",          Type = "hidden", Value = PageName },
                 new FieldConfig { Name = "ActionType",         Type = "hidden", Value = "READELECTRICITYMETER" },
-                new FieldConfig { Name = "idaraID",            Type = "hidden", Value = IdaraId },
-                new FieldConfig { Name = "entrydata",          Type = "hidden", Value = usersId },
-                new FieldConfig { Name = "hostname",           Type = "hidden", Value = HostName },
 
                 new FieldConfig { Name = "redirectUrl",     Type = "hidden", Value = currentUrl },
                 new FieldConfig { Name = "redirectAction",     Type = "hidden", Value = PageName },
@@ -699,9 +690,6 @@ namespace SmartFoundation.Mvc.Controllers.ElectronicBillSystem
 
                 new FieldConfig { Name = "pageName_",          Type = "hidden", Value = PageName },
                 new FieldConfig { Name = "ActionType",         Type = "hidden", Value = "EDITELECTRICITYMETER" },
-                new FieldConfig { Name = "idaraID",            Type = "hidden", Value = IdaraId },
-                new FieldConfig { Name = "entrydata",          Type = "hidden", Value = usersId },
-                new FieldConfig { Name = "hostname",           Type = "hidden", Value = HostName },
 
                 new FieldConfig { Name = "redirectUrl",     Type = "hidden", Value = currentUrl },
                 new FieldConfig { Name = "redirectAction",     Type = "hidden", Value = PageName },
@@ -732,9 +720,6 @@ namespace SmartFoundation.Mvc.Controllers.ElectronicBillSystem
 
                 new FieldConfig { Name = "pageName_",          Type = "hidden", Value = PageName },
                 new FieldConfig { Name = "ActionType",         Type = "hidden", Value = "DELETEELECTRICITYMETER" },
-                new FieldConfig { Name = "idaraID",            Type = "hidden", Value = IdaraId },
-                new FieldConfig { Name = "entrydata",          Type = "hidden", Value = usersId },
-                new FieldConfig { Name = "hostname",           Type = "hidden", Value = HostName },
 
                 new FieldConfig { Name = "redirectUrl",     Type = "hidden", Value = currentUrl },
                 new FieldConfig { Name = "redirectAction",     Type = "hidden", Value = PageName },
@@ -766,9 +751,6 @@ namespace SmartFoundation.Mvc.Controllers.ElectronicBillSystem
 
                 new FieldConfig { Name = "pageName_",          Type = "hidden", Value = PageName },
                 new FieldConfig { Name = "ActionType",         Type = "hidden", Value = "READWATERMETER" },
-                new FieldConfig { Name = "idaraID",            Type = "hidden", Value = IdaraId },
-                new FieldConfig { Name = "entrydata",          Type = "hidden", Value = usersId },
-                new FieldConfig { Name = "hostname",           Type = "hidden", Value = HostName },
 
                 new FieldConfig { Name = "redirectUrl",     Type = "hidden", Value = currentUrl },
                 new FieldConfig { Name = "redirectAction",     Type = "hidden", Value = PageName },
@@ -812,9 +794,6 @@ namespace SmartFoundation.Mvc.Controllers.ElectronicBillSystem
 
                 new FieldConfig { Name = "pageName_",          Type = "hidden", Value = PageName },
                 new FieldConfig { Name = "ActionType",         Type = "hidden", Value = "EDITWATERMETER" },
-                new FieldConfig { Name = "idaraID",            Type = "hidden", Value = IdaraId },
-                new FieldConfig { Name = "entrydata",          Type = "hidden", Value = usersId },
-                new FieldConfig { Name = "hostname",           Type = "hidden", Value = HostName },
 
                 new FieldConfig { Name = "redirectUrl",     Type = "hidden", Value = currentUrl },
                 new FieldConfig { Name = "redirectAction",     Type = "hidden", Value = PageName },
@@ -845,9 +824,6 @@ namespace SmartFoundation.Mvc.Controllers.ElectronicBillSystem
 
                 new FieldConfig { Name = "pageName_",          Type = "hidden", Value = PageName },
                 new FieldConfig { Name = "ActionType",         Type = "hidden", Value = "DELETEWATERMETER" },
-                new FieldConfig { Name = "idaraID",            Type = "hidden", Value = IdaraId },
-                new FieldConfig { Name = "entrydata",          Type = "hidden", Value = usersId },
-                new FieldConfig { Name = "hostname",           Type = "hidden", Value = HostName },
 
                 new FieldConfig { Name = "redirectUrl",     Type = "hidden", Value = currentUrl },
                 new FieldConfig { Name = "redirectAction",     Type = "hidden", Value = PageName },
@@ -878,9 +854,6 @@ namespace SmartFoundation.Mvc.Controllers.ElectronicBillSystem
 
                 new FieldConfig { Name = "pageName_",          Type = "hidden", Value = PageName },
                 new FieldConfig { Name = "ActionType",         Type = "hidden", Value = "READGASMETER" },
-                new FieldConfig { Name = "idaraID",            Type = "hidden", Value = IdaraId },
-                new FieldConfig { Name = "entrydata",          Type = "hidden", Value = usersId },
-                new FieldConfig { Name = "hostname",           Type = "hidden", Value = HostName },
 
                 new FieldConfig { Name = "redirectUrl",     Type = "hidden", Value = currentUrl },
                 new FieldConfig { Name = "redirectAction",     Type = "hidden", Value = PageName },
@@ -923,9 +896,6 @@ namespace SmartFoundation.Mvc.Controllers.ElectronicBillSystem
 
                 new FieldConfig { Name = "pageName_",          Type = "hidden", Value = PageName },
                 new FieldConfig { Name = "ActionType",         Type = "hidden", Value = "EDITGASMETER" },
-                new FieldConfig { Name = "idaraID",            Type = "hidden", Value = IdaraId },
-                new FieldConfig { Name = "entrydata",          Type = "hidden", Value = usersId },
-                new FieldConfig { Name = "hostname",           Type = "hidden", Value = HostName },
 
                 new FieldConfig { Name = "redirectUrl",     Type = "hidden", Value = currentUrl },
                 new FieldConfig { Name = "redirectAction",     Type = "hidden", Value = PageName },
@@ -956,9 +926,6 @@ namespace SmartFoundation.Mvc.Controllers.ElectronicBillSystem
 
                 new FieldConfig { Name = "pageName_",          Type = "hidden", Value = PageName },
                 new FieldConfig { Name = "ActionType",         Type = "hidden", Value = "DELETEGASMETER" },
-                new FieldConfig { Name = "idaraID",            Type = "hidden", Value = IdaraId },
-                new FieldConfig { Name = "entrydata",          Type = "hidden", Value = usersId },
-                new FieldConfig { Name = "hostname",           Type = "hidden", Value = HostName },
 
                 new FieldConfig { Name = "redirectUrl",     Type = "hidden", Value = currentUrl },
                 new FieldConfig { Name = "redirectAction",     Type = "hidden", Value = PageName },

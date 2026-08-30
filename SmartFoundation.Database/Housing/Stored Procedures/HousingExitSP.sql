@@ -43,6 +43,28 @@ BEGIN
     -- تحويلات رقمية آمنة
     DECLARE @IdaraID_INT INT = TRY_CONVERT(INT, NULLIF(@idaraID_FK, ''));
 
+    DECLARE @ResidentInfoID_BIGINT BIGINT = TRY_CONVERT(BIGINT, NULLIF(@residentInfoID, ''));
+    DECLARE @GeneralNo_BIGINT BIGINT = TRY_CONVERT(BIGINT, NULLIF(@GeneralNo, ''));
+    DECLARE @BuildingDetailsID_BIGINT BIGINT = TRY_CONVERT(BIGINT, NULLIF(@buildingDetailsID, ''));
+    DECLARE @OccupentDate_DATE DATE = TRY_CONVERT(DATE, NULLIF(@OccupentDate, ''));
+    -- p22 (@ExitDate) is editable only while creating/editing the exit request.
+    -- In later workflow actions p22 contains LastActionDate, while p44
+    -- (@FinalExitDate) carries the actual exit date saved on the request.
+    DECLARE @ExitDate_DATE DATE =
+        CASE
+            WHEN @Action IN (N'HOUSINGEXIT', N'EDITHOUSINGEXIT')
+                THEN TRY_CONVERT(DATE, NULLIF(@ExitDate, ''))
+            ELSE COALESCE
+            (
+                TRY_CONVERT(DATE, NULLIF(@FinalExitDate, '')),
+                TRY_CONVERT(DATE, NULLIF(@ExitDate, ''))
+            )
+        END;
+
+    -- Preserve the existing procedure contract for branches that insert
+    -- @ExitDate directly into BuildingAction.
+    SET @ExitDate = CONVERT(NVARCHAR(10), @ExitDate_DATE, 23);
+
     DECLARE @buildingDetailsNo nvarchar(200) 
     set @buildingDetailsNo = (select b.buildingDetailsNo from Housing.V_GetGeneralListForBuilding b where b.buildingDetailsID = @buildingDetailsID);
 
@@ -222,6 +244,20 @@ DECLARE @PenaltyPriceDecimal DECIMAL(18,2) =
             BEGIN
                 ;THROW 50002, N'حصل خطأ في انشاء طلب الاخلاء - Identity', 1; -- برمجي
             END
+
+
+            EXEC Housing.GenerateExitRentBills
+                  @Action = N'GENERATE'
+                , @ResidentInfoID = @ResidentInfoID_BIGINT
+                , @GeneralNo = @GeneralNo_BIGINT
+                , @BuildingDetailsID = @BuildingDetailsID_BIGINT
+                , @OccupentDate = @OccupentDate_DATE
+                , @ExitDate = @ExitDate_DATE
+                , @IdaraID = @IdaraID_INT
+                , @EntryData = @entryData
+                , @HostName = @hostName;
+
+
             SET @Note = N'{'
                 + N'"buildingActionID": "' + ISNULL(CONVERT(NVARCHAR(MAX), @NewID), '') + N'"'
                 + N',"buildingActionTypeID_FK": "'      + ISNULL(CONVERT(NVARCHAR(MAX), @buildingActionTypeID_FK), '') + N'"'
@@ -397,6 +433,19 @@ DECLARE @PenaltyPriceDecimal DECIMAL(18,2) =
             BEGIN
                 ;THROW 50002, N'حصل خطأ في تعديل طلب الاخلاء - Identity', 1; -- برمجي
             END
+
+            EXEC [Housing].[GenerateExitRentBills]
+      @Action            = N'REGENERATE'
+    , @ResidentInfoID    = @ResidentInfoID_BIGINT
+    , @GeneralNo         = @GeneralNo_BIGINT
+    , @BuildingDetailsID = @BuildingDetailsID_BIGINT
+    , @OccupentDate      = @OccupentDate_DATE
+    , @ExitDate          = @ExitDate_DATE
+    , @IdaraID           = @IdaraID_INT
+    , @EntryData         = @entryData
+    , @HostName          = @hostName;
+
+
             SET @Note = N'{'
                 + N'"buildingActionID": "' + ISNULL(CONVERT(NVARCHAR(MAX), @NewID), '') + N'"'
                 + N',"buildingActionTypeID_FK": "'      + ISNULL(CONVERT(NVARCHAR(MAX), @buildingActionTypeID_FK), '') + N'"'
@@ -468,7 +517,16 @@ DECLARE @PenaltyPriceDecimal DECIMAL(18,2) =
                 ;THROW 50001, N'لايمكن الغاء الطلب', 1;
             END
 
-
+            EXEC [Housing].[GenerateExitRentBills]
+      @Action            = N'CANCEL'
+    , @ResidentInfoID    = @ResidentInfoID_BIGINT
+    , @GeneralNo         = @GeneralNo_BIGINT
+    , @BuildingDetailsID = @BuildingDetailsID_BIGINT
+    , @OccupentDate      = @OccupentDate_DATE
+    , @ExitDate          = @ExitDate_DATE
+    , @IdaraID           = @IdaraID_INT
+    , @EntryData         = @entryData
+    , @HostName          = @hostName;
 
             update Housing.Bills set BillActive = 0 
             where residentInfoID_FK = @residentInfoID and buildingDetailsID = @buildingDetailsID and BillChargeTypeID_FK in (5)
@@ -817,12 +875,80 @@ DECLARE @PenaltyPriceDecimal DECIMAL(18,2) =
                 ;THROW 50002, N'حصل خطأ في اعتماد طلب الاخلاء - Identity', 1; -- برمجي
             END
 
-            IF(select COUNT(*) From Housing.ResidentRentExemption e where e.residentInfoID_FK = @residentInfoID and e.residentRentExemptionActive = 1 and e.buildingDetailsID_FK = @buildingDetailsID and cast(e.residentRentExemptionEndDate as date) >= cast(GETDATE() as date)) > 0
+            -- قد يختلف تاريخ الإخلاء النهائي عن التاريخ الذي رُصدت به الفاتورة عند إنشاء/تعديل الطلب.
+            -- إلغاء فاتورة الإخلاء السابقة وإعادة إنشائها بالتاريخ النهائي قبل رصد سداد الإعفاء.
+            EXEC Housing.GenerateExitRentBills
+                  @Action = N'REGENERATE'
+                , @ResidentInfoID = @ResidentInfoID_BIGINT
+                , @GeneralNo = @GeneralNo_BIGINT
+                , @BuildingDetailsID = @BuildingDetailsID_BIGINT
+                , @OccupentDate = @OccupentDate_DATE
+                , @ExitDate = @ExitDate_DATE
+                , @IdaraID = @IdaraID_INT
+                , @EntryData = @entryData
+                , @HostName = @hostName;
+
+            /* استكمال أي رسوم خدمات ثابتة ناقصة حتى تاريخ الإخلاء النهائي
+               باستخدام المحرك نفسه المستخدم في الرصد الشهري والتسكين المتأخر. */
+            EXEC Housing.GenerateFixedServiceBillsForResidentPeriod
+                  @ResidentInfoID = @ResidentInfoID_BIGINT
+                , @GeneralNo = @GeneralNo_BIGINT
+                , @BuildingDetailsID = @BuildingDetailsID_BIGINT
+                , @FromDate = @OccupentDate_DATE
+                , @ToDate = @ExitDate_DATE
+                , @IdaraID = @IdaraID_INT
+                , @EntryData = @entryData
+                , @HostName = @hostName;
+
+            DECLARE @FinalizedExemptions TABLE
+            (
+                residentRentExemptionID BIGINT PRIMARY KEY
+            );
+
+            UPDATE exemption
+               SET exemption.residentRentExemptionEndDate = @ExitDate_DATE
+            OUTPUT inserted.residentRentExemptionID
+              INTO @FinalizedExemptions (residentRentExemptionID)
+            FROM Housing.ResidentRentExemption exemption
+            WHERE exemption.residentInfoID_FK = @ResidentInfoID_BIGINT
+              AND exemption.residentRentExemptionActive = 1
+              AND exemption.buildingDetailsID_FK = @BuildingDetailsID_BIGINT
+              AND
+              (
+                  exemption.residentRentExemptionEndDate IS NULL
+                  OR CAST(exemption.residentRentExemptionEndDate AS date) > @ExitDate_DATE
+              );
+
+            DECLARE @FinalizedExemptionID BIGINT;
+            DECLARE finalizedExemptionCursor CURSOR LOCAL FAST_FORWARD FOR
+            SELECT residentRentExemptionID
+            FROM @FinalizedExemptions;
+
+            OPEN finalizedExemptionCursor;
+            FETCH NEXT FROM finalizedExemptionCursor INTO @FinalizedExemptionID;
+
+            WHILE @@FETCH_STATUS = 0
             BEGIN
-            Update Housing.ResidentRentExemption
-            set residentRentExemptionEndDate = @ExitDate
-            WHERE residentInfoID_FK = @residentInfoID and residentRentExemptionActive = 1 and buildingDetailsID_FK = @buildingDetailsID and cast(residentRentExemptionEndDate as date) >= cast(GETDATE() as date)
-            END
+                EXEC Housing.SyncRentExemptionPayments
+                      @Action = N'CANCEL'
+                    , @ResidentRentExemptionID = @FinalizedExemptionID
+                    , @SourceType = N'FINAL_EXIT_RECALC'
+                    , @EntryData = @entryData
+                    , @HostName = @hostName;
+
+                EXEC Housing.SyncRentExemptionPayments
+                      @Action = N'GENERATE'
+                    , @ResidentRentExemptionID = @FinalizedExemptionID
+                    , @ThroughDate = @ExitDate_DATE
+                    , @SourceType = N'FINAL_EXIT'
+                    , @EntryData = @entryData
+                    , @HostName = @hostName;
+
+                FETCH NEXT FROM finalizedExemptionCursor INTO @FinalizedExemptionID;
+            END;
+
+            CLOSE finalizedExemptionCursor;
+            DEALLOCATE finalizedExemptionCursor;
         
 
             SET @Note = N'{'
@@ -898,27 +1024,556 @@ DECLARE @PenaltyPriceDecimal DECIMAL(18,2) =
             BEGIN
                 ;THROW 50001, N'لايمكن اضافة / تعديل غرامات للطلب', 1;
             END
+            -------------------------------------------------------------
+
+            ------------------------------------------------------------
+-- إصدار فواتير العدادات الثابتة عند خروج الساكن
+-- ثم تحديد الإجراء التالي: 59 أو 60
+------------------------------------------------------------
+
+DECLARE @buildingActionTypeID_FKForMeterRead INT;
+
+DECLARE @ExitDateForBill             DATE;
+DECLARE @OccupentDateForBill         DATE;
+DECLARE @BillPeriodStartDateForExit  DATE;
+DECLARE @BillPeriodMonthDateForExit  DATE;
+DECLARE @BillPeriodEndDateForExit    DATE;
+DECLARE @ChargeStartDateForExit      DATE;
+DECLARE @ChargeEndDateForExit        DATE;
+
+DECLARE @BillMonthForExit            INT;
+DECLARE @BillYearForExit             INT;
+DECLARE @ChargeDaysForExit           INT;
+
+DECLARE @TaxRateForExit              DECIMAL(18,2) = 0;
+DECLARE @PreviousBillPeriodID        BIGINT = NULL;
+DECLARE @FixedBillsInserted          INT = 0;
+
+DECLARE @billPeriodID                 BIGINT
+SET @billPeriodID = (select top(1) b.billPeriodID from Housing.BillPeriod b where b.IdaraId_FK = 1 and b.billPeriodTypeID_FK =(select t.billPeriodTypeID from Housing.BillPeriodType t where t.meterServiceTypeID_FK = 1) order by b.billPeriodID desc)
+
+------------------------------------------------------------
+-- تحويل تاريخ الخروج
+------------------------------------------------------------
+SET @ExitDateForBill =
+    TRY_CONVERT
+    (
+        DATE,
+        NULLIF(LTRIM(RTRIM(@ExitDate)), N'')
+    );
+
+IF @ExitDateForBill IS NULL
+BEGIN
+    ;THROW 50001, N'تاريخ الخروج غير صحيح', 1;
+END;
+
+------------------------------------------------------------
+-- التحقق من رقم المبنى والساكن
+------------------------------------------------------------
+IF TRY_CONVERT(BIGINT, @buildingDetailsID) IS NULL
+BEGIN
+    ;THROW 50001, N'رقم المبنى غير صحيح', 1;
+END;
+
+IF TRY_CONVERT(BIGINT, @residentInfoID) IS NULL
+BEGIN
+    ;THROW 50001, N'رقم الساكن غير صحيح', 1;
+END;
+
+------------------------------------------------------------
+-- جلب فترة الفاتورة
+------------------------------------------------------------
+SELECT TOP (1)
+      @BillPeriodStartDateForExit =
+          CAST(p.billPeriodStartDate AS DATE)
+
+    , @BillMonthForExit =
+          MONTH(p.billPeriodStartDate)
+
+    , @BillYearForExit =
+          YEAR(p.billPeriodStartDate)
+
+    , @BillPeriodMonthDateForExit =
+          DATEFROMPARTS
+          (
+              YEAR(p.billPeriodStartDate),
+              MONTH(p.billPeriodStartDate),
+              1
+          )
+
+FROM Housing.BillPeriod p
+
+WHERE p.billPeriodID = @billPeriodID
+  --AND p.billPeriodActive = 1
+  AND p.IdaraId_FK = @IdaraID_INT
+  order by p.billPeriodID desc
+  ;
+
+IF @BillPeriodStartDateForExit IS NULL
+BEGIN
+    ;THROW 50001, N'فترة الفاتورة غير موجودة أو غير نشطة', 1;
+END;
+
+SET @BillPeriodEndDateForExit =
+    EOMONTH(@BillPeriodMonthDateForExit);
+
+------------------------------------------------------------
+-- جلب تاريخ بداية سكن الساكن
+-- يبقى buildingActionRoot = 2 كما هو
+------------------------------------------------------------
+SELECT TOP (1)
+    @OccupentDateForBill =
+        CAST(vw.OccupentDate AS DATE)
+
+FROM Housing.V_WaitingList vw
+
+WHERE vw.residentInfoID =
+          TRY_CONVERT(BIGINT, @residentInfoID)
+
+  AND vw.buildingDetailsID =
+          TRY_CONVERT(BIGINT, @buildingDetailsID)
+
+  AND vw.buildingActionRoot = 2
+  AND vw.OccupentDate IS NOT NULL
+
+ORDER BY
+      vw.OccupentDate DESC
+    , vw.ActionID DESC;
+
+IF @OccupentDateForBill IS NULL
+BEGIN
+    ;THROW 50001, N'لم يتم العثور على تاريخ سكن المستفيد', 1;
+END;
+
+------------------------------------------------------------
+-- تحديد بداية الاحتساب
+--
+-- الأصل: بداية شهر الفاتورة
+-- إذا بدأ السكن أثناء الشهر: يبدأ الحساب من تاريخ السكن
+------------------------------------------------------------
+SET @ChargeStartDateForExit =
+    CASE
+        WHEN @OccupentDateForBill >
+             @BillPeriodMonthDateForExit
+         AND @OccupentDateForBill <=
+             @BillPeriodEndDateForExit
+        THEN @OccupentDateForBill
+
+        ELSE @BillPeriodMonthDateForExit
+    END;
+
+------------------------------------------------------------
+-- تحديد نهاية الاحتساب
+--
+-- إذا كان الخروج داخل الشهر: حتى تاريخ الخروج
+-- إذا كان بعد نهاية الشهر: حتى نهاية الشهر
+------------------------------------------------------------
+SET @ChargeEndDateForExit =
+    CASE
+        WHEN @ExitDateForBill <
+             @BillPeriodEndDateForExit
+        THEN @ExitDateForBill
+
+        ELSE @BillPeriodEndDateForExit
+    END;
+
+------------------------------------------------------------
+-- التحقق من أن الساكن كان موجودًا خلال فترة الفاتورة
+------------------------------------------------------------
+IF @ChargeEndDateForExit < @ChargeStartDateForExit
+BEGIN
+    ;THROW 50001,
+        N'تاريخ خروج الساكن لا يقع ضمن فترة الفاتورة المحددة',
+        1;
+END;
+
+------------------------------------------------------------
+-- حساب عدد الأيام شامل يوم الخروج
+------------------------------------------------------------
+SET @ChargeDaysForExit =
+    DATEDIFF
+    (
+        DAY,
+        @ChargeStartDateForExit,
+        @ChargeEndDateForExit
+    ) + 1;
+
+------------------------------------------------------------
+-- نظام الحساب يعتمد الشهر 30 يومًا
+------------------------------------------------------------
+IF @ChargeDaysForExit > 30
+BEGIN
+    SET @ChargeDaysForExit = 30;
+END;
+
+IF @ChargeDaysForExit < 1
+BEGIN
+    SET @ChargeDaysForExit = 1;
+END;
+
+------------------------------------------------------------
+-- جلب نسبة الضريبة السارية بتاريخ الخروج
+------------------------------------------------------------
+SELECT TOP (1)
+    @TaxRateForExit =
+        ISNULL(tx.taxRate, 0)
+
+FROM dbo.Tax tx
+
+WHERE @ExitDateForBill >=
+          CAST(tx.taxStartDate AS DATE)
+
+  AND
+  (
+      tx.taxEndDate IS NULL
+
+      OR @ExitDateForBill <=
+         CAST(tx.taxEndDate AS DATE)
+  )
+
+ORDER BY tx.taxStartDate DESC;
+
+SET @TaxRateForExit =
+    ISNULL(@TaxRateForExit, 0);
+
+------------------------------------------------------------
+-- جلب فترة الفاتورة السابقة
+------------------------------------------------------------
+SELECT TOP (1)
+    @PreviousBillPeriodID =
+        p.billPeriodID
+
+FROM Housing.BillPeriod p
+
+WHERE p.IdaraId_FK = @IdaraID_INT
+  AND p.billPeriodID < @billPeriodID
+
+ORDER BY p.billPeriodID DESC;
+
+------------------------------------------------------------
+-- إصدار فاتورة مستقلة لكل عداد ثابت
+------------------------------------------------------------
+;WITH FixedMeters AS
+(
+    SELECT
+          mfb.meterForBuildingID
+        , mfb.buildingDetailsID_FK
+
+        , m.meterID
+        , m.meterTypeID_FK
+
+        , mt.meterServiceTypeID_FK
+
+        , mst.BillChargeTypeID_FK
+
+        , b.buildingDetailsNo
+        , b.buildingUtilityTypeID_FK
+        , b.buildingDetailsID
+
+        , fixedAmount.FixedAmount
+
+    FROM Housing.MeterForBuilding mfb
+
+    INNER JOIN Housing.Meter m
+        ON m.meterID = mfb.meterID_FK
+       AND m.meterActive = 1
+
+    INNER JOIN Housing.MeterType mt
+        ON mt.meterTypeID = m.meterTypeID_FK
+       AND mt.meterTypeActive = 1
+       AND mt.IdaraId_FK = @IdaraID_INT
+
+       -- النوع الثابت
+       AND mt.MeterCalculateTypeID_FK = 2
+
+    INNER JOIN Housing.MeterServiceType mst
+        ON mst.meterServiceTypeID =
+               mt.meterServiceTypeID_FK
+
+       AND mst.meterServiceTypeActive = 1
+
+    INNER JOIN Housing.V_GetGeneralListForBuilding b
+        ON b.buildingDetailsID =
+               mfb.buildingDetailsID_FK
+
+       AND b.BuildingIdaraID = @IdaraID_INT
+
+    --------------------------------------------------------
+    -- جلب آخر مبلغ ثابت نشط لنوع العداد
+    --------------------------------------------------------
+    CROSS APPLY
+    (
+        SELECT TOP (1)
+            CAST(mc.FixedAmount AS DECIMAL(18,2))
+                AS FixedAmount
+
+        FROM Housing.MeterTypeFixedAmount mc
+
+        WHERE mc.MeterTypeID_FK = mt.meterTypeID
+          AND mc.IdaraID_FK = @IdaraID_INT
+          AND (mc.MeterTypeFixedAmountActive = 1 OR mc.MeterTypeFixedAmountEndDate IS NOT NULL)
+          AND ISNULL(mc.FixedAmount, 0) > 0
+          AND (mc.MeterTypeFixedAmountStartDate IS NULL OR CAST(mc.MeterTypeFixedAmountStartDate AS date) <= @ChargeEndDateForExit)
+          AND (mc.MeterTypeFixedAmountEndDate IS NULL OR CAST(mc.MeterTypeFixedAmountEndDate AS date) >= @ChargeStartDateForExit)
+
+        ORDER BY
+            mc.MeterTypeFixedAmountID DESC
+    ) fixedAmount
+
+    WHERE mfb.buildingDetailsID_FK =
+              TRY_CONVERT(BIGINT, @buildingDetailsID)
+
+      AND mfb.IdaraID_FK = @IdaraID_INT
+      AND mfb.meterForBuildingActive = 1
+
+      ------------------------------------------------------
+      -- التأكد من ارتباط الخدمة بالإدارة
+      ------------------------------------------------------
+      AND EXISTS
+      (
+          SELECT 1
+
+          FROM Housing.MeterServiceTypeLinkedWithIdara msl
+
+          WHERE msl.MeterServiceTypeID_FK =
+                    mt.meterServiceTypeID_FK
+
+            AND msl.Idara_FK = @IdaraID_INT
+
+            AND
+                msl.MeterServiceTypeLinkedWithIdaraActive = 1
+      )
+)
+
+INSERT INTO Housing.Bills
+(
+      BillChargeTypeID_FK
+    , BillTypeID_FK
+    , CurrentPeriodID
+    , PerviosPeriodID
+    , PeriodMonth
+    , PeriodYear
+    , CurrentPeriodTax
+
+    , buildingDetailsNo
+    , buildingUtilityTypeID
+    , buildingDetailsID
+
+    , meterID
+    , meterReadID
+
+    , residentInfoID_FK
+    , generalNo_FK
+    , meterServiceTypeID
+
+    , CurrentRead
+    , LastRead
+    , ReadDiff
+
+    , PRICE
+    , PRICETAX
+
+    , meterServicePrice
+    , meterServicePriceTAX
+
+    , TotalPrice
+
+    , BillActive
+    , idaraID_FK
+    , entryDate
+    , entryData
+    , hostName
+)
+
+SELECT
+      fm.BillChargeTypeID_FK
+
+    -- فاتورة مبلغ ثابت
+    , 2
+
+    , @billPeriodID
+    , @PreviousBillPeriodID
+    , @BillMonthForExit
+    , @BillYearForExit
+    , @TaxRateForExit
+
+    , fm.buildingDetailsNo
+    , fm.buildingUtilityTypeID_FK
+    , fm.buildingDetailsID
+
+    --------------------------------------------------------
+    -- مهم: تسجيل رقم كل عداد حتى تكون لكل عداد فاتورة
+    --------------------------------------------------------
+    , fm.meterID
+
+    , NULL
+
+    , TRY_CONVERT(BIGINT, @residentInfoID)
+    , TRY_CONVERT(BIGINT, @GeneralNo)
+    , fm.meterServiceTypeID_FK
+
+    , 0
+    , 0
+    , 0
+
+    --------------------------------------------------------
+    -- قيمة الفاتورة من بداية الشهر حتى الخروج
+    --------------------------------------------------------
+    , calculatedAmount.CalculatedFixedAmount
+
+    --------------------------------------------------------
+    -- ضريبة المبلغ
+    --------------------------------------------------------
+    , CAST
+      (
+          calculatedAmount.CalculatedFixedAmount
+          *
+          (
+              @TaxRateForExit / 100.0
+          )
+          AS DECIMAL(18,2)
+      )
+
+    , 0
+    , 0
+
+    --------------------------------------------------------
+    -- إجمالي الفاتورة شامل الضريبة
+    --------------------------------------------------------
+    , CAST
+      (
+          calculatedAmount.CalculatedFixedAmount
+          +
+          (
+              calculatedAmount.CalculatedFixedAmount
+              *
+              (
+                  @TaxRateForExit / 100.0
+              )
+          )
+          AS DECIMAL(18,2)
+      )
+
+    , 1
+    , @IdaraID_INT
+    , GETDATE()
+    , @entryData
+    , @hostName
+
+FROM FixedMeters fm
+
+CROSS APPLY
+(
+    SELECT
+        CAST
+        (
+            (fm.FixedAmount / 30.00)
+            * @ChargeDaysForExit
+            AS DECIMAL(18,2)
+        ) AS CalculatedFixedAmount
+) calculatedAmount
+
+------------------------------------------------------------
+-- منع تكرار الفاتورة لكل عداد
+------------------------------------------------------------
+WHERE NOT EXISTS
+(
+    SELECT 1
+
+    FROM Housing.Bills oldb
+
+    WHERE oldb.CurrentPeriodID = @billPeriodID
+
+      AND oldb.buildingDetailsID =
+              fm.buildingDetailsID
+
+      AND oldb.meterID =
+              fm.meterID
+
+      AND oldb.residentInfoID_FK =
+              TRY_CONVERT(BIGINT, @residentInfoID)
+
+      AND oldb.meterServiceTypeID =
+              fm.meterServiceTypeID_FK
+
+      AND oldb.idaraID_FK =
+              @IdaraID_INT
+
+      AND oldb.BillTypeID_FK = 2
+      AND oldb.BillActive = 1
+);
+
+SET @FixedBillsInserted = @@ROWCOUNT;
+
+------------------------------------------------------------
+-- فحص وجود عداد مفوتر واحد أو أكثر
+------------------------------------------------------------
+IF EXISTS
+(
+    SELECT 1
+
+    FROM Housing.MeterForBuilding mfb
+
+    INNER JOIN Housing.Meter m
+        ON m.meterID = mfb.meterID_FK
+       AND m.meterActive = 1
+
+    INNER JOIN Housing.MeterType mt
+        ON mt.meterTypeID = m.meterTypeID_FK
+       AND mt.meterTypeActive = 1
+       AND mt.IdaraId_FK = @IdaraID_INT
+
+       -- النوع المفوتر
+       AND mt.MeterCalculateTypeID_FK = 1
+
+    WHERE mfb.buildingDetailsID_FK =
+              TRY_CONVERT(BIGINT, @buildingDetailsID)
+
+      AND mfb.IdaraID_FK = @IdaraID_INT
+      AND mfb.meterForBuildingActive = 1
+)
+BEGIN
+    --------------------------------------------------------
+    -- يوجد عداد مفوتر واحد على الأقل
+    -- الفواتير الثابتة صدرت أعلاه
+    -- ثم ينتقل لقراءة العدادات المفوترة
+    --------------------------------------------------------
+    SET @buildingActionTypeID_FKForMeterRead = 59;
+END
+ELSE
+BEGIN
+    --------------------------------------------------------
+    -- لا يوجد عداد مفوتر
+    --
+    -- إما أن جميع العدادات ثابتة وتم إصدار فواتيرها
+    -- أو لا يوجد أي عداد مرتبط بالمبنى
+    --------------------------------------------------------
+    SET @buildingActionTypeID_FKForMeterRead = 60;
+END;
 
 
 
-            Declare @buildingActionTypeID_FKForMeterRead int
+            ------------------------------------------------------------
 
-            IF exists (select 1 
-            from Housing.MeterForBuilding m 
-            where m.buildingDetailsID_FK = @buildingDetailsID 
-            and m.IdaraID_FK = @idaraID_FK 
-            and m.meterForBuildingActive = 1)
-            begin
 
-            set @buildingActionTypeID_FKForMeterRead = 59
+            --Declare @buildingActionTypeID_FKForMeterRead int
 
-            end
-            else
-            begin
+            --IF exists (select 1 
+            --from Housing.MeterForBuilding m 
+            --where m.buildingDetailsID_FK = @buildingDetailsID 
+            --and m.IdaraID_FK = @idaraID_FK 
+            --and m.meterForBuildingActive = 1)
+            --begin
 
-            set @buildingActionTypeID_FKForMeterRead = 60
+            --set @buildingActionTypeID_FKForMeterRead = 59
 
-            end
+            --end
+            --else
+            --begin
+
+            --set @buildingActionTypeID_FKForMeterRead = 60
+
+            --end
 
 
 

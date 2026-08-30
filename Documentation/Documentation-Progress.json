@@ -1,0 +1,790 @@
+{
+  "documentationVersion": "1.0",
+  "status": "completed",
+  "lastCompletedStage": "pdf_and_final_audit",
+  "securityGapRegister": {
+    "asOf": "2026-08-24",
+    "sourceOfTruth": [
+      "Documentation/security-gap-register.md",
+      "Documentation/security-gap-status.md"
+    ],
+    "total": 24,
+    "closed": 24,
+    "open": 0,
+    "deferred": 0,
+    "inProgress": 0,
+    "status": "all_closed",
+    "historicalAuditNotesRemainEvidenceOnly": true
+  },
+  "completedStages": [
+    {
+      "conversation": 1,
+      "stage": "inventory_and_scope",
+      "status": "completed"
+    },
+    {
+      "conversation": 2,
+      "stage": "architecture_and_shared_components",
+      "status": "completed"
+    },
+    {
+      "conversation": 3,
+      "stage": "security_authentication_and_authorization",
+      "status": "completed"
+    },
+    {
+      "conversation": 4,
+      "stage": "control_panel",
+      "status": "completed"
+    },
+    {
+      "conversation": 5,
+      "stage": "housing_definitions",
+      "status": "completed"
+    },
+    {
+      "conversation": 6,
+      "stage": "housing_procedures",
+      "status": "completed"
+    },
+    {
+      "conversation": 7,
+      "stage": "housing_waiting_lists_and_imports",
+      "status": "completed"
+    },
+    {
+      "conversation": "7A",
+      "stage": "live_database_reconciliation_for_conversations_1_to_7",
+      "status": "completed",
+      "liveProceduresVerified": 51,
+      "liveProceduresMatching": 40,
+      "liveProceduresDifferent": 11,
+      "missingLiveObjects": 0,
+      "updatedDocuments": [
+        "Documentation/Work/03-System-Architecture-and-Shared-Components.md",
+        "Documentation/Work/Security-Authentication-and-Authorization.md",
+        "Documentation/Work/04-ControlPanel-Program.md",
+        "Documentation/Work/05-Housing-Definitions.md",
+        "Documentation/Work/06-Housing-Procedures.md",
+        "Documentation/Work/07-Housing-Waiting-Lists-and-Imports.md",
+        "Documentation/Work/07A-Live-Database-Reconciliation.md",
+        "Documentation/Diagrams/03-Data-Read-and-CRUD-Flows.md",
+        "Documentation/Diagrams/04-ControlPanel-Flows.md",
+        "Documentation/Diagrams/05-Housing-Definitions-Flows.md",
+        "Documentation/Diagrams/07-Housing-Procedures-End-to-End.md",
+        "Documentation/Diagrams/08-Housing-Resident-Lifecycle.md",
+        "Documentation/Diagrams/10-Housing-Waiting-Assignment-Workflow.md",
+        "Documentation/Diagrams/11-Housing-Waiting-Data-and-Gateway.md",
+        "Documentation/Diagrams/12-Housing-Excel-Import-Flows.md",
+        "Documentation/Documentation-Progress.json"
+      ]
+    },
+    {
+      "conversation": 8,
+      "stage": "income_system",
+      "status": "completed",
+      "pagesDocumented": 5,
+      "liveCatalogVerified": true,
+      "businessStoredProceduresExecuted": 0,
+      "liveFeatureProceduresVerified": 9,
+      "liveGatewayProceduresVerified": 3,
+      "liveViewsAndFunctionsDirectlyRelated": 9,
+      "liveTriggersVerified": 1,
+      "routingGaps": 1
+    },
+    {
+      "conversation": 9,
+      "stage": "electronic_bill_system",
+      "status": "completed",
+      "pagesDocumented": 4,
+      "repositorySurfaceCoveragePercent": 100,
+      "liveCatalogVerified": true,
+      "businessStoredProceduresExecuted": 0,
+      "writeOperationsExecuted": 0,
+      "featureProceduresDocumentedFromSnapshot": 8,
+      "actionTypesDocumented": 25,
+      "uiPermissionNamesDocumented": 21,
+      "diagramsCreated": 2,
+      "liveFeatureProceduresVerified": 8,
+      "liveGatewayProceduresVerified": 3,
+      "liveProceduresMatchingSnapshot": 11,
+      "liveProceduresDifferentFromSnapshot": 0,
+      "missingLiveProcedures": 0,
+      "liveDependencyRows": 284,
+      "liveForeignKeyRows": 38,
+      "liveTriggersVerified": 1
+    },
+    {
+      "conversation": 10,
+      "stage": "home_and_login",
+      "status": "completed",
+      "pagesDocumented": 3,
+      "mvcActionsDocumented": 6,
+      "repositorySurfaceCoveragePercent": 100,
+      "liveCatalogVerified": true,
+      "businessStoredProceduresExecuted": 0,
+      "writeOperationsExecuted": 0,
+      "liveProceduresVerified": 6,
+      "liveProceduresMatchingSnapshot": 6,
+      "liveProceduresDifferentFromSnapshot": 0,
+      "missingLiveProcedures": 0,
+      "diagramsUpdated": 2,
+      "userManual": "completed"
+    },
+    {
+      "conversation": 11,
+      "stage": "database_and_erd",
+      "status": "completed",
+      "verificationDate": "2026-08-23",
+      "database": "DATACORE",
+      "readOnlyCatalogVerification": true,
+      "businessStoredProceduresExecuted": 0,
+      "writeOperationsExecuted": 0,
+      "scopedObjectsDocumented": 274,
+      "tablesDocumented": 118,
+      "viewsDocumented": 44,
+      "storedProceduresDocumented": 76,
+      "functionsDocumented": 34,
+      "triggersDocumented": 2,
+      "verifiedPrimaryKeys": 111,
+      "verifiedForeignKeys": 118,
+      "liveObjectsMissingFromSnapshot": 2,
+      "snapshotObjectsMissingFromLive": 0,
+      "diagramsCreated": 4
+    },
+    {
+      "conversation": 12,
+      "stage": "operations_integrations_and_deployment",
+      "status": "completed",
+      "verificationDate": "2026-08-23",
+      "liveCatalogVerified": true,
+      "liveReportProceduresVerified": 16,
+      "liveParameterRowsRead": 95,
+      "liveDependencyRowsRead": 111,
+      "businessStoredProceduresExecuted": 0,
+      "writeOperationsExecuted": 0,
+      "buildsExecuted": 0,
+      "publishesExecuted": 0,
+      "deploymentsExecuted": 0,
+      "backupsExecuted": 0,
+      "restoresExecuted": 0,
+      "reportsDocumented": 17,
+      "internalApisDocumented": 5,
+      "diagramsCreated": 2
+    },
+    {
+      "conversation": 13,
+      "stage": "developer_and_user_guides",
+      "status": "completed",
+      "developerGuide": "Documentation/Developer-Guide.md",
+      "userGuide": "Documentation/User-Guide.md",
+      "programsCovered": 6,
+      "pagesCovered": 35,
+      "liveDatabaseSourcePrecedence": true,
+      "businessStoredProceduresExecuted": 0,
+      "writeOperationsExecuted": 0
+    },
+    {
+      "conversation": 14,
+      "stage": "pdf_and_final_audit",
+      "status": "completed",
+      "verificationDate": "2026-08-23",
+      "wordPath": "Documentation/SmartFoundation_System_Documentation.docx",
+      "pdfPath": "Documentation/SmartFoundation_System_Documentation.pdf",
+      "pageCount": 103,
+      "a4": true,
+      "rtlAndArabicFontsVerified": true,
+      "allPagesRenderedAndInspected": true,
+      "blankPages": 0,
+      "coverageAudit": "Documentation/Work/13-Final-Coverage-Audit.md",
+      "includedProgramsOnly": true,
+      "secretsOrPersonalDataFound": 0
+    }
+  ],
+  "nextStage": null,
+  "operationsIntegrationsAndDeploymentArtifacts": {
+    "status": "completed",
+    "detailedDocument": "Documentation/Work/12-Reports-Integrations-and-Operations.md",
+    "diagrams": [
+      "Documentation/Diagrams/21-Reports-and-Integrations-Flows.md",
+      "Documentation/Diagrams/22-Deployment-Backup-and-Troubleshooting.md"
+    ],
+    "database": "DATACORE",
+    "liveVerification": "SELECT-only sys.procedures, sys.parameters, and sys.sql_expression_dependencies",
+    "reportsDocumented": 17,
+    "reportDeliveryModes": [
+      "Screen",
+      "QuestPDF",
+      "client-side Excel",
+      "browser print",
+      "SmartPrint"
+    ],
+    "integrationsDocumented": [
+      "DATACORE",
+      "internal APIs",
+      "in-app notifications",
+      "file uploads",
+      "embedded LLamaSharp",
+      "unwired Ollama implementation"
+    ],
+    "noEvidenceFoundFor": [
+      "Email/SMTP",
+      "SMS",
+      "LDAP/Active Directory",
+      "external database",
+      "cloud file storage",
+      "third-party business API"
+    ],
+    "executionRestrictionsObserved": true
+  },
+  "homeAndLoginArtifacts": {
+    "status": "completed",
+    "detailedDocument": "Documentation/Work/10-Home-and-Login.md",
+    "userManual": "Documentation/UserManual/Home-and-Login.md",
+    "diagrams": [
+      "Documentation/Diagrams/Security-Authentication-and-Session-Flow.md",
+      "Documentation/Diagrams/Security-Authorization-and-Permission-Flow.md"
+    ],
+    "controllers": [
+      "Login",
+      "Home"
+    ],
+    "pages": [
+      "Login/Index",
+      "Home/Index",
+      "Home/Privacy"
+    ],
+    "mvcActionsDocumented": 6,
+    "liveCatalogVerified": true,
+    "businessStoredProceduresExecuted": 0,
+    "writeOperationsExecuted": 0,
+    "liveProceduresVerified": 6,
+    "liveProceduresMatchingSnapshot": 6,
+    "liveProceduresDifferentFromSnapshot": 0,
+    "missingLiveProcedures": 0,
+    "liveObjects": [
+      "dbo.GetSessionInfoForMVC",
+      "dbo.ReSetUserPassword",
+      "dbo.GetUserMenuTree",
+      "dbo.HomeDL",
+      "dbo.ChartsDL",
+      "dbo.Masters_DataLoad"
+    ],
+    "coveragePercent": 100,
+    "remainingVerification": "No real-account login, password change/reset, business procedure execution, permission-data read, or end-to-end test was performed."
+  },
+  "electronicBillSystemArtifacts": {
+    "status": "completed",
+    "detailedDocument": "Documentation/Work/09-ElectronicBillSystem.md",
+    "userManual": "Documentation/UserManual/ElectronicBillSystem.md",
+    "diagrams": [
+      "Documentation/Diagrams/15-ElectronicBillSystem-Meter-to-Bill-Flow.md",
+      "Documentation/Diagrams/16-ElectronicBillSystem-Housing-Lifecycle.md"
+    ],
+    "pages": [
+      "Meters",
+      "AllMeterRead",
+      "MeterReadForOccubentAndExit",
+      "MeterServiceTypeFixedAmount"
+    ],
+    "controllerFilesIncludingBase": 5,
+    "logicalControllers": 1,
+    "mvcActions": 4,
+    "views": 4,
+    "actionTypes": 25,
+    "uiPermissionNames": 21,
+    "featureProceduresDocumentedFromSnapshot": 8,
+    "liveCatalogVerified": true,
+    "businessStoredProceduresExecuted": 0,
+    "writeOperationsExecuted": 0,
+    "liveFeatureProceduresVerified": 8,
+    "liveGatewayProceduresVerified": 3,
+    "liveProceduresMatchingSnapshot": 11,
+    "liveProceduresDifferentFromSnapshot": 0,
+    "missingLiveProcedures": 0,
+    "liveResultSetsIncludingPermissions": 20,
+    "liveDependencyRows": 284,
+    "liveForeignKeyRows": 38,
+    "liveTriggersVerified": 1,
+    "remainingVerification": "Business data, permission seed values, procedure execution, E2E workflows, and visual verification of business-report PDF outputs remain out of scope; the final documentation PDF itself passed full visual QA."
+  },
+  "liveDatabaseReconciliationForConversations1To7": {
+    "stage": "live_database_reconciliation_for_conversations_1_to_7",
+    "status": "completed",
+    "database": "DATACORE",
+    "verificationDate": "2026-08-22",
+    "readOnlyCatalogVerification": true,
+    "businessStoredProceduresExecuted": 0,
+    "liveProceduresVerified": 51,
+    "liveProceduresMatching": 40,
+    "liveProceduresDifferent": 11,
+    "missingLiveObjects": 0,
+    "liveViewsAndFunctionsVerified": 19,
+    "liveViewsAndFunctionsMatching": 18,
+    "liveViewsAndFunctionsDifferent": 1,
+    "nextStage": "income_system",
+    "detailedDocument": "Documentation/Work/07A-Live-Database-Reconciliation.md"
+  },
+  "scope": {
+    "includedPrograms": [
+      "ControlPanel",
+      "Housing",
+      "IncomeSystem",
+      "ElectronicBillSystem",
+      "Home",
+      "Login"
+    ],
+    "excludedPrograms": [
+      "HousingCommandCenter",
+      "Maintenance",
+      "Support",
+      "Vehicle",
+      "Dashboard",
+      "Statistics",
+      "PopulationDensity",
+      "RealCharts"
+    ],
+    "sharedOrUnassignedSurfaces": [
+      "Api",
+      "CrudController",
+      "ExportsController",
+      "NotificationsController",
+      "ReportsController",
+      "SessionController",
+      "SmartComponentController",
+      "Shared views"
+    ]
+  },
+  "finalGuideArtifacts": {
+    "status": "completed",
+    "developerGuide": "Documentation/Developer-Guide.md",
+    "userGuide": "Documentation/User-Guide.md",
+    "programsCovered": [
+      "ControlPanel",
+      "Housing",
+      "IncomeSystem",
+      "ElectronicBillSystem",
+      "Home",
+      "Login"
+    ],
+    "userGuidePageAndTaskSections": 35,
+    "repositoryScopeCoveragePercent": 100,
+    "liveDatabaseReconciliationPrecedenceApplied": true,
+    "unverifiedPages": [
+      "IncomeSystem/DeductListReport"
+    ],
+    "partiallyUnverifiedAreas": [
+      "Housing/UploadExcel import execution",
+      "IncomeSystem/ImportExcelForBuildingPayment import execution",
+      "Housing/UploadLab deletion and operational policy",
+      "selected modal bindings and state transitions",
+      "actual granted-permission data",
+      "visual verification of all business-report PDF outputs"
+    ]
+  },
+  "inventory": "completed",
+  "architecture": "completed",
+  "database": "completed",
+  "security": "completed",
+  "deployment": "completed",
+  "userManual": "completed",
+  "programs": {
+    "ControlPanel": {
+      "status": "documented",
+      "controllerFilesDiscovered": 4,
+      "logicalControllersDiscovered": 1,
+      "controllerFilesDocumented": 4,
+      "logicalControllersDocumented": 1,
+      "actionsDiscovered": 4,
+      "actionsDocumented": 4,
+      "viewsDiscovered": 3,
+      "viewsDocumented": 3,
+      "writeOperationsDiscovered": 20,
+      "writeOperationsDocumented": 20,
+      "storedProceduresDirectlyRelated": 8,
+      "storedProceduresDocumented": 8,
+      "sqlViewsDirectlyRelated": 4,
+      "sqlViewsDocumented": 4,
+      "sqlFunctionsDirectlyRelated": 1,
+      "sqlFunctionsDocumented": 1,
+      "userManual": "completed",
+      "securityCoverage": "completed_from_repository_with_live_verification_gaps",
+      "coveragePercent": 100,
+      "coverageBasis": "active repository code plus subsequent SELECT-only live DATACORE reconciliation; excludes business procedure execution and end-to-end verification"
+    },
+    "Housing": {
+      "status": "definitions_procedures_waiting_lists_and_imports_documented",
+      "controllerFilesDiscovered": 20,
+      "logicalControllersDiscovered": 3,
+      "controllerFilesDocumented": 19,
+      "viewsDiscovered": 20,
+      "viewsDocumented": 20,
+      "definitions": {
+        "status": "completed",
+        "pagesDocumented": 5,
+        "pages": [
+          "BuildingClass",
+          "BuildingDetails",
+          "BuildingType",
+          "BuildingUtilityType",
+          "MilitaryLocation"
+        ],
+        "actionsDocumented": 6,
+        "writeOperationsDocumented": 15,
+        "permissionsDocumented": 15,
+        "featureStoredProceduresDocumented": 10,
+        "datasetResultSetsDocumented": 18,
+        "diagrams": 2,
+        "coveragePercent": 100,
+        "coverageBasis": "active repository code plus subsequent SELECT-only live DATACORE reconciliation for the five requested Housing Definitions pages; excludes business procedure execution and end-to-end verification"
+      },
+      "housingProcedures": {
+        "status": "completed",
+        "pagesDocumented": 4,
+        "pages": [
+          "HousingResident",
+          "HousingHandover",
+          "HousingExtend",
+          "HousingExit"
+        ],
+        "controllerFilesDocumented": 4,
+        "actionsDocumented": 4,
+        "viewsDocumented": 4,
+        "writeOperationsDocumented": 16,
+        "permissionsDocumented": 20,
+        "featureStoredProceduresDocumented": 8,
+        "datasetResultSetsDocumented": 12,
+        "diagrams": 3,
+        "userManual": "completed",
+        "coveragePercent": 100,
+        "coverageBasis": "active repository code plus subsequent SELECT-only live DATACORE reconciliation for the four requested Housing Procedures pages; excludes business procedure execution and end-to-end verification"
+      },
+      "waitingListsAndImports": {
+        "status": "completed",
+        "pagesDocumented": 10,
+        "pages": [
+          "Assign",
+          "AssignStatus",
+          "OtherWaitingList",
+          "RentExemption",
+          "ResidentsAndResidentsPrint",
+          "WaitingList",
+          "WaitingListByResident",
+          "WaitingListMoveList",
+          "UploadExcel",
+          "UploadLab"
+        ],
+        "controllerFilesDocumented": 10,
+        "actionsDocumented": 13,
+        "viewsDocumented": 11,
+        "writeAndSpecialOperationsDocumented": 29,
+        "permissionsDocumented": 26,
+        "featureStoredProceduresDocumented": 17,
+        "datasetResultSetsDocumented": 39,
+        "datasetFeatureResultSetsDocumented": 31,
+        "datasetPermissionResultSetsDocumented": 8,
+        "printAndReportPathsDocumented": 7,
+        "diagrams": 3,
+        "userManual": "completed",
+        "coveragePercent": 100,
+        "coverageBasis": "repository code plus read-only live DATACORE catalog and module verification for the ten requested pages; excludes upload/import execution, business data, visual verification of business-report PDF outputs, and end-to-end verification"
+      }
+    },
+    "IncomeSystem": {
+      "status": "documented_with_live_database_verification",
+      "controllerFilesDiscovered": 6,
+      "logicalControllersDiscovered": 1,
+      "controllerFilesDocumented": 6,
+      "logicalControllersDocumented": 1,
+      "pagesDocumented": 5,
+      "actionsDocumented": 8,
+      "viewsDiscovered": 5,
+      "viewsDocumented": 5,
+      "smartTableModelsDocumented": 10,
+      "gatewayProceduresDocumented": 3,
+      "featureProceduresDocumented": 9,
+      "sqlViewsAndFunctionsDocumented": 9,
+      "tableTypesDocumented": 1,
+      "triggersDocumented": 1,
+      "permissionsDocumented": 11,
+      "routingGapsDocumented": 1,
+      "diagrams": 2,
+      "userManual": "completed",
+      "coveragePercent": 100,
+      "coverageBasis": "active repository code plus SELECT-only live DATACORE definitions and metadata for the five requested pages; excludes business procedure execution, Excel import, visual verification of business-report PDF outputs, business data, and end-to-end tests"
+    },
+    "ElectronicBillSystem": {
+      "status": "documented_with_live_database_verification",
+      "controllerFilesDiscovered": 5,
+      "logicalControllersDiscovered": 1,
+      "viewsDiscovered": 4,
+      "controllerFilesDocumented": 5,
+      "actionsDocumented": 4,
+      "viewsDocumented": 4,
+      "featureProceduresDocumented": 8,
+      "gatewayProceduresDocumented": 3,
+      "coveragePercent": 100,
+      "userManual": "completed"
+    },
+    "Home": {
+      "status": "documented_with_live_database_verification",
+      "controllerFilesDiscovered": 2,
+      "logicalControllersDiscovered": 1,
+      "viewsDiscovered": 2,
+      "controllerFilesDocumented": 2,
+      "actionsDocumented": 2,
+      "viewsDocumented": 2,
+      "liveProceduresDocumented": 3,
+      "coveragePercent": 100,
+      "userManual": "completed"
+    },
+    "Login": {
+      "status": "documented_with_live_database_verification",
+      "controllerFilesDiscovered": 1,
+      "logicalControllersDiscovered": 1,
+      "viewsDiscovered": 1,
+      "controllerFilesDocumented": 1,
+      "actionsDocumented": 4,
+      "viewsDocumented": 1,
+      "liveProceduresDocumented": 2,
+      "coveragePercent": 100,
+      "userManual": "completed"
+    },
+    "HousingCommandCenter": { "status": "excluded" },
+    "Maintenance": { "status": "excluded" },
+    "Support": { "status": "excluded" },
+    "Vehicle": { "status": "excluded" },
+    "Dashboard": { "status": "excluded" },
+    "Statistics": { "status": "excluded" },
+    "PopulationDensity": { "status": "excluded" },
+    "RealCharts": { "status": "excluded" }
+  },
+  "coverage": {
+    "controllerFilesDiscovered": 38,
+    "logicalControllersDiscovered": 8,
+    "controllerFilesDocumented": 38,
+    "controllersDocumented": 8,
+    "viewsDiscovered": 35,
+    "viewsDocumented": 35,
+    "storedProceduresPreliminarilyIdentified": 62,
+    "storedProceduresDocumented": 76,
+    "databaseScopedObjectsDiscovered": 274,
+    "databaseScopedObjectsDocumented": 274,
+    "databaseCoveragePercent": 100
+  },
+  "databaseArtifacts": {
+    "status": "completed",
+    "database": "DATACORE",
+    "detailedDocument": "Documentation/Work/11-Live-Database-and-ERD.md",
+    "diagrams": [
+      "Documentation/Diagrams/17-Live-Database-Overview-ERD.md",
+      "Documentation/Diagrams/18-ControlPanel-Permissions-ERD.md",
+      "Documentation/Diagrams/19-Housing-Live-ERD.md",
+      "Documentation/Diagrams/20-Income-and-Electronic-Billing-ERD.md"
+    ],
+    "schemasUsed": ["dbo", "Housing"],
+    "scopedObjectsDiscovered": 274,
+    "scopedObjectsDocumented": 274,
+    "tables": 118,
+    "views": 44,
+    "storedProcedures": 76,
+    "functions": 34,
+    "triggers": 2,
+    "primaryKeys": 111,
+    "foreignKeys": 118,
+    "housingDependencyRows": 611,
+    "liveObjectsMissingFromSnapshot": [
+      "Housing.trg_BuildingAction_Audit",
+      "Housing.TR_BuildingPayment_SetLinkStatus"
+    ],
+    "snapshotObjectsMissingFromLive": [],
+    "sqlAgentJobsVerification": "not_queried_source_not_in_allowed_catalog_list",
+    "coveragePercent": 100,
+    "coverageBasis": "SELECT-only live catalog metadata and module definitions for scoped objects; excludes business data, procedure execution, SQL Agent msdb metadata, and end-to-end verification"
+  },
+  "architectureArtifacts": {
+    "detailedDocuments": [
+      "Documentation/Work/03-System-Architecture-and-Shared-Components.md"
+    ],
+    "diagrams": [
+      "Documentation/Diagrams/01-System-Layers-and-References.md",
+      "Documentation/Diagrams/02-HTTP-Request-Pipeline.md",
+      "Documentation/Diagrams/03-Data-Read-and-CRUD-Flows.md"
+    ],
+    "verifiedExecutionPaths": [
+      "Housing read path through Masters_DataLoad",
+      "Generic CRUD path through Masters_CRUD",
+      "Login path through GetSessionInfoForMVC",
+      "SmartPageViewModel rendering through SmartRenderer"
+    ]
+  },
+  "controlPanelArtifacts": {
+    "detailedDocument": "Documentation/Work/04-ControlPanel-Program.md",
+    "userManual": "Documentation/UserManual/ControlPanel.md",
+    "diagrams": [
+      "Documentation/Diagrams/04-ControlPanel-Flows.md"
+    ],
+    "verifiedExecutionPaths": [
+      "ControlPanel PagesManagment read and CRUD routing",
+      "ControlPanel Permission read and CRUD routing",
+      "ControlPanel Users read and CRUD/password-reset routing"
+    ],
+    "pagesDocumented": 3,
+    "controllerFilesDocumented": 4,
+    "logicalControllersDocumented": 1,
+    "viewsDocumented": 3,
+    "writeOperationsDocumented": 20,
+    "storedProceduresDocumented": 8
+  },
+  "housingDefinitionsArtifacts": {
+    "detailedDocument": "Documentation/Work/05-Housing-Definitions.md",
+    "diagrams": [
+      "Documentation/Diagrams/05-Housing-Definitions-Flows.md",
+      "Documentation/Diagrams/06-Housing-Definitions-ERD.md"
+    ],
+    "pagesDocumented": 5,
+    "controllerFilesDocumented": 5,
+    "viewsDocumented": 5,
+    "crudOperationsDocumented": 15,
+    "permissionsDocumented": 15,
+    "datasetResultSetsDocumented": 18,
+    "featureStoredProceduresDocumented": 10
+    ,"verifiedExecutionPaths": [
+      "Housing Definitions read routing for BuildingClass, BuildingDetails, BuildingType, BuildingUtilityType, and MilitaryLocation",
+      "Housing Definitions CRUD routing for 15 permission-gated operations"
+    ]
+  },
+  "housingProceduresArtifacts": {
+    "detailedDocument": "Documentation/Work/06-Housing-Procedures.md",
+    "userManual": "Documentation/UserManual/Housing-Procedures.md",
+    "diagrams": [
+      "Documentation/Diagrams/07-Housing-Procedures-End-to-End.md",
+      "Documentation/Diagrams/08-Housing-Resident-Lifecycle.md",
+      "Documentation/Diagrams/09-Housing-Procedures-Data-Impact.md"
+    ],
+    "pagesDocumented": 4,
+    "controllerFilesDocumented": 4,
+    "actionsDocumented": 4,
+    "viewsDocumented": 4,
+    "writeOperationsDocumented": 16,
+    "permissionsDocumented": 20,
+    "featureStoredProceduresDocumented": 8,
+    "datasetResultSetsDocumented": 12,
+    "verifiedExecutionPaths": [
+      "HousingResident read, custody, occupancy, and occupancy-cancellation routing",
+      "HousingHandover read and state-transition routing",
+      "HousingExtend read, edit, cancel, finance, insurance, and approval routing",
+      "HousingExit read, edit, cancel, penalty, finance, and approval routing"
+    ]
+  },
+  "housingWaitingListsAndImportsArtifacts": {
+    "detailedDocument": "Documentation/Work/07-Housing-Waiting-Lists-and-Imports.md",
+    "userManual": "Documentation/UserManual/Housing-Waiting-Lists-and-Imports.md",
+    "diagrams": [
+      "Documentation/Diagrams/10-Housing-Waiting-Assignment-Workflow.md",
+      "Documentation/Diagrams/11-Housing-Waiting-Data-and-Gateway.md",
+      "Documentation/Diagrams/12-Housing-Excel-Import-Flows.md"
+    ],
+    "pagesDocumented": 10,
+    "controllerFilesDocumented": 10,
+    "actionsDocumented": 13,
+    "viewsDocumented": 11,
+    "writeAndSpecialOperationsDocumented": 29,
+    "permissionsDocumented": 26,
+    "featureStoredProceduresDocumented": 17,
+    "datasetFeatureResultSetsDocumented": 31,
+    "datasetPermissionResultSetsDocumented": 8,
+    "printAndReportPathsDocumented": 7,
+    "verifiedExecutionPaths": [
+      "Resident maintenance and resident print/PDF paths",
+      "Per-resident waiting-list, occupant-letter, move-request, and all-list cancellation routing",
+      "Incoming waiting-list move approval and rejection routing",
+      "General and other waiting-list transitions into assignment or occupancy procedures",
+      "Assignment-period open, close, house assignment, replacement, exclusion, status, and print routing",
+      "Resident rent-exemption lifecycle and downstream rent-calculation dependencies",
+      "UploadExcel file validation, preview, column selection, direct TVP import design, and duplicate-file hash guard",
+      "UploadLab physical file and session-only flow"
+    ]
+  },
+  "securityArtifacts": {
+    "detailedDocuments": [
+      "Documentation/Work/Security-Authentication-and-Authorization.md"
+    ],
+    "diagrams": [
+      "Documentation/Diagrams/Security-Authentication-and-Session-Flow.md",
+      "Documentation/Diagrams/Security-Authorization-and-Permission-Flow.md"
+    ],
+    "verifiedFindings": [
+      "Session-backed authentication through GetSessionInfoForMVC without an active claims or cookie authentication scheme",
+      "Distributed action-level session checks with SessionGuardMiddleware not registered",
+      "Permission resolution through permissionTypeName_E and the ft_UserPagePermissions snapshot contract",
+      "CRUD authorization identity and scope fields are accepted from client form or JSON instead of being derived from Session",
+      "Partial antiforgery coverage with active HTTPS, HSTS, secure-cookie, CSP, and security-header configuration"
+    ],
+    "liveDatabaseVerification": {
+      "status": "completed_for_conversations_1_to_7_catalog_scope",
+      "verifiedFromPriorInventory": "Security gateway procedure names were present in live DATACORE metadata using SELECT-only sys catalog queries.",
+      "currentLimitation": "Historical TLS limitation was resolved on 2026-08-22 using read-only catalog access; runtime and business-data verification remain out of scope."
+    }
+  },
+  "interimWordDocument": {
+    "status": "generated_and_visually_verified",
+    "path": "Documentation/SmartFoundation_Interim_Documentation.docx",
+    "generatedAt": "2026-08-22T22:30:51.9421197+03:00",
+    "pageCount": 74,
+    "visualVerification": {
+      "status": "passed",
+      "renderer": "render_docx.py with locally extracted LibreOffice",
+      "allPagesRenderedToPng": true,
+      "allPagesInspected": true,
+      "pagesInspected": 74,
+      "pdfDelivered": false,
+      "findings": "RTL, Arabic fonts, headings, tables, captions, headers, footers, page numbers, and page breaks verified. No clipping, overlap, missing glyphs, or fully blank pages found."
+    },
+    "basedOnCompletedStages": [
+      "inventory_and_scope",
+      "architecture_and_shared_components",
+      "security_authentication_and_authorization",
+      "control_panel",
+      "housing_definitions",
+      "housing_procedures",
+      "housing_waiting_lists_and_imports",
+      "live_database_reconciliation_for_conversations_1_to_7",
+      "income_system",
+      "electronic_bill_system"
+    ]
+  },
+  "notes": [
+    "Controller file count differs from logical controller count because the solution uses partial controller classes.",
+    "Housing view count includes UploadExcel and UploadLab views located outside the Housing view folder but backed by Housing controllers.",
+    "Stored procedure count is preliminary and combines entry gateways, authentication procedures, and live metadata name matches; routing and usage must be confirmed during detailed module analysis.",
+    "Database metadata was read from the live DATACORE database using SELECT-only catalog queries; no business stored procedure was executed.",
+    "Architecture and shared components analysis completed from active code; no database procedure was executed during this stage.",
+    "SessionGuardMiddleware exists but is not registered in the active Program.cs pipeline.",
+    "Security analysis completed: UseAuthentication and UseAuthorization are present, but no active authentication scheme, claims identity, SignInAsync, or Authorize coverage was found.",
+    "Security analysis found that CRUD authorization identity and scope fields are accepted from client input instead of being replaced with Session values; no exploit or write operation was attempted.",
+    "Historical note: detailed live definition reads were initially blocked by TLS; this was resolved on 2026-08-22 and the conversations 1-7 modules were reconciled through SELECT-only catalog access.",
+    "Connection string values and other secrets were intentionally excluded from documentation.",
+    "ControlPanel documentation completed from active code and SQL snapshot definitions without executing business procedures.",
+    "ControlPanel coverage is 100 percent for discovered repository surfaces: 4 controller files, 1 logical controller, 4 actions, 3 views, 20 write operations, 8 directly related procedures, 4 SQL views, and 1 SQL function.",
+    "ControlPanel live database parity was reconciled in 07A; end-to-end authorization behavior remains unverified.",
+    "Housing Definitions documentation completed for the five requested pages from active code and SQL snapshot definitions without executing business procedures.",
+    "Housing Definitions coverage is 100 percent for the requested repository surfaces: 5 controller files, 5 views, 15 CRUD operations, 15 permissions, 10 feature procedures, and 18 DataSet result sets including permission tables.",
+    "Housing Definitions live database parity was reconciled in 07A; modal binding discrepancies and end-to-end authorization remain gaps.",
+    "Housing Procedures documentation completed for HousingResident, HousingHandover, HousingExtend, and HousingExit from active code and SQL snapshot definitions without executing business procedures.",
+    "Housing Procedures coverage is 100 percent for the requested repository surfaces: 4 controller files, 4 actions, 4 views, 16 write operations, 8 feature procedures, and 12 DataSet result sets including permission tables.",
+    "Housing Procedures live database parity was reconciled in 07A; modal/state-transition E2E, cross-program consumers, and permission-name data remain gaps.",
+    "HousingHandover snapshot gateway checks page access but has the ActionType permission predicate commented out; no authorization test or write attempt was performed.",
+    "HousingExtend active controller returns the HousingResident Razor view and contains ActionType/permission casing and naming discrepancies documented as verification gaps.",
+    "Housing waiting lists and imports documentation completed for the ten requested pages without executing uploads, imports, CRUD operations, or business procedures.",
+    "Waiting-list and import repository coverage is 100 percent for the requested surfaces: 10 controller files, 11 views, 13 MVC actions, 29 write or special operations, 17 feature procedures, 31 feature result sets plus 8 permission result sets, 26 named permissions, and 7 print/report paths.",
+    "UploadExcel has a live-schema-verified TVP shape discrepancy: Housing.UploadExcelRowType defines five columns while the controller sends a four-column DataTable; no import was executed.",
+    "UploadExcel bypasses the shared gateway and UploadLab has no SQL path; neither controller contains the Housing session and permission pattern.",
+    "AssignStatus routing exists live for reading and writing; AssignStatus/ASSIGNSTATUS case does not block the current SQL_Latin1_General_CP1_CI_AS database, while permission menu-name data remains unverified.",
+    "Live database parity for conversations 1-7 was reconciled in 07A; Excel execution, file validation, visual verification of business-report PDF outputs, and end-to-end permission/state testing remain gaps; the final documentation PDF passed full visual QA.",
+    "ElectronicBillSystem repository documentation completed for Meters, AllMeterRead, MeterReadForOccubentAndExit, and MeterServiceTypeFixedAmount: 5 controller files including Base, 4 actions, 4 views, 25 ActionTypes, 8 Snapshot feature procedures, 2 diagrams, and one user manual.",
+    "ElectronicBillSystem live catalog reconciliation completed on 2026-08-23 using PowerShell and System.Data.SqlClient against the local forwarded SQL endpoint: 8 feature procedures and 3 gateways are live verified and match Snapshot functionally; 284 dependency rows, 38 FK rows, and one active related trigger were read. No Business Stored Procedure or write was executed."
+    ,"Home and Login documentation completed on 2026-08-23 from active code and SELECT-only live DATACORE catalogs: 3 controller files, 2 logical controllers, 6 actions, 3 views, 6 live matching procedures, 2 updated diagrams, and one user manual. No login, password mutation, Business Stored Procedure, or write was executed."
+    ,"Home active routing uses Masters_DataLoad to ChartsDL; HomeDL exists live and matches Snapshot but is not the active Home path. Home GET contains an unexecuted monthly billing side effect, and the AI permission-map result-set binding is misaligned."
+  ]
+}

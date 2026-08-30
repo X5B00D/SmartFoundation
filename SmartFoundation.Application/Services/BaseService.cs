@@ -82,7 +82,7 @@ public abstract class BaseService
       {
         success = false,
         data = (object?)null,
-        message = $"Configuration error: {ex.Message}"
+        message = "حدث خطأ في إعداد العملية. يرجى التواصل مع الدعم الفني."
       });
     }
     catch (Exception ex)
@@ -94,7 +94,7 @@ public abstract class BaseService
       {
         success = false,
         data = (object?)null,
-        message = $"Error: {ex.Message}"
+        message = "حدث خطأ أثناء تنفيذ العملية. يرجى المحاولة مرة أخرى."
       });
     }
   }

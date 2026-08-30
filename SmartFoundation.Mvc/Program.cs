@@ -1,3 +1,5 @@
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Options;
 using QuestPDF.Drawing;
@@ -9,6 +11,7 @@ using SmartFoundation.DataEngine.Core.Services;
 using SmartFoundation.DataEngine.Core.Utilities;
 using SmartFoundation.Mvc.Controllers;
 using SmartFoundation.Mvc.Helpers;
+using SmartFoundation.Mvc.Middleware;
 using SmartFoundation.Mvc.Services.AiAssistant;
 using SmartFoundation.Mvc.Services.Chart;
 using SmartFoundation.Mvc.Services.Exports.Pdf;
@@ -24,6 +27,10 @@ using (var fs = File.OpenRead(fontPath))
 }
 
 builder.Services.AddControllersWithViews()
+    .AddMvcOptions(options =>
+    {
+        options.Filters.Add(new Microsoft.AspNetCore.Mvc.AutoValidateAntiforgeryTokenAttribute());
+    })
     .AddJsonOptions(o =>
     {
         o.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
@@ -40,9 +47,60 @@ builder.Services.AddSession(o =>
     o.Cookie.SecurePolicy = CookieSecurePolicy.Always;
 });
 
+builder.Services
+    .AddAuthentication(options =>
+    {
+        options.DefaultAuthenticateScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+        options.DefaultChallengeScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+    })
+    .AddCookie(options =>
+    {
+        options.LoginPath = "/Login";
+        options.AccessDeniedPath = "/Login/AccessDenied";
+        options.Cookie.Name = ".SmartFoundation.Auth";
+        options.Cookie.HttpOnly = true;
+        options.Cookie.SecurePolicy = builder.Environment.IsDevelopment()
+            ? CookieSecurePolicy.SameAsRequest
+            : CookieSecurePolicy.Always;
+        options.Cookie.SameSite = SameSiteMode.Lax;
+        options.ExpireTimeSpan = TimeSpan.FromMinutes(10);
+        options.SlidingExpiration = true;
+        options.Events.OnRedirectToLogin = context =>
+        {
+            if (IsProgrammaticRequest(context.Request))
+            {
+                context.Response.StatusCode = StatusCodes.Status401Unauthorized;
+                return Task.CompletedTask;
+            }
+
+            context.Response.Redirect(context.RedirectUri);
+            return Task.CompletedTask;
+        };
+        options.Events.OnRedirectToAccessDenied = context =>
+        {
+            if (IsProgrammaticRequest(context.Request))
+            {
+                context.Response.StatusCode = StatusCodes.Status403Forbidden;
+                return Task.CompletedTask;
+            }
+
+            context.Response.Redirect(context.RedirectUri);
+            return Task.CompletedTask;
+        };
+    });
+
+builder.Services.AddAuthorization(options =>
+{
+    options.FallbackPolicy = new AuthorizationPolicyBuilder(
+            CookieAuthenticationDefaults.AuthenticationScheme)
+        .RequireAuthenticatedUser()
+        .Build();
+});
+
 builder.Services.AddResponseCompression();
 builder.Services.AddAntiforgery(o =>
 {
+    o.HeaderName = "RequestVerificationToken";
     o.Cookie.HttpOnly = true;
     o.Cookie.SecurePolicy = CookieSecurePolicy.Always;
 });
@@ -151,9 +209,11 @@ app.Use(async (context, next) =>
 
 app.UseStaticFiles();
 app.UseRouting();
+app.UseSession();
 app.UseAuthentication();
 app.UseAuthorization();
-app.UseSession();
+app.UseMiddleware<SessionGuardMiddleware>();
+app.UseMiddleware<ForcePasswordChangeMiddleware>();
 app.MapRazorPages();
 app.MapControllers();
 app.MapControllerRoute(
@@ -161,3 +221,12 @@ app.MapControllerRoute(
     pattern: "{controller=Login}/{action=Index}/{id?}");
 
 app.Run();
+
+static bool IsProgrammaticRequest(HttpRequest request)
+{
+    return request.Path.StartsWithSegments("/api", StringComparison.OrdinalIgnoreCase) ||
+           request.Path.StartsWithSegments("/crud", StringComparison.OrdinalIgnoreCase) ||
+           string.Equals(request.Headers["X-Requested-With"], "XMLHttpRequest", StringComparison.OrdinalIgnoreCase) ||
+           request.Headers.Accept.Any(value =>
+               value?.Contains("application/json", StringComparison.OrdinalIgnoreCase) == true);
+}

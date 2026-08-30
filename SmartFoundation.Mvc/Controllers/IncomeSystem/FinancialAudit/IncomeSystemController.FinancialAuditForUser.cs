@@ -775,9 +775,9 @@ namespace SmartFoundation.Mvc.Controllers.IncomeSystem
                     }
                 }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                ViewBag.BuildingTypeDataSetError = ex.Message;
+                ViewBag.BuildingTypeDataSetError = "حدث خطأ أثناء تحميل البيانات. يرجى المحاولة مرة أخرى.";
             }
 
 
@@ -789,9 +789,6 @@ namespace SmartFoundation.Mvc.Controllers.IncomeSystem
 
                 new FieldConfig { Name = "pageName_",          Type = "hidden", Value = PageName },
                 new FieldConfig { Name = "ActionType",         Type = "hidden", Value = "FinancialAuditForUser" },
-                new FieldConfig { Name = "idaraID",            Type = "hidden", Value = IdaraId },
-                new FieldConfig { Name = "entrydata",          Type = "hidden", Value = usersId },
-                new FieldConfig { Name = "hostname",           Type = "hidden", Value = HostName },
                 new FieldConfig { Name = "redirectUrl",     Type = "hidden", Value = currentUrl },
                 new FieldConfig { Name = "redirectAction",     Type = "hidden", Value = PageName },
                 new FieldConfig { Name = "redirectController", Type = "hidden", Value = ControllerName },
@@ -821,9 +818,6 @@ namespace SmartFoundation.Mvc.Controllers.IncomeSystem
 
                 new FieldConfig { Name = "pageName_",          Type = "hidden", Value = PageName },
                 new FieldConfig { Name = "ActionType",         Type = "hidden", Value = "REVIEWCLAIMSANDPAYMENTSFORUSER" },
-                new FieldConfig { Name = "idaraID",            Type = "hidden", Value = IdaraId },
-                new FieldConfig { Name = "entrydata",          Type = "hidden", Value = usersId },
-                new FieldConfig { Name = "hostname",           Type = "hidden", Value = HostName },
                 new FieldConfig { Name = "redirectUrl",     Type = "hidden", Value = currentUrl },
                 new FieldConfig { Name = "redirectAction",     Type = "hidden", Value = PageName },
                 new FieldConfig { Name = "redirectController", Type = "hidden", Value = ControllerName },
@@ -859,9 +853,6 @@ namespace SmartFoundation.Mvc.Controllers.IncomeSystem
 
                 new FieldConfig { Name = "pageName_",          Type = "hidden", Value = PageName },
                 new FieldConfig { Name = "ActionType",         Type = "hidden", Value = "REVIEWCLAIMSANDPAYMENTSFORUSER" },
-                new FieldConfig { Name = "idaraID",            Type = "hidden", Value = IdaraId },
-                new FieldConfig { Name = "entrydata",          Type = "hidden", Value = usersId },
-                new FieldConfig { Name = "hostname",           Type = "hidden", Value = HostName },
                 new FieldConfig { Name = "redirectUrl",     Type = "hidden", Value = currentUrl },
                 new FieldConfig { Name = "redirectAction",     Type = "hidden", Value = PageName },
                 new FieldConfig { Name = "redirectController", Type = "hidden", Value = ControllerName },
@@ -900,9 +891,6 @@ namespace SmartFoundation.Mvc.Controllers.IncomeSystem
 
                 new FieldConfig { Name = "pageName_",          Type = "hidden", Value = PageName },
                 new FieldConfig { Name = "ActionType",         Type = "hidden", Value = "PAYMENTANDREFUNDFORUSER" },
-                new FieldConfig { Name = "idaraID",            Type = "hidden", Value = IdaraId },
-                new FieldConfig { Name = "entrydata",          Type = "hidden", Value = usersId },
-                new FieldConfig { Name = "hostname",           Type = "hidden", Value = HostName },
                 new FieldConfig { Name = "redirectUrl",     Type = "hidden", Value = currentUrl },
                 new FieldConfig { Name = "redirectAction",     Type = "hidden", Value = PageName },
                 new FieldConfig { Name = "redirectController", Type = "hidden", Value = ControllerName },
@@ -942,9 +930,6 @@ namespace SmartFoundation.Mvc.Controllers.IncomeSystem
 
                 new FieldConfig { Name = "pageName_",          Type = "hidden", Value = PageName },
                 new FieldConfig { Name = "ActionType",         Type = "hidden", Value = "PAYMENTANDREFUNDFORUSER" },
-                new FieldConfig { Name = "idaraID",            Type = "hidden", Value = IdaraId },
-                new FieldConfig { Name = "entrydata",          Type = "hidden", Value = usersId },
-                new FieldConfig { Name = "hostname",           Type = "hidden", Value = HostName },
                 new FieldConfig { Name = "redirectUrl",     Type = "hidden", Value = currentUrl },
                 new FieldConfig { Name = "redirectAction",     Type = "hidden", Value = PageName },
                 new FieldConfig { Name = "redirectController", Type = "hidden", Value = ControllerName },
@@ -985,9 +970,6 @@ namespace SmartFoundation.Mvc.Controllers.IncomeSystem
 
                 new FieldConfig { Name = "pageName_",          Type = "hidden", Value = PageName },
                 new FieldConfig { Name = "ActionType",         Type = "hidden", Value = "FINANCIALSETTLEMENTFORUSER" },
-                new FieldConfig { Name = "idaraID",            Type = "hidden", Value = IdaraId },
-                new FieldConfig { Name = "entrydata",          Type = "hidden", Value = usersId },
-                new FieldConfig { Name = "hostname",           Type = "hidden", Value = HostName },
                 new FieldConfig { Name = "redirectUrl",     Type = "hidden", Value = currentUrl },
                 new FieldConfig { Name = "redirectAction",     Type = "hidden", Value = PageName },
                 new FieldConfig { Name = "redirectController", Type = "hidden", Value = ControllerName },
@@ -1137,7 +1119,7 @@ namespace SmartFoundation.Mvc.Controllers.IncomeSystem
                 ["showRowNumbers"] = true,
                 ["visibleFields"] = new List<string>
     {
-       "BillChargeTypeName_A","FullName_A","buildingDetailsNo","amount"
+       "BillChargeTypeName_A","FullName_A","buildingDetailsNo","amount","deductName","buildingPaymentTypeName_A"
     },
                
 
@@ -1146,6 +1128,8 @@ namespace SmartFoundation.Mvc.Controllers.IncomeSystem
                     ["FullName_A"] = "الاسم",
                     ["buildingDetailsNo"] = "المبنى",
                     ["BillChargeTypeName_A"] = "الخدمة",
+                    ["deductName"] = "نوع السداد",
+                    ["buildingPaymentTypeName_A"] = "طريقة السداد",
                     ["amount"] = "المبلغ"
                 }
             };

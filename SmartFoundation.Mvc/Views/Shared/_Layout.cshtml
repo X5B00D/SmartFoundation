@@ -1,12 +1,17 @@
 ﻿@using System.Text.Json
 @using SmartFoundation.Mvc.Models
 @using SmartFoundation.Mvc.Helpers
+@inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Antiforgery
+@{
+    var antiforgeryToken = Antiforgery.GetAndStoreTokens(Context).RequestToken ?? string.Empty;
+}
 
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="request-verification-token" content="@antiforgeryToken" />
     <title>@ViewData["Title"] - النظام الموحد</title>
 
     <!-- =========================
@@ -55,6 +60,7 @@
     <link rel="stylesheet" type="text/css" href="/css/Fontawesome6-5-0.min.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/lib/fontawesome/css/all.min.css" asp-append-version="true" />
 
+    <script src="~/js/antiforgery.js" asp-append-version="true"></script>
     <script src="~/js/layout-head.js" asp-append-version="true"></script>
 </head>
 

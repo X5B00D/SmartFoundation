@@ -385,6 +385,20 @@ BEGIN
             END
 
 
+             IF NOT EXISTS
+            (
+                 SELECT 1
+                FROM [DATACORE].[Housing].[V_GetGeneralListForBuilding] c
+                where c.buildingDetailsID = TRY_CONVERT(BIGINT, @buildingDetailsID)
+                  and c.BuildingIdaraID = @IdaraID_INT
+                  and c.buildingDetailsActive = 1
+                  and c.LastActionTypeID in (5,39,41,42)
+            )
+            BEGIN
+                ;THROW 50001, N'لا يمكن التخصيص؛ المنزل غير متاح أو تم تخصيصه لمستفيد اخر قم بتحديث الصفحه', 1;
+            END
+
+
               INSERT INTO  Housing.BuildingAction
             (
                   buildingActionTypeID_FK

@@ -279,9 +279,9 @@ namespace SmartFoundation.Mvc.Controllers.Support
                         }
                     }
                 }
-                catch (Exception ex)
+                catch (Exception)
                 {
-                    TempData["Error"] = ex.Message;
+                    TempData["Error"] = "حدث خطأ أثناء تحميل تفاصيل التذكرة. يرجى المحاولة مرة أخرى.";
                     ready = false;
                 }
             }
@@ -324,9 +324,6 @@ namespace SmartFoundation.Mvc.Controllers.Support
                 }
             };
             addReplyFields.Insert(0, new FieldConfig { Name = "__RequestVerificationToken", Type = "hidden", Value = (Request.Headers["RequestVerificationToken"].FirstOrDefault() ?? "") });
-            addReplyFields.Insert(0, new FieldConfig { Name = "hostname", Type = "hidden", Value = Request.Host.Value });
-            addReplyFields.Insert(0, new FieldConfig { Name = "entrydata", Type = "hidden", Value = usersId?.ToString() });
-            addReplyFields.Insert(0, new FieldConfig { Name = "idaraID", Type = "hidden", Value = IdaraId?.ToString() });
             addReplyFields.Insert(0, new FieldConfig { Name = "ActionType", Type = "hidden", Value = "STD_ADD_REPLY" });
             addReplyFields.Insert(0, new FieldConfig { Name = "pageName_", Type = "hidden", Value = PageName });
             addReplyFields.Insert(0, new FieldConfig { Name = "redirectAction", Type = "hidden", Value = PageName });
@@ -339,9 +336,6 @@ namespace SmartFoundation.Mvc.Controllers.Support
                 new FieldConfig { Name = "p04", Label = "حالة التذكرة", Type = "select", ColCss = "6", Required = true, Placeholder = "", Options = ticketStatusOptions }
             };
             changeStatusFields.Insert(0, new FieldConfig { Name = "__RequestVerificationToken", Type = "hidden", Value = (Request.Headers["RequestVerificationToken"].FirstOrDefault() ?? "") });
-            changeStatusFields.Insert(0, new FieldConfig { Name = "hostname", Type = "hidden", Value = Request.Host.Value });
-            changeStatusFields.Insert(0, new FieldConfig { Name = "entrydata", Type = "hidden", Value = usersId?.ToString() });
-            changeStatusFields.Insert(0, new FieldConfig { Name = "idaraID", Type = "hidden", Value = IdaraId?.ToString() });
             changeStatusFields.Insert(0, new FieldConfig { Name = "ActionType", Type = "hidden", Value = "STD_CHANGE_STATUS" });
             changeStatusFields.Insert(0, new FieldConfig { Name = "pageName_", Type = "hidden", Value = PageName });
             changeStatusFields.Insert(0, new FieldConfig { Name = "redirectAction", Type = "hidden", Value = PageName });
@@ -355,9 +349,6 @@ namespace SmartFoundation.Mvc.Controllers.Support
                 new FieldConfig { Name = "p06", Label = "ملاحظة", Type = "textarea", ColCss = "12", Required = false }
             };
             assignFields.Insert(0, new FieldConfig { Name = "__RequestVerificationToken", Type = "hidden", Value = (Request.Headers["RequestVerificationToken"].FirstOrDefault() ?? "") });
-            assignFields.Insert(0, new FieldConfig { Name = "hostname", Type = "hidden", Value = Request.Host.Value });
-            assignFields.Insert(0, new FieldConfig { Name = "entrydata", Type = "hidden", Value = usersId?.ToString() });
-            assignFields.Insert(0, new FieldConfig { Name = "idaraID", Type = "hidden", Value = IdaraId?.ToString() });
             assignFields.Insert(0, new FieldConfig { Name = "ActionType", Type = "hidden", Value = "STD_ASSIGN" });
             assignFields.Insert(0, new FieldConfig { Name = "pageName_", Type = "hidden", Value = PageName });
             assignFields.Insert(0, new FieldConfig { Name = "redirectAction", Type = "hidden", Value = PageName });
@@ -374,9 +365,6 @@ namespace SmartFoundation.Mvc.Controllers.Support
                 new FieldConfig { Name = "p11", Label = "تاريخ الاستحقاق", Type = "date", ColCss = "6", Required = false }
             };
             addTaskFields.Insert(0, new FieldConfig { Name = "__RequestVerificationToken", Type = "hidden", Value = (Request.Headers["RequestVerificationToken"].FirstOrDefault() ?? "") });
-            addTaskFields.Insert(0, new FieldConfig { Name = "hostname", Type = "hidden", Value = Request.Host.Value });
-            addTaskFields.Insert(0, new FieldConfig { Name = "entrydata", Type = "hidden", Value = usersId?.ToString() });
-            addTaskFields.Insert(0, new FieldConfig { Name = "idaraID", Type = "hidden", Value = IdaraId?.ToString() });
             addTaskFields.Insert(0, new FieldConfig { Name = "ActionType", Type = "hidden", Value = "STD_ADD_TASK" });
             addTaskFields.Insert(0, new FieldConfig { Name = "pageName_", Type = "hidden", Value = PageName });
             addTaskFields.Insert(0, new FieldConfig { Name = "redirectAction", Type = "hidden", Value = PageName });

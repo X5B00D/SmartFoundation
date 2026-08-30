@@ -1,0 +1,12 @@
+نواصل مشروع توثيق SmartFoundation.
+
+اقرأ AGENTS.md وجميع نتائج Documentation المكتملة. نفذ Housing Definitions فقط:
+BuildingClass, BuildingDetails, BuildingType, BuildingUtilityType, MilitaryLocation.
+
+لكل صفحة وثق الهدف وController/Action/View وUI configuration وModels وServices وDataSet result sets وDDL sources والصلاحيات وCRUD وValidation وBusiness Rules وDL/SP والجداول والـViews والـFunctions والعلاقات وWorkflow ودليل المستخدم.
+
+اعتمد الكود النشط للتطبيق وDATACORE الحية لتعريفات SQL. ملفات SmartFoundation.Database للمقارنة فقط. استخدم استعلامات Metadata وsys.sql_modules قراءة فقط، ولا تنفذ Business SP.
+
+أنشئ Workflow وERD مبنيين على علاقات حية مثبتة. لا تعدل خارج Documentation/ ولا تعرض أسراراً.
+
+حدّث ملف التقدم وCoverage. في النهاية اعرض نتائج كل صفحة، كائنات SQL، الاختلافات عن Snapshot، الرسومات، الفجوات، والمرحلة التالية.

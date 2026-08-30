@@ -140,7 +140,6 @@ namespace SmartFoundation.Mvc.Controllers.IncomeSystem
             // تنظيف ملفات قديمة (اختياري)
 
 
-            CleanupOldExcelFiles(olderThanDays: 1);
 
 
            
@@ -153,8 +152,6 @@ namespace SmartFoundation.Mvc.Controllers.IncomeSystem
             if (string.IsNullOrWhiteSpace(usersId))
                 return RedirectToAction("Index", "Login", new { logout = 4 });
 
-            if (IsBrowserRefresh())
-                ClearExcelSession(deletePhysicalFile: true);
 
             var referer = Request.Headers["Referer"].FirstOrDefault();
             bool isDirectOpen = string.IsNullOrWhiteSpace(referer);
@@ -201,6 +198,7 @@ namespace SmartFoundation.Mvc.Controllers.IncomeSystem
             List<OptionItem> BillChargeTypeOptions = new();
             List<OptionItem> monthOptions = new();
             List<OptionItem> yearOptions = new();
+            List<OptionItem> deductListReportOptions = new();
            
 
 
@@ -209,7 +207,7 @@ namespace SmartFoundation.Mvc.Controllers.IncomeSystem
             JsonResult? result;
             string json;
 
-            //// ---------------------- insuranceOptions ----------------------
+            //// ---------------------- BillChargeTypeOptions ----------------------
 
             result = await _CrudController.GetDDLValues(
                  "BillChargeTypeName_A", "BillChargeTypeID", "1", PageName, usersId, IdaraId, HostName
@@ -220,7 +218,7 @@ namespace SmartFoundation.Mvc.Controllers.IncomeSystem
             BillChargeTypeOptions = JsonSerializer.Deserialize<List<OptionItem>>(json)!;
 
 
-            //// ---------------------- insuranceOptions ----------------------
+            //// ---------------------- yearOptions ----------------------
 
             result = await _CrudController.GetDDLValues(
                  "Year_", "Year_", "2", PageName, usersId, IdaraId, HostName
@@ -229,15 +227,36 @@ namespace SmartFoundation.Mvc.Controllers.IncomeSystem
             json = JsonSerializer.Serialize(result!.Value);
 
             yearOptions = JsonSerializer.Deserialize<List<OptionItem>>(json)!;
-            //// ---------------------- insuranceOptions ----------------------
+            //// ---------------------- deductListReportOptions ----------------------
 
-            result = await _CrudController.GetDDLValues(
-                 "ArabicMonthName", "MonthNumber", "3", PageName, usersId, IdaraId, HostName
-            ) as JsonResult;
+            //// ---------------------- deductListReportOptions ----------------------
 
-            json = JsonSerializer.Serialize(result!.Value);
+            deductListReportOptions = new List<OptionItem>
+                {
+                    new OptionItem
+                    {
+                        Value = "",
+                        Text = "اختر نوع المسير والسنة والشهر أولًا"
+                    }
+                };
 
-            monthOptions = JsonSerializer.Deserialize<List<OptionItem>>(json)!;
+            //result = await _CrudController.GetDDLValues(
+            //     "ArabicMonthName", "MonthNumber", "3", PageName, usersId, IdaraId, HostName
+            //) as JsonResult;
+
+            //json = JsonSerializer.Serialize(result!.Value);
+
+            //monthOptions = JsonSerializer.Deserialize<List<OptionItem>>(json)!;
+
+            //if (dt5 != null)
+            //{
+            //    deductListReportOptions = dt5.AsEnumerable().Select(row => new OptionItem
+            //    {
+            //        Value = row["DeductListReportID"]?.ToString() ?? "",
+            //        Text = row["DeductListReportName"]?.ToString() ?? ""
+            //    }).ToList();
+            //}
+            //deductListReportOptions.Insert(0, new OptionItem { Value = "", Text = "بدون ربط بمسير صادر" });
 
 
             //// ---------------------- END DDL ----------------------
@@ -383,9 +402,9 @@ namespace SmartFoundation.Mvc.Controllers.IncomeSystem
                     }
                 }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                ViewBag.BuildingTypeDataSetError = ex.Message;
+                ViewBag.BuildingTypeDataSetError = "حدث خطأ أثناء تحميل البيانات. يرجى المحاولة مرة أخرى.";
             }
 
 
@@ -404,6 +423,7 @@ namespace SmartFoundation.Mvc.Controllers.IncomeSystem
 
             bool canProcess = hasExcelFile && hasExcelPreview && !isInfoOnly;
 
+
             var options = previewCols
                 .Select(c => new OptionItem { Value = c, Text = c })
                 .ToList();
@@ -415,6 +435,10 @@ namespace SmartFoundation.Mvc.Controllers.IncomeSystem
                     new OptionItem { Value = "", Text = "لا يوجد أعمدة — ارفع ملف أولاً" }
                 };
             }
+
+
+
+
 
             var columns = new List<TableColumn>();
             if (previewCols.Count > 0)
@@ -495,9 +519,6 @@ namespace SmartFoundation.Mvc.Controllers.IncomeSystem
             {
                 new FieldConfig { Name = "pageName_",          Type = "hidden", Value = PageName },
                 new FieldConfig { Name = "ActionType",         Type = "hidden", Value = "FINANCIALAUDITFOREXTENDANDEVICTIONS" },
-                new FieldConfig { Name = "idaraID",            Type = "hidden", Value = IdaraId },
-                new FieldConfig { Name = "entrydata",          Type = "hidden", Value = usersId },
-                new FieldConfig { Name = "hostname",           Type = "hidden", Value = HostName },
                 new FieldConfig { Name = "redirectUrl",        Type = "hidden", Value = currentUrl },
                 new FieldConfig { Name = "redirectAction",     Type = "hidden", Value = PageName },
                 new FieldConfig { Name = "redirectController", Type = "hidden", Value = ControllerName },
@@ -505,7 +526,29 @@ namespace SmartFoundation.Mvc.Controllers.IncomeSystem
 
 
                 new FieldConfig { Name="p05", Label="نوع المسير", Type="select", ColCss="4", Options=BillChargeTypeOptions, Required = true },
-                new FieldConfig { Name="p07", Label="سنة الحسم", Type="select", ColCss="4", Options=yearOptions, Required = true, Placeholder = "الرجاء اختيار السنة" },
+               // new FieldConfig { Name="p07", Label="سنة الحسم", Type="select", ColCss="4", Options=yearOptions, Required = true, Placeholder = "الرجاء اختيار السنة" },
+
+
+                   new FieldConfig 
+                {
+                    Name = "p07",
+                    Label = "سنة الحسم",
+                    Type = "select",
+                    ColCss = "4",
+                    Required = true,
+                    Options = new List<OptionItem>(),
+                    Placeholder = "اختر نوع المسير أولًا",
+                
+                    DependsOn = "p05",
+                    DependsUrl =
+                        "/crud/DDLFiltered?" +
+                        "FK=BillChargeTypeID&" +
+                        "textcol=Year_&" +
+                        "ValueCol=Year_&" +
+                        "PageName=ImportExcelForBuildingPayment&" +
+                        "TableIndex=2"
+                },
+
 
                   // ✅ FIXED - Corrected syntax
                   new FieldConfig
@@ -524,7 +567,31 @@ namespace SmartFoundation.Mvc.Controllers.IncomeSystem
                 new FieldConfig { Name="p08", Label="رقم المسير", Type="text", ColCss="4", Required = true },
                 new FieldConfig { Name="p09", Label="تاريخ المسير", Type="date", ColCss="4", Required = true },
                 new FieldConfig { Name="p10", Label="الوصف", Type="textarea", ColCss="4", Required = true },
-
+               // new FieldConfig { Name="p14", Label="المسير الصادر المرتبط", Type="select", ColCss="6", Select2=true, Options=deductListReportOptions, Required=false },
+               new FieldConfig
+                {
+                    Name = "p14",
+                    Label = "المسير الصادر المرتبط",
+                    Type = "select",
+                    ColCss = "12",
+                    Required = false,
+                
+                    // تشغيل التحميل عند تغيّر أيٍّ من نوع المسير أو السنة أو الشهر
+                    DependsOn = "p06",
+                    DependsOnFields = "p05,p07,p06",
+                
+                    DependsUrl = "/crud/DDLFilteredMulti" +
+                        "?FilterColumns=BillChargeTypeID_FK%2CPeriodYear%2CPeriodMonth" +
+                        "&textcol=DeductListReportName" +
+                        "&ValueCol=DeductListReportID" +
+                        "&TableIndex=6" +
+                        "&PageName=ImportExcelForBuildingPayment",
+                
+                    Options = new List<OptionItem>
+                    {
+                        new() { Value = "-1", Text = "الرجاء اختيار نوع المسير والسنة والشهر" }
+                    }
+                },
                 new FieldConfig { Name="p11", Label="IdaraId_FK", Type="hidden", ColCss="4", Required = true   , Value = IdaraId },
                 new FieldConfig { Name="p12", Label="entryData", Type="hidden", ColCss="4", Required = true    , Value = usersId },
                 new FieldConfig { Name="p13", Label="hostName", Type="hidden", ColCss="4", Required = true , Value = HostName},
@@ -542,9 +609,6 @@ namespace SmartFoundation.Mvc.Controllers.IncomeSystem
             {
                 new FieldConfig { Name = "pageName_",          Type = "hidden", Value = PageName },
                 new FieldConfig { Name = "ActionType",         Type = "hidden", Value = "FINANCIALAUDITFOREXTENDANDEVICTIONS" },
-                new FieldConfig { Name = "idaraID",            Type = "hidden", Value = IdaraId },
-                new FieldConfig { Name = "entrydata",          Type = "hidden", Value = usersId },
-                new FieldConfig { Name = "hostname",           Type = "hidden", Value = HostName },
                 new FieldConfig { Name = "redirectUrl",        Type = "hidden", Value = currentUrl },
                 new FieldConfig { Name = "redirectAction",     Type = "hidden", Value = PageName },
                 new FieldConfig { Name = "redirectController", Type = "hidden", Value = ControllerName },
@@ -898,10 +962,10 @@ namespace SmartFoundation.Mvc.Controllers.IncomeSystem
                 {
                     dt = ReadExcelToDataTable(fullPath, useHeaderRow: true, sheetIndex: 0);
                 }
-                catch (Exception ex)
+                catch (Exception)
                 {
                     ClearExcelSession(deletePhysicalFile: true);
-                    return RespondError("فشل قراءة الإكسل. تأكد أن الملف Excel صحيح وغير مشفر بكلمة مرور. التفاصيل: " + ex.Message);
+                    return RespondError("فشل قراءة ملف الإكسل. تأكد أن الملف صحيح وغير مشفر بكلمة مرور.");
                 }
 
                 var cols = dt.Columns.Cast<DataColumn>()
@@ -928,9 +992,9 @@ namespace SmartFoundation.Mvc.Controllers.IncomeSystem
                     refresh = true
                 });
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                return RespondError("فشل رفع/قراءة ملف الإكسل: " + ex.Message);
+                return RespondError("حدث خطأ أثناء رفع أو قراءة ملف الإكسل. يرجى المحاولة مرة أخرى.");
             }
         }
 
@@ -941,7 +1005,7 @@ namespace SmartFoundation.Mvc.Controllers.IncomeSystem
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> ImportExcelForBuildingPaymentProcess(
             string? p01, string? p02, string? p03, string? p04, string? p05, 
-            string? p06, string? p07, string? p08, string? p09, string? p10, string? p11, string? p12, string? p13)
+            string? p06, string? p07, string? p08, string? p09, string? p10, string? p11, string? p12, string? p13, string? p14)
         {
             try
             {
@@ -967,6 +1031,7 @@ namespace SmartFoundation.Mvc.Controllers.IncomeSystem
                 p11 = (p11 ?? "").Trim();
                 p12 = (p12 ?? "").Trim();
                 p13 = (p13 ?? "").Trim();
+                p14 = (p14 ?? "").Trim();
 
                 // Validate p05 (BillChargeTypeID)
                 if (string.IsNullOrWhiteSpace(p05))
@@ -982,6 +1047,16 @@ namespace SmartFoundation.Mvc.Controllers.IncomeSystem
                 // Validate p07 (Year)
                 if (string.IsNullOrWhiteSpace(p07))
                     return RespondError("الرجاء اختيار سنة الحسم.");
+
+                if (!int.TryParse(p06, out var issueMonth) || issueMonth < 1 || issueMonth > 12)
+                {
+                    return RespondError("الرجاء اختيار شهر حسم صحيح.");
+                }
+
+                if (!int.TryParse(p07, out var issueYear) || issueYear < 2017 || issueYear > DateTime.Now.Year)
+                {
+                    return RespondError("الرجاء اختيار سنة حسم صحيحة.");
+                }
 
                 // Validate p08 (DeductListNo)
                 if (string.IsNullOrWhiteSpace(p08))
@@ -1075,7 +1150,7 @@ namespace SmartFoundation.Mvc.Controllers.IncomeSystem
                 await using var con = new SqlConnection(cs);
                 await con.OpenAsync();
 
-                await using var cmd = new SqlCommand("[Housing].[ImportExcelForBuildingPayment]", con);
+                await using var cmd = new SqlCommand("[Housing].[ImportExcelForBuildingPaymentSP]", con);
                 cmd.CommandType = CommandType.StoredProcedure;
                 cmd.CommandTimeout = 120;
 
@@ -1096,8 +1171,12 @@ namespace SmartFoundation.Mvc.Controllers.IncomeSystem
                 cmd.Parameters.AddWithValue("@IdaraId_FK", string.IsNullOrWhiteSpace(p11) ? (object)DBNull.Value : p11); // p11
                 cmd.Parameters.AddWithValue("@entryData", string.IsNullOrWhiteSpace(p12) ? (object)DBNull.Value : p12); // p12
                 cmd.Parameters.AddWithValue("@hostName", string.IsNullOrWhiteSpace(p13) ? (object)DBNull.Value : p13); // p13
+                //cmd.Parameters.Add("@DeductListReportID", SqlDbType.BigInt).Value = long.TryParse(p14, out var deductListReportId) ? deductListReportId : (object)DBNull.Value;
+                cmd.Parameters.Add("@DeductListReportID", SqlDbType.BigInt).Value =
+    long.TryParse(p14, out var deductListReportId) && deductListReportId > 0
+        ? deductListReportId
+        : (object)DBNull.Value;
 
-               
 
                 cmd.Parameters.AddWithValue("@FileHash", fileHash);
                 cmd.Parameters.AddWithValue("@OriginalFileName", originalName);
@@ -1145,13 +1224,13 @@ namespace SmartFoundation.Mvc.Controllers.IncomeSystem
                         refresh = true
                     });
             }
-            catch (SqlException ex)
+            catch (SqlException)
             {
-                return RespondError("خطأ SQL أثناء الإدخال: " + ex.Message);
+                return RespondError("حدث خطأ أثناء إدخال البيانات. يرجى المحاولة مرة أخرى.");
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                return RespondError("فشل الإدخال: " + ex.Message);
+                return RespondError("حدث خطأ أثناء إدخال البيانات. يرجى المحاولة مرة أخرى.");
             }
         }
 

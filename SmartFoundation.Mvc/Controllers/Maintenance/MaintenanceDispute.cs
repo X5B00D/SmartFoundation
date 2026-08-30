@@ -133,9 +133,6 @@ namespace SmartFoundation.Mvc.Controllers.Maintenance
                 new FieldConfig { Name = "redirectController", Type = "hidden", Value = ControllerName },
                 new FieldConfig { Name = "pageName_", Type = "hidden", Value = PageName },
                 new FieldConfig { Name = "ActionType", Type = "hidden", Value = actionType },
-                new FieldConfig { Name = "idaraID", Type = "hidden", Value = IdaraId },
-                new FieldConfig { Name = "entrydata", Type = "hidden", Value = usersId },
-                new FieldConfig { Name = "hostname", Type = "hidden", Value = currentHostName },
                 new FieldConfig { Name = "__RequestVerificationToken", Type = "hidden", Value = antiForgeryToken }
             };
 

@@ -5,16 +5,19 @@ namespace SmartFoundation.MVC.Reports;
 public static class DataTableReportBuilder
 {
     public static ReportResult FromDataTable(
-     string reportId,
-     string title,
-     DataTable table,
-     IEnumerable<ReportColumn>? columns = null,
-     Dictionary<string, string>? headerFields = null,
-     Dictionary<string, string>? footerFields = null,
-     ReportOrientation orientation = ReportOrientation.Auto,
-     ReportHeaderType headerType = ReportHeaderType.Standard,
-     string? logoPath = null,
-     ReportHeaderRepeat headerRepeat = ReportHeaderRepeat.AllPages)
+    string reportId,
+    string title,
+    DataTable table,
+    IEnumerable<ReportColumn>? columns = null,
+    Dictionary<string, string>? headerFields = null,
+    Dictionary<string, string>? footerFields = null,
+    ReportOrientation orientation = ReportOrientation.Auto,
+    ReportHeaderType headerType = ReportHeaderType.Standard,
+    string? logoPath = null,
+    ReportHeaderRepeat headerRepeat = ReportHeaderRepeat.AllPages,
+    bool showSerial = false,
+    string serialLabel = "م",
+    int serialStart = 1)
 
     {
         var cols = columns?.ToList() ?? InferColumns(table);
@@ -42,7 +45,11 @@ public static class DataTableReportBuilder
             HeaderFields = headerFields ?? new(),
             FooterFields = footerFields ?? new(),
             Columns = cols,
-            Rows = rows
+            Rows = rows,
+
+            ShowSerial = showSerial,
+            SerialLabel = serialLabel,
+            SerialStart = serialStart
         };
 
     }

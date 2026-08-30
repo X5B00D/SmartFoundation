@@ -287,9 +287,9 @@ namespace SmartFoundation.Mvc.Controllers.Vehicle
                     }
                 }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                ViewBag.DataSetError = ex.Message;
+                ViewBag.DataSetError = "حدث خطأ أثناء تحميل البيانات. يرجى المحاولة مرة أخرى.";
             }
 
             // ------------------------------------------------------------
@@ -351,9 +351,6 @@ namespace SmartFoundation.Mvc.Controllers.Vehicle
                 },
 
                 new FieldConfig { Name = "__RequestVerificationToken", Type = "hidden", Value = "" },
-                new FieldConfig { Name = "hostname", Type = "hidden", Value = Request.Host.Value },
-                new FieldConfig { Name = "entrydata", Type = "hidden", Value = usersId?.ToString() ?? "" },
-                new FieldConfig { Name = "idaraID", Type = "hidden", Value = IdaraId?.ToString() ?? "" },
 
                 new FieldConfig { Name = "ActionType", Type = "hidden", Value = "INSERT" },
                 new FieldConfig { Name = "pageName_", Type = "hidden", Value = "Violation_Upsert" },
@@ -418,9 +415,6 @@ namespace SmartFoundation.Mvc.Controllers.Vehicle
                 },
 
                 new FieldConfig { Name = "__RequestVerificationToken", Type = "hidden", Value = "" },
-                new FieldConfig { Name = "hostname", Type = "hidden", Value = Request.Host.Value },
-                new FieldConfig { Name = "entrydata", Type = "hidden", Value = usersId?.ToString() ?? "" },
-                new FieldConfig { Name = "idaraID", Type = "hidden", Value = IdaraId?.ToString() ?? "" },
 
                 new FieldConfig { Name = "ActionType", Type = "hidden", Value = "UPDATE" },
                 new FieldConfig { Name = "pageName_", Type = "hidden", Value = "Violation_Upsert" },
@@ -446,9 +440,6 @@ namespace SmartFoundation.Mvc.Controllers.Vehicle
                 },
 
                 new FieldConfig { Name = "__RequestVerificationToken", Type = "hidden", Value = "" },
-                new FieldConfig { Name = "hostname", Type = "hidden", Value = Request.Host.Value },
-                new FieldConfig { Name = "entrydata", Type = "hidden", Value = usersId?.ToString() ?? "" },
-                new FieldConfig { Name = "idaraID", Type = "hidden", Value = IdaraId?.ToString() ?? "" },
 
                 new FieldConfig { Name = "ActionType", Type = "hidden", Value = "PAYMENT" },
                 new FieldConfig { Name = "pageName_", Type = "hidden", Value = "Violation_SetPayment" },

@@ -32,14 +32,18 @@ namespace SmartFoundation.Mvc.Controllers.Api
             if (request == null || string.IsNullOrWhiteSpace(request.Message))
                 return BadRequest("Message is required.");
 
-            // ✅ استخراج IdaraId من Session
-            var idaraIdStr = HttpContext.Session.GetString("IdaraId") ?? "1";
+            var userIdStr = HttpContext.Session.GetString("usersID");
+            var idaraIdStr = HttpContext.Session.GetString("IdaraID");
+            if (!int.TryParse(userIdStr, out _) || !int.TryParse(idaraIdStr, out _))
+                return Unauthorized();
+
             var sessionFullName = HttpContext.Session.GetString("fullName") ?? "";
 
             var requestWithIp = request with 
             { 
                 IpAddress = HttpContext.Connection.RemoteIpAddress?.ToString(),
-                IdaraId = idaraIdStr, // ✅ إضافة
+                UserId = userIdStr,
+                IdaraId = idaraIdStr,
                 UserFullName = sessionFullName
             };
 
@@ -70,12 +74,9 @@ namespace SmartFoundation.Mvc.Controllers.Api
             {
 
 
-                var usersId =
-            HttpContext.Session.GetString("usersID") ??
-            HttpContext.Session.GetString("UsersID") ??
-            HttpContext.Session.GetString("UserId");
-
-                int? usersIdInt = int.TryParse(usersId, out var x) ? x : (int?)null;
+                var usersId = HttpContext.Session.GetString("usersID");
+                if (!int.TryParse(usersId, out var usersIdInt))
+                    return Unauthorized();
 
 
                 string? comment = string.IsNullOrWhiteSpace(request.Comment)

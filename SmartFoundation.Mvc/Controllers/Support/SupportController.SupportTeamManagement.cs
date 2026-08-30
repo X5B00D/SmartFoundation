@@ -137,9 +137,9 @@ namespace SmartFoundation.Mvc.Controllers.Support
                     }
                 }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                ViewBag.supportTeamManagementDataSetError = ex.Message;
+                ViewBag.supportTeamManagementDataSetError = "حدث خطأ أثناء تحميل بيانات فريق الدعم. يرجى المحاولة مرة أخرى.";
             }
 
             var addMemberFields = new List<FieldConfig>
@@ -150,9 +150,6 @@ namespace SmartFoundation.Mvc.Controllers.Support
                 new FieldConfig { Name = "p05", Label = "نشط", Type = "select", ColCss = "6", Required = true, Placeholder = "", Options = yesNoOptions }
             };
             addMemberFields.Insert(0, new FieldConfig { Name = "__RequestVerificationToken", Type = "hidden", Value = (Request.Headers["RequestVerificationToken"].FirstOrDefault() ?? "") });
-            addMemberFields.Insert(0, new FieldConfig { Name = "hostname", Type = "hidden", Value = Request.Host.Value });
-            addMemberFields.Insert(0, new FieldConfig { Name = "entrydata", Type = "hidden", Value = usersId?.ToString() });
-            addMemberFields.Insert(0, new FieldConfig { Name = "idaraID", Type = "hidden", Value = IdaraId?.ToString() });
             addMemberFields.Insert(0, new FieldConfig { Name = "ActionType", Type = "hidden", Value = "STM_ADD_MEMBER" });
             addMemberFields.Insert(0, new FieldConfig { Name = "pageName_", Type = "hidden", Value = PageName });
             addMemberFields.Insert(0, new FieldConfig { Name = "redirectAction", Type = "hidden", Value = PageName });
@@ -166,9 +163,6 @@ namespace SmartFoundation.Mvc.Controllers.Support
                 new FieldConfig { Name = "p05", Label = "نشط", Type = "select", ColCss = "6", Required = true, Placeholder = "", Options = yesNoOptions }
             };
             updateMemberFields.Insert(0, new FieldConfig { Name = "__RequestVerificationToken", Type = "hidden", Value = (Request.Headers["RequestVerificationToken"].FirstOrDefault() ?? "") });
-            updateMemberFields.Insert(0, new FieldConfig { Name = "hostname", Type = "hidden", Value = Request.Host.Value });
-            updateMemberFields.Insert(0, new FieldConfig { Name = "entrydata", Type = "hidden", Value = usersId?.ToString() });
-            updateMemberFields.Insert(0, new FieldConfig { Name = "idaraID", Type = "hidden", Value = IdaraId?.ToString() });
             updateMemberFields.Insert(0, new FieldConfig { Name = "ActionType", Type = "hidden", Value = "STM_UPDATE_MEMBER" });
             updateMemberFields.Insert(0, new FieldConfig { Name = "pageName_", Type = "hidden", Value = PageName });
             updateMemberFields.Insert(0, new FieldConfig { Name = "redirectAction", Type = "hidden", Value = PageName });
@@ -179,9 +173,6 @@ namespace SmartFoundation.Mvc.Controllers.Support
                 new FieldConfig { Name = "p01", Type = "hidden" }
             };
             deactivateMemberFields.Insert(0, new FieldConfig { Name = "__RequestVerificationToken", Type = "hidden", Value = (Request.Headers["RequestVerificationToken"].FirstOrDefault() ?? "") });
-            deactivateMemberFields.Insert(0, new FieldConfig { Name = "hostname", Type = "hidden", Value = Request.Host.Value });
-            deactivateMemberFields.Insert(0, new FieldConfig { Name = "entrydata", Type = "hidden", Value = usersId?.ToString() });
-            deactivateMemberFields.Insert(0, new FieldConfig { Name = "idaraID", Type = "hidden", Value = IdaraId?.ToString() });
             deactivateMemberFields.Insert(0, new FieldConfig { Name = "ActionType", Type = "hidden", Value = "STM_DEACTIVATE_MEMBER" });
             deactivateMemberFields.Insert(0, new FieldConfig { Name = "pageName_", Type = "hidden", Value = PageName });
             deactivateMemberFields.Insert(0, new FieldConfig { Name = "redirectAction", Type = "hidden", Value = PageName });

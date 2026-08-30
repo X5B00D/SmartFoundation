@@ -44,24 +44,26 @@ BEGIN
             + N'.bak';
 
         DECLARE @sql NVARCHAR(MAX) =
-            N'BACKUP DATABASE ' + QUOTENAME(@databaseName) +
-            N' TO DISK = N''' + REPLACE(@fileName, N'''', N'''''') + N'''
-               WITH INIT, CHECKSUM, COMPRESSION, COPY_ONLY, STATS = 5;';
+    N'BACKUP DATABASE ' + QUOTENAME(@databaseName) +
+    N' TO DISK = N''' + REPLACE(@fileName, N'''', N'''''') + N'''
+       WITH INIT, CHECKSUM, COPY_ONLY, STATS = 5;';
 
-        EXEC sys.sp_executesql @sql;
+EXEC sys.sp_executesql @sql;
 
-        SELECT 1 AS IsSuccessful,
-               N'تم أخذ النسخة الاحتياطية بنجاح: ' + @fileName AS Message_;
+DECLARE @verifySql NVARCHAR(MAX) =
+    N'RESTORE VERIFYONLY
+      FROM DISK = N''' + REPLACE(@fileName, N'''', N'''''') + N'''
+      WITH CHECKSUM;';
+
+EXEC sys.sp_executesql @verifySql;
+
+SELECT
+    1 AS IsSuccessful,
+    @databaseName AS DatabaseName,
+    @fileName AS BackupFile,
+    N'تم أخذ النسخة الاحتياطية والتحقق منها بنجاح.' AS Message_;
     END TRY
    BEGIN CATCH
-    DECLARE @Err NVARCHAR(4000) =
-        CONCAT(
-            N'Error ', ERROR_NUMBER(),
-            N', Line ', ERROR_LINE(),
-            N', Proc ', COALESCE(ERROR_PROCEDURE(), N'-'),
-            N': ', ERROR_MESSAGE()
-        );
-
-    ;THROW 50002, @Err, 1;
+    THROW;
 END CATCH
 END

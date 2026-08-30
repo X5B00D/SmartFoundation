@@ -198,8 +198,14 @@ namespace SmartFoundation.DataEngine.Core.Services
             catch (Exception ex)
             {
                 resp.Success = false;
-                resp.Error = ex.Message;
-                _logger.LogError(ex, "خطأ أثناء تنفيذ SP: {SpName}", request.SpName);
+               // resp.Error = "حدث خطأ أثناء تنفيذ العملية. يرجى المحاولة لاحقًا.";
+                resp.Error = "لايوجد بيانات.";
+
+                _logger.LogError(
+                    ex,
+                    "خطأ أثناء تنفيذ SP: {SpName}",
+                    request.SpName
+                );
             }
             finally
             {

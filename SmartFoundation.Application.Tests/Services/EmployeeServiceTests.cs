@@ -76,8 +76,9 @@ public class EmployeeServiceTests
     Assert.NotNull(result);
     var json = JsonDocument.Parse(result);
     Assert.False(json.RootElement.GetProperty("success").GetBoolean());
-    Assert.Contains("Database connection failed",
-        json.RootElement.GetProperty("message").GetString());
+    var message = json.RootElement.GetProperty("message").GetString();
+    Assert.Equal("حدث خطأ أثناء تنفيذ العملية. يرجى المحاولة مرة أخرى.", message);
+    Assert.DoesNotContain("Database connection failed", message);
   }
 
   [Fact]
@@ -145,8 +146,9 @@ public class EmployeeServiceTests
     Assert.NotNull(result);
     var json = JsonDocument.Parse(result);
     Assert.False(json.RootElement.GetProperty("success").GetBoolean());
-    Assert.Contains("Required field",
-        json.RootElement.GetProperty("message").GetString());
+    var message = json.RootElement.GetProperty("message").GetString();
+    Assert.Equal("حدث خطأ أثناء تنفيذ العملية. يرجى المحاولة مرة أخرى.", message);
+    Assert.DoesNotContain("Required field", message);
   }
 
   [Fact]

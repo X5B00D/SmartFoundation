@@ -28,9 +28,18 @@ public class ReportResult
     public ReportHeaderRepeat HeaderRepeat { get; set; } = ReportHeaderRepeat.AllPages;
 
     // ===== Table =====
+    // ===== Table =====
     public List<ReportColumn> Columns { get; set; } = new();
     public List<Dictionary<string, object?>> Rows { get; set; } = new();
     public float? TableFontSize { get; set; }
+
+    // التسلسل اختياري وغير مفعّل افتراضيًا
+    public bool ShowSerial { get; set; } = false;
+    public string SerialLabel { get; set; } = "م";
+    public int SerialStart { get; set; } = 1;
+    public string? GroupByKey { get; set; }
+    public string? GroupTitle { get; set; }
+    public bool StartEachGroupOnNewPage { get; set; }
 
     // ===== Letter =====
     public List<LetterBlock> LetterBlocks { get; set; } = new();

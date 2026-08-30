@@ -150,6 +150,7 @@ namespace SmartFoundation.Mvc.Controllers.Housing
                             ["buildingDetailsNo"] = "رقم المنزل (إن وجد)",
                             ["OccupentDate"] = "تاريخ السكن",
                             ["OccupentType"] = "نوع طلب التسكين",
+                            ["CustdyRecord"] = "جرد العهد",
                             ["WaitingListOrder"] = "الترتيب"
                         };
 
@@ -227,6 +228,7 @@ namespace SmartFoundation.Mvc.Controllers.Housing
                             dict["p20"] = Get("AssignPeriodID");
                             dict["p21"] = Get("LastActionID");
                             dict["p22"] = Get("meterscount");
+                            dict["p32"] = Get("CustdyRecord");
 
 
                             rowsList.Add(dict);
@@ -234,9 +236,9 @@ namespace SmartFoundation.Mvc.Controllers.Housing
                     }
                 }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                ViewBag.BuildingTypeDataSetError = ex.Message;
+                ViewBag.BuildingTypeDataSetError = "حدث خطأ أثناء تحميل البيانات. يرجى المحاولة مرة أخرى.";
             }
 
 
@@ -249,9 +251,6 @@ namespace SmartFoundation.Mvc.Controllers.Housing
 
                 new FieldConfig { Name = "pageName_",          Type = "hidden", Value = PageName },
                 new FieldConfig { Name = "ActionType",         Type = "hidden", Value = "HOUSINGESRESIDENTSCUSTDY" },
-                new FieldConfig { Name = "idaraID",            Type = "hidden", Value = IdaraId },
-                new FieldConfig { Name = "entrydata",          Type = "hidden", Value = usersId },
-                new FieldConfig { Name = "hostname",           Type = "hidden", Value = HostName },
                 new FieldConfig { Name = "redirectUrl",     Type = "hidden", Value = currentUrl },
                 new FieldConfig { Name = "redirectAction",     Type = "hidden", Value = PageName },
                 new FieldConfig { Name = "redirectController", Type = "hidden", Value = ControllerName },
@@ -272,7 +271,7 @@ namespace SmartFoundation.Mvc.Controllers.Housing
                 new FieldConfig { Name = "p09", Label = "WaitingOrderTypeID", Type = "hidden", ColCss = "3", Readonly = true },
                 new FieldConfig { Name = "p10", Label = "نوع سجل الانتظار", Type = "hidden", ColCss = "3", Readonly = true },
                 new FieldConfig { Name = "p18", Label = "buildingDetailsID", Type = "hidden", ColCss = "3", Readonly = true },
-                new FieldConfig { Name = "p12", Label = "تسجيل الملاحظات", Type = "textarea", ColCss = "12",Required = true,HelpText="لايجب ان يتجاوز النص 4000 حرف*",MaxLength=3900 },
+                new FieldConfig { Name = "p32", Label = "تسجيل الملاحظات", Type = "textarea", ColCss = "12",Required = true,HelpText="لايجب ان يتجاوز النص 4000 حرف*",MaxLength=3900 },
                 new FieldConfig { Name = "p13", Label = "IdaraId", Type = "hidden", ColCss = "3", Readonly = true },
                 new FieldConfig { Name = "p16", Label = "LastActionTypeID", Type = "hidden", ColCss = "3", Readonly = true },
                 new FieldConfig { Name = "p17", Label = "buildingActionTypeResidentAlias", Type = "hidden", ColCss = "3", Readonly = true },
@@ -289,9 +288,6 @@ namespace SmartFoundation.Mvc.Controllers.Housing
 
                 new FieldConfig { Name = "pageName_",          Type = "hidden", Value = PageName },
                 new FieldConfig { Name = "ActionType",         Type = "hidden", Value = "HOUSINGESRESIDENTS" },
-                new FieldConfig { Name = "idaraID",            Type = "hidden", Value = IdaraId },
-                new FieldConfig { Name = "entrydata",          Type = "hidden", Value = usersId },
-                new FieldConfig { Name = "hostname",           Type = "hidden", Value = HostName },
                 new FieldConfig { Name = "redirectUrl",     Type = "hidden", Value = currentUrl },
                 new FieldConfig { Name = "redirectAction",     Type = "hidden", Value = PageName },
                 new FieldConfig { Name = "redirectController", Type = "hidden", Value = ControllerName },
@@ -316,7 +312,7 @@ namespace SmartFoundation.Mvc.Controllers.Housing
                 new FieldConfig { Name = "p25", Label = "تاريخ التسكين", Type = "date", ColCss = "3", Required = true, Icon = "fa-regular fa-calendar-days" },
                 new FieldConfig { Name = "p23", Label = "رقم الخطاب الصادر", Type = "text", ColCss = "6", Required = true, Icon = "fa-solid fa-file-signature" },
                 new FieldConfig { Name = "p24", Label = "تاريخ الخطاب الصادر", Type = "date", ColCss = "3", Required = true, Icon = "fa-regular fa-calendar-days" },
-                new FieldConfig { Name = "p12", Label = "ملاحظات التسكين", Type = "textarea", ColCss = "12",Required = true,HelpText="لايجب ان يتجاوز النص 4000 حرف*",MaxLength=3900, Icon = "fa-regular fa-note-sticky" },
+                new FieldConfig { Name = "p42", Label = "ملاحظات التسكين", Type = "textarea", ColCss = "12",Required = true,HelpText="لايجب ان يتجاوز النص 4000 حرف*",MaxLength=3900, Icon = "fa-regular fa-note-sticky" },
 
                 new FieldConfig { Name = "p13", Label = "IdaraId", Type = "hidden", ColCss = "3", Readonly = true },
                 new FieldConfig { Name = "p16", Label = "LastActionTypeID", Type = "hidden", ColCss = "3", Readonly = true },
@@ -334,9 +330,6 @@ namespace SmartFoundation.Mvc.Controllers.Housing
 
                 new FieldConfig { Name = "pageName_",          Type = "hidden", Value = PageName },
                 new FieldConfig { Name = "ActionType",         Type = "hidden", Value = "CANCELHOUSINGRESIDENT" },
-                new FieldConfig { Name = "idaraID",            Type = "hidden", Value = IdaraId },
-                new FieldConfig { Name = "entrydata",          Type = "hidden", Value = usersId },
-                new FieldConfig { Name = "hostname",           Type = "hidden", Value = HostName },
                 new FieldConfig { Name = "redirectUrl",     Type = "hidden", Value = currentUrl },
                 new FieldConfig { Name = "redirectAction",     Type = "hidden", Value = PageName },
                 new FieldConfig { Name = "redirectController", Type = "hidden", Value = ControllerName },
@@ -361,7 +354,7 @@ namespace SmartFoundation.Mvc.Controllers.Housing
                 new FieldConfig { Name = "p25", Label = "تاريخ التسكين", Type = "hidden", ColCss = "3", Required = true, Icon = "fa-regular fa-calendar-days" },
                 new FieldConfig { Name = "p23", Label = "رقم الخطاب الصادر", Type = "hidden", ColCss = "6", Required = true, Icon = "fa-solid fa-file-signature" },
                 new FieldConfig { Name = "p24", Label = "تاريخ الخطاب الصادر", Type = "hidden", ColCss = "3", Required = true, Icon = "fa-regular fa-calendar-days" },
-                new FieldConfig { Name = "p12", Label = "سبب الغاء التسكين", Type = "textarea", ColCss = "12",Required = true,HelpText="لايجب ان يتجاوز النص 4000 حرف*",MaxLength=3900, Icon = "fa-regular fa-note-sticky" },
+                new FieldConfig { Name = "p42", Label = "سبب الغاء التسكين", Type = "textarea", ColCss = "12",Required = true,HelpText="لايجب ان يتجاوز النص 4000 حرف*",MaxLength=3900, Icon = "fa-regular fa-note-sticky" },
 
                 new FieldConfig { Name = "p13", Label = "IdaraId", Type = "hidden", ColCss = "3", Readonly = true },
                 new FieldConfig { Name = "p16", Label = "LastActionTypeID", Type = "hidden", ColCss = "3", Readonly = true },
@@ -377,7 +370,7 @@ namespace SmartFoundation.Mvc.Controllers.Housing
 
             var dsModel = new SmartTableDsModel
             {
-                PageTitle = "المستفيدين",
+                PageTitle = "إسكان المستفيدين",
                 Columns = dynamicColumns,
                 Rows = rowsList,
                 RowIdField = rowIdField,

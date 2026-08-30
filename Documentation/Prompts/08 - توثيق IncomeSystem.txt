@@ -1,0 +1,12 @@
+نواصل مشروع توثيق SmartFoundation.
+
+اقرأ AGENTS.md وDocumentation/Documentation-Progress.json و07A-Live-Database-Reconciliation.md وجميع النتائج ذات الصلة. نفذ IncomeSystem فقط:
+DeductListReport, FinancialAuditForExtendAndEvictions, FinancialAuditForUser, ImportExcelForBuildingPayment, ExtendInsurance.
+
+وثق الهدف وControllers/Actions/Views وModels/ViewModels وServices وData Access وFormConfig وDataSet/Result Sets وDDL والصلاحيات والعمليات وValidation وBusiness Rules والتقارير والتدقيق المالي والاستيراد دون تشغيله والعلاقة مع Housing وElectronicBillSystem وWorkflows ودليل المستخدم.
+
+تتبع المسار إلى Live Stored Procedures والكائنات الحية. DATACORE مصدر SQL النهائي؛ Snapshot للمقارنة فقط. استخدم SELECT من sys catalogs، ولا تنفذ Business SP أوImport أوكتابة.
+
+تحقق خصوصاً من routing الحقيقي لـDeductListReport. لا تعدل خارج Documentation/ ولا تعرض أسراراً.
+
+حدّث المستندات والرسومات ودليل المستخدم وCoverage وDocumentation-Progress.json. في النهاية اعرض النتائج الحية والاختلافات والفجوات والملفات واجعل المرحلة التالية ElectronicBillSystem.

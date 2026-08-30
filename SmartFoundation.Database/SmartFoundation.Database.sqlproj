@@ -88,6 +88,15 @@
     <Folder Include="Demo\Stored Procedures\" />
     <Folder Include="Housing\User Defined Types\" />
     <Folder Include="support\Sequences\" />
+    <Folder Include="MoveData\" />
+    <Folder Include="MoveData\Tables\" />
+    <Folder Include="Maintenance\" />
+    <Folder Include="Maintenance\Tables\" />
+    <Folder Include="Maintenance\Views\" />
+    <Folder Include="MoveData\Functions\" />
+    <Folder Include="MoveData\Stored Procedures\" />
+    <Folder Include="Maintenance\Stored Procedures\" />
+    <Folder Include="Housing\Sequences\" />
   </ItemGroup>
   <ItemGroup>
     <Build Include="Housing\Tables\RentBillsAdjustment.sql" />
@@ -210,7 +219,6 @@
     <Build Include="Housing\Tables\OccupantCustodyAction.sql" />
     <Build Include="VIC\Tables\VehicleRequest.sql" />
     <Build Include="dbo\Tables\DistributorPermissionType.sql" />
-    <Build Include="Housing\Tables\BuildingPaymentTemp11.sql" />
     <Build Include="dbo\Tables\contactType.sql" />
     <Build Include="VIC\Tables\VehicleRequestHistory.sql" />
     <Build Include="support\Tables\TicketType.sql" />
@@ -242,7 +250,6 @@
     <Build Include="dbo\Tables\UsersAuthType.sql" />
     <Build Include="Housing\Tables\BillDeductList.sql" />
     <Build Include="dbo\Tables\Organization.sql" />
-    <Build Include="Housing\Tables\ResidentInfoTemp_.sql" />
     <Build Include="Tickets\Tables\ArbitrationReason.sql" />
     <Build Include="Housing\Tables\WaitingClass.sql" />
     <Build Include="Housing\Tables\billPaymentType.sql" />
@@ -270,7 +277,6 @@
     <Build Include="Housing\Tables\CustodyOrDamageType.sql" />
     <Build Include="WH\Tables\CategoryGroupLifeType.sql" />
     <Build Include="dbo\Tables\Idara.sql" />
-    <Build Include="Housing\Tables\OldRent.sql" />
     <Build Include="Housing\Tables\MeterType.sql" />
     <Build Include="Tickets\Tables\TicketImpact.sql" />
     <Build Include="WH\Tables\CategoryLevelResponsible.sql" />
@@ -300,6 +306,13 @@
     <Build Include="Housing\Tables\UploadExcel.sql" />
     <Build Include="Tickets\Tables\ServiceCategory.sql" />
     <Build Include="Housing\Tables\ResidentRentExemption.sql" />
+    <Build Include="Housing\Tables\ResidentRentExemptionPayment.sql" />
+    <Build Include="Housing\Tables\MonthlyBillingRun.sql" />
+    <Build Include="Housing\Tables\MonthlyBillingRunDetails.sql" />
+    <Build Include="Housing\Tables\DeductListReport.sql" />
+    <Build Include="Housing\Sequences\DeductListReportNoSequence.sql" />
+    <Build Include="Housing\Tables\DeductListReportDetails.sql" />
+    <Build Include="Housing\Tables\DeductListReportImport.sql" />
     <Build Include="dbo\Tables\Notifications.sql" />
     <Build Include="Housing\Tables\BuildingHandover.sql" />
     <Build Include="WH\Tables\WarehousePartType.sql" />
@@ -557,7 +570,7 @@
     <Build Include="VIC\Stored Procedures\Report_VehiclesWithoutCustody_DL.sql" />
     <Build Include="VIC\Stored Procedures\Report_VehicleTimeline_DL.sql" />
     <Build Include="VIC\Stored Procedures\Scrap_Action_SP.sql" />
-    <Build Include="Housing\Stored Procedures\ImportExcelForBuildingPayment.sql" />
+    <Build Include="Housing\Stored Procedures\ImportExcelForBuildingPaymentSP.sql" />
     <Build Include="VIC\Stored Procedures\ScrapDL.sql" />
     <Build Include="Housing\Stored Procedures\AllMeterReadDL.sql" />
     <Build Include="VIC\Stored Procedures\Scrap_Upsert_SP.sql" />
@@ -590,6 +603,7 @@
     <Build Include="Housing\Stored Procedures\MeterReadForOccubentAndExitDL.sql" />
     <Build Include="VIC\Stored Procedures\TransferRequestHistory_List_DL.sql" />
     <Build Include="Housing\Stored Procedures\HousingExtendDL.sql" />
+    <Build Include="Housing\Stored Procedures\HousingExtendFollowUpDL.sql" />
     <Build Include="VIC\Stored Procedures\TransferRequestType_List_DL.sql" />
     <Build Include="Housing\Stored Procedures\FinancialAuditForExtendAndEvictionsDL.sql" />
     <Build Include="dbo\Stored Procedures\_BackupDatabaseSami.sql" />
@@ -638,6 +652,9 @@
     <Build Include="dbo\Stored Procedures\Masters_ExtraDataLoad.sql" />
     <Build Include="dbo\Stored Procedures\GetSessionInfoForMVC.sql" />
     <Build Include="Housing\Stored Procedures\HousingResidentSP.sql" />
+    <Build Include="Housing\Stored Procedures\BackfillResidentServiceBills.sql" />
+    <Build Include="Housing\Stored Procedures\GenerateExitRentBills.sql" />
+    <Build Include="Housing\Stored Procedures\GenerateMonthlyRentBillForResident.sql" />
     <Build Include="Housing\Stored Procedures\MeterReadForOccubentAndExitSP.sql" />
     <Build Include="dbo\Stored Procedures\Masters_CRUD.sql">
       <QuotedIdentifier>Off</QuotedIdentifier>
@@ -649,6 +666,7 @@
     <Build Include="Housing\Stored Procedures\OtherWaitingListSP.sql" />
     <Build Include="dbo\Stored Procedures\Notifications_Create.sql" />
     <Build Include="Housing\Stored Procedures\RentExemptionSP.sql" />
+    <Build Include="Housing\Stored Procedures\SyncRentExemptionPayments.sql" />
     <Build Include="dbo\Stored Procedures\Masters_DataLoad.sql">
       <QuotedIdentifier>Off</QuotedIdentifier>
     </Build>
@@ -687,6 +705,109 @@
     <Build Include="Security\VIC.sql" />
     <Build Include="Security\WH.sql" />
     <Build Include="support\Sequences\SeqTicketNo.sql" />
+    <Build Include="Housing\Tables\MeterTypeFixedAmount.sql" />
+    <Build Include="Housing\Tables\MeterCalculateType.sql" />
+    <Build Include="Housing\Tables\BuildingPaymentLinkStatus.sql" />
+    <Build Include="Housing\Tables\BuildingPaymentLinkAudit.sql" />
+    <Build Include="MoveData\Tables\MigrationExecutionLog.sql" />
+    <Build Include="Maintenance\Tables\MaintenanceSLA.sql" />
+    <Build Include="Maintenance\Tables\MaintenanceDisputeRule.sql" />
+    <Build Include="Maintenance\Tables\MaintenanceCategoryRouting.sql" />
+    <Build Include="Maintenance\Tables\BuildingMaintenanceRequestSLA.sql" />
+    <Build Include="Maintenance\Tables\BuildingMaintenanceRequestDispute.sql" />
+    <Build Include="Maintenance\Tables\BuildingMaintenanceRequestApproval.sql" />
+    <Build Include="Maintenance\Tables\BuildingMaintenanceRequestAssignment.sql" />
+    <Build Include="Maintenance\Tables\MaintenanceActionReason.sql" />
+    <Build Include="Maintenance\Tables\BuildingMaintenanceRequestAction.sql" />
+    <Build Include="Maintenance\Tables\BuildingMaintenanceRequest.sql" />
+    <Build Include="Maintenance\Tables\MaintenanceActionType.sql" />
+    <Build Include="Maintenance\Tables\MaintenancePriority.sql" />
+    <Build Include="Maintenance\Tables\MaintenanceRequestStatus.sql" />
+    <Build Include="Maintenance\Tables\MaintenanceCategory.sql" />
+    <Build Include="Housing\Views\V_UnresolvedBuildingPayments.sql" />
+    <Build Include="Housing\Views\V_SumUnallocatedPaymentsForResident.sql" />
+    <Build Include="Maintenance\Views\V_MaintenanceCategoryTree.sql" />
+    <Build Include="Maintenance\Views\V_BuildingMaintenanceRequestDisputes.sql" />
+    <Build Include="Maintenance\Views\V_BuildingMaintenanceRequestApprovals.sql" />
+    <Build Include="Maintenance\Views\V_BuildingMaintenanceRequestTimeline.sql" />
+    <Build Include="Maintenance\Views\V_BuildingMaintenanceRequestDocuments.sql" />
+    <Build Include="Maintenance\Views\V_BuildingMaintenanceRequestSLAStatus.sql" />
+    <Build Include="Maintenance\Views\V_BuildingMaintenanceRequestDetails.sql" />
+    <Build Include="Maintenance\Views\V_BuildingMaintenanceRequestList.sql" />
+    <Build Include="Maintenance\Views\V_BuildingMaintenanceRequestAssignments.sql" />
+    <Build Include="MoveData\Functions\fn_MapEntryData.sql" />
+    <Build Include="MoveData\Functions\fn_MapHostName.sql" />
+    <Build Include="Housing\Stored Procedures\usp_LinkBuildingPaymentManually.sql" />
+    <Build Include="Housing\Stored Procedures\usp_ClassifyAndLinkBuildingPayments_V2.sql" />
+    <Build Include="Housing\Stored Procedures\usp_ClassifyAndLinkBuildingPayments.sql" />
+    <Build Include="Housing\Stored Procedures\ImportExcelForBuildingPayment.sql" />
+    <Build Include="dbo\Stored Procedures\_DeleteTableAndResetIdentity.sql" />
+    <Build Include="MoveData\Stored Procedures\usp_MigrateSystemUsers.sql" />
+    <Build Include="MoveData\Stored Procedures\usp_MigrateExtendInsurance.sql" />
+    <Build Include="MoveData\Stored Procedures\usp_ValidateMigration.sql" />
+    <Build Include="MoveData\Stored Procedures\usp_MigrateResidentContacts.sql" />
+    <Build Include="MoveData\Stored Procedures\usp_MigrateMilitaryUnits.sql" />
+    <Build Include="MoveData\Stored Procedures\usp_MigratePenaltyBillsAndPayments.sql" />
+    <Build Include="MoveData\Stored Procedures\usp_MigrateOccupantCustodyActions.sql" />
+    <Build Include="MoveData\Stored Procedures\usp_MigrateAll.sql" />
+    <Build Include="MoveData\Stored Procedures\usp_MigrateElectricBillsAndPayments.sql" />
+    <Build Include="MoveData\Stored Procedures\usp_MigrateHistoricalRentAndWaterBills.sql" />
+    <Build Include="MoveData\Stored Procedures\usp_MigrateBuildingFixedServices.sql" />
+    <Build Include="Housing\Stored Procedures\GenerateMissingResidentFixedServiceBills.sql" />
+    <Build Include="Housing\Stored Procedures\GenerateFixedServiceBillsForResidentPeriod.sql" />
+    <Build Include="Housing\Stored Procedures\GenerateMonthlyFixedServiceBills.sql" />
+    <Build Include="Housing\Stored Procedures\GenerateAllAdministrationsMonthlyBills.sql" />
+    <Build Include="Housing\Stored Procedures\MonthlyBillingMonitorDL.sql" />
+    <Build Include="Housing\Stored Procedures\MonthlyBillingMonitorSP.sql" />
+    <Build Include="Housing\Stored Procedures\DeductListReportDL.sql" />
+    <Build Include="Housing\Stored Procedures\DeductListReportSP.sql" />
+    <Build Include="MoveData\Stored Procedures\usp_MigrateBuildingActions.sql" />
+    <Build Include="MoveData\Stored Procedures\usp_MigrateMeters.sql" />
+    <Build Include="MoveData\Stored Procedures\usp_MigrateBuildings.sql" />
+    <Build Include="MoveData\Stored Procedures\usp_MigrateResidents.sql" />
+    <Build Include="MoveData\Stored Procedures\usp_ResetSystemUsers.sql" />
+    <Build Include="MoveData\Stored Procedures\usp_MigrateLegacyAssignments.sql" />
+    <Build Include="MoveData\Stored Procedures\usp_ResetMigrationData.sql" />
+    <Build Include="Maintenance\Stored Procedures\MaintenanceSubRequestSP.sql">
+      <QuotedIdentifier>Off</QuotedIdentifier>
+    </Build>
+    <Build Include="Maintenance\Stored Procedures\MaintenanceSubRequestDL.sql">
+      <QuotedIdentifier>Off</QuotedIdentifier>
+    </Build>
+    <Build Include="Maintenance\Stored Procedures\MaintenanceDisputeSP.sql">
+      <QuotedIdentifier>Off</QuotedIdentifier>
+    </Build>
+    <Build Include="Maintenance\Stored Procedures\MaintenanceDisputeDL.sql">
+      <QuotedIdentifier>Off</QuotedIdentifier>
+    </Build>
+    <Build Include="Maintenance\Stored Procedures\MaintenanceDashboardSP.sql">
+      <QuotedIdentifier>Off</QuotedIdentifier>
+    </Build>
+    <Build Include="Maintenance\Stored Procedures\MaintenanceDashboardDL.sql">
+      <QuotedIdentifier>Off</QuotedIdentifier>
+    </Build>
+    <Build Include="Maintenance\Stored Procedures\MaintenanceCategorySP.sql" />
+    <Build Include="Maintenance\Stored Procedures\MaintenanceCategoryDL.sql" />
+    <Build Include="Maintenance\Stored Procedures\MaintenanceApprovalSP.sql">
+      <QuotedIdentifier>Off</QuotedIdentifier>
+    </Build>
+    <Build Include="Maintenance\Stored Procedures\MaintenanceApprovalDL.sql">
+      <QuotedIdentifier>Off</QuotedIdentifier>
+    </Build>
+    <Build Include="Maintenance\Stored Procedures\BuildingMaintenanceRequestSP.sql">
+      <QuotedIdentifier>Off</QuotedIdentifier>
+    </Build>
+    <Build Include="Maintenance\Stored Procedures\BuildingMaintenanceRequestFollowUpSP.sql">
+      <QuotedIdentifier>Off</QuotedIdentifier>
+    </Build>
+    <Build Include="Maintenance\Stored Procedures\BuildingMaintenanceRequestFollowUpDL.sql">
+      <QuotedIdentifier>Off</QuotedIdentifier>
+    </Build>
+    <Build Include="Maintenance\Stored Procedures\BuildingMaintenanceRequestDL.sql">
+      <QuotedIdentifier>Off</QuotedIdentifier>
+    </Build>
+    <Build Include="Security\MoveData.sql" />
+    <Build Include="Security\Maintenance.sql" />
   </ItemGroup>
   <ItemGroup>
     <ArtifactReference Include="$(DacPacRootPath)\Extensions\Microsoft\SQLDB\Extensions\SqlServer\150\SqlSchemas\master.dacpac">

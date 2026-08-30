@@ -2076,6 +2076,35 @@ BEGIN
                
             END
 
+
+            ELSE IF @ActionType = N'CANCELHOUSINGRESIDENT'
+BEGIN
+    INSERT INTO @Result (IsSuccessful, Message_)
+    EXEC [Housing].[HousingResidentSP]
+          @Action                       = @ActionType
+        , @ActionID                     = @parameter_01
+        , @residentInfoID               = @parameter_02
+        , @NationalID                   = @parameter_03
+        , @GeneralNo                    = @parameter_04
+        , @buildingActionDecisionNo     = @parameter_05
+        , @buildingActionDecisionDate   = @parameter_06
+        , @WaitingClassID               = @parameter_07
+        , @WaitingClassName             = @parameter_08
+        , @WaitingOrderTypeID           = @parameter_09
+        , @WaitingOrderTypeName         = @parameter_10
+        , @waitingClassSequence         = @parameter_11
+        , @Notes                        = @parameter_12
+        , @WaitingListOrder             = @parameter_14
+        , @FullName_A                   = @parameter_15
+        , @LastActionTypeID             = @parameter_16
+        , @buildingDetailsID            = @parameter_18
+        , @AssignPeriodID               = @parameter_20
+        , @LastActionID                 = @parameter_21
+        , @idaraID_FK                   = @idaraID
+        , @entryData                    = @entrydata
+        , @hostName                     = @hostName;
+END;
+
             
 
             ELSE
@@ -3063,11 +3092,66 @@ BEGIN
             GOTO Finish;
         END
 
+       ----------------------------------------------------------------
+        -- MonthlyBillingMonitor
+        ----------------------------------------------------------------
+       ELSE IF @pageName_ = N'MonthlyBillingMonitor'
+        BEGIN
+            IF (SELECT COUNT(*) FROM dbo.V_GetListUserPermission v
+                WHERE v.userID=@entrydata AND v.menuName_E=@pageName_
+                  AND v.permissionTypeName_E=@ActionType) <= 0
+            BEGIN
+                SET @ok=0; SET @msg=N'عفوا لاتملك صلاحية لهذه العملية'; GOTO Finish;
+            END;
 
+            DELETE FROM @Result;
+            IF @ActionType=N'RETRYMONTHLYBILLING'
+            BEGIN
+                DECLARE @MonthlyBillingRunID_VALUE BIGINT=TRY_CONVERT(BIGINT,@parameter_01);
+                INSERT @Result(IsSuccessful,Message_)
+                EXEC Housing.MonthlyBillingMonitorSP
+                     @Action=@ActionType
+                    ,@MonthlyBillingRunID=@MonthlyBillingRunID_VALUE
+                    ,@IdaraID=@idaraID
+                    ,@EntryData=@entrydata
+                    ,@HostName=@hostName;
+            END
+            ELSE
+            BEGIN
+                SET @ok=0; SET @msg=N'نوع العملية المطلوبة غير معروف. ActionType'; GOTO Finish;
+            END;
+            SELECT TOP(1) @ok=IsSuccessful,@msg=Message_ FROM @Result;
+            GOTO Finish;
+        END
 
-
-
-
+       ----------------------------------------------------------------
+       -- DeductListReport
+       ----------------------------------------------------------------
+        ELSE IF @pageName_ = N'DeductListReport'
+        BEGIN
+            IF (SELECT COUNT(*) FROM dbo.V_GetListUserPermission v
+                WHERE v.userID=@entrydata AND v.menuName_E=@pageName_
+                  AND v.permissionTypeName_E=@ActionType) <= 0
+            BEGIN
+                SET @ok=0; SET @msg=N'عفوا لاتملك صلاحية لهذه العملية'; GOTO Finish;
+            END;
+            DELETE FROM @Result;
+            DECLARE @DeductReportID_VALUE BIGINT=TRY_CONVERT(BIGINT,@parameter_01);
+            DECLARE @DeductReportYear_VALUE INT=TRY_CONVERT(INT,@parameter_02);
+            DECLARE @DeductReportMonth_VALUE INT=TRY_CONVERT(INT,@parameter_03);
+            DECLARE @DeductReportService_VALUE INT=TRY_CONVERT(INT,@parameter_05);
+            DECLARE @DeductReportExternalReferenceDate_VALUE DATE=TRY_CONVERT(DATE,@parameter_09);
+            INSERT @Result(IsSuccessful,Message_)
+            EXEC Housing.DeductListReportSP
+                 @Action=@ActionType,@ReportID=@DeductReportID_VALUE
+                ,@Year=@DeductReportYear_VALUE,@Month=@DeductReportMonth_VALUE
+                ,@BillingType=@parameter_04,@ServiceID=@DeductReportService_VALUE
+                ,@CalculationMethod=@parameter_06,@ReportNo=@parameter_07
+                ,@ExternalReferenceNo=@parameter_08,@ExternalReferenceDate=@DeductReportExternalReferenceDate_VALUE,@Notes=@parameter_09
+                ,@IdaraID=@idaraID,@EntryData=@entrydata,@HostName=@hostName;
+            SELECT TOP(1) @ok=IsSuccessful,@msg=Message_ FROM @Result;
+            GOTO Finish;
+        END
 
        ----------------------------------------------------------------
         -- Meters
@@ -3112,6 +3196,8 @@ BEGIN
                     ,@meterTypeStartDate                   = @parameter_15
                     ,@meterTypeEndDate                     = @parameter_16
                     ,@meterServicePrice                    = @parameter_17
+                    ,@MeterCalculateTypeID                 = @parameter_20
+                    ,@MeterTypeFixedAmount                 = @parameter_30
                     ,@meterTypeDescription                 = @parameter_18
                     ,@MeterNote                            = null        
                     ,@IdaraId_FK                           = @idaraID
@@ -3147,6 +3233,8 @@ BEGIN
                     ,@meterTypeEndDate                     = @parameter_09
                     ,@meterServicePrice                    = @parameter_15
                     ,@meterTypeDescription                 = @parameter_18
+                    ,@MeterCalculateTypeID                 = @parameter_22
+                    ,@MeterTypeFixedAmount                 = @parameter_30
                     ,@MeterNote                            = null        
                     ,@IdaraId_FK                           = @idaraID
                     ,@entryData                            = @entrydata
@@ -3865,6 +3953,11 @@ BEGIN
                 SET @ok = 0; SET @msg = N'عفوا لاتملك صلاحية لهذه العملية'; GOTO Finish;
             END
 
+            IF @ActionType NOT IN (N'STD_ADD_REPLY', N'STD_CHANGE_STATUS', N'STD_ASSIGN', N'STD_ADD_TASK', N'STD_UPDATE_TASK_STATUS')
+            BEGIN
+                SET @ok = 0; SET @msg = N'نوع العملية المطلوبة غير معروف. ActionType'; GOTO Finish;
+            END
+
             DELETE FROM @Result;
 
             INSERT INTO @Result(IsSuccessful, Message_)
@@ -3903,6 +3996,11 @@ BEGIN
                 SET @ok = 0; SET @msg = N'عفوا لاتملك صلاحية لهذه العملية'; GOTO Finish;
             END
 
+            IF @ActionType NOT IN (N'SIN_ASSIGN', N'SIN_CHANGE_STATUS', N'SIN_BULK_ASSIGN')
+            BEGIN
+                SET @ok = 0; SET @msg = N'نوع العملية المطلوبة غير معروف. ActionType'; GOTO Finish;
+            END
+
             DELETE FROM @Result;
 
             INSERT INTO @Result(IsSuccessful, Message_)
@@ -3931,6 +4029,11 @@ BEGIN
             ) <= 0
             BEGIN
                 SET @ok = 0; SET @msg = N'عفوا لاتملك صلاحية لهذه العملية'; GOTO Finish;
+            END
+
+            IF @ActionType NOT IN (N'STM_ADD_MEMBER', N'STM_UPDATE_MEMBER', N'STM_DEACTIVATE_MEMBER', N'STM_ADD_MEMBER_ROLE', N'STM_REMOVE_MEMBER_ROLE')
+            BEGIN
+                SET @ok = 0; SET @msg = N'نوع العملية المطلوبة غير معروف. ActionType'; GOTO Finish;
             END
 
             DELETE FROM @Result;
@@ -5614,6 +5717,19 @@ END
 -- ========================================
 ELSE IF @pageName_ = N'AiChatHistory'
 BEGIN
+    IF @entrydata IS NULL
+       OR NOT EXISTS (
+            SELECT 1
+            FROM dbo.Users
+            WHERE usersID = @entrydata
+              AND ISNULL(usersActive, 0) = 1
+       )
+    BEGIN
+        SET @ok = 0;
+        SET @msg = N'المستخدم الحالي غير صالح';
+        GOTO Finish;
+    END
+
     IF @ActionType = N'SAVEAICHATHISTORY'
     BEGIN
         IF @tc = 0 AND XACT_STATE() = 1
@@ -5624,7 +5740,7 @@ BEGIN
             EntityKey, Intent, ResponseTimeMs, CitationsCount, IpAddress, IdaraID
         )
         VALUES (
-            TRY_CONVERT(INT, @parameter_01),
+            @entrydata,
             @parameter_02,
             @parameter_03,
             @parameter_04,
@@ -5665,9 +5781,13 @@ BEGIN
         SET UserFeedback = TRY_CONVERT(TINYINT, @parameter_01),
             FeedbackComment = @parameter_02,
             FeedbackDate = SYSUTCDATETIME()
-        WHERE ChatId = TRY_CONVERT(BIGINT, @parameter_03);
+        WHERE ChatId = TRY_CONVERT(BIGINT, @parameter_03)
+          AND UserId = @entrydata;
 
-        SELECT 1 AS IsSuccessful, N'تم حفظ التقييم' AS Message_;
+        IF @@ROWCOUNT = 0
+            SELECT 0 AS IsSuccessful, N'المحادثة غير موجودة أو لا تخص المستخدم الحالي' AS Message_;
+        ELSE
+            SELECT 1 AS IsSuccessful, N'تم حفظ التقييم' AS Message_;
         RETURN;
     END
 

@@ -182,7 +182,7 @@ BEGIN
                select w.LastActionTypeID from Housing.V_WaitingList w where w.ActionID = @ActionID 
            ) NOT in (46,59)
             BEGIN
-                ;THROW 50001, N'تم قراءة عدادات الخدمات واعتمادها مسبقا', 1;
+                ;THROW 50001, N'تم قراءة عدادات الخدمات واعتمادها مسبقا او تم الغاء تسكين المستفيد', 1;
             END
 
             
@@ -1362,7 +1362,7 @@ FROM Housing.CalculteElectrictyBills_ByNewReadValue_ForInsert(@meterID, @NewMete
                select w.LastActionTypeID from Housing.V_WaitingList w where w.ActionID = @ActionID 
             ) NOT in (46,59)
             BEGIN
-                ;THROW 50001, N'تم قراءة عدادات الخدمات واعتمادها مسبقا', 1;
+                ;THROW 50001, N'تم قراءة عدادات الخدمات واعتمادها مسبقا او تم الغاء تسكين المستفيد', 1;
             END
 
             
@@ -2538,7 +2538,7 @@ FROM Housing.CalculteElectrictyBills_ByNewReadValue_ForInsert(@meterID, @NewMete
                select w.LastActionTypeID from Housing.V_WaitingList w where w.ActionID = @ActionID 
             ) NOT in (46,59)
             BEGIN
-                ;THROW 50001, N'تم قراءة عدادات الخدمات واعتمادها مسبقا', 1;
+                ;THROW 50001, N'تم قراءة عدادات الخدمات واعتمادها مسبقا او تم الغاء تسكين المستفيد', 1;
             END
 
             

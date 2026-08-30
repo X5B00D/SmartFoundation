@@ -1,0 +1,14 @@
+نواصل مشروع توثيق SmartFoundation.
+
+اقرأ AGENTS.md وكل نتائج Documentation المكتملة. نفذ Housing Procedures فقط:
+HousingResident, HousingHandover, HousingExtend, HousingExit.
+
+تتبع View -> Controller -> MastersServies -> Masters_DataLoad/Masters_CRUD -> Live DL/SP -> Tables/Views/Functions.
+
+وثق Actions والواجهات والحالات والصلاحيات وValidation وBusiness Rules والمعاملات وأخطاء الأعمال وAuditLog والحذف المنطقي وانتقالات الإقامة والتسليم والتمديد والإخلاء وأثرها على البرامج الأخرى ودليل المستخدم.
+
+قاعدة DATACORE الحية مصدر SQL النهائي. استخرج التعريفات بقراءة sys catalogs فقط، وقارن Snapshot دون اعتباره حقيقة. لا تنفذ Business SP أوكتابة.
+
+أنشئ Workflows ورسومات أثر البيانات. لا تعدل خارج Documentation/. حدّث ملف التقدم وCoverage.
+
+في النهاية اعرض المسارات الحية والإجراءات والجداول والانتقالات والصلاحيات والرسومات والاختلافات والفجوات والمرحلة التالية.

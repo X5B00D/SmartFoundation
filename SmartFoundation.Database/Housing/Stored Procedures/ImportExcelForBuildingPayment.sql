@@ -239,6 +239,15 @@ BEGIN
 
         DECLARE @Inserted int = @@ROWCOUNT;
 
+        /* تصنيف وربط سدادات المسير الذي تم استيراده فقط. */
+        EXEC [Housing].[usp_ClassifyAndLinkBuildingPayments]
+             @PaymentID = NULL,
+             @DeductListID = @DedcutID,
+             @ApplyChanges = 1,
+             @ShowDetails = 0,
+             @ReturnResults = 0,
+             @ChangedBy = @entryData;
+
         INSERT INTO [Housing].[UploadExcelImportLog] (FileHash, OriginalFileName, InsertedRows)
         VALUES (@FileHash, @OriginalFileName, @Inserted);
 

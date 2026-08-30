@@ -130,6 +130,112 @@ BEGIN
 
          IF @Action IN(N'MOVEWAITINGLIST',N'DELETERESIDENTALLWAITINGLIST')
         BEGIN
+            DECLARE @FinancialBalanceDetails TABLE
+            (
+                  IdaraID INT NULL
+                , BillChargeTypeID INT NULL
+                , Remaining DECIMAL(18, 2) NOT NULL
+            );
+
+            ;WITH BillBalances AS
+            (
+                SELECT
+                      IdaraID = b.idaraID_FK
+                    , b.BillChargeTypeID_FK
+                    , BuildingDetailsID = ISNULL(b.buildingDetailsID, -1)
+                    , Amount = SUM(ISNULL(b.TotalPrice, 0))
+                FROM Housing.Bills b
+                WHERE b.residentInfoID_FK = TRY_CONVERT(BIGINT, @residentInfoID_FK)
+                  AND b.BillActive = 1
+                GROUP BY b.idaraID_FK, b.BillChargeTypeID_FK, ISNULL(b.buildingDetailsID, -1)
+            ),
+            PaymentBalances AS
+            (
+                SELECT
+                      IdaraID = p.IdaraId_FK
+                    , p.BillChargeTypeID_FK
+                    , BuildingDetailsID = ISNULL(TRY_CONVERT(BIGINT, NULLIF(LTRIM(RTRIM(p.buildingDetailsID_FK)), N'')), -1)
+                    , Amount = SUM(ISNULL(p.amount, 0))
+                FROM Housing.BuildingPayment p
+                INNER JOIN Housing.DeductList d
+                    ON d.deductListID = p.deductListID_FK
+                WHERE p.residentInfoID_FK = TRY_CONVERT(BIGINT, @residentInfoID_FK)
+                  AND d.deductActive = 1
+                  AND p.buildingPayementActive = 1
+                  AND p.buildingPaymentLinkStatusID_FK = 1
+                GROUP BY
+                      p.IdaraId_FK
+                    , p.BillChargeTypeID_FK
+                    , ISNULL(TRY_CONVERT(BIGINT, NULLIF(LTRIM(RTRIM(p.buildingDetailsID_FK)), N'')), -1)
+            ),
+            FinancialBalances AS
+            (
+                SELECT
+                      IdaraID = COALESCE(b.IdaraID, p.IdaraID)
+                    , BillChargeTypeID = COALESCE(b.BillChargeTypeID_FK, p.BillChargeTypeID_FK)
+                    , Remaining = ISNULL(b.Amount, 0) - ISNULL(p.Amount, 0)
+                FROM BillBalances b
+                FULL OUTER JOIN PaymentBalances p
+                    ON p.IdaraID = b.IdaraID
+                   AND p.BillChargeTypeID_FK = b.BillChargeTypeID_FK
+                   AND p.BuildingDetailsID = b.BuildingDetailsID
+            )
+            INSERT INTO @FinancialBalanceDetails (IdaraID, BillChargeTypeID, Remaining)
+            SELECT IdaraID, BillChargeTypeID, Remaining
+            FROM FinancialBalances
+            WHERE Remaining <> 0;
+
+            IF EXISTS (SELECT 1 FROM @FinancialBalanceDetails)
+            BEGIN
+                DECLARE @FinancialDetails NVARCHAR(MAX);
+                DECLARE @FinancialMessage NVARCHAR(2048);
+
+                SELECT @FinancialDetails = STRING_AGG(CONVERT(NVARCHAR(MAX), detail.DetailText), N'، ')
+                FROM
+                (
+                    SELECT DetailText = CONCAT
+                    (
+                          CASE WHEN SUM(ABS(balance.Remaining)) > 0 AND balance.BalanceType = 1
+                               THEN N'مطالبة على المستفيد'
+                               ELSE N'مبلغ فائض للمستفيد'
+                          END
+                        , N' بقيمة '
+                        , CONVERT(NVARCHAR(50), CAST(SUM(ABS(balance.Remaining)) AS DECIMAL(18, 2)))
+                        , N' - نوع الاستحقاق: '
+                        , ISNULL(chargeType.BillChargeTypeName_A, CONCAT(N'رقم ', balance.BillChargeTypeID))
+                        , N' - الإدارة: '
+                        , ISNULL(idara.idaraLongName_A, CONCAT(N'رقم ', balance.IdaraID))
+                    )
+                    FROM
+                    (
+                        SELECT
+                              IdaraID
+                            , BillChargeTypeID
+                            , Remaining
+                            , BalanceType = CASE WHEN Remaining > 0 THEN 1 ELSE -1 END
+                        FROM @FinancialBalanceDetails
+                    ) balance
+                    LEFT JOIN Housing.BillChargeType chargeType
+                        ON chargeType.BillChargeTypeID = balance.BillChargeTypeID
+                    LEFT JOIN dbo.Idara idara
+                        ON idara.idaraID = balance.IdaraID
+                    GROUP BY
+                          balance.IdaraID
+                        , balance.BillChargeTypeID
+                        , balance.BalanceType
+                        , chargeType.BillChargeTypeName_A
+                        , idara.idaraLongName_A
+                ) detail;
+
+                SET @FinancialMessage = LEFT
+                (
+                    CONCAT(N'لا يمكن نقل أو إلغاء سجلات الانتظار لوجود استحقاقات مالية: ', @FinancialDetails),
+                    2048
+                );
+
+                ;THROW 50001, @FinancialMessage, 1;
+            END
+
             --IF NULLIF(LTRIM(RTRIM(@ActionID)), N'') IS NULL
             --BEGIN
             --    ;THROW 50001, N'يوجد خطأ بجلب بيانات سجل الانتظار - Action ID', 1;
@@ -249,8 +355,6 @@ BEGIN
             BEGIN
                 ;THROW 50001, N'ملف المستفيد ليس في ادارتك حاليا', 1;
             END
-
-
             INSERT INTO  Housing.BuildingAction
             (
                   buildingActionTypeID_FK
@@ -1530,7 +1634,28 @@ BEGIN
                 and w.WaitingClassID in (1,2,3,4,11) and w.IdaraId = @idaraID_FK
             )
             BEGIN
-                ;THROW 50001, N'لايوجد سجلات انتظار بالنظام للمستفيد يمكن نقلها', 1;
+                ;THROW 50001, N'لايوجد سجلات انتظار بالنظام للمستفيد يمكن إلغاؤها في إدارتك', 1;
+            END
+
+
+             IF EXISTS
+            (
+                SELECT 1
+                FROM Housing.V_WaitingList w
+                WHERE w.residentInfoID = @residentInfoID_FK
+                  AND w.IdaraId = @idaraID_FK
+                  AND w.buildingActionRoot = 2
+            )
+            OR EXISTS
+            (
+                SELECT 1
+                FROM Housing.V_WaitingListByLetter w
+                WHERE w.residentInfoID = @residentInfoID_FK
+                  AND w.IdaraId = @idaraID_FK
+                  AND w.buildingActionRoot = 2
+            )
+            BEGIN
+                ;THROW 50001, N'لايمكن إلغاء سجلات الانتظار لوجود سجل أو خطاب تسكين مرتبط بسكن أو بإجراءات تسكين أو إخلاء', 1;
             END
 
 
@@ -1539,6 +1664,7 @@ BEGIN
                 SELECT 1
                 FROM  Housing.V_WaitingList w
                 WHERE w.residentInfoID = @residentInfoID_FK
+                  AND w.IdaraId = @idaraID_FK
                   AND w.LastActionTypeID in(2,24,27,32,33,38,39,40,41,43,45,46,47,48,49,50,51,52)
             )
             BEGIN
@@ -1551,6 +1677,7 @@ BEGIN
                 SELECT 1
                 FROM  Housing.V_WaitingListByLetter w
                 WHERE w.residentInfoID = @residentInfoID_FK
+                  AND w.IdaraId = @idaraID_FK
                   AND w.LastActionTypeID in(2,24,27,32,33,38,39,40,41,43,45,46,47,48,49,50,51,52)
             )
             BEGIN
@@ -1633,6 +1760,7 @@ BEGIN
 
             FROM Housing.V_WaitingList w
             where w.residentInfoID = @residentInfoID_FK
+              and w.IdaraId = @idaraID_FK
 
             IF @@ROWCOUNT = 0
             BEGIN
@@ -1645,8 +1773,14 @@ BEGIN
                 ;THROW 50002, N'حصل خطأ في حذف سجلات الانتظار للمستفيد - Identity', 1; -- برمجي
             END
 
-
-
+            IF EXISTS
+            (
+                SELECT 1
+                FROM Housing.V_WaitingListByLetter w
+                WHERE w.residentInfoID = @residentInfoID_FK
+                  AND w.IdaraId = @idaraID_FK
+            )
+            BEGIN
             INSERT INTO  Housing.BuildingAction
             (
                   buildingActionTypeID_FK
@@ -1681,13 +1815,15 @@ BEGIN
 
             FROM Housing.V_WaitingListByLetter w
             where w.residentInfoID = @residentInfoID_FK
+              and w.IdaraId = @idaraID_FK
 
             IF @@ROWCOUNT = 0
             BEGIN
                 ;THROW 50002, N'حصل خطأ في حذف خطابات التسكين للمستفيد', 1; -- برمجي
             END
+            END
 
-            
+
 
 
 

@@ -1,0 +1,13 @@
+نواصل مشروع توثيق SmartFoundation.
+
+اقرأ AGENTS.md وDocumentation/Documentation-Progress.json ونتائج Inventory والمعمارية والأمان. نفذ توثيق ControlPanel فقط.
+
+وثق PagesManagment وPermission وUsers: الهدف، Controller files وActions وViews وModels وViewModels وServices وData Access وResult Sets وDDL sources والعمليات والصلاحيات وValidation وBusiness Rules وWorkflows ودليل المستخدم.
+
+تتبع View -> Controller -> Service -> Gateway -> Live Procedure -> Tables/Views/Functions. قاعدة DATACORE الحية هي مصدر SQL النهائي. قارن Snapshot فقط لتسجيل Schema drift.
+
+استخدم SELECT من sys.procedures/sys.sql_modules/sys.parameters/sys.tables/sys.views/sys.functions والتبعيات. لا تنفذ Business SP أوكتابة. لا تعرض بيانات مستخدمين أوأسراراً، ولا تعدل خارج Documentation/.
+
+أنشئ المستند والرسومات ودليل المستخدم، وحدّث Coverage وDocumentation-Progress.json.
+
+في النهاية اعرض كل صفحة وعملية وصلاحية وكائن SQL حي والاختلافات والفجوات والملفات والمرحلة التالية.

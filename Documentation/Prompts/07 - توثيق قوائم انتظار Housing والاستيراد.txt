@@ -1,0 +1,12 @@
+نواصل مشروع توثيق SmartFoundation.
+
+اقرأ AGENTS.md وجميع نتائج Documentation المكتملة. نفذ فقط:
+Assign, AssignStatus, OtherWaitingList, RentExemption, Residents, ResidentsPrint, WaitingList, WaitingListByResident, WaitingListMoveList, UploadExcel, UploadLab.
+
+وثق Actions وViews وModels وFormConfig وSmartTableDsModel وResult Sets والصلاحيات وCRUD والعمليات الخاصة وValidation وBusiness Rules والطباعة والاستيراد وWorkflows ودليل المستخدم.
+
+تتبع Gateway routing وActionType إلى الإجراءات والجداول والـViews والـFunctions الحية. DATACORE الحية هي المصدر النهائي؛ Snapshot للمقارنة فقط. لا تنفذ Import/Upload/PDF فعلياً ولا Business SP ولا كتابة.
+
+أنشئ رسومات الانتظار والإسناد والنقل والاستيراد. لا تعدل خارج Documentation/ ولا تعرض بيانات حساسة. حدّث ملف التقدم وCoverage.
+
+في النهاية اعرض جميع الصفحات والمسارات الحية والعمليات والصلاحيات والرسومات والاختلافات والفجوات والمرحلة التالية.

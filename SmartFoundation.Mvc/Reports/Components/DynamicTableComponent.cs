@@ -7,89 +7,137 @@ public static class DynamicTableComponent
 {
     public static void Compose(IContainer container, ReportResult report)
     {
-        container.PaddingTop(16).Table(table =>
+        container.Column(column =>
         {
-            table.ColumnsDefinition(cols =>
+            var rowIndex = 0;
+
+            foreach (var reportRow in report.Rows)
             {
-                foreach (var c in report.Columns)
-                {
-                    if (c.Width.HasValue && c.Width.Value > 0)
-                        cols.ConstantColumn(c.Width.Value);
-                    else
-                        cols.RelativeColumn(c.Weight <= 0 ? 1 : c.Weight);
-                }
-            });
-
-            table.Header(header =>
-            {
-                foreach (var c in report.Columns)
-                {
-                    var hcell = header.Cell().Element(CellHeader).AlignMiddle();
-
-                    hcell = c.Align.ToLowerInvariant() switch
-                    {
-                        "right" => hcell.AlignRight(),
-                        "center" => hcell.AlignCenter(),
-                        _ => hcell.AlignLeft()
-                    };
-
-                    hcell.Text(c.Title).FontSize(10).SemiBold().FontColor("#FFFFFF");
-                }
-            });
-
-            int rowIndex = 0;
-            foreach (var row in report.Rows)
-            {
-                bool isEven = rowIndex % 2 == 0;
+                var isEven = rowIndex % 2 == 0;
+                var serialNumber = report.SerialStart + rowIndex;
                 rowIndex++;
 
-                foreach (var c in report.Columns)
-                {
-                    var val = row.TryGetValue(c.Key, out var v) ? v : null;
-
-                    var cell = table.Cell()
-                                    .Element(cont => CellBody(cont, isEven))
-                                    .AlignMiddle();
-
-                    cell = c.Align.ToLowerInvariant() switch
-                    {
-                        "right" => cell.AlignRight(),
-                        "center" => cell.AlignCenter(),
-                        _ => cell.AlignLeft()
-                    };
-
-                    cell.Text(FormatCell(val, c.Format))
-                        .FontSize(c.FontSize ?? report.TableFontSize ?? 9)
-                        .FontColor("#333333");
-                }
+                // الصف كاملًا كوحدة واحدة
+                column.Item().Element(c =>
+                    ComposeDataRow(c, report, reportRow, isEven, serialNumber));
             }
         });
     }
 
-    static IContainer CellHeader(IContainer c) =>
-        c.Background("#5A5A5A")
-         .BorderBottom(2).BorderColor("#9E9E9E")
-         .Padding(5);
-
-    static IContainer CellBody(IContainer c, bool isEven) =>
-        c.Background(isEven ? "#F5F5F5" : "#FFFFFF")
-         .Border(0.5f).BorderColor("#DDDDDD")
-         .Padding(4);
-
-    static string FormatCell(object? val, string? format)
+    public static void ComposeHeader(IContainer container, ReportResult report)
     {
-        if (val == null || val == DBNull.Value) return "";
+        container.Row(row =>
+        {
+            if (report.ShowSerial)
+            {
+                row.RelativeItem(1)
+                    .Element(CellHeader)
+                    .AlignMiddle()
+                    .AlignCenter()
+                    .Text(report.SerialLabel)
+                    .FontSize(10)
+                    .SemiBold()
+                    .FontColor("#FFFFFF");
+            }
 
-        if (val is DateTime dt)
+            foreach (var column in report.Columns)
+            {
+                IContainer cell = column.Width.HasValue && column.Width.Value > 0
+                    ? row.ConstantItem(column.Width.Value)
+                    : row.RelativeItem(column.Weight <= 0 ? 1 : column.Weight);
+
+                cell = cell.Element(CellHeader).AlignMiddle();
+
+                cell = column.Align.ToLowerInvariant() switch
+                {
+                    "right" => cell.AlignRight(),
+                    "center" => cell.AlignCenter(),
+                    _ => cell.AlignLeft()
+                };
+
+                cell.Text(column.Title)
+                    .FontSize(10)
+                    .SemiBold()
+                    .FontColor("#FFFFFF");
+            }
+        });
+    }
+
+    private static void ComposeDataRow(
+    IContainer container,
+    ReportResult report,
+    Dictionary<string, object?> reportRow,
+    bool isEven,
+    int serialNumber)
+    {
+        container.PreventPageBreak().Row(row =>
+        {
+            if (report.ShowSerial)
+            {
+                row.RelativeItem(1)
+                    .Element(c => CellBody(c, isEven))
+                    .AlignMiddle()
+                    .AlignCenter()
+                    .Text(serialNumber.ToString())
+                    .FontSize(report.TableFontSize ?? 9)
+                    .FontColor("#333333");
+            }
+
+            foreach (var column in report.Columns)
+            {
+                IContainer cell = column.Width.HasValue && column.Width.Value > 0
+                    ? row.ConstantItem(column.Width.Value)
+                    : row.RelativeItem(column.Weight <= 0 ? 1 : column.Weight);
+
+                cell = cell
+                    .Element(c => CellBody(c, isEven))
+                    .AlignMiddle();
+
+                cell = column.Align.ToLowerInvariant() switch
+                {
+                    "right" => cell.AlignRight(),
+                    "center" => cell.AlignCenter(),
+                    _ => cell.AlignLeft()
+                };
+
+                var value = reportRow.TryGetValue(column.Key, out var item)
+                    ? item
+                    : null;
+
+                cell.Text(FormatCell(value, column.Format))
+                    .FontSize(column.FontSize ?? report.TableFontSize ?? 9)
+                    .FontColor("#333333");
+            }
+        });
+    }
+
+    private static IContainer CellHeader(IContainer container) =>
+        container.Background("#5A5A5A")
+            .BorderBottom(2)
+            .BorderColor("#9E9E9E")
+            .Padding(5);
+
+    private static IContainer CellBody(IContainer container, bool isEven) =>
+        container.Background(isEven ? "#F5F5F5" : "#FFFFFF")
+            .Border(0.5f)
+            .BorderColor("#DDDDDD")
+            .Padding(4);
+
+    private static string FormatCell(object? value, string? format)
+    {
+        if (value == null || value == DBNull.Value)
+            return "";
+
+        if (value is DateTime date)
         {
             return format == "date"
-                ? dt.ToString("yyyy-MM-dd")
-                : dt.ToString("yyyy-MM-dd HH:mm:ss");
+                ? date.ToString("yyyy-MM-dd")
+                : date.ToString("yyyy-MM-dd HH:mm:ss");
         }
 
-        if (format == "number" && decimal.TryParse(val.ToString(), out var d))
-            return d.ToString("0.##");
+        if (format == "number" && decimal.TryParse(value.ToString(), out var number))
+            return number.ToString("0.##");
 
-        return val.ToString() ?? "";
+        return value.ToString() ?? "";
     }
 }

@@ -111,8 +111,9 @@ public class DashboardServiceTests
     Assert.NotNull(result);
     var json = JsonDocument.Parse(result);
     Assert.False(json.RootElement.GetProperty("success").GetBoolean());
-    Assert.Contains("Database timeout",
-        json.RootElement.GetProperty("message").GetString());
+    var message = json.RootElement.GetProperty("message").GetString();
+    Assert.Equal("حدث خطأ أثناء تنفيذ العملية. يرجى المحاولة مرة أخرى.", message);
+    Assert.DoesNotContain("Database timeout", message);
   }
 
   [Fact]

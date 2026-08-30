@@ -1,0 +1,15 @@
+نواصل مشروع توثيق SmartFoundation.
+
+اقرأ AGENTS.md وDocumentation-Progress.json وWord النهائي وجميع Work/UserManual/Diagrams. استخدم مهارتي Documents وPDF كاملتين.
+
+اقرأ Documentation/security-gap-register.md وDocumentation/security-gap-status.md بوصفهما مصدر الحقيقة الحالي لحالة الفجوات. الحالة الرسمية بتاريخ 2026-08-24 هي: TOTAL=24، CLOSED=24، OPEN=0، DEFERRED=0، IN PROGRESS=0. لا تعِد نشر حالات تاريخية أقدم بوصفها الحالة الحالية.
+
+نفذ Coverage Audit للبرامج Included فقط: Projects/Layers، Programs، Controllers، Actions، Views، Services، ViewComponents، Tables، SQL Views، Procedures، Functions، Triggers، Permissions، Reports، Workflows، User Manual pages. لكل عنصر سجل المكتشف والموثق والنسبة ومصدر الإثبات وغير المتحقق.
+
+تحقق أن SQL النهائي مبني على DATACORE الحية وأن Snapshot يظهر فقط في Schema drift، وأن سجل الفجوات كامل ولا توجد أسرار. عالج أي نقص توثيقي داخل Documentation/ وحدّث Word عند الحاجة.
+
+أنشئ Documentation/SmartFoundation_System_Documentation.pdf. Render وافحص كل صفحة: A4 وRTL والخطوط والفهرس والترقيم والجداول والرسومات والروابط والقص والتداخل والصفحات الفارغة والتطابق مع Word. كرر التصحيح حتى صلاحية النسختين للتسليم.
+
+لا تعدل النظام أوالقاعدة. لا تجعل الحالة completed إذا بقي عمل مطلوب؛ سجله بوضوح.
+
+حدّث Documentation-Progress.json بالحالة النهائية. في الرد النهائي اعرض روابط Word وPDF وعدد الصفحات وCoverage والأعداد ونتائج الفحص والفجوات المتبقية وSchema drift وحالة ملف التقدم.

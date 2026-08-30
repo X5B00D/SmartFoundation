@@ -1,4 +1,4 @@
-﻿CREATE   FUNCTION Housing.FN_EligibleMeters
+﻿CREATE   FUNCTION [Housing].[FN_EligibleMeters]
 (
     @idaraID int,
     @MonthStart date,
@@ -8,7 +8,7 @@ RETURNS TABLE
 AS
 RETURN
 (
-    SELECT md.meterID, md.meterNo, md.meterServiceTypeID_FK
+    SELECT md.meterID, md.meterNo, md.meterServiceTypeID_FK,md.MeterCalculateTypeID
     FROM Housing.V_MetersDetails md
     JOIN Housing.MeterForBuilding mfb
       ON md.meterID = mfb.meterID_FK
@@ -28,5 +28,5 @@ RETURN
     AND (md.meterServiceTypeEndDate IS NULL OR md.meterServiceTypeEndDate >= @MonthStart)
     AND mfb.meterForBuildingStartDate <= @MonthEnd
     AND (mfb.meterForBuildingEndDate IS NULL OR mfb.meterForBuildingEndDate >= @MonthStart)
-    GROUP BY md.meterID, md.meterNo, md.meterServiceTypeID_FK
+    GROUP BY md.meterID, md.meterNo, md.meterServiceTypeID_FK,md.MeterCalculateTypeID
 );

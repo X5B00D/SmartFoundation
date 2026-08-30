@@ -265,7 +265,7 @@ namespace SmartFoundation.Mvc.Controllers.Housing
                             ["buildingDetailsNo"] = "رقم المنزل",
                             ["rankNameA"] = "الرتبة",
                             ["militaryLocationName_A"] = "الحي",
-                            ["WaitingListOrder"] = "ترتيب الانتظار حسب الفئة"
+                            ["WaitingListOrder"] = "ترتيب الانتظار حسب فئته"
                         };
 
 
@@ -367,10 +367,9 @@ namespace SmartFoundation.Mvc.Controllers.Housing
 
                 }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                ViewBag.DataSetError = ex.Message;
-                //TempData["info"] = ex.Message;
+                ViewBag.DataSetError = "حدث خطأ أثناء تحميل البيانات. يرجى المحاولة مرة أخرى.";
             }
 
             //ADD
@@ -384,9 +383,6 @@ namespace SmartFoundation.Mvc.Controllers.Housing
 
                 new FieldConfig { Name = "pageName_",          Type = "hidden", Value = PageName },
                 new FieldConfig { Name = "ActionType",         Type = "hidden", Value = "ENDASSIGNPERIOD" },
-                new FieldConfig { Name = "idaraID",            Type = "hidden", Value = IdaraId },
-                new FieldConfig { Name = "entrydata",          Type = "hidden", Value = usersId },
-                new FieldConfig { Name = "hostname",           Type = "hidden", Value = HostName },
 
                 new FieldConfig { Name = "redirectUrl",     Type = "hidden", Value = UrlWithoutQueryString },
                 new FieldConfig { Name = "redirectAction",     Type = "hidden", Value = PageName },
@@ -427,9 +423,6 @@ namespace SmartFoundation.Mvc.Controllers.Housing
 
                 new FieldConfig { Name = "pageName_",          Type = "hidden", Value = PageName },
                 new FieldConfig { Name = "ActionType",         Type = "hidden", Value = "ASSIGNSTATUS" },
-                new FieldConfig { Name = "idaraID",            Type = "hidden", Value = IdaraId },
-                new FieldConfig { Name = "entrydata",          Type = "hidden", Value = usersId },
-                new FieldConfig { Name = "hostname",           Type = "hidden", Value = HostName },
 
                 new FieldConfig { Name = "redirectUrl",     Type = "hidden", Value = currentUrl },
                 new FieldConfig { Name = "redirectAction",     Type = "hidden", Value = PageName },
@@ -506,6 +499,7 @@ namespace SmartFoundation.Mvc.Controllers.Housing
                     EnableAdd1 = (count == 0),
                     ShowEdit = canASSIGNSTATUS,
                     ShowPrint1 = true,
+                    ShowPrint2 = ready && rowsList.Count > 0,
                     ShowPrint = false,
                     ShowBulkDelete = false,
                     ShowExportPdf = false,
@@ -569,7 +563,7 @@ namespace SmartFoundation.Mvc.Controllers.Housing
                         OpenModal = true,
                         //ModalTitle = "رسالة تحذيرية",
                         ModalTitle = "معالجة تخصيص مستفيد",
-                        ModalMessage = "ملاحظة : لايمكن التراجع عن هذا الاجراء",
+                        ModalMessage = "ملاحظة :تأكد من الحصول على جميع الموافقات اللازمة للبدء في معالجة المستفيدين واتخاذ جميع الاجراءات النظامية لانه في حال تغيير حالة تخصيص المستفيد سيظهر في الطباعة بالحالة الجديدة ولايمكن التراجع عن ذلك",
                         ModalMessageClass = "bg-red-50 text-red-700",
                         ModalMessageIcon = "fa-solid fa-triangle-exclamation",
                         OpenForm = new FormConfig
@@ -692,6 +686,22 @@ namespace SmartFoundation.Mvc.Controllers.Housing
 
                     },
 
+                    Print2 = new TableAction
+                    {
+                        Label = "طباعة محضر حالات التخصيص",
+                        Icon = "fa fa-print",
+                        Color = "primary",
+                        RequireSelection = false,
+                        OnClickJs = $@"
+                            sfPrintWithBusy(table, {{
+                                pdf: 3,
+                                extraParams: {{
+                                    U: {JsonSerializer.Serialize(AssignPeriodOptionsID_ ?? string.Empty)}
+                                }},
+                                busy: {{ title: 'طباعة محضر حالات التخصيص' }}
+                            }});
+                        "
+                    },
 
                     ExportConfig = new TableExportConfig
                     {
@@ -729,15 +739,15 @@ namespace SmartFoundation.Mvc.Controllers.Housing
                             //},
 
                             //  PDF "
-                            new TableAction
-                            {
-                                Label = "تصدير PDF",
-                                Icon = "fa-regular fa-file-pdf",
-                                Color = "danger",
-                               // Placement = TableActionPlacement.ActionsMenu,
-                                RequireSelection = false,
-                                OnClickJs = "table.exportData('pdf');"
-                            },
+                            //new TableAction
+                            //{
+                            //    Label = "تصدير PDF",
+                            //    Icon = "fa-regular fa-file-pdf",
+                            //    Color = "danger",
+                            //   // Placement = TableActionPlacement.ActionsMenu,
+                            //    RequireSelection = false,
+                            //    OnClickJs = "table.exportData('pdf');"
+                            //},
 
                              //  details "       
                             new TableAction
@@ -822,7 +832,8 @@ namespace SmartFoundation.Mvc.Controllers.Housing
                             PillCssClass = "pill pill-red",
                             PillMode = "replace"
                         }
-                    };
+            };
+                   
 
 
 
@@ -837,6 +848,108 @@ namespace SmartFoundation.Mvc.Controllers.Housing
             };
 
 
+
+            if (pdf == 3)
+            {
+                if (dt1 == null || dt1.Rows.Count == 0)
+                    return Content("لا توجد بيانات قابلة للطباعة لمحضر التخصيص المحدد.");
+
+                string GetValue(DataRow row, string columnName)
+                {
+                    if (!dt1.Columns.Contains(columnName) || row[columnName] == DBNull.Value)
+                        return string.Empty;
+
+                    if (row[columnName] is DateTime date)
+                        return date.ToString("yyyy/MM/dd");
+
+                    return row[columnName]?.ToString() ?? string.Empty;
+                }
+
+                var printTable = new DataTable();
+                printTable.Columns.Add("WaitingListOrder", typeof(string));
+                printTable.Columns.Add("NationalID", typeof(string));
+                printTable.Columns.Add("FullName_A", typeof(string));
+                printTable.Columns.Add("GeneralNo", typeof(string));
+                printTable.Columns.Add("WaitingClassName", typeof(string));
+                printTable.Columns.Add("WaitingOrderTypeName", typeof(string));
+                printTable.Columns.Add("ActionDecisionNo", typeof(string));
+                printTable.Columns.Add("ActionDecisionDate", typeof(string));
+                printTable.Columns.Add("buildingDetailsNo", typeof(string));
+                printTable.Columns.Add("buildingActionTypeResidentAlias", typeof(string));
+                printTable.Columns.Add("ActionNote", typeof(string));
+
+                foreach (DataRow row in dt1.Rows)
+                {
+                    printTable.Rows.Add(
+                        GetValue(row, "WaitingListOrder"),
+                        GetValue(row, "NationalID"),
+                        GetValue(row, "FullName_A"),
+                        GetValue(row, "GeneralNo"),
+                        GetValue(row, "WaitingClassName"),
+                        GetValue(row, "WaitingOrderTypeName"),
+                        GetValue(row, "ActionDecisionNo"),
+                        GetValue(row, "ActionDecisionDate"),
+                        GetValue(row, "buildingDetailsNo"),
+                        GetValue(row, "buildingActionTypeResidentAlias"),
+                        GetValue(row, "ActionNote")
+                    );
+                }
+
+                var reportColumns = new List<ReportColumn>
+                {
+                    new("WaitingListOrder", "الترتيب", Align: "center", Weight: 2, FontSize: 8),
+                    new("NationalID", "رقم الهوية", Align: "center", Weight: 2, FontSize: 8),
+                    new("FullName_A", "الاسم", Align: "center", Weight: 4, FontSize: 8),
+                    new("GeneralNo", "الرقم العام", Align: "center", Weight: 2, FontSize: 8),
+                    new("WaitingClassName", "فئة الانتظار", Align: "center", Weight: 3, FontSize: 8),
+                    new("WaitingOrderTypeName", "نوع السجل", Align: "center", Weight: 2, FontSize: 8),
+                    new("ActionDecisionNo", "رقم الطلب", Align: "center", Weight: 2, FontSize: 8),
+                    new("ActionDecisionDate", "تاريخ الطلب", Align: "center", Weight: 2, FontSize: 8),
+                    new("buildingDetailsNo", "رقم المنزل", Align: "center", Weight: 2, FontSize: 8),
+                    new("buildingActionTypeResidentAlias", "حالة التخصيص", Align: "center", Weight: 3, FontSize: 8),
+                    new("ActionNote", "ملاحظات", Align: "center", Weight: 3, FontSize: 8)
+                };
+
+                var waitingClassName = GetValue(dt1.Rows[0], "WaitingClassName");
+                var logo = Path.Combine(_env.WebRootPath, "img", "Royal_Saudi_Land_Forces.png");
+                var header = new Dictionary<string, string>
+                {
+                    ["no"] = AssignPeriodOptionsID_ ?? "",
+                    ["date"] = DateTime.Now.ToString("yyyy/MM/dd"),
+                    ["attach"] = "—",
+                    ["subject"] = $"محضر تخصيص {waitingClassName}",
+                    ["right1"] = "المملكة العربية السعودية",
+                    ["right2"] = "وزارة الدفاع",
+                    ["right3"] = "القوات البرية الملكية السعودية",
+                    ["right4"] = OrganizationName,
+                    ["right5"] = IdaraName,
+                    ["midCaption"] = ""
+                };
+
+                var report = DataTableReportBuilder.FromDataTable(
+                    reportId: $"AssignStatus_{AssignPeriodOptionsID_}",
+                    title: $"محضر تخصيص {waitingClassName}",
+                    table: printTable,
+                    columns: reportColumns,
+                    headerFields: header,
+                    footerFields: new Dictionary<string, string>
+                    {
+                        ["عدد السجلات"] = printTable.Rows.Count.ToString(),
+                        ["تمت الطباعة بواسطة"] = FullName ?? "",
+                        ["تاريخ ووقت الطباعة"] = DateTime.Now.ToString("yyyy/MM/dd HH:mm:ss")
+                    },
+                    orientation: ReportOrientation.Landscape,
+                    headerType: ReportHeaderType.LetterOfficial,
+                    logoPath: logo,
+                    headerRepeat: ReportHeaderRepeat.AllPages
+                );
+
+                var pdfBytes = QuestPdfReportRenderer.Render(report);
+                Response.Headers["Content-Disposition"] =
+                    $"inline; filename=AssignStatus_{AssignPeriodOptionsID_}.pdf";
+
+                return File(pdfBytes, "application/pdf");
+            }
 
             if (pdf == 2)
             {

@@ -1,3 +1,2 @@
-﻿CREATE SCHEMA [Housing]
+CREATE SCHEMA [Housing]
     AUTHORIZATION [dbo];
-

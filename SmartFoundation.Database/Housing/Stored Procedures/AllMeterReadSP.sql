@@ -210,7 +210,8 @@ BEGIN
     SELECT
     em.meterID,
     em.meterNo,
-    em.meterServiceTypeID_FK
+    em.meterServiceTypeID_FK,
+    em.MeterCalculateTypeID
 INTO #EligibleMeters
 FROM Housing.FN_EligibleMeters(@IdaraId_FK, @MonthStart, @MonthEnd) em
 WHERE em.meterServiceTypeID_FK = @MeterServiceTypeID
@@ -249,11 +250,14 @@ AND EXISTS
         CREATE NONCLUSTERED INDEX IX_EligibleMeters_No ON #EligibleMeters(meterNo) INCLUDE (meterServiceTypeID_FK);
        
 
-       SELECT @AllMetersCount = COUNT(*) FROM #EligibleMeters;
+       SELECT @AllMetersCount = COUNT(*) FROM #EligibleMeters m where m.MeterCalculateTypeID =1;
 
        SELECT @AllmeterReaded = COUNT(*)
        FROM #EligibleMeters em
-       WHERE EXISTS
+       WHERE
+       em.MeterCalculateTypeID = 1
+       AND
+       EXISTS
        (
            SELECT 1
            FROM  Housing.Bills b
@@ -426,7 +430,9 @@ AND EXISTS
 -- رصد فواتير الرسوم الثابتة للمباني التي عليها الخدمة
 -- ولا يوجد عليها عداد
 ---------------------------------------------------------
-IF EXISTS
+/* انتقل رصد الرسوم الثابتة إلى GenerateMonthlyFixedServiceBills.
+   يبقى الكود القديم مؤقتاً للرجوع إليه، لكنه غير منفذ لمنع ازدواج الفواتير. */
+IF 1 = 0 AND EXISTS
 (
     SELECT 1
     FROM Housing.MeterServiceTypeFixedAmount fa
@@ -442,6 +448,137 @@ IF EXISTS
       AND mst.meterServiceTypeActive = 1
 )
 BEGIN
+
+
+IF EXISTS
+(
+    SELECT 1 FROM Housing.V_GetGeneralListForBuilding b
+
+INNER JOIN Housing.BuildingDetailsMeterServices m
+    ON b.buildingDetailsID = m.BuildingDetailsID_FK
+
+INNER JOIN Housing.MeterServiceType mst
+    ON m.MeterServicesTypeID_FK = mst.meterServiceTypeID
+
+INNER JOIN Housing.MeterServiceTypeLinkedWithIdara msl
+    ON msl.MeterServiceTypeID_FK = mst.meterServiceTypeID
+   AND msl.Idara_FK = @IdaraID_INT
+
+INNER JOIN Housing.MeterServiceTypeFixedAmount fa
+    ON fa.MeterServiceTypeID_FK = mst.meterServiceTypeID
+   AND fa.IdaraID_FK = @IdaraID_INT
+   AND fa.MeterServiceTypeFixedAmountActive = 1
+
+LEFT JOIN Housing.MeterForBuilding mfb
+    ON m.BuildingDetailsID_FK = mfb.buildingDetailsID_FK
+   AND mfb.IdaraID_FK = @IdaraID_INT
+   AND CAST(mfb.meterForBuildingStartDate AS date) <=
+       (SELECT CAST(p.billPeriodEndDate AS date) FROM Housing.BillPeriod p WHERE p.billPeriodID = @billPeriodID)
+   AND
+   (
+       mfb.meterForBuildingEndDate IS NULL
+       OR CAST(mfb.meterForBuildingEndDate AS date) >=
+          (SELECT CAST(p.billPeriodStartDate AS date) FROM Housing.BillPeriod p WHERE p.billPeriodID = @billPeriodID)
+   )
+   AND EXISTS
+   (
+       SELECT 1
+       FROM Housing.Meter assignedMeter
+       JOIN Housing.MeterType assignedMeterType
+         ON assignedMeterType.meterTypeID = assignedMeter.meterTypeID_FK
+       WHERE assignedMeter.meterID = mfb.meterID_FK
+         AND assignedMeterType.meterServiceTypeID_FK = @MeterServiceTypeID
+         AND assignedMeterType.MeterCalculateTypeID_FK = 1
+         AND (assignedMeter.meterStartDate IS NULL
+              OR CAST(assignedMeter.meterStartDate AS date) <=
+                 (SELECT CAST(p.billPeriodEndDate AS date) FROM Housing.BillPeriod p WHERE p.billPeriodID = @billPeriodID))
+         AND (assignedMeter.meterEndDate IS NULL
+              OR CAST(assignedMeter.meterEndDate AS date) >=
+                 (SELECT CAST(p.billPeriodStartDate AS date) FROM Housing.BillPeriod p WHERE p.billPeriodID = @billPeriodID))
+         AND (assignedMeterType.meterTypeStartDate IS NULL
+              OR CAST(assignedMeterType.meterTypeStartDate AS date) <=
+                 (SELECT CAST(p.billPeriodEndDate AS date) FROM Housing.BillPeriod p WHERE p.billPeriodID = @billPeriodID))
+         AND (assignedMeterType.meterTypeEndDate IS NULL
+              OR CAST(assignedMeterType.meterTypeEndDate AS date) >=
+                 (SELECT CAST(p.billPeriodStartDate AS date) FROM Housing.BillPeriod p WHERE p.billPeriodID = @billPeriodID))
+   )
+
+LEFT JOIN Housing.V_WaitingList vw
+    ON b.buildingDetailsID = vw.buildingDetailsID
+   AND vw.buildingActionRoot = 2
+
+CROSS APPLY
+(
+    SELECT TOP (1)
+          MONTH(p.billPeriodStartDate) AS BillMonth
+        , YEAR(p.billPeriodStartDate) AS BillYear
+        , p.billPeriodStartDate
+        , p.billPeriodID
+    FROM Housing.BillPeriod p
+    WHERE p.billPeriodID = @billPeriodID
+      AND p.billPeriodActive = 1
+      AND p.IdaraId_FK = @IdaraID_INT
+    ORDER BY p.billPeriodID DESC
+) bp
+
+CROSS APPLY
+(
+    SELECT
+        CAST
+        (
+            CASE
+                -- إذا بدأ السكن خلال نفس شهر وسنة الفاتورة
+                WHEN vw.OccupentDate IS NOT NULL
+                 AND MONTH(vw.OccupentDate) = bp.BillMonth
+                 AND YEAR(vw.OccupentDate) = bp.BillYear
+                THEN
+                    (fa.FixedAmount / 30.00)
+                    * (30.00 - DAY(vw.OccupentDate) + 1)
+
+                -- إذا كان السكن قبل فترة الفاتورة
+                ELSE
+                    fa.FixedAmount
+            END
+            AS DECIMAL(18, 2)
+        ) AS CalculatedFixedAmount
+) amount
+
+OUTER APPLY
+(
+    SELECT TOP (1)
+        tx.taxRate
+    FROM dbo.Tax tx
+    WHERE GETDATE() >= tx.taxStartDate
+      AND
+      (
+          tx.taxEndDate IS NULL
+          OR GETDATE() <= tx.taxEndDate
+      )
+    ORDER BY tx.taxStartDate DESC
+) t
+
+WHERE m.MeterServicesTypeID_FK = @MeterServiceTypeID
+  AND mst.meterServiceTypeID = @MeterServiceTypeID
+  AND mst.meterServiceTypeActive = 1
+  AND msl.MeterServiceTypeLinkedWithIdaraActive = 1
+  /* A meter for electricity must not stop a fixed water (or other fixed
+     service) bill.  Only a meter of the service currently being issued blocks it. */
+  AND mfb.meterForBuildingID IS NULL
+  AND b.BuildingIdaraID = @IdaraID_INT
+
+  AND NOT EXISTS
+  (
+      SELECT 1
+      FROM Housing.Bills oldb
+      WHERE oldb.CurrentPeriodID = @billPeriodID
+        AND oldb.buildingDetailsID = b.buildingDetailsID
+        AND oldb.meterServiceTypeID = @MeterServiceTypeID
+        AND oldb.idaraID_FK = @IdaraID_INT
+        AND oldb.BillActive = 1
+        AND oldb.BillTypeID_FK = 2
+  ))
+BEGIN
+
 
     INSERT INTO Housing.Bills
 (
@@ -476,8 +613,8 @@ SELECT
       mst.BillChargeTypeID_FK
     , 2
     , @billPeriodID
-    , MONTH(GETDATE())
-    , YEAR(GETDATE())
+    , bp.BillMonth
+    , bp.BillYear
     , ISNULL(t.taxRate, 0)
     , b.buildingDetailsNo
     , b.buildingUtilityTypeID_FK
@@ -489,47 +626,152 @@ SELECT
     , 0
     , 0
     , 0
-    , fa.FixedAmount
-    , CAST(fa.FixedAmount * (ISNULL(t.taxRate,0) / 100.0) AS DECIMAL(18,2))
-    , fa.FixedAmount
-    , CAST(fa.FixedAmount * (ISNULL(t.taxRate,0) / 100.0) AS DECIMAL(18,2))
-    , CAST(fa.FixedAmount + (fa.FixedAmount * (ISNULL(t.taxRate,0) / 100.0)) AS DECIMAL(18,2))
+
+    -- المبلغ المستحق بعد احتساب أيام الإشغال
+    , amount.CalculatedFixedAmount
+
+    -- ضريبة المبلغ المستحق
+    , CAST
+      (
+          amount.CalculatedFixedAmount
+          * (ISNULL(t.taxRate, 0) / 100.0)
+          AS DECIMAL(18, 2)
+      )
+
+    , 0
+    , 0
+
+    -- إجمالي المبلغ شامل الضريبة
+    , CAST
+      (
+          amount.CalculatedFixedAmount
+          +
+          (
+              amount.CalculatedFixedAmount
+              * (ISNULL(t.taxRate, 0) / 100.0)
+          )
+          AS DECIMAL(18, 2)
+      )
+
     , 1
     , @IdaraID_INT
     , GETDATE()
     , @entryData
     , @hostName
+
 FROM Housing.V_GetGeneralListForBuilding b
+
 INNER JOIN Housing.BuildingDetailsMeterServices m
     ON b.buildingDetailsID = m.BuildingDetailsID_FK
+
 INNER JOIN Housing.MeterServiceType mst
     ON m.MeterServicesTypeID_FK = mst.meterServiceTypeID
+
 INNER JOIN Housing.MeterServiceTypeLinkedWithIdara msl
     ON msl.MeterServiceTypeID_FK = mst.meterServiceTypeID
    AND msl.Idara_FK = @IdaraID_INT
+
 INNER JOIN Housing.MeterServiceTypeFixedAmount fa
     ON fa.MeterServiceTypeID_FK = mst.meterServiceTypeID
    AND fa.IdaraID_FK = @IdaraID_INT
    AND fa.MeterServiceTypeFixedAmountActive = 1
+
 LEFT JOIN Housing.MeterForBuilding mfb
     ON m.BuildingDetailsID_FK = mfb.buildingDetailsID_FK
-   AND mfb.meterForBuildingActive = 1
+   AND mfb.IdaraID_FK = @IdaraID_INT
+   AND CAST(mfb.meterForBuildingStartDate AS date) <=
+       (SELECT CAST(p.billPeriodEndDate AS date) FROM Housing.BillPeriod p WHERE p.billPeriodID = @billPeriodID)
+   AND
+   (
+       mfb.meterForBuildingEndDate IS NULL
+       OR CAST(mfb.meterForBuildingEndDate AS date) >=
+          (SELECT CAST(p.billPeriodStartDate AS date) FROM Housing.BillPeriod p WHERE p.billPeriodID = @billPeriodID)
+   )
+   AND EXISTS
+   (
+       SELECT 1
+       FROM Housing.Meter assignedMeter
+       JOIN Housing.MeterType assignedMeterType
+         ON assignedMeterType.meterTypeID = assignedMeter.meterTypeID_FK
+       WHERE assignedMeter.meterID = mfb.meterID_FK
+         AND assignedMeterType.meterServiceTypeID_FK = @MeterServiceTypeID
+         AND assignedMeterType.MeterCalculateTypeID_FK = 1
+         AND (assignedMeter.meterStartDate IS NULL
+              OR CAST(assignedMeter.meterStartDate AS date) <=
+                 (SELECT CAST(p.billPeriodEndDate AS date) FROM Housing.BillPeriod p WHERE p.billPeriodID = @billPeriodID))
+         AND (assignedMeter.meterEndDate IS NULL
+              OR CAST(assignedMeter.meterEndDate AS date) >=
+                 (SELECT CAST(p.billPeriodStartDate AS date) FROM Housing.BillPeriod p WHERE p.billPeriodID = @billPeriodID))
+         AND (assignedMeterType.meterTypeStartDate IS NULL
+              OR CAST(assignedMeterType.meterTypeStartDate AS date) <=
+                 (SELECT CAST(p.billPeriodEndDate AS date) FROM Housing.BillPeriod p WHERE p.billPeriodID = @billPeriodID))
+         AND (assignedMeterType.meterTypeEndDate IS NULL
+              OR CAST(assignedMeterType.meterTypeEndDate AS date) >=
+                 (SELECT CAST(p.billPeriodStartDate AS date) FROM Housing.BillPeriod p WHERE p.billPeriodID = @billPeriodID))
+   )
+
 LEFT JOIN Housing.V_WaitingList vw
     ON b.buildingDetailsID = vw.buildingDetailsID
    AND vw.buildingActionRoot = 2
+
+CROSS APPLY
+(
+    SELECT TOP (1)
+          MONTH(p.billPeriodStartDate) AS BillMonth
+        , YEAR(p.billPeriodStartDate) AS BillYear
+        , p.billPeriodStartDate
+        , p.billPeriodID
+    FROM Housing.BillPeriod p
+    WHERE p.billPeriodID = @billPeriodID
+      AND p.billPeriodActive = 1
+      AND p.IdaraId_FK = @IdaraID_INT
+    ORDER BY p.billPeriodID DESC
+) bp
+
+CROSS APPLY
+(
+    SELECT
+        CAST
+        (
+            CASE
+                -- إذا بدأ السكن خلال نفس شهر وسنة الفاتورة
+                WHEN vw.OccupentDate IS NOT NULL
+                 AND MONTH(vw.OccupentDate) = bp.BillMonth
+                 AND YEAR(vw.OccupentDate) = bp.BillYear
+                THEN
+                    (fa.FixedAmount / 30.00)
+                    * (30.00 - DAY(vw.OccupentDate) + 1)
+
+                -- إذا كان السكن قبل فترة الفاتورة
+                ELSE
+                    fa.FixedAmount
+            END
+            AS DECIMAL(18, 2)
+        ) AS CalculatedFixedAmount
+) amount
+
 OUTER APPLY
 (
-    SELECT TOP 1 taxRate
-    FROM dbo.Tax
-    WHERE GETDATE() BETWEEN taxStartDate AND ISNULL(taxEndDate, GETDATE())
-    ORDER BY taxStartDate DESC
+    SELECT TOP (1)
+        tx.taxRate
+    FROM dbo.Tax tx
+    WHERE GETDATE() >= tx.taxStartDate
+      AND
+      (
+          tx.taxEndDate IS NULL
+          OR GETDATE() <= tx.taxEndDate
+      )
+    ORDER BY tx.taxStartDate DESC
 ) t
+
 WHERE m.MeterServicesTypeID_FK = @MeterServiceTypeID
   AND mst.meterServiceTypeID = @MeterServiceTypeID
   AND mst.meterServiceTypeActive = 1
   AND msl.MeterServiceTypeLinkedWithIdaraActive = 1
+  /* Keep the EXISTS guard and INSERT source on the same service-specific rule. */
   AND mfb.meterForBuildingID IS NULL
   AND b.BuildingIdaraID = @IdaraID_INT
+
   AND NOT EXISTS
   (
       SELECT 1
@@ -541,8 +783,607 @@ WHERE m.MeterServicesTypeID_FK = @MeterServiceTypeID
         AND oldb.BillActive = 1
         AND oldb.BillTypeID_FK = 2
   );
+
+  END
 END
 
+
+
+-----------------------------------------------------------
+-- رصد الفواتير للعدادات ذات السعر الثابت
+-- يتم إصدار فاتورة مستقلة لكل عداد
+-----------------------------------------------------------
+
+DECLARE @EligibleFixedMetersCount BIGINT;
+
+------------------------------------------------------------
+-- حساب عدد العدادات الثابتة المستحقة للفوترة
+------------------------------------------------------------
+SELECT
+    @EligibleFixedMetersCount = COUNT_BIG(*)
+FROM
+(
+    SELECT DISTINCT
+          mfb.buildingDetailsID_FK
+        , m.meterID
+
+    FROM Housing.MeterForBuilding mfb
+
+    INNER JOIN Housing.Meter m
+        ON m.meterID = mfb.meterID_FK
+       AND m.meterActive = 1
+
+    INNER JOIN Housing.MeterType mt
+        ON mt.meterTypeID = m.meterTypeID_FK
+       AND mt.MeterCalculateTypeID_FK = 2
+       AND mt.meterServiceTypeID_FK = @MeterServiceTypeID
+       AND mt.IdaraId_FK = @IdaraID_INT
+       AND mt.meterTypeActive = 1
+
+    WHERE mfb.meterForBuildingActive = 1
+      AND mfb.IdaraID_FK = @IdaraID_INT
+
+      ------------------------------------------------------
+      -- التأكد من أن المبنى يتبع الإدارة
+      ------------------------------------------------------
+      AND EXISTS
+      (
+          SELECT 1
+          FROM Housing.V_GetGeneralListForBuilding b
+          WHERE b.buildingDetailsID =
+                    mfb.buildingDetailsID_FK
+            AND b.BuildingIdaraID =
+                    @IdaraID_INT
+      )
+
+      ------------------------------------------------------
+      -- التأكد من وجود مبلغ ثابت نشط لنوع العداد
+      ------------------------------------------------------
+      AND EXISTS
+      (
+          SELECT 1
+          FROM Housing.MeterTypeFixedAmount mc
+          WHERE mc.MeterTypeID_FK = mt.meterTypeID
+            AND mc.IdaraID_FK = @IdaraID_INT
+            AND (mc.MeterTypeFixedAmountActive = 1 OR mc.MeterTypeFixedAmountEndDate IS NOT NULL)
+            AND ISNULL(mc.FixedAmount, 0) > 0
+            AND (mc.MeterTypeFixedAmountStartDate IS NULL OR CAST(mc.MeterTypeFixedAmountStartDate AS date) <=
+                 (SELECT CAST(p.billPeriodEndDate AS date) FROM Housing.BillPeriod p WHERE p.billPeriodID = @billPeriodID))
+            AND (mc.MeterTypeFixedAmountEndDate IS NULL OR CAST(mc.MeterTypeFixedAmountEndDate AS date) >=
+                 (SELECT CAST(p.billPeriodStartDate AS date) FROM Housing.BillPeriod p WHERE p.billPeriodID = @billPeriodID))
+      )
+
+      ------------------------------------------------------
+      -- التأكد من ارتباط نوع الخدمة بالإدارة
+      ------------------------------------------------------
+      AND EXISTS
+      (
+          SELECT 1
+          FROM Housing.MeterServiceTypeLinkedWithIdara msl
+          WHERE msl.MeterServiceTypeID_FK =
+                    mt.meterServiceTypeID_FK
+            AND msl.Idara_FK = @IdaraID_INT
+            AND
+                msl.MeterServiceTypeLinkedWithIdaraActive = 1
+      )
+
+      ------------------------------------------------------
+      -- منع التكرار لكل عداد بشكل مستقل
+      ------------------------------------------------------
+      AND NOT EXISTS
+      (
+          SELECT 1
+          FROM Housing.Bills oldb
+          WHERE oldb.CurrentPeriodID = @billPeriodID
+            AND oldb.buildingDetailsID =
+                    mfb.buildingDetailsID_FK
+            AND oldb.meterID = m.meterID
+            AND oldb.meterServiceTypeID =
+                    mt.meterServiceTypeID_FK
+            AND oldb.idaraID_FK = @IdaraID_INT
+            AND oldb.BillTypeID_FK = 2
+            AND oldb.BillActive = 1
+      )
+) eligible
+OPTION (RECOMPILE);
+
+------------------------------------------------------------
+-- توجد عدادات ثابتة مستحقة
+------------------------------------------------------------
+/* العدادات الثابتة ترصد دورياً بالمحرك الموحد، وليس عند إغلاق فترة القراءة. */
+IF 1 = 0 AND @EligibleFixedMetersCount > 0
+BEGIN
+
+    DECLARE @BillPeriodStartDates DATE;
+    DECLARE @BillPeriodMonthDate DATE;
+    DECLARE @BillMonth INT;
+    DECLARE @BillYear INT;
+    DECLARE @TaxRate DECIMAL(18,2) = 0;
+    DECLARE @PreviousBillPeriodID BIGINT = NULL;
+
+    ------------------------------------------------------------
+    -- جلب فترة الفاتورة
+    ------------------------------------------------------------
+    SELECT TOP (1)
+          @BillPeriodStartDates =
+              CAST(p.billPeriodStartDate AS DATE)
+
+        , @BillMonth =
+              MONTH(p.billPeriodStartDate)
+
+        , @BillYear =
+              YEAR(p.billPeriodStartDate)
+
+        , @BillPeriodMonthDate =
+              DATEFROMPARTS
+              (
+                  YEAR(p.billPeriodStartDate),
+                  MONTH(p.billPeriodStartDate),
+                  1
+              )
+
+    FROM Housing.BillPeriod p
+
+    WHERE p.billPeriodID = @billPeriodID
+      AND p.billPeriodActive = 1
+      AND p.IdaraId_FK = @IdaraID_INT;
+
+    IF @BillPeriodStartDates IS NULL
+    BEGIN
+        ;THROW 50001,
+            N'فترة الفاتورة غير موجودة أو غير نشطة',
+            1;
+    END;
+
+    ------------------------------------------------------------
+    -- جلب الفترة السابقة
+    ------------------------------------------------------------
+    SELECT TOP (1)
+        @PreviousBillPeriodID = p.billPeriodID
+
+    FROM Housing.BillPeriod p
+
+    WHERE p.IdaraId_FK = @IdaraID_INT
+      AND p.billPeriodID < @billPeriodID
+
+    ORDER BY p.billPeriodID DESC;
+
+    ------------------------------------------------------------
+    -- جلب الضريبة
+    ------------------------------------------------------------
+    SELECT TOP (1)
+        @TaxRate = ISNULL(tx.taxRate, 0)
+
+    FROM dbo.Tax tx
+
+    WHERE CAST(GETDATE() AS DATE) >=
+              CAST(tx.taxStartDate AS DATE)
+
+      AND
+      (
+          tx.taxEndDate IS NULL
+
+          OR CAST(GETDATE() AS DATE) <=
+             CAST(tx.taxEndDate AS DATE)
+      )
+
+    ORDER BY tx.taxStartDate DESC;
+
+    SET @TaxRate = ISNULL(@TaxRate, 0);
+
+    ------------------------------------------------------------
+    -- جلب ساكن واحد فقط لكل مبنى
+    ------------------------------------------------------------
+    DROP TABLE IF EXISTS #CurrentOccupant;
+
+    SELECT
+          x.buildingDetailsID
+        , x.residentInfoID
+        , x.GeneralNo
+        , x.OccupentDate
+
+        , CASE
+              WHEN x.OccupentDate IS NOT NULL
+              THEN
+                  DATEFROMPARTS
+                  (
+                      YEAR(x.OccupentDate),
+                      MONTH(x.OccupentDate),
+                      1
+                  )
+              ELSE NULL
+          END AS OccupentMonthDate
+
+    INTO #CurrentOccupant
+
+    FROM
+    (
+        SELECT
+              vw.buildingDetailsID
+            , vw.residentInfoID
+            , vw.GeneralNo
+            , vw.OccupentDate
+
+            , ROW_NUMBER() OVER
+              (
+                  PARTITION BY vw.buildingDetailsID
+
+                  ORDER BY
+                        vw.OccupentDate DESC
+                      , vw.residentInfoID DESC
+              ) AS RN
+
+        FROM Housing.V_WaitingList vw
+
+        WHERE vw.buildingActionRoot = 2
+          AND vw.OccupentDate IS NOT NULL
+    ) x
+
+    WHERE x.RN = 1;
+
+    CREATE UNIQUE CLUSTERED INDEX
+        IX_CurrentOccupant_Building
+        ON #CurrentOccupant
+        (
+            buildingDetailsID
+        );
+
+    ------------------------------------------------------------
+    -- جلب آخر مبلغ ثابت نشط لكل نوع عداد
+    ------------------------------------------------------------
+    DROP TABLE IF EXISTS #FixedAmount;
+
+    SELECT
+          x.MeterTypeID_FK
+        , x.FixedAmount
+
+    INTO #FixedAmount
+
+    FROM
+    (
+        SELECT
+              mc.MeterTypeID_FK
+            , mc.FixedAmount
+
+            , ROW_NUMBER() OVER
+              (
+                  PARTITION BY mc.MeterTypeID_FK
+
+                  ORDER BY
+                      mc.MeterTypeFixedAmountID DESC
+              ) AS RN
+
+        FROM Housing.MeterTypeFixedAmount mc
+
+        WHERE mc.IdaraID_FK = @IdaraID_INT
+          AND (mc.MeterTypeFixedAmountActive = 1 OR mc.MeterTypeFixedAmountEndDate IS NOT NULL)
+          AND ISNULL(mc.FixedAmount, 0) > 0
+          AND (mc.MeterTypeFixedAmountStartDate IS NULL OR CAST(mc.MeterTypeFixedAmountStartDate AS date) <= EOMONTH(@BillPeriodStartDates))
+          AND (mc.MeterTypeFixedAmountEndDate IS NULL OR CAST(mc.MeterTypeFixedAmountEndDate AS date) >= @BillPeriodStartDates)
+    ) x
+
+    WHERE x.RN = 1;
+
+    CREATE UNIQUE CLUSTERED INDEX
+        IX_FixedAmount_MeterType
+        ON #FixedAmount
+        (
+            MeterTypeID_FK
+        );
+
+    ------------------------------------------------------------
+    -- تجهيز العدادات الثابتة المستحقة
+    ------------------------------------------------------------
+    ;WITH FixedMeterSource AS
+    (
+        SELECT
+              mst.BillChargeTypeID_FK
+
+            , b.buildingDetailsNo
+            , b.buildingUtilityTypeID_FK
+            , b.buildingDetailsID
+
+            --------------------------------------------------
+            -- بيانات العداد مهمة لإصدار فاتورة لكل عداد
+            --------------------------------------------------
+            , mfb.meterForBuildingID
+            , m.meterID
+            , m.meterNo
+            , mt.meterTypeID
+
+            , occ.residentInfoID
+            , occ.GeneralNo
+            , occ.OccupentDate
+            , occ.OccupentMonthDate
+
+            , mt.meterServiceTypeID_FK
+            , fa.FixedAmount
+
+            --------------------------------------------------
+            -- إزالة التكرار لنفس العداد فقط
+            -- وليس إزالة بقية عدادات المبنى
+            --------------------------------------------------
+            , ROW_NUMBER() OVER
+              (
+                  PARTITION BY
+                        b.buildingDetailsID
+                      , m.meterID
+
+                  ORDER BY
+                      mfb.meterForBuildingID DESC
+              ) AS RN
+
+        FROM Housing.V_GetGeneralListForBuilding b
+
+        INNER JOIN Housing.MeterForBuilding mfb
+            ON b.buildingDetailsID =
+                   mfb.buildingDetailsID_FK
+
+           AND mfb.meterForBuildingActive = 1
+           AND mfb.IdaraID_FK = @IdaraID_INT
+
+        INNER JOIN Housing.Meter m
+            ON mfb.meterID_FK = m.meterID
+           AND m.meterActive = 1
+
+        INNER JOIN Housing.MeterType mt
+            ON m.meterTypeID_FK = mt.meterTypeID
+
+           -- النوع الثابت فقط
+           AND mt.MeterCalculateTypeID_FK = 2
+
+           AND mt.meterTypeActive = 1
+           AND mt.IdaraId_FK = @IdaraID_INT
+           AND mt.meterServiceTypeID_FK =
+                   @MeterServiceTypeID
+
+        INNER JOIN Housing.MeterServiceType mst
+            ON mt.meterServiceTypeID_FK =
+                   mst.meterServiceTypeID
+
+           AND mst.meterServiceTypeActive = 1
+
+        INNER JOIN #FixedAmount fa
+            ON mt.meterTypeID = fa.MeterTypeID_FK
+
+        LEFT JOIN #CurrentOccupant occ
+            ON b.buildingDetailsID =
+                   occ.buildingDetailsID
+
+        WHERE b.BuildingIdaraID = @IdaraID_INT
+
+          ------------------------------------------------------
+          -- التأكد من ارتباط الخدمة بالإدارة
+          ------------------------------------------------------
+          AND EXISTS
+          (
+              SELECT 1
+
+              FROM Housing.MeterServiceTypeLinkedWithIdara msl
+
+              WHERE msl.MeterServiceTypeID_FK =
+                        mt.meterServiceTypeID_FK
+
+                AND msl.Idara_FK = @IdaraID_INT
+
+                AND
+                    msl.MeterServiceTypeLinkedWithIdaraActive = 1
+          )
+
+          ------------------------------------------------------
+          -- منع التكرار لكل عداد مستقل
+          ------------------------------------------------------
+          AND NOT EXISTS
+          (
+              SELECT 1
+
+              FROM Housing.Bills oldb
+
+              WHERE oldb.CurrentPeriodID =
+                        @billPeriodID
+
+                AND oldb.buildingDetailsID =
+                        b.buildingDetailsID
+
+                AND oldb.meterID =
+                        m.meterID
+
+                AND oldb.meterServiceTypeID =
+                        mt.meterServiceTypeID_FK
+
+                AND oldb.idaraID_FK =
+                        @IdaraID_INT
+
+                AND oldb.BillActive = 1
+                AND oldb.BillTypeID_FK = 2
+          )
+    ),
+    CalculatedSource AS
+    (
+        SELECT
+              src.*
+
+            , CAST
+              (
+                  CASE
+                      ------------------------------------------------
+                      -- بدأ السكن خلال شهر الفاتورة
+                      ------------------------------------------------
+                      WHEN src.OccupentDate IS NOT NULL
+                       AND src.OccupentMonthDate =
+                           @BillPeriodMonthDate
+                      THEN
+                          (src.FixedAmount / 30.00)
+                          *
+                          CASE
+                              WHEN DAY(src.OccupentDate) >= 30
+                                  THEN 1
+                              ELSE
+                                  30 - DAY(src.OccupentDate) + 1
+                          END
+
+                      ------------------------------------------------
+                      -- السكن قبل شهر الفاتورة
+                      ------------------------------------------------
+                      ELSE
+                          src.FixedAmount
+                  END
+
+                  AS DECIMAL(18,2)
+              ) AS CalculatedFixedAmount
+
+        FROM FixedMeterSource src
+
+        --------------------------------------------------------
+        -- يحتفظ بسجل واحد لكل meterID
+        -- لكنه لا يحذف بقية عدادات المبنى
+        --------------------------------------------------------
+        WHERE src.RN = 1
+    )
+
+    ------------------------------------------------------------
+    -- إدخال فاتورة مستقلة لكل عداد
+    ------------------------------------------------------------
+    INSERT INTO Housing.Bills
+    (
+          BillChargeTypeID_FK
+        , BillTypeID_FK
+        , CurrentPeriodID
+        , PerviosPeriodID
+        , PeriodMonth
+        , PeriodYear
+        , CurrentPeriodTax
+
+        , buildingDetailsNo
+        , buildingUtilityTypeID
+        , buildingDetailsID
+
+        --------------------------------------------------------
+        -- حفظ نوع ورقم العداد
+        --------------------------------------------------------
+        , meterTypeID
+        , meterID
+        , meterReadID
+
+        , residentInfoID_FK
+        , generalNo_FK
+        , meterServiceTypeID
+
+        , CurrentRead
+        , LastRead
+        , ReadDiff
+
+        , PRICE
+        , PRICETAX
+
+        , meterServicePrice
+        , meterServicePriceTAX
+
+        , TotalPrice
+
+        , BillActive
+        , idaraID_FK
+        , entryDate
+        , entryData
+        , hostName
+    )
+
+    SELECT
+          src.BillChargeTypeID_FK
+        , 2
+        , @billPeriodID
+        , @PreviousBillPeriodID
+        , @BillMonth
+        , @BillYear
+        , @TaxRate
+
+        , src.buildingDetailsNo
+        , src.buildingUtilityTypeID_FK
+        , src.buildingDetailsID
+
+        --------------------------------------------------------
+        -- كل فاتورة تحمل العداد الخاص بها
+        --------------------------------------------------------
+        , src.meterTypeID
+        , src.meterID
+        , NULL
+
+        --------------------------------------------------------
+        -- ربط الساكن إذا بدأ السكن قبل أو خلال شهر الفاتورة
+        --------------------------------------------------------
+        , CASE
+              WHEN src.OccupentMonthDate IS NOT NULL
+               AND src.OccupentMonthDate <=
+                   @BillPeriodMonthDate
+              THEN src.residentInfoID
+              ELSE NULL
+          END
+
+        , CASE
+              WHEN src.OccupentMonthDate IS NOT NULL
+               AND src.OccupentMonthDate <=
+                   @BillPeriodMonthDate
+              THEN src.GeneralNo
+              ELSE NULL
+          END
+
+        , src.meterServiceTypeID_FK
+
+        , 0
+        , 0
+        , 0
+
+        --------------------------------------------------------
+        -- قيمة العداد الثابت
+        --------------------------------------------------------
+        , src.CalculatedFixedAmount
+
+        --------------------------------------------------------
+        -- الضريبة
+        --------------------------------------------------------
+        , CAST
+          (
+              src.CalculatedFixedAmount
+              * (@TaxRate / 100.0)
+
+              AS DECIMAL(18,2)
+          )
+
+        , 0
+        , 0
+
+        --------------------------------------------------------
+        -- الإجمالي
+        --------------------------------------------------------
+        , CAST
+          (
+              src.CalculatedFixedAmount
+              +
+              (
+                  src.CalculatedFixedAmount
+                  * (@TaxRate / 100.0)
+              )
+
+              AS DECIMAL(18,2)
+          )
+
+        , 1
+        , @IdaraID_INT
+        , GETDATE()
+        , @entryData
+        , @hostName
+
+    FROM CalculatedSource src;
+
+    DROP TABLE IF EXISTS #CurrentOccupant;
+    DROP TABLE IF EXISTS #FixedAmount;
+
+END;
+
+
+----------------------------------------------------------
+--اغلاق الفترة
+----------------------------------------------------------
 
                 UPDATE bp
                 SET 

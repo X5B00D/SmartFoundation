@@ -7,6 +7,8 @@
 
 
 
+
+
 CREATE VIEW [Housing].[V_WaitingList]
 AS
 WITH d AS
@@ -21,7 +23,7 @@ WITH d AS
     FROM Housing.BuildingAction b
     INNER JOIN Housing.BuildingAction x
         ON x.buildingActionParentID = b.buildingActionID
-    WHERE b.buildingActionTypeID_FK in(1,7)
+    WHERE b.buildingActionTypeID_FK in(1,7,25)
       AND b.buildingActionActive = 1
 
     UNION ALL
@@ -58,6 +60,7 @@ leaf AS
         SELECT 1
         FROM Housing.BuildingAction ch
         WHERE ch.buildingActionParentID = d.buildingActionID
+        AND ch.buildingActionActive = 1
     )
 )
 SELECT
@@ -118,7 +121,10 @@ SELECT
     la.entryData AS LastActionEntryData,
     la.ExtendReasonTypeID_FK as LastActionExtendReasonTypeID,
     rd.IdaraId_FK ResidentIdaraID,
-    la.OccupentDate,
+    /* بعض الإجراءات اللاحقة لا تنسخ تاريخ التسكين.
+       نحتفظ بتاريخ الإجراء الأخير عند وجوده، وإلا نعيد تاريخ التسكن الأصلي
+       من الإجراء رقم 2 ضمن سلسلة السجل نفسها. */
+    COALESCE(la.OccupentDate, occupancyAction.OccupentDate) AS OccupentDate,
     la.ExitDate
     
 FROM Housing.BuildingAction b
@@ -127,6 +133,17 @@ LEFT JOIN leaf l
    AND l.rn = 1
 LEFT JOIN Housing.BuildingAction la
     ON la.buildingActionID = l.buildingActionID
+OUTER APPLY
+(
+    SELECT TOP (1) occupancy.OccupentDate
+    FROM d occupancyNode
+    JOIN Housing.BuildingAction occupancy
+      ON occupancy.buildingActionID = occupancyNode.buildingActionID
+    WHERE occupancyNode.RootActionID = b.buildingActionID
+      AND occupancy.buildingActionTypeID_FK = 2
+      AND occupancy.OccupentDate IS NOT NULL
+    ORDER BY occupancy.OccupentDate DESC, occupancy.buildingActionID DESC
+) occupancyAction
 LEFT JOIN Housing.BuildingActionType bt
     ON bt.buildingActionTypeID = l.buildingActionTypeID_FK
 LEFT JOIN Housing.ResidentInfo ri
@@ -152,7 +169,7 @@ LEFT JOIN dbo.Idara it
     ON l.IdaraId_FK = it.idaraID
 LEFT JOIN dbo.Idara toidara
     ON la.buildingActionExtraInt1 = toidara.idaraID
-WHERE b.buildingActionTypeID_FK in(1,7)
+WHERE b.buildingActionTypeID_FK in(1,7,25)
   AND b.buildingActionActive = 1;
 
 GO

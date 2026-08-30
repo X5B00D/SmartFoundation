@@ -1,0 +1,11 @@
+نواصل مشروع توثيق SmartFoundation.
+
+اقرأ جميع Documentation وDocumentation-Progress.json، واعتمد Live Reconciliation وتحليل DATACORE لأي SQL. نفذ دليل المطور النهائي ودليل المستخدم النهائي.
+
+دليل المطور يوثق الأسلوب الحالي: partial Controllers، Views، SmartRenderer، FormConfig، SmartTableDsModel، Models/ViewModels، MastersServies/DataSet، SmartComponentService، ProcedureMapper للبوابات، Masters_DataLoad/Masters_CRUD، p01..p50 والمعاملات، الصلاحيات، إضافة Module، Validation، الأخطاء، Logging، DI، الاختبارات وNaming. وضح عدم الاعتماد على Snapshot غير المحدث.
+
+دليل المستخدم بالعربية يغطي الصفحات المهمة في ControlPanel وHousing وIncomeSystem وElectronicBillSystem وHome وLogin: الوظيفة والوصول والخطوات والشروط والرسائل والنتيجة. لا تذكر Classes أوSQL أوأسماء الصلاحيات الداخلية، ولا تخترع خطوات أوScreenshots.
+
+ادمج الأدلة الجزئية وأزل التكرار والتعارض. لا تعدل خارج Documentation/ ولا تعرض أسراراً. حدّث Coverage وملف التقدم.
+
+في النهاية اعرض فهرسي الدليلين والبرامج والصفحات المغطاة والفجوات والملفات، واجعل المرحلة التالية Word Generation.

@@ -49,6 +49,7 @@ BEGIN
 
         DECLARE @DefualtPlainPassword       NVARCHAR(200)
         SET @DefualtPlainPassword =N'Aa123456'
+        DECLARE @ResetAt DATETIME = GETDATE();
 
 
          
@@ -127,7 +128,7 @@ BEGIN
         UPDATE dbo.usersPassword
         SET 
             userPasswordActive  = 0,
-            userPasswordEndDate = CAST(GETDATE() AS DATE)
+            userPasswordEndDate = @ResetAt
         WHERE usersID_FK = @UsersID
           AND ISNULL(userPasswordActive, 1) = 1;
 
@@ -153,6 +154,7 @@ BEGIN
             PasswordSalt,
             HashAlgorithm,
             userPasswordStartDate,
+            userPasswordEndDate,
             userPasswordActive,
             ChangedPassword,
             entryDate,
@@ -165,7 +167,8 @@ BEGIN
             @Hash,
             @Salt,
             'SHA2_256',
-            CAST(GETDATE() AS DATE),
+            @ResetAt,
+            DATEADD(HOUR, 24, @ResetAt),
             1,
             0,
             GETDATE(),

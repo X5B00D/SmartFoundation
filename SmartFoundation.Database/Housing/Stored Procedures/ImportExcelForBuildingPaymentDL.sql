@@ -104,11 +104,21 @@ BEGIN
       ,d.[hostName]
 
   FROM [DATACORE].[Housing].[DeductList] d
+  inner join Housing.UploadExcelImportLog excelLog on excelLog.DeductListID_FK = d.deductListID
   inner join Housing.DeductType p on d.deductTypeID_FK = p.deductTypeID
   inner join Housing.BillChargeType c on d.BillChargeTypeID_FK = c.BillChargeTypeID
   where d.deductActive = 1
   and d.IdaraId_FK = @idaraID
   order by deductListID desc
+
+  /* المسيرات الصادرة التي يسمح بربط ملفات الحسم الواردة بها. */
+  SELECT reportRow.DeductListReportID,
+         CONCAT(reportRow.ReportNo, N' - ', reportRow.PeriodYear, N'/', RIGHT(N'0'+CONVERT(nvarchar(2),reportRow.PeriodMonth),2),
+                N' - ', CASE WHEN reportRow.BillingType=N'RENT' THEN N'إيجار' ELSE ISNULL(serviceType.meterServiceTypeName_A,N'خدمة') END) AS DeductListReportName
+  FROM Housing.DeductListReport reportRow
+  LEFT JOIN Housing.MeterServiceType serviceType ON serviceType.meterServiceTypeID=reportRow.MeterServiceTypeID_FK
+  WHERE reportRow.IdaraID_FK=@idaraID AND reportRow.ReportStatus=N'SENT' AND reportRow.IsCurrent=1
+  ORDER BY reportRow.SentDate DESC,reportRow.DeductListReportID DESC;
 
 
 

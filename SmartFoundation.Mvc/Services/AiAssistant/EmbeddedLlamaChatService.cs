@@ -1336,7 +1336,7 @@ internal sealed class EmbeddedLlamaChatService : IAiChatService, IDisposable
             : string.Empty;
     }
 
-    private static void RegisterPendingActionQuestion(string convoKey, string intent, string originalMessage)
+    private void RegisterPendingActionQuestion(string convoKey, string intent, string originalMessage)
     {
         if (string.IsNullOrWhiteSpace(convoKey) || string.IsNullOrWhiteSpace(intent))
             return;
@@ -1347,9 +1347,15 @@ internal sealed class EmbeddedLlamaChatService : IAiChatService, IDisposable
             OriginalMessage = originalMessage,
             At = DateTimeOffset.UtcNow
         };
+
+        _log.LogInformation(
+            "AI_PENDING_REGISTER: convoKey='{ConvoKey}', original='{Original}', intent='{Intent}'",
+            convoKey,
+            originalMessage.Replace("\n", " ").Trim(),
+            intent);
     }
 
-    private static bool TryExpandPendingActionQuestion(string convoKey, string currentMessage, out string expandedQuestion)
+    private bool TryExpandPendingActionQuestion(string convoKey, string currentMessage, out string expandedQuestion)
     {
         expandedQuestion = currentMessage;
 
@@ -1379,18 +1385,46 @@ internal sealed class EmbeddedLlamaChatService : IAiChatService, IDisposable
         {
             var pageMatch = SystemModuleMatcher.MatchPage(currentMessage);
             if (pageMatch.Page is null || pageMatch.Score < 3)
+            {
+                _log.LogInformation(
+                    "AI_PENDING_EXPAND: convoKey='{ConvoKey}', reply='{Reply}', intent='{Intent}', resolved=false",
+                    convoKey,
+                    currentMessage.Replace("\n", " ").Trim(),
+                    pendingState.Intent);
                 return false;
+            }
 
             matchedPage = pageMatch.Page;
         }
+
+        _log.LogInformation(
+            "AI_PENDING_PAGE_RESOLVED: convoKey='{ConvoKey}', reply='{Reply}', intent='{Intent}', page='{Page}'",
+            convoKey,
+            currentMessage.Replace("\n", " ").Trim(),
+            pendingState.Intent,
+            matchedPage.InternalPageName);
 
         var canonical = BuildCanonicalActionQuestion(pendingState.Intent, matchedPage, currentMessage);
         if (string.IsNullOrWhiteSpace(canonical))
             return false;
 
+        _log.LogInformation(
+            "AI_PENDING_CANONICAL: convoKey='{ConvoKey}', original='{Original}', reply='{Reply}', canonical='{Canonical}'",
+            convoKey,
+            pendingState.OriginalMessage.Replace("\n", " ").Trim(),
+            currentMessage.Replace("\n", " ").Trim(),
+            canonical);
+
         expandedQuestion = canonical;
         pendingState.At = DateTimeOffset.UtcNow;
         _pending.TryRemove(convoKey, out _);
+
+        _log.LogInformation(
+            "AI_PENDING_EXPAND: convoKey='{ConvoKey}', intent='{Intent}', page='{Page}', canonical='{Canonical}', resolved=true",
+            convoKey,
+            pendingState.Intent,
+            matchedPage.InternalPageName,
+            canonical);
         return true;
     }
 
@@ -1498,6 +1532,30 @@ internal sealed class EmbeddedLlamaChatService : IAiChatService, IDisposable
             return actionPhrase;
         }
 
+        if (page.InternalPageName.Equals("BuildingClass", StringComparison.OrdinalIgnoreCase))
+        {
+            return intent switch
+            {
+                "ADD" => "إضافة فئة مبنى",
+                "UPDATE" => "تعديل فئة مبنى",
+                "DELETE" => "حذف فئة مبنى",
+                "SEARCH" => "البحث عن فئة مبنى",
+                _ => string.Empty
+            };
+        }
+
+        if (page.InternalPageName.Equals("BuildingType", StringComparison.OrdinalIgnoreCase))
+        {
+            return intent switch
+            {
+                "ADD" => "إضافة نوع مبنى",
+                "UPDATE" => "تعديل نوع مبنى",
+                "DELETE" => "حذف نوع مبنى",
+                "SEARCH" => "البحث عن نوع مبنى",
+                _ => string.Empty
+            };
+        }
+
         var actionWord = intent switch
         {
             "ADD" => "إضافة",
@@ -1525,6 +1583,12 @@ internal sealed class EmbeddedLlamaChatService : IAiChatService, IDisposable
         if (ContainsAny(entityReply, "نوع عداد", "أنواع العدادات", "انواع العدادات"))
             return SystemModuleRegistry.FindPageByInternalName("Meters");
 
+        if (ContainsAny(entityReply, "نوع مبنى", "أنواع المباني", "انواع المباني"))
+            return SystemModuleRegistry.FindPageByInternalName("BuildingType");
+
+        if (ContainsAny(entityReply, "فئة مبنى", "فئات المباني"))
+            return SystemModuleRegistry.FindPageByInternalName("BuildingClass");
+
         if (ContainsAny(entityReply, "مستفيد", "المستفيد", "المستفيدين"))
             return SystemModuleRegistry.FindPageByInternalName("Residents");
 
@@ -1536,12 +1600,6 @@ internal sealed class EmbeddedLlamaChatService : IAiChatService, IDisposable
 
         if (ContainsAny(entityReply, "سجل انتظار", "سجلات الانتظار", "قائمة انتظار", "قوائم الانتظار"))
             return SystemModuleRegistry.FindPageByInternalName("WaitingListByResident");
-
-        if (ContainsAny(entityReply, "فئة مبنى", "فئات المباني"))
-            return SystemModuleRegistry.FindPageByInternalName("BuildingClass");
-
-        if (ContainsAny(entityReply, "نوع مبنى", "أنواع المباني", "انواع المباني"))
-            return SystemModuleRegistry.FindPageByInternalName("BuildingType");
 
         return null;
     }
@@ -2142,23 +2200,26 @@ internal sealed class EmbeddedLlamaChatService : IAiChatService, IDisposable
                 return 0;
 
             var userId = GetPropString(request, "UserId");
-            var idaraId = GetPropString(request, "IdaraId") ?? "1";
+            var idaraId = GetPropString(request, "IdaraId");
+            if (!int.TryParse(userId, out var userIdInt) ||
+                !int.TryParse(idaraId, out var idaraIdInt))
+            {
+                _log.LogWarning("AI_SAVE_HISTORY_SKIPPED_INVALID_SESSION_CONTEXT");
+                return 0;
+            }
 
             var parameters = new Dictionary<string, object?>
             {
                 { "pageName_", "AiChatHistory" },
                 { "ActionType", "SAVEAICHATHISTORY" },
-                { "idaraID", int.TryParse(idaraId, out var idaraIdInt) ? idaraIdInt : 1 },
-                { "entrydata", !string.IsNullOrWhiteSpace(userId) && int.TryParse(userId, out var uid) ? uid : 1 },
+                { "idaraID", idaraIdInt },
+                { "entrydata", userIdInt },
                 { "hostname", request.IpAddress ?? "unknown" },
                 { "parameter_02", request.Message ?? "" },
                 { "parameter_03", answer },
                 { "parameter_09", responseTimeMs.ToString() },
                 { "parameter_10", citationsCount.ToString() }
             };
-
-            if (!string.IsNullOrWhiteSpace(userId) && int.TryParse(userId, out var userIdInt))
-                parameters["parameter_01"] = userIdInt.ToString();
 
             if (!string.IsNullOrWhiteSpace(request.PageName))
                 parameters["parameter_04"] = request.PageName;

@@ -529,10 +529,9 @@ namespace SmartFoundation.Mvc.Controllers.ControlPanel
 
                 }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                ViewBag.DataSetError = ex.Message;
-                //TempData["info"] = ex.Message;
+                ViewBag.DataSetError = "حدث خطأ أثناء تحميل البيانات. يرجى المحاولة مرة أخرى.";
             }
 
 
@@ -616,9 +615,6 @@ namespace SmartFoundation.Mvc.Controllers.ControlPanel
 
             // Inject required hidden headers for the add (insert) form BEFORE building dsModel:
             addFields.Insert(0, new FieldConfig { Name = "__RequestVerificationToken", Type = "hidden", Value = (Request.Headers["RequestVerificationToken"].FirstOrDefault() ?? "") });
-            addFields.Insert(0, new FieldConfig { Name = "hostname", Type = "hidden", Value = HostName });
-            addFields.Insert(0, new FieldConfig { Name = "entrydata", Type = "hidden", Value = usersId });
-            addFields.Insert(0, new FieldConfig { Name = "idaraID", Type = "hidden", Value = IdaraId });
             addFields.Insert(0, new FieldConfig { Name = "ActionType", Type = "hidden", Value = "INSERTPERMISSION" }); // upper-case
             addFields.Insert(0, new FieldConfig { Name = "pageName_", Type = "hidden", Value = PageName });
 
@@ -670,9 +666,6 @@ namespace SmartFoundation.Mvc.Controllers.ControlPanel
 
             // Inject required hidden headers for the add (insert) form BEFORE building dsModel:
             addFields1.Insert(0, new FieldConfig { Name = "__RequestVerificationToken", Type = "hidden", Value = (Request.Headers["RequestVerificationToken"].FirstOrDefault() ?? "") });
-            addFields1.Insert(0, new FieldConfig { Name = "hostname", Type = "hidden", Value = HostName });
-            addFields1.Insert(0, new FieldConfig { Name = "entrydata", Type = "hidden", Value = usersId });
-            addFields1.Insert(0, new FieldConfig { Name = "idaraID", Type = "hidden", Value = IdaraId });
             addFields1.Insert(0, new FieldConfig { Name = "ActionType", Type = "hidden", Value = "INSERTFULLACCESS" }); // upper-case
             addFields1.Insert(0, new FieldConfig { Name = "pageName_", Type = "hidden", Value = PageName });
 
@@ -696,9 +689,6 @@ namespace SmartFoundation.Mvc.Controllers.ControlPanel
                 new FieldConfig { Name = "redirectUrl",  Type = "hidden", Value = currentUrl },
                 new FieldConfig { Name = "pageName_",           Type = "hidden", Value = PageName },
                 new FieldConfig { Name = "ActionType",          Type = "hidden", Value = "UPDATEPERMISSION" },
-                new FieldConfig { Name = "idaraID",             Type = "hidden", Value = IdaraId },
-                new FieldConfig { Name = "entrydata",           Type = "hidden", Value = usersId },
-                new FieldConfig { Name = "hostname",            Type = "hidden", Value = HostName},
                 new FieldConfig { Name = "__RequestVerificationToken", Type = "hidden", Value = (Request.Headers["RequestVerificationToken"].FirstOrDefault() ?? "") },
                 new FieldConfig { Name = rowIdField,            Type = "hidden" },
 
@@ -738,9 +728,6 @@ namespace SmartFoundation.Mvc.Controllers.ControlPanel
 
                 new FieldConfig { Name = "pageName_",          Type = "hidden", Value = PageName },
                 new FieldConfig { Name = "ActionType",         Type = "hidden", Value = "DELETEPERMISSION" },
-                new FieldConfig { Name = "idaraID",            Type = "hidden", Value = IdaraId },
-                new FieldConfig { Name = "entrydata",          Type = "hidden", Value = usersId },
-                new FieldConfig { Name = "hostname",           Type = "hidden", Value = HostName },
 
                 new FieldConfig { Name = "redirectUrl",     Type = "hidden", Value = currentUrl },
                 new FieldConfig { Name = "redirectAction",     Type = "hidden", Value = PageName },
@@ -787,7 +774,7 @@ namespace SmartFoundation.Mvc.Controllers.ControlPanel
                     ShowExportCsv = false,
                     ShowExportExcel = false,
                     ShowAdd = canInsertPERMISSION,
-                    ShowAdd1 = canInsertPERMISSION,
+                    ShowAdd1 = canInsertFullAccess,
                     ShowEdit = canUpdatePERMISSION,
                     ShowDelete = canDeletePERMISSION,
                     ShowBulkDelete = false,

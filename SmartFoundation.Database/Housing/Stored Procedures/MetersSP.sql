@@ -26,6 +26,8 @@ CREATE PROCEDURE [Housing].[MetersSP]
      ,@buildingDetailsID_FK                       NVARCHAR(100)   = NULL
      ,@meterForBuildingID                         NVARCHAR(100)   = NULL
      ,@buildingDetailsNo1                         NVARCHAR(100)   = NULL
+     ,@MeterCalculateTypeID                       NVARCHAR(100)   = NULL
+     ,@MeterTypeFixedAmount                       NVARCHAR(100)   = NULL
      ,@IdaraId_FK                                 NVARCHAR(100)   = NULL
      ,@entryData                                  NVARCHAR(100)   = NULL
      ,@hostName                                   NVARCHAR(100)   = NULL
@@ -113,6 +115,7 @@ BEGIN
                  ,[meterMaxRead]
                  ,[meterTypeStartDate]
                  ,[meterTypeEndDate]
+                 ,[MeterCalculateTypeID_FK]
                  ,[meterTypeActive]
                  ,[IdaraId_FK]
                  ,[entryDate]
@@ -129,9 +132,10 @@ BEGIN
                 , @meterMaxRead
                 , @meterTypeStartDate
                 , @meterTypeEndDate
+                , @MeterCalculateTypeID
                 , 1
                 , @IdaraID_INT
-                , GETDATE()
+                , convert(nvarchar(10),Getdate(),23)
                 , @entryData
                 , @hostName
             );
@@ -141,6 +145,10 @@ BEGIN
             BEGIN
                 ;THROW 50002, N'حصل خطأ في اضافة نوع العداد - MeterType', 1; -- برمجي
             END
+
+            if(@MeterCalculateTypeID = 1)
+
+            begin
 
                 INSERT INTO  Housing.MeterServicePrice
                 (
@@ -171,7 +179,51 @@ BEGIN
                     ;THROW 50003, N'حصل خطأ في اضافة نوع العداد - MeterServicePrice', 1; -- برمجي
                 END
 
+            END
 
+
+            if(@MeterCalculateTypeID = 2)
+
+            begin
+
+                IF TRY_CONVERT(DECIMAL(18,2), @MeterTypeFixedAmount) IS NULL
+                   OR TRY_CONVERT(DECIMAL(18,2), @MeterTypeFixedAmount) <= 0
+                BEGIN
+                    ;THROW 50001, N'يجب إدخال سعر ثابت أكبر من صفر لنوع العداد الثابت', 1;
+                END;
+
+                INSERT INTO  [Housing].[MeterTypeFixedAmount]
+                (
+                      [MeterTypeID_FK]
+                     ,[FixedAmount]
+                     ,[MeterTypeFixedAmountStartDate]
+                     ,[MeterTypeFixedAmountEndDate]
+                     ,[MeterTypeFixedAmountActive]
+                     ,[idaraID_FK]
+                     ,[entryDate]
+                     ,[entryData]
+                     ,[hostName]
+                     
+                )
+                VALUES
+                (
+                      @Identity_Insert
+                    , @MeterTypeFixedAmount
+                    , @meterTypeStartDate
+                    , @meterTypeEndDate
+                    , 1
+                    , @IdaraId_FK
+                    , GETDATE()
+                    , @entryData
+                    , @hostName
+                );
+
+                IF @@ROWCOUNT <= 0
+                BEGIN
+                    ;THROW 50003, N'حصل خطأ في اضافة نوع العداد - MeterServicePrice', 1; -- برمجي
+                END
+
+            END
 
             SET @NewID = @Identity_Insert;
 
@@ -185,10 +237,15 @@ BEGIN
                 + N',"meterMaxRead": "' + ISNULL(CONVERT(NVARCHAR(MAX), @meterMaxRead), '') + N'"'
                 + N',"meterTypeStartDate": "' + ISNULL(CONVERT(NVARCHAR(MAX), @meterTypeStartDate), '') + N'"'
                 + N',"meterTypeEndDate": "' + ISNULL(CONVERT(NVARCHAR(MAX), @meterTypeEndDate), '') + N'"'
+                + N',"MeterCalculateTypeID": "' + ISNULL(CONVERT(NVARCHAR(MAX), @MeterCalculateTypeID), '') + N'"'
                 + N',"meterTypeActive": 1"' + N'"'
                 + N',"meterServicePriceStartDate": "' + ISNULL(CONVERT(NVARCHAR(MAX), @meterTypeStartDate), '') + N'"'
                 + N',"meterServicePriceEndDate": "' + ISNULL(CONVERT(NVARCHAR(MAX), @meterTypeEndDate), '') + N'"'
                 + N',"meterServicePrice": "' + ISNULL(CONVERT(NVARCHAR(MAX), @meterServicePrice), '') + N'"'
+
+                + N',"MeterTypeFixedAmountStartDate": "' + ISNULL(CONVERT(NVARCHAR(MAX), @meterTypeStartDate), '') + N'"'
+                + N',"MeterTypeFixedAmountEndDate": "' + ISNULL(CONVERT(NVARCHAR(MAX), @meterTypeEndDate), '') + N'"'
+                + N',"FixedAmount": "' + ISNULL(CONVERT(NVARCHAR(MAX), @MeterTypeFixedAmount), '') + N'"'
                 + N',"IdaraId_FK": "' + ISNULL(CONVERT(NVARCHAR(MAX), @IdaraID_INT), '') + N'"'
                 + N',"entryData": "' + ISNULL(CONVERT(NVARCHAR(MAX), @entryData), '') + N'"'
                 + N',"hostName": "' + ISNULL(CONVERT(NVARCHAR(MAX), @hostName), '') + N'"'
@@ -239,16 +296,37 @@ BEGIN
                     ;THROW 50001, N'رمز نوع العداد مطلوب', 1;
                 END
 
-                update Housing.MeterType
-                set meterTypeActive = 0
-                where meterTypeID = @meterTypeID_FK
+                --update Housing.MeterType
+                --set meterTypeActive = 0
+                --where meterTypeID = @meterTypeID_FK
+
+
+                UPDATE Housing.MeterType
+                SET
+                      meterServiceTypeID_FK      = COALESCE(@meterServiceTypeID, meterServiceTypeID_FK)
+                    , meterTypeName_A            = COALESCE(NULLIF(@meterTypeName_A, ''), meterTypeName_A)
+                    , meterTypeName_E            = COALESCE(NULLIF(@meterTypeName_E, ''), meterTypeName_E)
+                    , meterTypeDescription       = COALESCE(NULLIF(@meterTypeDescription, ''), meterTypeDescription)
+                    , meterTypeConversionFactor  = COALESCE(@meterTypeConversionFactor, meterTypeConversionFactor)
+                    , meterMaxRead               = COALESCE(@meterMaxRead, meterMaxRead)
+                    , meterTypeStartDate         = COALESCE(@meterTypeStartDate, meterTypeStartDate)
+                    , meterTypeEndDate           = COALESCE(@meterTypeEndDate, meterTypeEndDate)
+                    , meterTypeActive            = COALESCE(1, meterTypeActive)
+                    , MeterCalculateTypeID_FK    = COALESCE(@MeterCalculateTypeID, MeterCalculateTypeID_FK)
+                    , IdaraId_FK                 = COALESCE(@IdaraID_INT, IdaraId_FK)
+                    , UpdatedDate                = isnull(UpdatedDate,'')+N','+convert(nvarchar(10),Getdate(),23)
+                    , UpdatedBy                  = isnull(UpdatedBy,'')+N','+@entryData
+                    
+                WHERE meterTypeID = @meterTypeID_FK;
 
 
                  IF @@ROWCOUNT <= 0
                 BEGIN
                     ;THROW 50003, N'حصل خطأ في تعديل نوع العداد - MeterType', 1; -- برمجي
                 END
+                if(@MeterCalculateTypeID = 1)
 
+            begin
                  update Housing.MeterServicePrice
                 set meterServicePriceActive = 0
                 where meterTypeID_FK = @meterTypeID_FK
@@ -259,46 +337,7 @@ BEGIN
                     ;THROW 50003, N'حصل خطأ في اضافة نوع العداد - MeterServicePrice', 1; -- برمجي
                 END
 
-            INSERT INTO  Housing.MeterType
-            (
-                  [meterServiceTypeID_FK]
-                 ,[meterTypeName_A]
-                 ,[meterTypeName_E]
-                 ,[meterTypeDescription]
-                 ,[meterTypeConversionFactor]
-                 ,[meterMaxRead]
-                 ,[meterTypeStartDate]
-                 ,[meterTypeEndDate]
-                 ,[meterTypeActive]
-                 ,[IdaraId_FK]
-                 ,[entryDate]
-                 ,[entryData]
-                 ,[hostName]
-            )
-            VALUES
-            (
-                  @meterServiceTypeID
-                , @meterTypeName_A
-                , @meterTypeName_E
-                , @meterTypeDescription
-                , @meterTypeConversionFactor
-                , @meterMaxRead
-                , @meterTypeStartDate
-                , @meterTypeEndDate
-                , 1
-                , @IdaraID_INT
-                , GETDATE()
-                , @entryData
-                , @hostName
-            );
-
-            SET @Identity_Insert = SCOPE_IDENTITY();
-            IF @Identity_Insert IS NULL OR @Identity_Insert <= 0
-            BEGIN
-                ;THROW 50002, N'حصل خطأ في تعديل نوع العداد - MeterType', 1; -- برمجي
-            END
-
-                INSERT INTO  Housing.MeterServicePrice
+                 INSERT INTO  Housing.MeterServicePrice
                 (
                       [meterTypeID_FK]
                      ,[meterServicePriceStartDate]
@@ -312,7 +351,7 @@ BEGIN
                 )
                 VALUES
                 (
-                      @Identity_Insert
+                      @meterTypeID_FK
                     , @meterTypeStartDate
                     , @meterTypeEndDate
                     , @meterServicePrice
@@ -324,12 +363,72 @@ BEGIN
 
                 IF @@ROWCOUNT <= 0
                 BEGIN
-                    ;THROW 50003, N'حصل خطأ في تعديل نوع العداد - ResidentDetails', 1; -- برمجي
+                    ;THROW 50003, N'حصل خطأ في اضافة نوع العداد - MeterServicePrice', 1; -- برمجي
                 END
 
 
+                END
 
-            SET @NewID = @Identity_Insert;
+                 if(@MeterCalculateTypeID = 2)
+
+            begin
+                IF TRY_CONVERT(DECIMAL(18,2), @MeterTypeFixedAmount) IS NULL
+                   OR TRY_CONVERT(DECIMAL(18,2), @MeterTypeFixedAmount) <= 0
+                BEGIN
+                    ;THROW 50001, N'يجب إدخال سعر ثابت أكبر من صفر لنوع العداد الثابت', 1;
+                END;
+
+                 update Housing.MeterTypeFixedAmount
+                set MeterTypeFixedAmountActive = 0,
+                    MeterTypeFixedAmountEndDate = DATEADD(DAY, -1, CAST(GETDATE() AS date))
+                where meterTypeID_FK = @meterTypeID_FK
+                  AND idaraID_FK = @IdaraID_INT
+                  AND MeterTypeFixedAmountActive = 1
+
+
+                 IF @@ROWCOUNT <= 0
+                BEGIN
+                    ;THROW 50003, N'حصل خطأ في اضافة نوع العداد - MeterServicePrice', 1; -- برمجي
+                END
+
+
+                 INSERT INTO  [Housing].[MeterTypeFixedAmount]
+                (
+                      [MeterTypeID_FK]
+                     ,[FixedAmount]
+                     ,[MeterTypeFixedAmountStartDate]
+                     ,[MeterTypeFixedAmountEndDate]
+                     ,[MeterTypeFixedAmountActive]
+                     ,[idaraID_FK]
+                     ,[entryDate]
+                     ,[entryData]
+                     ,[hostName]
+                     
+                )
+                VALUES
+                (
+                      @meterTypeID_FK
+                    , @MeterTypeFixedAmount
+                    , CAST(GETDATE() AS date)
+                    , NULL
+                    , 1
+                    , @IdaraId_FK
+                    , GETDATE()
+                    , @entryData
+                    , @hostName
+                );
+
+                IF @@ROWCOUNT <= 0
+                BEGIN
+                    ;THROW 50003, N'حصل خطأ في اضافة نوع العداد - MeterServicePrice', 1; -- برمجي
+                END
+
+                END
+
+            
+
+
+            SET @NewID = @meterTypeID_FK;
 
             SET @Note = N'{'
                 + N'"meterTypeID_FK": "' + ISNULL(CONVERT(NVARCHAR(MAX), @NewID), '') + N'"'
@@ -362,11 +461,12 @@ BEGIN
             VALUES
             (
                   N'[Housing].[MeterType],[Housing].[MeterServicePrice]'
-                , N'INSERTNEWMETERTYPE'
+                , N'UPDATENEWMETERTYPE'
                 , ISNULL(@NewID, 0)
                 , @entryData
                 , @Note
             );
+
 
             SELECT 1 AS IsSuccessful, N'تم تعديل نوع العداد بنجاح' AS Message_;
             RETURN;
@@ -420,6 +520,9 @@ BEGIN
                     ;THROW 50003, N'حصل خطأ في حذف نوع العداد - MeterType', 1; -- برمجي
                 END
 
+                if(@MeterCalculateTypeID = 1)
+                begin
+
                  update Housing.MeterServicePrice
                 set meterServicePriceActive = 0,meterServicePriceEndDate = GETDATE()
                 where meterTypeID_FK = @meterTypeID_FK
@@ -430,8 +533,22 @@ BEGIN
                     ;THROW 50003, N'حصل خطأ في حذف نوع العداد - MeterServicePrice', 1; -- برمجي
                 END
 
-           
+                END
 
+
+                 if(@MeterCalculateTypeID = 2)
+                begin
+                 update Housing.MeterTypeFixedAmount
+                set MeterTypeFixedAmountActive = 0,MeterTypeFixedAmountEndDate = CAST(GETDATE() AS date)
+                where meterTypeID_FK = @meterTypeID_FK
+                  AND idaraID_FK = @IdaraID_INT
+                  AND MeterTypeFixedAmountActive = 1
+
+             IF @@ROWCOUNT <= 0
+                BEGIN
+                    ;THROW 50003, N'حصل خطأ في حذف نوع العداد - MeterTypeFixedAmount', 1; -- برمجي
+                END
+                END
 
             SET @NewID = @meterTypeID_FK;
 
@@ -746,11 +863,14 @@ BEGIN
                      INNER JOIN x ON x.meterReadID = mr.meterReadID;
                  END
 
-
+                 if(@MeterCalculateTypeID = 1)
+                 Begin
                 IF @@ROWCOUNT <= 0
                 BEGIN
                     ;THROW 50003, N'حصل خطأ في تحديث  العداد - MeterRead', 1; -- برمجي
                 END
+                END
+                 
 
              declare @Note12 nvarchar(max)
              SET @Note12 = N'{'
@@ -1110,7 +1230,7 @@ BEGIN
     (
         meterReadTypeID_FK,
         meterID_FK,
-        billPeriodID_FK,     -- ⚠️ يفضّل لاحقاً تحسب CurrentPeriodID الحقيقي بدل (1)
+        billPeriodID_FK,     
         buildingDetailsID,
         buildingDetailsNo,
         residentInfoID_FK,

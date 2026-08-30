@@ -171,9 +171,9 @@ namespace SmartFoundation.Mvc.Controllers.Vehicle
                     }
                 }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                TempData["DataSetError"] = ex.Message;
+                TempData["DataSetError"] = "حدث خطأ أثناء تحميل البيانات. يرجى المحاولة مرة أخرى.";
             }
 
             var currentUrl = Request.Path + Request.QueryString;
@@ -188,9 +188,6 @@ namespace SmartFoundation.Mvc.Controllers.Vehicle
             {
                 new FieldConfig { Name = "pageName_", Type = "hidden", Value = "MaintenancePlan_Upsert" },
                 new FieldConfig { Name = "ActionType", Type = "hidden", Value = "INSERT" },
-                new FieldConfig { Name = "idaraID", Type = "hidden", Value = IdaraId },
-                new FieldConfig { Name = "entrydata", Type = "hidden", Value = usersId },
-                new FieldConfig { Name = "hostname", Type = "hidden", Value = HostName },
                 new FieldConfig { Name = "redirectUrl", Type = "hidden", Value = currentUrl },
                 new FieldConfig { Name = "redirectAction", Type = "hidden", Value = "MaintenancePlans" },
                 new FieldConfig { Name = "redirectController", Type = "hidden", Value = ControllerName },
@@ -238,9 +235,6 @@ namespace SmartFoundation.Mvc.Controllers.Vehicle
             {
                 new FieldConfig { Name = "pageName_", Type = "hidden", Value = "MaintenancePlan_Upsert" },
                 new FieldConfig { Name = "ActionType", Type = "hidden", Value = "UPDATE" },
-                new FieldConfig { Name = "idaraID", Type = "hidden", Value = IdaraId },
-                new FieldConfig { Name = "entrydata", Type = "hidden", Value = usersId },
-                new FieldConfig { Name = "hostname", Type = "hidden", Value = HostName },
                 new FieldConfig { Name = "redirectUrl", Type = "hidden", Value = currentUrl },
                 new FieldConfig { Name = "redirectAction", Type = "hidden", Value = "MaintenancePlans" },
                 new FieldConfig { Name = "redirectController", Type = "hidden", Value = ControllerName },
@@ -294,9 +288,6 @@ namespace SmartFoundation.Mvc.Controllers.Vehicle
             {
                 new FieldConfig { Name = "pageName_", Type = "hidden", Value = "MaintenancePlan_SetActive" },
                 new FieldConfig { Name = "ActionType", Type = "hidden", Value = "UPDATE" },
-                new FieldConfig { Name = "idaraID", Type = "hidden", Value = IdaraId },
-                new FieldConfig { Name = "entrydata", Type = "hidden", Value = usersId },
-                new FieldConfig { Name = "hostname", Type = "hidden", Value = HostName },
                 new FieldConfig { Name = "redirectUrl", Type = "hidden", Value = currentUrl },
                 new FieldConfig { Name = "redirectAction", Type = "hidden", Value = "MaintenancePlans" },
                 new FieldConfig { Name = "redirectController", Type = "hidden", Value = ControllerName },
@@ -311,9 +302,6 @@ namespace SmartFoundation.Mvc.Controllers.Vehicle
             {
                 new FieldConfig { Name = "pageName_", Type = "hidden", Value = "MaintenancePlan_AutoGenerate" },
                 new FieldConfig { Name = "ActionType", Type = "hidden", Value = "INSERT" },
-                new FieldConfig { Name = "idaraID", Type = "hidden", Value = IdaraId },
-                new FieldConfig { Name = "entrydata", Type = "hidden", Value = usersId },
-                new FieldConfig { Name = "hostname", Type = "hidden", Value = HostName },
                 new FieldConfig { Name = "redirectUrl", Type = "hidden", Value = currentUrl },
                 new FieldConfig { Name = "redirectAction", Type = "hidden", Value = "MaintenancePlans" },
                 new FieldConfig { Name = "redirectController", Type = "hidden", Value = ControllerName },

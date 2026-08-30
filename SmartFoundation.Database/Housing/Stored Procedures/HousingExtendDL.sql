@@ -74,8 +74,8 @@ BEGIN
             ,
             isnull(sum_.Remaining,0.00) Remaining
             , isnull(isnull(br.buildingRentAmount,0.00),0.00) buildingRentAmount
-            ,(isnull(br.buildingRentAmount,0.00) * 40.00) InsuranceAmount
-            ,(isnull(br.buildingRentAmount,0.00) * 40.00) +isnull(sum_.Remaining,0.00) InsuranceAmountWithRemaining
+            ,(isnull(br.buildingRentAmount,0.00) * 40) InsuranceAmount
+            ,(isnull(br.buildingRentAmount,0.00) * 40) +isnull(sum_.Remaining,0.00) InsuranceAmountWithRemaining
             ,convert(nvarchar(10),w.OccupentDate,23) OccupentDate
             
             

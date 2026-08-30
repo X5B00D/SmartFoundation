@@ -33,6 +33,9 @@ BEGIN
 
     DECLARE @Salt VARBINARY(32);
     DECLARE @StoredHash VARBINARY(64);
+    DECLARE @ChangedPassword BIT;
+    DECLARE @PasswordStartDate DATETIME;
+    DECLARE @PasswordEndDate DATETIME;
     DECLARE @PasswordResult int;
 
     -- هل يوجد كلمة مرور للمستخدم؟
@@ -49,14 +52,27 @@ BEGIN
         -- جلب الهاش والسولت
         SELECT TOP (1)
             @Salt = PasswordSalt,
-            @StoredHash = PasswordHash
+            @StoredHash = PasswordHash,
+            @ChangedPassword = ChangedPassword,
+            @PasswordStartDate = userPasswordStartDate,
+            @PasswordEndDate = userPasswordEndDate
         FROM  dbo.usersPassword
         WHERE usersID_FK = @usersID
           AND userPasswordActive = 1
         ORDER BY entryDate DESC;
 
+        IF ISNULL(@ChangedPassword, 0) = 0
+           AND (
+                @PasswordStartDate IS NULL
+                OR @PasswordStartDate > GETDATE()
+                OR @PasswordEndDate IS NULL
+                OR GETDATE() > @PasswordEndDate
+           )
+        BEGIN
+            SET @PasswordResult = 4;   -- كلمة المرور المؤقتة منتهية
+        END
         -- فحص كلمة المرور
-        IF @StoredHash = HASHBYTES('SHA2_256', @Salt + CAST(@Password AS VARBINARY(200)))
+        ELSE IF @StoredHash = HASHBYTES('SHA2_256', @Salt + CAST(@Password AS VARBINARY(200)))
         BEGIN
             SET @PasswordResult = 1;  -- كلمة المرور صحيحة
         END
@@ -209,6 +225,12 @@ BEGIN
                     SELECT
                         0 AS userActive,
                         N'يجب اعادة ضبط كلمة المرور للمستخدم' AS Message_;
+                END
+                ELSE IF (@PasswordResult = 4)
+                BEGIN
+                    SELECT
+                        0 AS userActive,
+                        N'انتهت صلاحية كلمة المرور المؤقتة، يرجى طلب إعادة تعيين كلمة المرور.' AS Message_;
                 END
             END
             ELSE

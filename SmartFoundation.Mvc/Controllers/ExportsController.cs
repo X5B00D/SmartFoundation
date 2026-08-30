@@ -51,9 +51,9 @@ namespace SmartFoundation.Mvc.Controllers
                 
                 return File(bytes, "application/pdf", filename);
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                return BadRequest(new { error = ex.Message });
+                return BadRequest(new { error = "حدث خطأ أثناء إنشاء الملف. يرجى المحاولة مرة أخرى." });
             }
         }
     }

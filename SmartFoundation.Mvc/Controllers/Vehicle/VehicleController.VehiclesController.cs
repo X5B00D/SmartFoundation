@@ -212,9 +212,6 @@ namespace SmartFoundation.Mvc.Controllers.Vehicle
         //                new FieldConfig { Name = "redirectController", Type = "hidden", Value = controllerName },
         //                new FieldConfig { Name = "pageName_", Type = "hidden", Value = crudPageName },
         //                new FieldConfig { Name = "ActionType", Type = "hidden", Value = "INSERT" },
-        //                new FieldConfig { Name = "idaraID", Type = "hidden", Value = idaraId.ToString() },
-        //                new FieldConfig { Name = "entrydata", Type = "hidden", Value = usersId.ToString() },
-        //                new FieldConfig { Name = "hostname", Type = "hidden", Value = hostName },
         //                new FieldConfig { Name = rowIdField, Type = "hidden" },
 
         //                new FieldConfig { Name = "p01", Label = "رقم الهيكل", Type = "text", ColCss = "6", Required = true },
@@ -245,9 +242,6 @@ namespace SmartFoundation.Mvc.Controllers.Vehicle
         //                new FieldConfig { Name = "redirectController", Type = "hidden", Value = controllerName },
         //                new FieldConfig { Name = "pageName_", Type = "hidden", Value = crudPageName },
         //                new FieldConfig { Name = "ActionType", Type = "hidden", Value = "UPDATE" },
-        //                new FieldConfig { Name = "idaraID", Type = "hidden", Value = idaraId.ToString() },
-        //                new FieldConfig { Name = "entrydata", Type = "hidden", Value = usersId.ToString() },
-        //                new FieldConfig { Name = "hostname", Type = "hidden", Value = hostName },
         //                new FieldConfig { Name = rowIdField, Type = "hidden" },
 
         //                new FieldConfig { Name = "p01", Label = "رقم الهيكل", Type = "text", Readonly = true, ColCss = "6", Required = true },

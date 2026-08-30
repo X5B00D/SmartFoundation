@@ -42,7 +42,8 @@ BEGIN
     SELECT
     em.meterID,
     em.meterNo,
-    em.meterServiceTypeID_FK
+    em.meterServiceTypeID_FK,
+    em.MeterCalculateTypeID
 INTO #EligibleMeters
 FROM Housing.FN_EligibleMeters(@idaraID, @MonthStart, @MonthEnd) em
 WHERE em.meterServiceTypeID_FK = @meterServiceTypeID_FK
@@ -93,7 +94,7 @@ AND EXISTS
     ----------------------------------------------------------------
     -- 3) Counts
     ----------------------------------------------------------------
-    SELECT @AllMetersCount = COUNT(*) FROM #EligibleMeters;
+    SELECT @AllMetersCount = COUNT(*) FROM #EligibleMeters s where s.MeterCalculateTypeID = 1;
 
    SELECT @AllmeterReaded = COUNT(*)
     FROM #EligibleMeters em
@@ -107,6 +108,7 @@ AND EXISTS
           AND b.BillActive = 1
           AND b.BillTypeID_FK = 2
           AND b.CurrentPeriodID = @CurrentPeriodID
+
     );
 
     ----------------------------------------------------------------
@@ -230,6 +232,7 @@ AND EXISTS
            AND b.BillActive = 1
            AND b.BillTypeID_FK = 2
            AND b.CurrentPeriodID = @CurrentPeriodID
+           
         OUTER APPLY (
             SELECT TOP (1) p.TotalPrice
             FROM  Housing.Bills p
@@ -244,6 +247,8 @@ AND EXISTS
                 ISNULL(p.CurrentPeriodID, 0) DESC,
                 p.BillsID DESC
         ) rp
+
+        where em.MeterCalculateTypeID = 1
         ORDER BY b.BillsID DESC;
     END
 
@@ -281,7 +286,8 @@ AND EXISTS
               AND b.BillActive = 1
               AND b.BillTypeID_FK = 2
               AND b.CurrentPeriodID = @CurrentPeriodID
-            WHERE b.meterID IS not NULL
+              
+            WHERE b.meterID IS not NULL AND em.MeterCalculateTypeID = 1
             ORDER BY em.meterNo;
 
     END
@@ -296,7 +302,8 @@ AND EXISTS
               AND b.BillActive = 1
               AND b.BillTypeID_FK = 2
               AND b.CurrentPeriodID = @CurrentPeriodID
-            WHERE b.meterID IS NULL
+              
+            WHERE b.meterID IS NULL AND em.MeterCalculateTypeID = 1
             ORDER BY em.meterNo;
 
     END

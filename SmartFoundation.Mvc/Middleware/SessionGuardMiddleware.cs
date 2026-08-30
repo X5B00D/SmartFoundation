@@ -1,6 +1,9 @@
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
+using System.Security.Claims;
 
 namespace SmartFoundation.Mvc.Middleware
 {
@@ -46,8 +49,9 @@ namespace SmartFoundation.Mvc.Middleware
                 return;
             }
 
-            // Allow Login path explicitly to avoid loops
-            if (path.StartsWithSegments("/Login", StringComparison.OrdinalIgnoreCase))
+            // Cookie authentication is the primary mechanism. This middleware only
+            // validates that its server-side application context is still consistent.
+            if (context.User.Identity?.IsAuthenticated != true)
             {
                 await _next(context);
                 return;
@@ -58,22 +62,26 @@ namespace SmartFoundation.Mvc.Middleware
             foreach (var key in RequiredKeys)
             {
                 var value = context.Session.GetString(key);
-                Console.WriteLine($"[SessionGuard] Checking key '{key}': '{value ?? "NULL"}'");
-                
                 if (string.IsNullOrWhiteSpace(value))
-                {
                     missing = true;
-                    Console.WriteLine($"[SessionGuard] MISSING key: '{key}'");
-                }
             }
 
-            if (missing)
+            var claimUserId = context.User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var sessionUserId = context.Session.GetString("usersID");
+            var identityMismatch = string.IsNullOrWhiteSpace(claimUserId) ||
+                                   !string.Equals(claimUserId, sessionUserId, StringComparison.Ordinal);
+
+            if (missing || identityMismatch)
             {
-                Console.WriteLine($"[SessionGuard] Access DENIED - redirecting to login");
+                await context.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+                context.Session.Clear();
+
                 var isAjax = string.Equals(context.Request.Headers["X-Requested-With"], "XMLHttpRequest", StringComparison.OrdinalIgnoreCase);
                 var acceptsJson = context.Request.Headers["Accept"].ToString().Contains("application/json", StringComparison.OrdinalIgnoreCase);
+                var isApiOrCrud = path.StartsWithSegments("/api", StringComparison.OrdinalIgnoreCase) ||
+                                  path.StartsWithSegments("/crud", StringComparison.OrdinalIgnoreCase);
 
-                if (isAjax || acceptsJson)
+                if (isApiOrCrud || isAjax || acceptsJson)
                 {
                     context.Response.StatusCode = StatusCodes.Status401Unauthorized;
                     return;
@@ -82,8 +90,6 @@ namespace SmartFoundation.Mvc.Middleware
                 context.Response.Redirect("/Login/Index?logout=1");
                 return;
             }
-
-            Console.WriteLine($"[SessionGuard] Access GRANTED - continuing to {context.Request.Path}");
 
             await _next(context);
         }

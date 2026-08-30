@@ -568,9 +568,9 @@ namespace SmartFoundation.Mvc.Controllers.ElectronicBillSystem
                     }
                 }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                ViewBag.BuildingTypeDataSetError = ex.Message;
+                ViewBag.BuildingTypeDataSetError = "حدث خطأ أثناء تحميل البيانات. يرجى المحاولة مرة أخرى.";
             }
 
 
@@ -718,9 +718,6 @@ namespace SmartFoundation.Mvc.Controllers.ElectronicBillSystem
                     Placeholder = "وصف تفصيلي لنوع العداد"
                 },
                    new FieldConfig { Name = "__RequestVerificationToken", Type = "hidden", Value = (Request.Headers["RequestVerificationToken"].FirstOrDefault() ?? "") },
-               new FieldConfig { Name = "hostname", Type = "hidden", Value = Request.Host.Value },
-               new FieldConfig { Name = "entrydata", Type = "hidden", Value = usersId.ToString() },
-               new FieldConfig { Name = "idaraID", Type = "hidden", Value = IdaraId.ToString() },
                new FieldConfig { Name = "ActionType", Type = "hidden", Value = "INSERTNEWMETERTYPE" },
                new FieldConfig { Name = "pageName_", Type = "hidden", Value = PageName },
                new FieldConfig { Name = "redirectAction", Type = "hidden", Value = PageName },
@@ -897,9 +894,6 @@ namespace SmartFoundation.Mvc.Controllers.ElectronicBillSystem
                   
 
                new FieldConfig { Name = "__RequestVerificationToken", Type = "hidden", Value = (Request.Headers["RequestVerificationToken"].FirstOrDefault() ?? "") },
-               new FieldConfig { Name = "hostname", Type = "hidden", Value = Request.Host.Value },
-               new FieldConfig { Name = "entrydata", Type = "hidden", Value = usersId.ToString() },
-               new FieldConfig { Name = "idaraID", Type = "hidden", Value = IdaraId.ToString() },
                new FieldConfig { Name = "ActionType", Type = "hidden", Value = "UPDATENEWMETERTYPE" },
                new FieldConfig { Name = "pageName_", Type = "hidden", Value = PageName },
                new FieldConfig { Name = "redirectAction", Type = "hidden", Value = PageName },
@@ -1024,9 +1018,6 @@ namespace SmartFoundation.Mvc.Controllers.ElectronicBillSystem
 
 
                new FieldConfig { Name = "__RequestVerificationToken", Type = "hidden", Value = (Request.Headers["RequestVerificationToken"].FirstOrDefault() ?? "") },
-               new FieldConfig { Name = "hostname", Type = "hidden", Value = Request.Host.Value },
-               new FieldConfig { Name = "entrydata", Type = "hidden", Value = usersId.ToString() },
-               new FieldConfig { Name = "idaraID", Type = "hidden", Value = IdaraId.ToString() },
                new FieldConfig { Name = "ActionType", Type = "hidden", Value = "DELETENEWMETERTYPE" },
                new FieldConfig { Name = "pageName_", Type = "hidden", Value = PageName },
                new FieldConfig { Name = "redirectAction", Type = "hidden", Value = PageName },
@@ -1158,9 +1149,6 @@ namespace SmartFoundation.Mvc.Controllers.ElectronicBillSystem
                     Value = IdaraId
                 },
                 new FieldConfig { Name = "__RequestVerificationToken", Type = "hidden", Value = (Request.Headers["RequestVerificationToken"].FirstOrDefault() ?? "") },
-               new FieldConfig { Name = "hostname", Type = "hidden", Value = Request.Host.Value },
-               new FieldConfig { Name = "entrydata", Type = "hidden", Value = usersId.ToString() },
-               new FieldConfig { Name = "idaraID", Type = "hidden", Value = IdaraId.ToString() },
                new FieldConfig { Name = "ActionType", Type = "hidden", Value = "INSERTNEWMETER" },
                new FieldConfig { Name = "pageName_", Type = "hidden", Value = PageName },
                new FieldConfig { Name = "redirectAction", Type = "hidden", Value = PageName },
@@ -1292,9 +1280,6 @@ namespace SmartFoundation.Mvc.Controllers.ElectronicBillSystem
                     Value = IdaraId
                 },
                 new FieldConfig { Name = "__RequestVerificationToken", Type = "hidden", Value = (Request.Headers["RequestVerificationToken"].FirstOrDefault() ?? "") },
-               new FieldConfig { Name = "hostname", Type = "hidden", Value = Request.Host.Value },
-               new FieldConfig { Name = "entrydata", Type = "hidden", Value = usersId.ToString() },
-               new FieldConfig { Name = "idaraID", Type = "hidden", Value = IdaraId.ToString() },
                new FieldConfig { Name = "ActionType", Type = "hidden", Value = "EDITNEWMETER" },
                new FieldConfig { Name = "pageName_", Type = "hidden", Value = PageName },
                new FieldConfig { Name = "redirectAction", Type = "hidden", Value = PageName },
@@ -1430,9 +1415,6 @@ namespace SmartFoundation.Mvc.Controllers.ElectronicBillSystem
                     Value = IdaraId
                 },
                 new FieldConfig { Name = "__RequestVerificationToken", Type = "hidden", Value = (Request.Headers["RequestVerificationToken"].FirstOrDefault() ?? "") },
-               new FieldConfig { Name = "hostname", Type = "hidden", Value = Request.Host.Value },
-               new FieldConfig { Name = "entrydata", Type = "hidden", Value = usersId.ToString() },
-               new FieldConfig { Name = "idaraID", Type = "hidden", Value = IdaraId.ToString() },
                new FieldConfig { Name = "ActionType", Type = "hidden", Value = "DELETENEWMETER" },
                new FieldConfig { Name = "pageName_", Type = "hidden", Value = PageName },
                new FieldConfig { Name = "redirectAction", Type = "hidden", Value = PageName },
@@ -1518,9 +1500,6 @@ namespace SmartFoundation.Mvc.Controllers.ElectronicBillSystem
                 },
 
                 new FieldConfig { Name = "__RequestVerificationToken", Type = "hidden", Value = (Request.Headers["RequestVerificationToken"].FirstOrDefault() ?? "") },
-               new FieldConfig { Name = "hostname", Type = "hidden", Value = Request.Host.Value },
-               new FieldConfig { Name = "entrydata", Type = "hidden", Value = usersId.ToString() },
-               new FieldConfig { Name = "idaraID", Type = "hidden", Value = IdaraId.ToString() },
                new FieldConfig { Name = "ActionType", Type = "hidden", Value = "LINKMETERTOBUILDINGS" },
                new FieldConfig { Name = "pageName_", Type = "hidden", Value = PageName },
                new FieldConfig { Name = "redirectAction", Type = "hidden", Value = PageName },
@@ -1602,9 +1581,6 @@ namespace SmartFoundation.Mvc.Controllers.ElectronicBillSystem
                 },
 
                 new FieldConfig { Name = "__RequestVerificationToken", Type = "hidden", Value = (Request.Headers["RequestVerificationToken"].FirstOrDefault() ?? "") },
-               new FieldConfig { Name = "hostname", Type = "hidden", Value = Request.Host.Value },
-               new FieldConfig { Name = "entrydata", Type = "hidden", Value = usersId.ToString() },
-               new FieldConfig { Name = "idaraID", Type = "hidden", Value = IdaraId.ToString() },
                new FieldConfig { Name = "ActionType", Type = "hidden", Value = "UNLINKMETERTOBUILDINGS" },
                new FieldConfig { Name = "pageName_", Type = "hidden", Value = PageName },
                new FieldConfig { Name = "redirectAction", Type = "hidden", Value = PageName },

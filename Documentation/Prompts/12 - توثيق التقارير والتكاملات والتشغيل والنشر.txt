@@ -1,0 +1,11 @@
+نواصل مشروع توثيق SmartFoundation.
+
+اقرأ AGENTS.md وجميع Documentation المكتملة ونتائج القاعدة الحية. نفذ فقط: التقارير والطباعة والتصدير، التكاملات، بيئة التطوير والتشغيل، النشر، النسخ الاحتياطي والاستعادة، واستكشاف الأخطاء.
+
+وثق التقارير ومصادرها الحية وParameters/Filters والصلاحيات وPDF/Excel/Print والمكتبات. وثق APIs والبريد وSMS وLDAP/AD وFile Storage وUploads وقواعد البيانات الخارجية والخدمات الثالثة وAI/LLama إن كانت مرتبطة، مع Timeout/Retry ومعالجة الأخطاء.
+
+وثق .NET 8 وSDK وVisual Studio وSQL Server وRestore/Build/Run وStartup Project والبيئات وConfiguration مخفية. وثق IIS وHosting Bundle وApp Pool وPermissions وLogs وReverse Proxy/TLS، ثم متطلبات النسخ الاحتياطي والاستعادة واستكشاف الأخطاء.
+
+DATACORE الحية مصدر أي SQL. لا تنفذ Build/Publish/Deploy/Backup/Restore أوكتابة قاعدة، ولا تعرض أسراراً ولا تعدل خارج Documentation/.
+
+حدّث ملف التقدم. في النهاية اعرض التقارير والتكاملات والمتطلبات والفجوات والملفات، واجعل المرحلة التالية Developer and User Guides.

@@ -1,16 +1,18 @@
 ﻿
+
 CREATE VIEW [Housing].[V_MetersDetails]
 AS
 SELECT m.meterID, m.meterTypeID_FK, m.meterNo, m.meterName_A, m.meterName_E, m.meterDescription, m.meterStartDate, m.meterEndDate, m.meterActive, m.CanceledBy, m.CanceledDate, m.CanceledNote, m.IdaraId_FK AS MeterIDaraID, mt.meterServiceTypeID_FK, 
              mt.meterTypeName_A, mt.meterTypeName_E, mt.meterTypeDescription, mt.meterTypeConversionFactor, mt.meterMaxRead, mt.meterTypeStartDate, mt.meterTypeEndDate, mt.meterTypeActive, mt.CanceledBy AS MeterTypeCanceledBy, 
              mt.CanceledDate AS MeterTypeCanceledDate, mt.CanceledNote AS MeterTypeCanceledNote, mt.IdaraId_FK AS MeterTypeIDaraID, mst.meterServiceTypeName_A, mst.meterServiceTypeName_E, mst.meterServiceTypeDescription, mst.meterServiceTypeStartDate, 
              mst.meterServiceTypeEndDate, mst.meterServiceTypeActive, mst.BillChargeTypeID_FK, msp.meterServicePriceID, msp.meterServicePriceStartDate, msp.meterServicePriceEndDate, msp.meterServicePrice, msp.meterServicePriceActive, mtw.MeterServiceTypeLinkedWithIdaraID, 
-             mtw.Idara_FK AS MeterServiceTypeLinkedWithIdaraID_FK, mtw.MeterServiceTypeLinkedWithIdaraStartDate, mtw.MeterServiceTypeLinkedWithIdaraEndDate, mtw.MeterServiceTypeLinkedWithIdaraActive
+             mtw.Idara_FK AS MeterServiceTypeLinkedWithIdaraID_FK, mtw.MeterServiceTypeLinkedWithIdaraStartDate, mtw.MeterServiceTypeLinkedWithIdaraEndDate, mtw.MeterServiceTypeLinkedWithIdaraActive,mct.MeterCalculateTypeID,mct.MeterCalculateTypeName_A,mct.MeterCalculateTypeName_E,mct.MeterCalculateTypeActive
 FROM   Housing.Meter AS m INNER JOIN
              Housing.MeterType AS mt ON m.meterTypeID_FK = mt.meterTypeID INNER JOIN
              Housing.MeterServiceType AS mst ON mt.meterServiceTypeID_FK = mst.meterServiceTypeID INNER JOIN
              Housing.MeterServicePrice AS msp ON mt.meterTypeID = msp.meterTypeID_FK INNER JOIN
-             Housing.MeterServiceTypeLinkedWithIdara AS mtw ON mst.meterServiceTypeID = mtw.MeterServiceTypeID_FK
+             Housing.MeterServiceTypeLinkedWithIdara AS mtw ON mst.meterServiceTypeID = mtw.MeterServiceTypeID_FK INNER JOIN
+             Housing.MeterCalculateType mct on mt.MeterCalculateTypeID_FK = mct.MeterCalculateTypeID
 
 GO
 EXECUTE sp_addextendedproperty @name = N'MS_DiagramPane1', @value = N'[0E232FF0-B466-11cf-A24F-00AA00A3EFFF, 1.00]

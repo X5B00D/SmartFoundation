@@ -11,11 +11,21 @@
     [InsertedRows]     INT             NULL,
     [SkippedEmpty]     INT             NULL,
     [Notes]            NVARCHAR (1000) NULL,
-    PRIMARY KEY CLUSTERED ([ImportLogID] ASC)
+    [DeductListID_FK]  INT             NULL,
+    PRIMARY KEY CLUSTERED ([ImportLogID] ASC),
+    CONSTRAINT [FK_UploadExcelImportLog_DeductList] FOREIGN KEY ([DeductListID_FK]) REFERENCES [Housing].[DeductList] ([deductListID])
 );
+
+
 
 
 GO
 CREATE UNIQUE NONCLUSTERED INDEX [UX_UploadExcelImportLog_FileHash]
     ON [Housing].[UploadExcelImportLog]([FileHash] ASC);
+
+
+GO
+CREATE UNIQUE NONCLUSTERED INDEX [UX_UploadExcelImportLog_DeductListID]
+    ON [Housing].[UploadExcelImportLog]([DeductListID_FK] ASC)
+    WHERE [DeductListID_FK] IS NOT NULL;
 

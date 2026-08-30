@@ -1,0 +1,13 @@
+نواصل مشروع توثيق SmartFoundation.
+
+اقرأ AGENTS.md وDocumentation/Documentation-Progress.json وجميع ملفات Documentation/Work/ وDiagrams/. نفذ مصالحة المراحل 1–7 مع قاعدة DATACORE الحية فقط.
+
+الكود النشط مصدر التطبيق، والقاعدة الحية مصدر SQL النهائي، وSmartFoundation.Database Snapshot للمقارنة فقط.
+
+استخدم SELECT من sys.procedures, sys.sql_modules, sys.parameters, sys.tables, sys.columns, sys.foreign_keys, sys.views, sys.triggers, sys.sql_expression_dependencies. ممنوع EXEC أوBusiness SP أوأي DML/DDL.
+
+راجع Architecture gateways وSecurity وControlPanel وHousing Definitions وHousing Procedures وWaiting Lists/Imports. صنف كل كائن: Live matching، Live different، Missing live، أوLive missing from documentation.
+
+صحح المستندات السابقة داخل Documentation/ فقط، واحتفظ بسجل الاختلافات التاريخية. أنشئ Documentation/Work/07A-Live-Database-Reconciliation.md وحدّث التقدم بعدد المطابق والمختلف والمفقود والمستندات المعدلة.
+
+في النهاية اعرض كل الكائنات التي تحققت منها والفجوات المغلقة والجديدة والاختلافات والملفات، واجعل المرحلة التالية IncomeSystem.

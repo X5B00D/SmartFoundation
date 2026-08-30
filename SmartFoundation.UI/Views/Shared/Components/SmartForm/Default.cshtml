@@ -31,13 +31,17 @@
       autocomplete="off"
       class="sf-form w-full">
 
+    @Html.AntiForgeryToken()
+
     @* Show LabelText if provided *@
     @if (!string.IsNullOrWhiteSpace(Model.LabelText))
     {
         <div class="form-label-text mb-4 text-sm text-gray-700">@Model.LabelText</div>
     }
 
-    @foreach (var hidden in Model.Fields.Where(f => f.IsHidden || f.Type.Equals("hidden", StringComparison.OrdinalIgnoreCase)))
+    @foreach (var hidden in Model.Fields.Where(f =>
+        (f.IsHidden || f.Type.Equals("hidden", StringComparison.OrdinalIgnoreCase)) &&
+        !f.Name.Equals("__RequestVerificationToken", StringComparison.OrdinalIgnoreCase)))
     {
         <input type="hidden" name="@hidden.Name" value="@hidden.Value" />
     }

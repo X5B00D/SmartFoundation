@@ -188,7 +188,7 @@ namespace SmartFoundation.Application.Services
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error executing SP {SpName}", spName);
-                throw new InvalidOperationException($"Failed to execute stored procedure '{spName}': {ex.Message}", ex);
+                throw new InvalidOperationException("حدث خطأ داخلي أثناء تنفيذ العملية.", ex);
             }
 
             if (!response.Success)
@@ -323,7 +323,7 @@ namespace SmartFoundation.Application.Services
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error executing stored procedure {SpName}", spName);
-                throw new InvalidOperationException($"Failed to execute stored procedure '{spName}': {ex.Message}", ex);
+                throw new InvalidOperationException("حدث خطأ داخلي أثناء تنفيذ العملية.", ex);
             }
 
             if (!response.Success)
@@ -427,7 +427,7 @@ namespace SmartFoundation.Application.Services
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error executing stored procedure {SpName}", spName);
-                throw new InvalidOperationException($"Failed to execute stored procedure '{spName}': {ex.Message}", ex);
+                throw new InvalidOperationException("حدث خطأ داخلي أثناء تنفيذ العملية.", ex);
             }
 
             if (!response.Success)
@@ -553,7 +553,7 @@ namespace SmartFoundation.Application.Services
                 _logger.LogError(ex, "Error executing stored procedure {SpName} with params: {Params}", 
                     spName, JsonSerializer.Serialize(parameters));
                 _logger.LogInformation("=== GetLoginDataSetAsync DEBUG END (ERROR) ===");
-                throw new InvalidOperationException($"Failed to execute stored procedure '{spName}': {ex.Message}", ex);
+                throw new InvalidOperationException("حدث خطأ داخلي أثناء تنفيذ العملية.", ex);
             }
 
             // ✅ CHANGE: Don't throw if Success = false, just log and continue
@@ -1011,7 +1011,7 @@ public async Task<DataSet> GetChangePasswordDataSetAsync(params object?[] args)
     catch (Exception ex)
     {
         _logger.LogError(ex, "Error executing change password stored procedure {SpName}", spName);
-        throw new InvalidOperationException($"Failed to execute stored procedure '{spName}': {ex.Message}", ex);
+        throw new InvalidOperationException("حدث خطأ داخلي أثناء تنفيذ العملية.", ex);
     }
 
     return ConvertResponseToDataSet(response);

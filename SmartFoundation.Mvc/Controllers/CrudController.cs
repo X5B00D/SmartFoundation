@@ -18,6 +18,7 @@ namespace SmartFoundation.Mvc.Controllers
     public class CrudController : Controller
     {
         private readonly MastersServies _mastersServies;
+        private readonly IHttpContextAccessor? _httpContextAccessor;
 
         //  NEW (مطلوب للرفع )
         private readonly IWebHostEnvironment _env;
@@ -29,10 +30,14 @@ namespace SmartFoundation.Mvc.Controllers
 
 
         [ActivatorUtilitiesConstructor]
-        public CrudController(MastersServies mastersCrudServies, IWebHostEnvironment env)
+        public CrudController(
+            MastersServies mastersCrudServies,
+            IWebHostEnvironment env,
+            IHttpContextAccessor httpContextAccessor)
         {
             _mastersServies = mastersCrudServies;
             _env = env;
+            _httpContextAccessor = httpContextAccessor;
         }
 
 
@@ -201,6 +206,34 @@ namespace SmartFoundation.Mvc.Controllers
             TempData[bucket] = message;
         }
 
+        private bool TryGetSecureSessionContext(
+            out int userId,
+            out int idaraId,
+            out string hostName)
+        {
+            userId = 0;
+            idaraId = 0;
+            hostName = string.Empty;
+
+            var httpContext = _httpContextAccessor?.HttpContext ?? ControllerContext?.HttpContext;
+            if (httpContext is null)
+                return false;
+
+            var userIdStr = httpContext.Session.GetString("usersID");
+            var idaraIdStr = httpContext.Session.GetString("IdaraID");
+
+            if (string.IsNullOrWhiteSpace(userIdStr) ||
+                string.IsNullOrWhiteSpace(idaraIdStr) ||
+                !int.TryParse(userIdStr, out userId) ||
+                !int.TryParse(idaraIdStr, out idaraId))
+            {
+                return false;
+            }
+
+            hostName = httpContext.Session.GetString("HostName") ?? string.Empty;
+            return true;
+        }
+
         [HttpPost("insert")]
         public async Task<IActionResult> Insert()
         {
@@ -210,9 +243,8 @@ namespace SmartFoundation.Mvc.Controllers
 
                 string pageName = f.TryGetValue("pageName_", out var pv) && !string.IsNullOrWhiteSpace(pv) ? pv.ToString() : "";
                 string actionType = f.TryGetValue("ActionType", out var av) && !string.IsNullOrWhiteSpace(av) ? av.ToString() : "";
-                int? idaraID = f.TryGetValue("idaraID", out var idv) && int.TryParse(idv, out var idParsed) ? idParsed : 0;
-                int? entryData = f.TryGetValue("entrydata", out var edv) && int.TryParse(edv, out var entryParsed) ? entryParsed : 0;
-                string hostName = f.TryGetValue("hostname", out var hv) && !string.IsNullOrWhiteSpace(hv) ? hv.ToString() : "";
+                if (!TryGetSecureSessionContext(out var entryData, out var idaraID, out var hostName))
+                    return Unauthorized();
 
                 var parameters = new Dictionary<string, object?>(StringComparer.OrdinalIgnoreCase)
                 {
@@ -291,9 +323,9 @@ namespace SmartFoundation.Mvc.Controllers
                 if (!string.IsNullOrWhiteSpace(referer)) return Redirect(referer);
                 return RedirectToAction("Index", "Home");
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                SetToastTempData(0, "Insert failed: " + ex.Message);
+                SetToastTempData(0, "حدث خطأ أثناء إضافة البيانات. يرجى المحاولة مرة أخرى.");
                 var referer = Request.Headers["Referer"].ToString();
                 if (!string.IsNullOrWhiteSpace(referer)) return Redirect(referer);
                 return RedirectToAction("Index", "Home");
@@ -309,9 +341,8 @@ namespace SmartFoundation.Mvc.Controllers
 
                 string pageName = f.TryGetValue("pageName_", out var pv) && !string.IsNullOrWhiteSpace(pv) ? pv.ToString() : "";
                 string actionType = f.TryGetValue("ActionType", out var av) && !string.IsNullOrWhiteSpace(av) ? av.ToString() : "UPDATE";
-                int? idaraID = f.TryGetValue("idaraID", out var idv) && int.TryParse(idv, out var idParsed) ? idParsed : 1;
-                int? entryData = f.TryGetValue("entrydata", out var edv) && int.TryParse(edv, out var entryParsed) ? entryParsed : 60014016;
-                string hostName = f.TryGetValue("hostname", out var hv) && !string.IsNullOrWhiteSpace(hv) ? hv.ToString() : Request.Host.Value;
+                if (!TryGetSecureSessionContext(out var entryData, out var idaraID, out var hostName))
+                    return Unauthorized();
 
                 var parameters = new Dictionary<string, object?>(StringComparer.OrdinalIgnoreCase)
                 {
@@ -361,9 +392,9 @@ namespace SmartFoundation.Mvc.Controllers
                     return RedirectToAction("Index", "Home");
                 }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                SetToastTempData(0, "Update failed: " + ex.Message);
+                SetToastTempData(0, "حدث خطأ أثناء تعديل البيانات. يرجى المحاولة مرة أخرى.");
                 var referer = Request.Headers["Referer"].ToString();
                 if (!string.IsNullOrWhiteSpace(referer)) return Redirect(referer);
                 return RedirectToAction("Index", "Home");
@@ -379,9 +410,8 @@ namespace SmartFoundation.Mvc.Controllers
 
                 string pageName = f.TryGetValue("pageName_", out var pv) && !string.IsNullOrWhiteSpace(pv) ? pv.ToString() : "BuildingType";
                 string actionType = f.TryGetValue("ActionType", out var av) && !string.IsNullOrWhiteSpace(av) ? av.ToString() : "DELETE";
-                int? idaraID = f.TryGetValue("idaraID", out var idv) && int.TryParse(idv, out var idParsed) ? idParsed : 1;
-                int? entryData = f.TryGetValue("entrydata", out var edv) && int.TryParse(edv, out var entryParsed) ? entryParsed : 60014016;
-                string hostName = f.TryGetValue("hostname", out var hv) && !string.IsNullOrWhiteSpace(hv) ? hv.ToString() : Request.Host.Value;
+                if (!TryGetSecureSessionContext(out var entryData, out var idaraID, out var hostName))
+                    return Unauthorized();
 
                 var parameters = new Dictionary<string, object?>(StringComparer.OrdinalIgnoreCase)
                 {
@@ -428,9 +458,9 @@ namespace SmartFoundation.Mvc.Controllers
                     return RedirectToAction("Index", "Home");
                 }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                SetToastTempData(0, "Delete failed: " + ex.Message);
+                SetToastTempData(0, "حدث خطأ أثناء حذف البيانات. يرجى المحاولة مرة أخرى.");
                 var referer = Request.Headers["Referer"].ToString();
                 if (!string.IsNullOrWhiteSpace(referer)) return Redirect(referer);
                 return RedirectToAction("Index", "Home");
@@ -507,7 +537,82 @@ namespace SmartFoundation.Mvc.Controllers
             return Json(items);
         }
 
+        [HttpGet("DDLFilteredMulti")]
+        public async Task<IActionResult> DDLFilteredMulti(
+    string? FilterColumns,
+    string? FilterValues,
+    string? textcol,
+    string? ValueCol,
+    string? TableIndex,
+    string? PageName)
+        {
+            if (!TryGetSecureSessionContext(out var userId, out var idaraId, out var hostName))
+                return Unauthorized();
 
+            if (!int.TryParse(TableIndex, out var tableIndexInt) || tableIndexInt < 0)
+                return Json(new List<object> { new { value = "-1", text = "بيانات القائمة غير صحيحة" } });
+
+            var filterColumns = (FilterColumns ?? string.Empty)
+                .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+
+            var filterValues = (FilterValues ?? string.Empty)
+                .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+
+            if (filterColumns.Length == 0 || filterColumns.Length != filterValues.Length)
+                return Json(new List<object> { new { value = "-1", text = "بيانات التصفية غير صحيحة" } });
+
+            if (filterValues.Any(v => string.IsNullOrWhiteSpace(v) || v is "-1" or "-99999"))
+                return Json(new List<object> { new { value = "-99999", text = "الرجاء الاختيار" } });
+
+            var ds = await _mastersServies.GetDataLoadDataSetAsync(PageName, idaraId, userId, hostName);
+
+            if (ds == null || ds.Tables.Count <= tableIndexInt)
+                return Json(new List<object> { new { value = "-1", text = "مصدر القائمة غير متاح" } });
+
+            var table = ds.Tables[tableIndexInt];
+
+            if (string.IsNullOrWhiteSpace(textcol) || !table.Columns.Contains(textcol) ||
+                string.IsNullOrWhiteSpace(ValueCol) || !table.Columns.Contains(ValueCol) ||
+                filterColumns.Any(column => !table.Columns.Contains(column)))
+            {
+                return Json(new List<object> { new { value = "-1", text = "حقول القائمة غير صحيحة" } });
+            }
+
+            var items = new List<object>
+    {
+        new { value = "-99999", text = "الرجاء الاختيار" }
+    };
+
+            foreach (DataRow row in table.Rows)
+            {
+                var isMatch = true;
+
+                for (var i = 0; i < filterColumns.Length; i++)
+                {
+                    var rowValue = row[filterColumns[i]]?.ToString()?.Trim() ?? string.Empty;
+
+                    if (!string.Equals(rowValue, filterValues[i], StringComparison.Ordinal))
+                    {
+                        isMatch = false;
+                        break;
+                    }
+                }
+
+                if (!isMatch)
+                    continue;
+
+                var value = row[ValueCol]?.ToString()?.Trim() ?? string.Empty;
+                var text = row[textcol]?.ToString()?.Trim() ?? string.Empty;
+
+                if (!string.IsNullOrWhiteSpace(value))
+                    items.Add(new { value, text });
+            }
+
+            if (items.Count == 1)
+                items.Add(new { value = "-1", text = "لا توجد مسيرات مرسلة مطابقة" });
+
+            return Json(items);
+        }
 
         [HttpGet("GetDDLValues")]
         public async Task<IActionResult> GetDDLValues(
@@ -522,11 +627,14 @@ namespace SmartFoundation.Mvc.Controllers
             string? FilterValue = null,
              string? FirstOption = null)
         {
+            if (!TryGetSecureSessionContext(out var sessionUserId, out var sessionIdaraId, out var sessionHostName))
+                return Unauthorized();
+
             int TableIndexInt = 0;
             if (!string.IsNullOrWhiteSpace(TableIndex))
                 int.TryParse(TableIndex, out TableIndexInt);
 
-            var ds = await _mastersServies.GetDataLoadDataSetAsync(PageName, IdaraId, usersId, HostName);
+            var ds = await _mastersServies.GetDataLoadDataSetAsync(PageName, sessionIdaraId, sessionUserId, sessionHostName);
             var table = (ds?.Tables?.Count ?? 0) > TableIndexInt ? ds.Tables[TableIndexInt] : null;
 
             var items = new List<object>();
@@ -582,11 +690,14 @@ namespace SmartFoundation.Mvc.Controllers
             string? FirstOption = null,
             params object?[] extraParams)
         {
+            if (!TryGetSecureSessionContext(out var sessionUserId, out var sessionIdaraId, out var sessionHostName))
+                return Unauthorized();
+
             int tableIndexInt = 0;
             if (!string.IsNullOrWhiteSpace(TableIndex))
                 int.TryParse(TableIndex, out tableIndexInt);
 
-            var allArgs = new List<object?> { PageName, IdaraId, usersId, HostName };
+            var allArgs = new List<object?> { PageName, sessionIdaraId, sessionUserId, sessionHostName };
             allArgs.AddRange(extraParams ?? Array.Empty<object?>());
 
             var ds = await _mastersServies.GetDataLoadDataSetAsync(allArgs.ToArray());
@@ -652,6 +763,9 @@ namespace SmartFoundation.Mvc.Controllers
         [HttpPost("GetDDLValues2")]
         public async Task<IActionResult> GetDDLValues2([FromBody] DdlValuesRequest req)
         {
+            if (!TryGetSecureSessionContext(out var sessionUserId, out var sessionIdaraId, out var sessionHostName))
+                return Unauthorized();
+
             // حمايات بسيطة
             var textcol = (req.TextCol ?? "").Trim();
             var valueCol = (req.ValueCol ?? "").Trim();
@@ -662,7 +776,7 @@ namespace SmartFoundation.Mvc.Controllers
             // ✅ هنا نحتاج DataSet حسب PageName ولكن مع Parameters
             // لازم نمرر parameters للـ SP / DataEngine بدل تجاهلها
             var ds = await _mastersServies.GetDataLoadDataSetAsync(
-                req.PageName, req.IdaraId, req.UsersId, req.HostName,
+                req.PageName, sessionIdaraId, sessionUserId, sessionHostName,
                 req.Parameters // ✅ جديد
             );
 
@@ -715,13 +829,16 @@ namespace SmartFoundation.Mvc.Controllers
             if (string.IsNullOrWhiteSpace(req.pageName_) || string.IsNullOrWhiteSpace(req.ActionType))
                 return Json(new { success = false, message = "pageName_ و ActionType مطلوبة." });
 
+            if (!TryGetSecureSessionContext(out var sessionUserId, out var sessionIdaraId, out var sessionHostName))
+                return Unauthorized();
+
             var dict = new Dictionary<string, object?>(StringComparer.OrdinalIgnoreCase)
             {
                 ["pageName_"] = req.pageName_!.Trim(),
                 ["ActionType"] = req.ActionType!.Trim(),
-                ["idaraID"] = req.idaraID,
-                ["entrydata"] = req.entrydata,
-                ["hostname"] = req.hostname
+                ["idaraID"] = sessionIdaraId,
+                ["entrydata"] = sessionUserId,
+                ["hostname"] = sessionHostName
             };
 
             // parameter_01..10 (يدعم p01..p10 أيضاً)
@@ -743,9 +860,9 @@ namespace SmartFoundation.Mvc.Controllers
             {
                 ds = await _mastersServies.GetExtraDataLoadDataSetAsync(dict);
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                return Json(new { success = false, message = ex.Message });
+                return Json(new { success = false, message = "حدث خطأ أثناء تحميل البيانات. يرجى المحاولة مرة أخرى." });
             }
 
             // ✅ لو المستخدم طلب جدول محدد فقط

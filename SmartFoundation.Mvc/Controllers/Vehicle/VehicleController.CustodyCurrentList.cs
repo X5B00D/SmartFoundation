@@ -170,9 +170,9 @@ namespace SmartFoundation.Mvc.Controllers.Vehicle
                     }
                 }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                TempData["DataSetError"] = ex.Message;
+                TempData["DataSetError"] = "حدث خطأ أثناء تحميل البيانات. يرجى المحاولة مرة أخرى.";
             }
 
             var currentUrl = Request.Path + Request.QueryString;
@@ -295,9 +295,6 @@ namespace SmartFoundation.Mvc.Controllers.Vehicle
             };
 
             addFieldsCustody.Insert(0, new FieldConfig { Name = "__RequestVerificationToken", Type = "hidden", Value = (Request.Headers["RequestVerificationToken"].FirstOrDefault() ?? "") });
-            addFieldsCustody.Insert(0, new FieldConfig { Name = "hostname", Type = "hidden", Value = Request.Host.Value });
-            addFieldsCustody.Insert(0, new FieldConfig { Name = "entrydata", Type = "hidden", Value = usersId?.ToString() });
-            addFieldsCustody.Insert(0, new FieldConfig { Name = "idaraID", Type = "hidden", Value = IdaraId?.ToString() });
             addFieldsCustody.Insert(0, new FieldConfig { Name = "ActionType", Type = "hidden", Value = "INSERT" });
             addFieldsCustody.Insert(0, new FieldConfig { Name = "pageName_", Type = "hidden", Value = "Custody_Create" });
             addFieldsCustody.Insert(0, new FieldConfig { Name = "redirectAction", Type = "hidden", Value = PageName });
@@ -317,9 +314,6 @@ namespace SmartFoundation.Mvc.Controllers.Vehicle
             };
 
             transferFieldsCustody.Insert(0, new FieldConfig { Name = "__RequestVerificationToken", Type = "hidden", Value = (Request.Headers["RequestVerificationToken"].FirstOrDefault() ?? "") });
-            transferFieldsCustody.Insert(0, new FieldConfig { Name = "hostname", Type = "hidden", Value = Request.Host.Value });
-            transferFieldsCustody.Insert(0, new FieldConfig { Name = "entrydata", Type = "hidden", Value = usersId?.ToString() });
-            transferFieldsCustody.Insert(0, new FieldConfig { Name = "idaraID", Type = "hidden", Value = IdaraId?.ToString() });
             transferFieldsCustody.Insert(0, new FieldConfig { Name = "ActionType", Type = "hidden", Value = "INSERT" });
             transferFieldsCustody.Insert(0, new FieldConfig { Name = "pageName_", Type = "hidden", Value = "Custody_Transfer" });
             transferFieldsCustody.Insert(0, new FieldConfig { Name = "redirectAction", Type = "hidden", Value = PageName });
@@ -341,9 +335,6 @@ namespace SmartFoundation.Mvc.Controllers.Vehicle
             };
 
             closeFieldsCustody.Insert(0, new FieldConfig { Name = "__RequestVerificationToken", Type = "hidden", Value = (Request.Headers["RequestVerificationToken"].FirstOrDefault() ?? "") });
-            closeFieldsCustody.Insert(0, new FieldConfig { Name = "hostname", Type = "hidden", Value = Request.Host.Value });
-            closeFieldsCustody.Insert(0, new FieldConfig { Name = "entrydata", Type = "hidden", Value = usersId?.ToString() });
-            closeFieldsCustody.Insert(0, new FieldConfig { Name = "idaraID", Type = "hidden", Value = IdaraId?.ToString() });
             closeFieldsCustody.Insert(0, new FieldConfig { Name = "ActionType", Type = "hidden", Value = "UPDATE" });
             closeFieldsCustody.Insert(0, new FieldConfig { Name = "pageName_", Type = "hidden", Value = "Custody_Close" });
             closeFieldsCustody.Insert(0, new FieldConfig { Name = "redirectAction", Type = "hidden", Value = PageName });
@@ -365,9 +356,6 @@ namespace SmartFoundation.Mvc.Controllers.Vehicle
             };
 
             executeTransferFields.Insert(0, new FieldConfig { Name = "__RequestVerificationToken", Type = "hidden", Value = (Request.Headers["RequestVerificationToken"].FirstOrDefault() ?? "") });
-            executeTransferFields.Insert(0, new FieldConfig { Name = "hostname", Type = "hidden", Value = Request.Host.Value });
-            executeTransferFields.Insert(0, new FieldConfig { Name = "entrydata", Type = "hidden", Value = usersId?.ToString() });
-            executeTransferFields.Insert(0, new FieldConfig { Name = "idaraID", Type = "hidden", Value = IdaraId?.ToString() });
             executeTransferFields.Insert(0, new FieldConfig { Name = "ActionType", Type = "hidden", Value = "UPDATE" });
             executeTransferFields.Insert(0, new FieldConfig { Name = "pageName_", Type = "hidden", Value = "TransferRequest_Execute" });
             executeTransferFields.Insert(0, new FieldConfig { Name = "redirectAction", Type = "hidden", Value = PageName });

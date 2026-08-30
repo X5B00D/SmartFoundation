@@ -1,0 +1,16 @@
+نواصل مشروع توثيق SmartFoundation.
+
+اقرأ AGENTS.md و.github/copilot-instructions.md. نفذ المرحلة الأولى فقط: جرد النظام وتحديد نطاق التوثيق.
+
+أنشئ Documentation/ وDocumentation/Work/ وDocumentation/Diagrams/ وDocumentation/Documentation-Progress.json إذا لم تكن موجودة.
+
+حلل Solution وحدد المشاريع ونوع كل مشروع وTarget Framework وProject References والحزم المهمة ونقطة التشغيل والطبقات الفعلية. اكتشف جميع Modules، ثم صنفها:
+
+Included: ControlPanel, Housing, IncomeSystem, ElectronicBillSystem, Home, Login.
+Excluded: HousingCommandCenter, Maintenance, Support, Vehicle, Dashboard, Statistics, PopulationDensity, RealCharts.
+
+احسب Controller files وlogical Controllers وViews داخل النطاق، وحدد الخدمات وData Access والبوابات والإجراءات والجداول والـSchemas مبدئياً. استخدم Metadata القاعدة الحية بقراءة فقط. لا تنفذ Business Stored Procedures.
+
+لا تعدل أي ملف خارج Documentation/، ولا تعرض أسراراً. احفظ Inventory وخطة التنفيذ داخل Documentation/Work/ وحدّث Documentation-Progress.json بالأرقام الحقيقية.
+
+بعد الانتهاء اعرض جميع الملفات الناتجة، الأعداد، النطاق، الطبقات، مصادر الإثبات، الفجوات، والمرحلة التالية. لا تبدأ المرحلة الثانية.

@@ -425,3 +425,26 @@ unz/
 word/
 docProps/
 *.xml
+# SmartFoundation local/generated artifacts
+.sonarqube/
+.buildcheck/
+.gap*/
+.codex*/
+.dotnet/
+
+# Documentation generation temporary files
+Documentation/.libreoffice/
+Documentation/.word_qa/
+Documentation/.interim_qa/
+Documentation/.choco/
+Documentation/errors.docx
+Documentation/errors.pdf
+
+# Local security reports
+SecurtiyReport/
+
+# Runtime uploads
+SmartFoundation.Mvc/wwwroot/uploads/
+
+# Local Git inspection files
+git-db-log.txt

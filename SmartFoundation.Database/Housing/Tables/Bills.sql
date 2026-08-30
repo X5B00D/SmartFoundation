@@ -2,7 +2,6 @@
     [BillsID]               BIGINT           IDENTITY (1, 1) NOT NULL,
     [BillsUID]              UNIQUEIDENTIFIER CONSTRAINT [DF_Bills_BillsUID] DEFAULT (newid()) NULL,
     [BillChargeTypeID_FK]   INT              NULL,
-    [BillNumber]            AS               (concat(substring(CONVERT([nvarchar](8),[PeriodYear]),(3),(2)),right('0'+CONVERT([nvarchar](2),[PeriodMonth]),(2)),right('000000000'+CONVERT([nvarchar](50),[BillsID]),(9)))) PERSISTED NOT NULL,
     [BillTypeID_FK]         INT              NULL,
     [PerviosPeriodID]       INT              NULL,
     [CurrentPeriodID]       INT              NULL,
@@ -80,8 +79,21 @@
     [entryDate]             DATETIME         CONSTRAINT [DF_Bills_entryDate] DEFAULT (getdate()) NULL,
     [entryData]             NVARCHAR (20)    NULL,
     [hostName]              NVARCHAR (200)   NULL,
-    CONSTRAINT [PK_Bills] PRIMARY KEY CLUSTERED ([BillsID] ASC)
+    [BillNumber]            AS               (concat(right(N'00'+CONVERT([nvarchar](10),isnull([idaraID_FK],(0))),(2)),right(N'00'+CONVERT([nvarchar](10),isnull([BillChargeTypeID_FK],(0))),(2)),substring(CONVERT([nvarchar](8),[PeriodYear]),(3),(2)),right(N'0'+CONVERT([nvarchar](2),[PeriodMonth]),(2)),right(N'000000000'+CONVERT([nvarchar](50),[BillsID]),(9)))) PERSISTED NOT NULL,
+    [ParentBillsID_FK]      BIGINT           NULL,
+    [SplitType]             NVARCHAR (20)    NULL,
+    [SplitDate]             DATETIME         NULL,
+    [SplitBy]               NVARCHAR (20)    NULL,
+    CONSTRAINT [PK_Bills] PRIMARY KEY CLUSTERED ([BillsID] ASC),
+    CONSTRAINT [FK_Bills_ParentBills] FOREIGN KEY ([ParentBillsID_FK]) REFERENCES [Housing].[Bills] ([BillsID])
 );
+
+
+
+
+GO
+CREATE NONCLUSTERED INDEX [IX_Bills_ParentBillsID]
+    ON [Housing].[Bills]([ParentBillsID_FK] ASC, [BillActive] ASC);
 
 
 GO
@@ -111,4 +123,15 @@ GO
 CREATE NONCLUSTERED INDEX [IX_Bills_ResidentServiceLookup]
     ON [Housing].[Bills]([residentInfoID_FK] ASC, [meterServiceTypeID] ASC, [BillActive] ASC, [BillTypeID_FK] ASC, [PeriodYear] DESC, [PeriodMonth] DESC, [CurrentPeriodID] DESC, [BillsID] DESC)
     INCLUDE([TotalPrice]);
+
+
+GO
+CREATE NONCLUSTERED INDEX [IX_Bills_RentDateOverlap]
+    ON [Housing].[Bills]([residentInfoID_FK] ASC, [buildingDetailsID] ASC, [idaraID_FK] ASC, [BillChargeTypeID_FK] ASC, [BillActive] ASC, [BillsFromDate] ASC, [BillsToDate] ASC)
+    INCLUDE([BillsID], [BillTypeID_FK], [ParentBillsID_FK]);
+
+
+GO
+CREATE NONCLUSTERED INDEX [IX_Bills_CheckDuplicate]
+    ON [Housing].[Bills]([CurrentPeriodID] ASC, [idaraID_FK] ASC, [BillTypeID_FK] ASC, [buildingDetailsID] ASC, [meterServiceTypeID] ASC, [BillActive] ASC);
 

@@ -131,9 +131,9 @@ namespace SmartFoundation.Mvc.Controllers.Maintenance
                     }
                 }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                ViewBag.BuildingMaintenanceRequestFollowUpDataSetError = ex.Message;
+                ViewBag.BuildingMaintenanceRequestFollowUpDataSetError = "حدث خطأ أثناء تحميل البيانات. يرجى المحاولة مرة أخرى.";
             }
 
             var reasonOptions = BuildOptions(dt4, "ReasonID", "ReasonName_A");
@@ -148,9 +148,6 @@ namespace SmartFoundation.Mvc.Controllers.Maintenance
                 new FieldConfig { Name = "redirectController", Type = "hidden", Value = ControllerName },
                 new FieldConfig { Name = "pageName_", Type = "hidden", Value = PageName },
                 new FieldConfig { Name = "ActionType", Type = "hidden", Value = "ASSIGNMAINTENANCETECHNICIAN" },
-                new FieldConfig { Name = "idaraID", Type = "hidden", Value = IdaraId },
-                new FieldConfig { Name = "entrydata", Type = "hidden", Value = usersId },
-                new FieldConfig { Name = "hostname", Type = "hidden", Value = currentHostName },
                 new FieldConfig { Name = "__RequestVerificationToken", Type = "hidden", Value = antiForgeryToken },
                 new FieldConfig { Name = rowIdField, Type = "hidden" },
                 new FieldConfig { Name = "p01", Type = "hidden", MirrorName = "RequestID" },
@@ -166,9 +163,6 @@ namespace SmartFoundation.Mvc.Controllers.Maintenance
                 new FieldConfig { Name = "redirectController", Type = "hidden", Value = ControllerName },
                 new FieldConfig { Name = "pageName_", Type = "hidden", Value = PageName },
                 new FieldConfig { Name = "ActionType", Type = "hidden", Value = "ADDINSPECTIONREPORT" },
-                new FieldConfig { Name = "idaraID", Type = "hidden", Value = IdaraId },
-                new FieldConfig { Name = "entrydata", Type = "hidden", Value = usersId },
-                new FieldConfig { Name = "hostname", Type = "hidden", Value = currentHostName },
                 new FieldConfig { Name = "__RequestVerificationToken", Type = "hidden", Value = antiForgeryToken },
                 new FieldConfig { Name = rowIdField, Type = "hidden" },
                 new FieldConfig { Name = "p01", Type = "hidden", MirrorName = "RequestID" },
@@ -184,9 +178,6 @@ namespace SmartFoundation.Mvc.Controllers.Maintenance
                 new FieldConfig { Name = "redirectController", Type = "hidden", Value = ControllerName },
                 new FieldConfig { Name = "pageName_", Type = "hidden", Value = PageName },
                 new FieldConfig { Name = "ActionType", Type = "hidden", Value = "STARTMAINTENANCEWORK" },
-                new FieldConfig { Name = "idaraID", Type = "hidden", Value = IdaraId },
-                new FieldConfig { Name = "entrydata", Type = "hidden", Value = usersId },
-                new FieldConfig { Name = "hostname", Type = "hidden", Value = currentHostName },
                 new FieldConfig { Name = "__RequestVerificationToken", Type = "hidden", Value = antiForgeryToken },
                 new FieldConfig { Name = rowIdField, Type = "hidden" },
                 new FieldConfig { Name = "p01", Type = "hidden", MirrorName = "RequestID" },
@@ -201,9 +192,6 @@ namespace SmartFoundation.Mvc.Controllers.Maintenance
                 new FieldConfig { Name = "redirectController", Type = "hidden", Value = ControllerName },
                 new FieldConfig { Name = "pageName_", Type = "hidden", Value = PageName },
                 new FieldConfig { Name = "ActionType", Type = "hidden", Value = "COMPLETEMAINTENANCEWORK" },
-                new FieldConfig { Name = "idaraID", Type = "hidden", Value = IdaraId },
-                new FieldConfig { Name = "entrydata", Type = "hidden", Value = usersId },
-                new FieldConfig { Name = "hostname", Type = "hidden", Value = currentHostName },
                 new FieldConfig { Name = "__RequestVerificationToken", Type = "hidden", Value = antiForgeryToken },
                 new FieldConfig { Name = rowIdField, Type = "hidden" },
                 new FieldConfig { Name = "p01", Type = "hidden", MirrorName = "RequestID" },
@@ -218,9 +206,6 @@ namespace SmartFoundation.Mvc.Controllers.Maintenance
                 new FieldConfig { Name = "redirectController", Type = "hidden", Value = ControllerName },
                 new FieldConfig { Name = "pageName_", Type = "hidden", Value = PageName },
                 new FieldConfig { Name = "ActionType", Type = "hidden", Value = "CLOSEMAINTENANCEREQUEST" },
-                new FieldConfig { Name = "idaraID", Type = "hidden", Value = IdaraId },
-                new FieldConfig { Name = "entrydata", Type = "hidden", Value = usersId },
-                new FieldConfig { Name = "hostname", Type = "hidden", Value = currentHostName },
                 new FieldConfig { Name = "__RequestVerificationToken", Type = "hidden", Value = antiForgeryToken },
                 new FieldConfig { Name = rowIdField, Type = "hidden" },
                 new FieldConfig { Name = "p01", Type = "hidden", MirrorName = "RequestID" },

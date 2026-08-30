@@ -139,7 +139,7 @@ WHERE w.WaitingClassID = @WaitingClassID
             SELECT c.buildingDetailsID,c.buildingDetailsNo
             FROM [DATACORE].[Housing].[V_GetGeneralListForBuilding] c
             where c.BuildingIdaraID = @idaraID and c.buildingDetailsActive = 1 
-            and (c.LastActionTypeID in(5,39,41) or c.LastActionTypeID is null )
+            and (c.LastActionTypeID in(5,39,41,42) or c.LastActionTypeID is null )
             
 
 

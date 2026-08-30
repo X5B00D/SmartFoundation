@@ -1,0 +1,13 @@
+نواصل مشروع توثيق SmartFoundation.
+
+اقرأ AGENTS.md وDocumentation/Documentation-Progress.json وInventory وخطة التنفيذ. نفذ تحليل المعمارية والمكونات المشتركة فقط.
+
+وثق المشاريع والطبقات، Program.cs الفعلي، Middleware وترتيبه، Dependency Injection، Configuration، Session، الصورة الأولية للمصادقة والترخيص، Logging، Error Handling، HTTP flow وData flow.
+
+وثق MastersServies وProcedureMapper وSmartComponentService وConnectionFactory وCrudController وعقد p01..p50 وparameter_01..parameter_50 وSmartFoundation.UI وSmartRenderer.
+
+أنشئ رسومات للطبقات وHTTP pipeline ومسار القراءة وCRUD داخل Documentation/Diagrams/. الكود النشط هو المصدر الأساسي. قاعدة DATACORE الحية مصدر SQL، وملفات SQL Snapshot للمقارنة فقط.
+
+لا تعدل خارج Documentation/ ولا تنفذ أي كتابة أوBusiness SP. حدّث Documentation-Progress.json واحفظ المستند التفصيلي داخل Documentation/Work/.
+
+في النهاية اعرض الملفات، المعمارية، المسارات المثبتة، الرسومات، الفجوات، Coverage، والمرحلة التالية. لا تبدأ الأمان أوالبرامج.

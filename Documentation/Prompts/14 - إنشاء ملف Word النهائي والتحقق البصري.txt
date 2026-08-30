@@ -1,0 +1,19 @@
+نواصل مشروع توثيق SmartFoundation.
+
+اقرأ AGENTS.md و.github/copilot-instructions.md وDocumentation-Progress.json وجميع Work/UserManual/Diagrams و07A. استخدم مهارة Documents كاملة والتزم render -> inspect -> correct -> render again.
+
+اقرأ Documentation/security-gap-register.md وDocumentation/security-gap-status.md بوصفهما مصدر الحقيقة الحالي لحالة الفجوات. الحالة الرسمية بتاريخ 2026-08-24 هي: TOTAL=24، CLOSED=24، OPEN=0، DEFERRED=0، IN PROGRESS=0. تعامل مع أي قوائم أقدم داخل تقارير التدقيق بوصفها Historical Evidence فقط.
+
+تحقق من اكتمال المراحل، ثم وحّد المصطلحات وأزل التكرار والتعارض واعتمد الكود النشط وDATACORE الحية، واجعل Snapshot للمقارنة التاريخية فقط. اجمع الفجوات في سجل موحد ولا تعرض أسراراً.
+
+أنشئ Documentation/SmartFoundation_System_Documentation.docx بتنسيق A4 وRTL، وغلاف وسجل إصدارات ونطاق وفهرس وHeader/Footer وترقيم وCaptions.
+
+يجب أن يشمل: الملخص، المعمارية، المشاريع والطبقات، البرامج الستة، قاعدة البيانات الحية وSchema drift، الأمان، Workflows، التقارير والتكاملات، التطوير والتشغيل والنشر، النسخ والاستعادة، استكشاف الأخطاء، دليل المطور، دليل المستخدم، سجل الفجوات، Coverage والمصطلحات.
+
+أنشئ فصلاً مستقلاً للمشاريع: SmartFoundation.Mvc وUI وApplication وDataEngine وDatabase، مع المسؤوليات والمكونات والمراجع والتدفق. وضح أن الطبقات التشغيلية أربع وأنDatabase مشروع SQL مرجعي. وثق Application.Tests باختصار. يجب أن يظهر Projects/Layers = 5/5.
+
+راجع الرسومات وحولها لصيغة قابلة للإدراج. لا تعدل خارج Documentation/ ولا تنشئ PDF. Render كل الصفحات وافحص RTL والخطوط والفهرس والجداول والرسومات والعناوين والترقيم والقص والصفحات الفارغة، وكرر الإصلاح حتى الصلاحية للطباعة.
+
+حدّث ملف التقدم بمسار Word وعدد الصفحات والفصول والجداول والرسومات والتحقق البصري، واجعل المرحلة التالية PDF and Final Audit.
+
+في النهاية اعرض رابط Word والأعداد وحالة المشاريع الخمسة وCoverage ونتائج الرندر والمشاكل المصححة والفجوات والملفات، وأكد أن PDF لم ينشأ.

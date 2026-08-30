@@ -1,6 +1,7 @@
 ﻿CREATE TABLE [Housing].[MeterType] (
     [meterTypeID]               INT             IDENTITY (1, 1) NOT NULL,
     [meterServiceTypeID_FK]     INT             NULL,
+    [MeterCalculateTypeID_FK]   INT             NULL,
     [meterTypeName_A]           NVARCHAR (100)  NULL,
     [meterTypeName_E]           NVARCHAR (100)  NULL,
     [meterTypeDescription]      NVARCHAR (1000) NULL,
@@ -9,6 +10,8 @@
     [meterTypeStartDate]        DATETIME        NULL,
     [meterTypeEndDate]          DATETIME        NULL,
     [meterTypeActive]           BIT             NULL,
+    [UpdatedBy]                 NVARCHAR (200)  NULL,
+    [UpdatedDate]               NVARCHAR (MAX)  NULL,
     [CanceledBy]                NVARCHAR (200)  NULL,
     [CanceledDate]              DATETIME        NULL,
     [CanceledNote]              NVARCHAR (4000) NULL,

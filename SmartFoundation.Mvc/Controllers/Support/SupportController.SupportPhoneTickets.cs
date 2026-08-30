@@ -166,9 +166,9 @@ namespace SmartFoundation.Mvc.Controllers.Support
                     }
                 }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                ViewBag.supportPhoneTicketsDataSetError = ex.Message;
+                ViewBag.supportPhoneTicketsDataSetError = "حدث خطأ أثناء تحميل التذاكر. يرجى المحاولة مرة أخرى.";
             }
 
             var addFields = new List<FieldConfig>
@@ -268,9 +268,6 @@ namespace SmartFoundation.Mvc.Controllers.Support
             };
 
             addFields.Insert(0, new FieldConfig { Name = "__RequestVerificationToken", Type = "hidden", Value = (Request.Headers["RequestVerificationToken"].FirstOrDefault() ?? "") });
-            addFields.Insert(0, new FieldConfig { Name = "hostname", Type = "hidden", Value = Request.Host.Value });
-            addFields.Insert(0, new FieldConfig { Name = "entrydata", Type = "hidden", Value = usersId?.ToString() });
-            addFields.Insert(0, new FieldConfig { Name = "idaraID", Type = "hidden", Value = IdaraId?.ToString() });
             addFields.Insert(0, new FieldConfig { Name = "ActionType", Type = "hidden", Value = "SPT_CREATE_TICKET" });
             addFields.Insert(0, new FieldConfig { Name = "pageName_", Type = "hidden", Value = PageName });
             addFields.Insert(0, new FieldConfig { Name = "redirectAction", Type = "hidden", Value = PageName });
@@ -459,14 +456,14 @@ namespace SmartFoundation.Mvc.Controllers.Support
                     actions
                 });
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 return Json(new
                 {
                     pages = Array.Empty<object>(),
                     pageUrl = string.Empty,
                     actions = Array.Empty<object>(),
-                    error = ex.Message
+                    error = "حدث خطأ أثناء تحميل بيانات الصفحة. يرجى المحاولة مرة أخرى."
                 });
             }
         }
