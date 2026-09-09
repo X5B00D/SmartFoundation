@@ -4,7 +4,8 @@ MVC والمعاملات مثبتة من الكود؛ `ft_UserPagePermissions` �
 
 ```mermaid
 flowchart TB
-    Session["Session usersID"] --> Get["GET page"] --> Context["InitPageContext إن استدعته Action"] --> DL["Masters_DataLoad\nentrydata + pageName_"]
+    Cookie["Authentication Cookie + NameIdentifier Claim"] --> Guard["SessionGuardMiddleware"]
+    Session["Session usersID"] --> Guard --> Get["GET page"] --> Context["InitPageContext إن استدعته Action"] --> DL["Masters_DataLoad\nentrydata + pageName_"]
     Direct["Permission مباشر"] --> Function["ft_UserPagePermissions"]
     Role["UserDistributor -> Distributor -> Role"] --> Function
     DSD["DSD والهيكل"] --> Function
@@ -27,6 +28,6 @@ flowchart TB
 ```
 
 - UI gating ليس Authorization boundary.
-- لا توجد Claims roles أو `[Authorize(Roles=...)]` في المسار المثبت.
+- توجد Claims هوية ومصادقة Cookie؛ صلاحيات الأعمال التفصيلية تستمر عبر permissionTypeName_E وبوابة SQL، وليست Role Claims عامة.
 - عقد البرامج تظهر عندما تحتوي شجرتها على قائمة مصرح بها؛ العقد الأب قد تظهر مع `HasPermissionForUser=0` لتكوين المسار.
 - `GetUserMenuTree` الكامل يُسجل حالياً في console وInformation log.

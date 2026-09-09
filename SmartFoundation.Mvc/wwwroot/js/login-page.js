@@ -50,12 +50,16 @@
                 progressBar: true,
                 positionClass: "toast-top-center",
                 timeOut: 7500,
-                rtl: true
+                rtl: true,
+                escapeHtml: true
             };
 
-            const messageType = (config?.dataset.messageType || "").trim();
+            const messageType = (config?.dataset.messageType || "").trim().toLowerCase();
             const message = (config?.dataset.message || "").trim();
-            if (messageType && message && typeof window.toastr[messageType] === "function") {
+
+            const allowedMessageTypes = ["success", "info", "warning", "error"];
+
+            if (allowedMessageTypes.includes(messageType) && message) {
                 window.toastr[messageType](message);
             }
         }

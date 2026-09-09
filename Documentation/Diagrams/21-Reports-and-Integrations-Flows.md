@@ -13,10 +13,6 @@ flowchart LR
     S --> E["POST /exports/pdf/table"]
     E --> PDF2["QuestPdfExportService"]
 
-    U --> AI["POST /api/ai/chat"]
-    AI --> L["Embedded LLamaSharp + local GGUF"]
-    L --> AH["SQL chat/history/feedback paths"]
-
     U --> N["Notifications API"]
     N --> ND["DATACORE notifications"]
 

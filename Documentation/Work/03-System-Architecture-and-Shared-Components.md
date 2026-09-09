@@ -1,5 +1,15 @@
 # معمارية SmartFoundation والمكونات المشتركة
 
+## تحديث المعمارية الحالية للإصدار 1.0.0
+
+**مثبت من الكود الحالي:** سجل التطبيق Cookie Authentication وClaims وSession وAuthorization، وأصبح ترتيب الجزء الأمني من pipeline هو `UseRouting -> UseSession -> UseAuthentication -> UseAuthorization -> SessionGuardMiddleware -> endpoint mapping`. يحتفظ SessionGuard بالتوافق بين هوية المصادقة وسياق Session ويفشل مغلقًا عند الفقد أو عدم التطابق.
+
+**قرار تشغيلي حالي:** نموذج النشر Single Application Server ويستخدم Session محلية In-Memory. هذا مناسب للنموذج الحالي ولا يسجل كخلل مفتوح. يتطلب أي scale-out إعادة تقييم distributed session storage ومفاتيح Data Protection المشتركة وload balancing وshared storage عند الحاجة وhealth checks وcentralized monitoring.
+
+**قرار CSP:** السياسة مطبقة وفعالة، مع إعدادات توافق لازمة لمكتبات الواجهة الحالية. يعاد تقييمها إذا تغير Alpine.js أو بقية مكتبات الواجهة أو أعيد تصميم JavaScript بما يسمح بسياسة أكثر صرامة.
+
+ما يرد لاحقًا من أوصاف أقدم للمصادقة أو SessionGuard يحتفظ بقيمته التاريخية فقط، وتعلو عليه هذه الحالة الحالية وسجل الفجوات المغلقة.
+
 > تحديث نهائي 2026-08-23: يثبت [توثيق DATACORE وERD](11-Live-Database-and-ERD.md) أن البرامج المشمولة تستخدم فعلياً `dbo` و`Housing` فقط؛ IncomeSystem وElectronicBillSystem اسما برنامجين وليسا Schemas حية. كما يوثق 274 كائناً ضمن النطاق وأربعة ERDs.
 
 ## حالة المستند وحدوده
@@ -63,10 +73,9 @@
 2. تضبط ترخيص QuestPDF وتسجل خطاً من `wwwroot/fonts` أثناء startup.
 3. تسجل MVC مع camelCase لـ JSON، وتسجل Razor Pages.
 4. تسجل distributed memory cache وSession وresponse compression وantiforgery وHSTS.
-5. تسجل خدمات البيانات والتطبيق وUI المساندة وخدمات PDF وAI وChart.
-6. تبني التطبيق، ثم تضبط `UserPermissionSessionAccessor` باستخدام `IHttpContextAccessor`.
-7. تنشئ middleware pipeline بالترتيب الموثق أدناه.
-8. تربط Razor Pages وattribute controllers والمسار التقليدي الافتراضي إلى `Login/Index`، ثم تشغل التطبيق.
+5. تسجل خدمات البيانات والتطبيق وUI المساندة وخدمات PDF وChart.
+6. تنشئ middleware pipeline بالترتيب الموثق أدناه.
+7. تربط Razor Pages وattribute controllers والمسار التقليدي الافتراضي إلى `Login/Index`، ثم تشغل التطبيق.
 
 **مستنتج:** فشل فتح ملف الخط أو غيابه أثناء startup سيمنع اكتمال الإقلاع، لأن القراءة والتسجيل يحدثان دون معالجة استثناء محلية. يحتاج هذا إلى اختبار تشغيل لإثبات الأثر في حزمة النشر الفعلية.
 
@@ -90,7 +99,7 @@
 
 ملاحظات الدقة:
 
-- **مثبت:** `SessionGuardMiddleware` موجود ويختبر مفاتيح Session المطلوبة ويعيد 401 لطلبات AJAX/JSON أو يحول إلى Login، لكنه غير مسجل بـ `UseMiddleware` في pipeline الفعلي؛ لذلك لا يجوز اعتباره حماية تشغيلية حالية.
+- **حالة تاريخية في تحليل 2026-08-21:** كان `SessionGuardMiddleware` موجودًا لكنه غير مسجل. يسجل الإصدار 1.0.0 middleware فعليًا كما هو موضح في تحديث المعمارية الحالية أعلى الفصل.
 - **مثبت:** `UseSession()` يأتي بعد `UseAuthentication()` و`UseAuthorization()`. Controllers تستطيع استخدام Session لأن endpoints تنفذ بعد اكتمال pipeline.
 - **مثبت:** لا يوجد `UseExceptionHandler()` أو `UseDeveloperExceptionPage()` في `Program.cs`.
 - **مستنتج:** `UseHsts()` يُطبق في كل البيئات وفق الكود، وليس داخل شرط Production. يلزم اختبار headers في الاستضافة الفعلية لإثبات السلوك الخارجي وراء proxy/IIS.
@@ -108,7 +117,6 @@
 | `EmployeeService`، `DashboardService` | Scoped | خدمات Application مسجلة بواسطة `AddApplicationServices()` |
 | `IPdfExportService` | Scoped | `QuestPdfExportService` |
 | `IHttpContextAccessor` | Framework registration | وصول غير مباشر إلى HttpContext |
-| `IAiKnowledgeBase`، `LLamaModelHolder`، `IAiChatService` | Singleton | خدمات AI المحلية وفق التسجيل الحالي |
 | `Chart` | Scoped | خدمة chart في MVC |
 
 **مثبت:** `AddApplicationServices()` يسجل `EmployeeService` و`DashboardService` و`MastersServies` فقط. وجود `ChartDataService` و`VehicleService` في المشروع لا يعني أنهما مسجلان هنا.
@@ -122,8 +130,8 @@
 مصادر الإعداد المثبتة في مشروع MVC:
 
 - `appsettings.json`: إعداد الاتصال الافتراضي، `SmartData`، مستويات Logging، و`AllowedHosts`.
-- `appsettings.Development.json`: overrides للتسجيل وإعدادات `AiAssistant`.
-- `appsettings.Production.json`: override للاتصال والتسجيل وإعدادات `AiAssistant`.
+- `appsettings.Development.json`: overrides للتسجيل.
+- `appsettings.Production.json`: override للاتصال والتسجيل.
 - `Properties/launchSettings.json`: ملفات تشغيل HTTP وHTTPS وIIS Express تضبط `ASPNETCORE_ENVIRONMENT=Development` محلياً.
 - Environment variables وcommand-line configuration تدخل ضمن السلوك الافتراضي لـ `WebApplication.CreateBuilder`، لكن القيم الفعلية في بيئة النشر غير متحققة.
 

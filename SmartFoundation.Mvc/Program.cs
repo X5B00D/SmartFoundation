@@ -1,7 +1,6 @@
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Options;
 using QuestPDF.Drawing;
 using QuestPDF.Infrastructure;
 using SmartFoundation.Application.Extensions;
@@ -10,9 +9,7 @@ using SmartFoundation.DataEngine.Core.Interfaces;
 using SmartFoundation.DataEngine.Core.Services;
 using SmartFoundation.DataEngine.Core.Utilities;
 using SmartFoundation.Mvc.Controllers;
-using SmartFoundation.Mvc.Helpers;
 using SmartFoundation.Mvc.Middleware;
-using SmartFoundation.Mvc.Services.AiAssistant;
 using SmartFoundation.Mvc.Services.Chart;
 using SmartFoundation.Mvc.Services.Exports.Pdf;
 using System.Text.Json;
@@ -115,26 +112,10 @@ builder.Services.AddScoped<ISmartComponentService, SmartComponentService>();
 builder.Services.AddScoped<CrudController>();
 builder.Services.AddScoped<IPdfExportService, QuestPdfExportService>();
 builder.Services.AddApplicationServices();
-builder.Services.Configure<AiAssistantOptions>(builder.Configuration.GetSection("AiAssistant"));
-builder.Services.AddSingleton<IAiKnowledgeBase, FileAiKnowledgeBase>();
-builder.Services.AddSingleton<LLamaModelHolder>(sp =>
-{
-    var opt = sp.GetRequiredService<IOptions<AiAssistantOptions>>().Value;
-    var env = sp.GetRequiredService<IWebHostEnvironment>();
-    var log = sp.GetRequiredService<ILogger<LLamaModelHolder>>();
-
-    return new LLamaModelHolder(opt, env, log);
-});
-
 builder.Services.AddHttpContextAccessor();
-builder.Services.AddSingleton<IAiChatService, EmbeddedLlamaChatService>();
 builder.Services.AddScoped<Chart>();
 
 var app = builder.Build();
-
-UserPermissionSessionAccessor.Configure(
-    app.Services.GetRequiredService<IHttpContextAccessor>()
-);
 
 app.UseResponseCompression();
 app.UseHsts();

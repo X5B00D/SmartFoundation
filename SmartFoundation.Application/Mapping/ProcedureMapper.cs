@@ -44,13 +44,7 @@ public static class ProcedureMapper
 
         // Authentication operations
         { "auth:sessions_", "dbo.GetSessionInfoForMVC" },
-        { "auth:changePassword", "dbo.ReSetUserPassword" },
-
-        // ✅ AI Chat operations (استخدام Masters_CRUD)
-        { "aichat:saveHistory", "dbo.Masters_CRUD" },  // ✅ نرجع لـ Masters_CRUD
-        { "aichat:saveFeedback", "dbo.Masters_CRUD" },
-        { "aichat:getHistory", "dbo.Masters_DataLoad" },
-        { "aichat:getStatistics", "dbo.Masters_DataLoad" }
+        { "auth:changePassword", "dbo.ReSetUserPassword" }
     };
 
     /// <summary>

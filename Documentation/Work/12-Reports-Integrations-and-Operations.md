@@ -1,5 +1,15 @@
 # التقارير والتكاملات والتشغيل والنشر في SmartFoundation
 
+## تحديث التشغيل للإصدار 1.0.0
+
+- استخدمت البيئة المرجعية SQL Server 2019 وWindows Integrated Security. لا تعد Developer Edition متطلب إنتاج؛ يعتمد الإنتاج إصدارًا مدعومًا وEdition مرخصة ومناسبة.
+- النموذج الحالي Single Application Server مع Session محلية In-Memory. يتطلب التوسع إعادة تقييم distributed session وData Protection keys وload balancing وhealth checks والمراقبة المركزية.
+- CSP مطبقة وفعالة، وإعدادات التوافق الحالية قرار معماري يعاد تقييمه عند تغير Alpine.js أو JavaScript أو مكتبات الواجهة.
+- أهداف الاستمرارية التشغيلية المستهدفة: RPO = 15 minutes وRTO = 1 hour. تحقيقها يعتمد على سياسة الإنتاج وجدول Transaction Log Backup والتخزين والمراقبة وRestore Drill.
+- Full Backup وDifferential Backup وTransaction Log Backup وRestore Drill أجزاء من النموذج التشغيلي. FULL Recovery Model وصف للبيئة المرجعية وليس ضمانًا لإعداد الإنتاج.
+- Application Logging يجب أن يمنع كلمات المرور وSession Data والمعلومات الحساسة غير اللازمة، ويحمي السجلات ويطبق rotation وretention ومزامنة الوقت والوصول المقيد. SIEM/Centralized Logging مسؤولية بنية الاستضافة ما لم يعتمد خلاف ذلك.
+- اعتبارات IIS التالية توصيات استضافة وقبول بعد النشر وليست إثباتًا بأنها منفذة على خادم إنتاج بعينه.
+
 ## الحالة والنطاق ودرجة الإثبات
 
 - الحالة: مكتمل توثيقياً في 2026-08-23 للمجالات المشتركة المطلوبة فقط.
@@ -19,7 +29,7 @@
 
 لا توجد منصة تقارير مستقلة أو SSRS مثبتة في النطاق. التقارير الفعلية تُبنى داخل Actions نفسها من `DataTable` الذي أعادته بوابة القراءة، ثم يحوّلها `DataTableReportBuilder` و`QuestPdfReportRenderer` إلى PDF. توجد أيضاً نقطة عامة `POST /exports/pdf/table` تستقبل الأعمدة والصفوف المعروضة من المتصفح وتستخدم `QuestPdfExportService`. الطباعة على الشاشة تعتمد `SmartTableDS` و`SmartPrint` وiframe/`window.print()`.
 
-التكامل الخارجي الفعلي الوحيد المثبت هو SQL Server. المساعد الذكي الفعّال في DI هو LLama محلي مضمّن من ملف GGUF؛ يوجد عميل Ollama في الكود لكنه غير مسجل في `Program.cs`. لم يوجد دليل نشط على Email أو SMS أو LDAP/Active Directory أو Cloud File Storage أو قاعدة بيانات خارجية ثانية أو خدمة طرف ثالث.
+التكامل الخارجي الفعلي الوحيد المثبت هو SQL Server. لم يوجد دليل نشط على Email أو SMS أو LDAP/Active Directory أو Cloud File Storage أو قاعدة بيانات خارجية ثانية أو خدمة طرف ثالث.
 
 التطبيق Web على `.NET 8` ونقطة تشغيله `SmartFoundation.Mvc/Program.cs`. ملفات publish هي Folder profiles فقط؛ لا توجد ملفات IIS أو pipeline أو container تثبت شكل الإنتاج. لذلك ما يلي يميز بوضوح بين الإعداد المثبت والمتطلبات التي يجب على فريق التشغيل اعتمادها.
 
@@ -75,7 +85,6 @@
 |---|---:|---|---|
 | QuestPDF | `2025.12.1` | PDF العام وتقارير DataTable والخطابات | Community license في startup؛ يحتاج خط Tajawal وصلاحية قراءة assets وذاكرة تكفي لحجم التقرير. |
 | ExcelDataReader + DataSet | `3.8.0` | قراءة `.xls/.xlsx` في UploadExcel وIncome import | أول Sheet مع header؛ ليست مكتبة export. يلزم اختبار الملفات الكبيرة/المشفرة/التالفة. |
-| LLamaSharp + CPU backend | `0.25.0` | المساعد المحلي | يحمل ملف GGUF عند startup كSingleton؛ الحجم والذاكرة والـCPU عناصر سعة حرجة. |
 | Dapper / SqlClient | عبر Application/DataEngine | تنفيذ بوابات SQL وdirect import paths | connection string سري، وtimeouts ليست موحدة. |
 
 ## التكاملات
@@ -84,23 +93,12 @@
 
 | API | الوظيفة | المصادقة/الصلاحية | Timeout/Error handling |
 |---|---|---|---|
-| `POST /api/ai/chat` | إرسال سؤال للمساعد وإرجاع answer/citations/chatId | يقرأ Idara/fullName من Session، لكنه لا يرفض Session المفقودة محلياً | Embedded service يضع مهلة 8 ثوانٍ ويعيد رسالة عربية؛ يسجل `AI_TIMEOUT/AI_ERROR`. لا retry مثبت. |
-| `POST /api/ai/feedback` | حفظ تقييم chat في `dbo.sp_AiChat_SaveFeedback` | user id اختياري من Session؛ لا حارس صريح | try/catch و500 عام؛ الإجراء ضمن whitelist مطلوب. |
 | `/api/Notifications/*` | أحدث الإشعارات وتعليم read/clicked | يرفض غياب `usersID` | طبقة الخدمة تسجل الأخطاء؛ get-latest يعيد رسالة عامة. واجهة العميل تستخدم abort بعد 10 ثوانٍ. |
 | `POST /exports/pdf/table` | PDF من بيانات العميل | لا فحص Session/permission محلي مثبت | try/catch لكنه يعيد `ex.Message`; لا timeout/rate limit. |
 | `POST /smart/execute` | تنفيذ `SmartRequest` عبر DataEngine | لا حارس Session محلي في Controller | whitelist للأسماء داخل DataEngine، logging للأخطاء؛ سطح قوي يحتاج authorization واختبار abuse. |
 | `/reports/test`, `/reports/dynamic` | PDF تجريبي | لا gate مثبت | بيانات داخلية؛ يجب ألا تكون عامة في الإنتاج. |
 
 لا توجد وثائق OpenAPI/Swagger أو versioning أو CORS policy مخصصة أو API keys مثبتة.
-
-### AI وLLama/Ollama
-
-- التسجيل الفعلي: `IAiChatService -> EmbeddedLlamaChatService` كSingleton، و`LLamaModelHolder` كSingleton يحمل `AiAssistant:ModelPath` من content root.
-- خيارات التشغيل: `Enabled`, `Provider`, `ModelPath`, `ContextSize`, `Threads`, `MaxParallelRequests`, `KnowledgeBasePath`, `RetrievalTopK`, `MaxTokens`, `Temperature`. توثق الأسماء فقط؛ القيم البيئية لا تُنشر.
-- ملفات `AiModels/**` و`AiDocs/**/*.md` مضمنة في publish output. يجب اعتبار النموذج وKnowledge Base أصول نشر ونسخ احتياطي ذات حجم/حقوق وترخيص معلوم.
-- `OllamaChatService` موجود ويستدعي `/api/chat` عبر `HttpClient`, لكن لا يوجد `AddHttpClient` أو تسجيل له في `Program.cs`; لذلك ليس provider الفعلي حالياً. لا Polly/retry/circuit breaker مثبت.
-- المساعد يحفظ تاريخاً/استشهادات وتغذية راجعة عبر SQL في الكود؛ يلزم retention وتصنيف بيانات ومراجعة وصول قبل الإنتاج.
-- غياب ملف GGUF يمنع startup بسبب `FileNotFoundException`. التحميل المتزامن عند startup قد يرفع زمن البدء واستهلاك الذاكرة.
 
 ### Email وSMS وLDAP والخدمات الخارجية
 
@@ -147,7 +145,7 @@ npm --prefix SmartFoundation.Mvc run tw:build
 ### Development وProduction وConfiguration
 
 - ASP.NET Core يدمج `appsettings.json` ثم `appsettings.{Environment}.json` ثم environment variables والمصادر القياسية.
-- المفاتيح المهمة: `ConnectionStrings:Default`, `SmartData:Whitelist`, `SmartData:MaxPageSize`, `Logging:LogLevel`, `AllowedHosts`, و`AiAssistant:*`.
+- المفاتيح المهمة: `ConnectionStrings:Default`, `SmartData:Whitelist`, `SmartData:MaxPageSize`, `Logging:LogLevel`، و`AllowedHosts`.
 - لا تُخزن الأسرار في Documentation أو source control. استخدم environment variables أو secret store معتمد؛ مثال اسم فقط: `ConnectionStrings__Default`.
 - Development launch profiles موجودة لـProject/IIS Express، لكنها لا تثبت إعداد خادم الإنتاج.
 - Production config يحتوي connection وAI keys في الملف؛ يجب تدقيق تاريخ Git وتدوير أي قيمة حقيقية نُشرت سابقاً، دون نسخها إلى وثائق أو logs.
@@ -160,11 +158,11 @@ npm --prefix SmartFoundation.Mvc run tw:build
 ### المتطلبات
 
 1. Windows Server مدعوم، IIS مع ASP.NET Core Module، و.NET 8 Hosting Bundle مطابق للمعمارية.
-2. Application Pool مخصص، `No Managed Code`, Integrated pipeline، وهوية خدمة محدودة الصلاحيات. `AnyCPU` مثبت؛ اختر x64 ما لم يفرض LLama backend غير ذلك.
+2. Application Pool مخصص، `No Managed Code`, Integrated pipeline، وهوية خدمة محدودة الصلاحيات. `AnyCPU` مثبت؛ اختر x64 وفق معمارية الخادم والمكتبات التشغيلية الحالية.
 3. IIS Site/Binding باسم وhostname معتمدين، وشهادة TLS صحيحة وسلسلة موثوقة وتجديد مراقب.
 4. مجلد إصدار غير قابل للكتابة لهوية App Pool، باستثناء مجلدات runtime المطلوبة صراحة: uploads، logs إن كان provider ملفياً، ومكان Data Protection keys إن اعتمد.
-5. connection/AI settings تحقن من بيئة آمنة. امنع تقديم `appsettings*`, model metadata، logs، وملفات النسخ عبر static hosting.
-6. انسخ font، `AiModels`, و`AiDocs` بحسب الحاجة. تحقق من حجم model وذاكرة الخادم ووقت startup قبل التحويل.
+5. connection settings تحقن من بيئة آمنة. امنع تقديم `appsettings*` وlogs وملفات النسخ عبر static hosting.
+6. انسخ الخطوط والأصول التشغيلية المطلوبة وتحقق من صلاحيات قراءتها قبل التحويل.
 
 ### خطوات Publish/Deploy المقترحة
 
@@ -193,8 +191,8 @@ npm --prefix SmartFoundation.Mvc run tw:build
 |---|---|---|
 | DATACORE | Full backups وفق RPO، Differential/Log backups إذا كان Recovery Model والسياسة يسمحان، ومفاتيح/شهادات تشفير SQL إن وجدت | `RESTORE VERIFYONLY` لا يكفي وحده؛ نفذ استعادة اختبارية مع DBCC وسيطرة وصول، ثم smoke test لتوافق التطبيق. الإصدار/Recovery Model/SQL Agent jobs فجوات حالية. |
 | Uploads/attachments | `wwwroot/uploads/excel` و`wwwroot/uploads/lab` إن اعتبرت سجلات لازمة | نسخ متسق مع DB عند وجود references، retention واضح، malware scan، تشفير، وتجربة استرجاع ملف. بعض Excel مؤقت ويجب ألا يتحول تلقائياً إلى backup دائم. |
-| Configuration | أسماء الإعدادات ونسخ آمنة من قيم الإنتاج في secret manager/IIS configuration | لا تعِد أسراراً قديمة بلا تدوير؛ تحقق من connection، AllowedHosts، whitelist وAI options بعد الاستعادة. |
-| Application artifact | حزمة الإصدار، `web.config`, static assets، Tajawal font، `AiDocs` وملف GGUF إذا كان مرخصاً | احتفظ بـchecksums ونسخة الإصدار السابق؛ source وحده لا يكفي لاستعادة سريعة. |
+| Configuration | أسماء الإعدادات ونسخ آمنة من قيم الإنتاج في secret manager/IIS configuration | لا تعِد أسراراً قديمة بلا تدوير؛ تحقق من connection وAllowedHosts وwhitelist بعد الاستعادة. |
+| Application artifact | حزمة الإصدار، `web.config`, static assets، وخط Tajawal | احتفظ بـchecksums ونسخة الإصدار السابق؛ source وحده لا يكفي لاستعادة سريعة. |
 | Data Protection keys | key ring إذا تم تخصيصه لاحقاً | لا يوجد `PersistKeysToFileSystem/Redis/DB` مثبت حالياً. المفاتيح الافتراضية قد تتغير بين instances/redeploy؛ يؤثر ذلك على cookies/antiforgery. اعتمد مخزناً مشتركاً محمياً قبل scale-out. |
 | IIS/OS | site bindings، App Pool identity/settings، ACLs، certificates references، environment variables | صدّر configuration بطريقة آمنة، ولا تضع private keys في repo. اختبر إعادة بناء خادم جديد. |
 | Logs/Audit | logs التشغيلية بحسب retention، وDATACORE `AuditLog/ErrorLog` ضمن backup القاعدة | حافظ على الوصول المقيد والسلامة والحجم؛ لا توجد سياسة retention مثبتة. |
@@ -214,7 +212,7 @@ npm --prefix SmartFoundation.Mvc run tw:build
 
 | العرض | فحوص آمنة | الأسباب المرجحة/الإجراء |
 |---|---|---|
-| التطبيق لا يبدأ | Event Viewer/ANCM stdout مؤقتاً، وجود runtime وfont وGGUF، ACLs، environment | Hosting Bundle مفقود، `Tajawal-Regular.ttf` أو model مفقود، config غير صالح، أو ذاكرة LLama غير كافية. عطّل stdout بعد التشخيص ولا تترك أسراراً في السجل. |
+| التطبيق لا يبدأ | Event Viewer/ANCM stdout مؤقتاً، وجود runtime والخط، ACLs، environment | Hosting Bundle مفقود، `Tajawal-Regular.ttf` مفقود، config غير صالح، أو صلاحيات غير كافية. عطّل stdout بعد التشخيص ولا تترك أسراراً في السجل. |
 | 500/502.5 على IIS | App Pool state، `dotnet --info` تشغيلياً، web.config، process identity | runtime mismatch أو startup exception. لا تمنح Full Control للمجلد كله كحل سريع. |
 | redirect loop/Session مفقودة | HTTPS، Secure cookie، SameSite/domain، ترتيب Session، تعدد instances | Cookie `Secure=Always`; Memory cache غير مشترك. scale-out يحتاج distributed cache وData Protection مشتركة. |
 | Login يفشل | log العام، اتصال DATACORE، وجود إجراء login في whitelist/mapper، وقت الخادم | لا تسجل password أو connection. لا تختبر بحساب إنتاجي دون موافقة. |
@@ -244,21 +242,20 @@ npm --prefix SmartFoundation.Mvc run tw:build
 
 1. لا artifacts بنية تحتية تثبت IIS/App Pool/TLS/reverse proxy/ACLs/monitoring/backup jobs أو restore drills.
 2. لا Forwarded Headers policy، ولا distributed Session أو Data Protection key ring مشترك للـscale-out.
-3. endpoints قوية أو تجريبية بلا authorization محلي واضح: exports، reports demos، smart execute، وAI chat عند غياب Session.
+3. endpoints قوية أو تجريبية بلا authorization محلي واضح: exports، reports demos، وsmart execute.
 4. Permission الطباعة غير موحدة، وPDF URL branches لا تعيد فحص صلاحية طباعة مستقلة.
 5. `DeductListReport` بلا routing حي، وتقارير عديدة تحمل عناوين وأسماء ملفات منسوخة.
 6. لا حدود حجم/صفوف أو rate limiting للتصدير العام، ولا اختبار PDF بصري/تحميل.
 7. uploads تحت web root، ولا malware scan/at-rest encryption/quota/retention موحد؛ UploadLab بلا حذف مثبت ومجلده قد يغيب عن artifact.
 8. لا Email/SMS/LDAP integrations مثبتة؛ يجب عدم إدراجها كمتطلبات تشغيل قبل قرار معماري.
-9. LLama model شرط startup فعلي، بينما `Enabled/Provider` لا يبدلان التسجيل؛ Ollama implementation غير موصول ولا retry/circuit breaker.
-10. logging غير مركزي، ولا global exception page/handler، وتوجد احتمالات PII أو internal exception leakage.
-11. إصدار SQL Server وRecovery Model وSQL Agent jobs وRPO/RTO وسياسات retention لم تتحقق ضمن مصادر catalog المسموحة.
+9. logging غير مركزي، ولا global exception page/handler، وتوجد احتمالات PII أو internal exception leakage.
+10. إصدار SQL Server وRecovery Model وSQL Agent jobs وRPO/RTO وسياسات retention لم تتحقق ضمن مصادر catalog المسموحة.
 
 ## الأدلة والملفات المرتبطة
 
 - نقطة التشغيل: `SmartFoundation.Mvc/Program.cs` و`SmartFoundation.Mvc/SmartFoundation.Mvc.csproj`.
 - التقارير: `Controllers/ReportsController.cs`, `Controllers/ExportsController.cs`, `Reports/*`, `Services/Exports/Pdf/*`, و`SmartFoundation.UI` SmartTable/SmartPrint.
-- التكاملات: `Controllers/Api/AiController.cs`, `NotificationsController.cs`, `SmartComponentController.cs`, و`Services/AiAssistant/*`.
+- التكاملات: `NotificationsController.cs` و`SmartComponentController.cs`.
 - الرفع: Housing `UploadExcelController`, `UploadLabController`، وIncome `ImportExcelForBuildingPayment.cs`.
 - قواعد البيانات الحية: [11-Live-Database-and-ERD.md](11-Live-Database-and-ERD.md) و[07A-Live-Database-Reconciliation.md](07A-Live-Database-Reconciliation.md).
 - الرسومات: [21-Reports-and-Integrations-Flows.md](../Diagrams/21-Reports-and-Integrations-Flows.md) و[22-Deployment-Backup-and-Troubleshooting.md](../Diagrams/22-Deployment-Backup-and-Troubleshooting.md).

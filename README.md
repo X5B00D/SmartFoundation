@@ -1,5 +1,7 @@
 # SmartFoundation
 
+الإصدار الحالي الموثق: **1.0.0**. المرجع الفني والوظيفي والتشغيلي الشامل متاح في [Documentation/SmartFoundation_System_Documentation.pdf](Documentation/SmartFoundation_System_Documentation.pdf)، وتوجد النسخة القابلة للتحرير بصيغة DOCX في المجلد نفسه.
+
 SmartFoundation is an internal ASP.NET Core 8 MVC solution with a mixed architecture: some areas follow newer service patterns, while the most reliable implementation style today comes from the Housing module.
 
 For developers and AI agents, the safest baseline is `SmartFoundation.Mvc/Controllers/Housing/WaitingList/HousingController.WaitingListByResident.cs`.

@@ -8,7 +8,7 @@ Fast lookup guide for common date picker configurations and patterns.
 
 ```
 ✅ jQuery 3.7.1+ loaded
-✅ Flowbite 2.5.2+ loaded
+✅ Flowbite 3.1.2 loaded (current package-lock version)
 ✅ sf-date.js loaded
 ✅ moment-hijri.js loaded (optional, for extended Hijri support)
 ✅ FieldConfig.Type = "date"
@@ -373,7 +373,7 @@ Validate server-side: `EndDate >= StartDate.AddYears(1)`
 ```html
 <!-- Add to _Layout.cshtml if missing -->
 <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/flowbite@2.5.2/dist/flowbite.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/flowbite@3.1.2/dist/flowbite.min.js"></script>
 ```
 
 Hard refresh: `Ctrl+Shift+R`

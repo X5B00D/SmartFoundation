@@ -1062,7 +1062,7 @@ namespace SmartFoundation.UI.ViewModels.SmartCharts
             if (string.IsNullOrWhiteSpace(raw))
                 return "col-span-12 md:col-span-6";
 
-            var tokens = Regex.Split(raw, @"\s+")
+            var tokens = Regex.Split(raw, @"\s+", RegexOptions.None, TimeSpan.FromMilliseconds(250))
                               .Where(t => !string.IsNullOrWhiteSpace(t))
                               .ToList();
 
@@ -1071,7 +1071,7 @@ namespace SmartFoundation.UI.ViewModels.SmartCharts
 
             foreach (var t in tokens)
             {
-                var mBpNum = Regex.Match(t, @"^(sm|md|lg|xl|2xl):(\d{1,2})$");
+                var mBpNum = Regex.Match(t, @"^(sm|md|lg|xl|2xl):(\d{1,2})$", RegexOptions.None, TimeSpan.FromMilliseconds(250));
                 if (mBpNum.Success)
                 {
                     var bp = mBpNum.Groups[1].Value;
@@ -1080,8 +1080,7 @@ namespace SmartFoundation.UI.ViewModels.SmartCharts
                     continue;
                 }
 
-                var mBase = Regex.Match(t, @"^col-span-(\d{1,2})$");
-                if (mBase.Success)
+                var mBase = Regex.Match(t, @"^col-span-(\d{1,2})$", RegexOptions.None, TimeSpan.FromMilliseconds(250)); if (mBase.Success)
                 {
                     var val = Clamp(int.Parse(mBase.Groups[1].Value), 1, 12);
                     outTokens.Add($"col-span-{val}");
@@ -1089,8 +1088,7 @@ namespace SmartFoundation.UI.ViewModels.SmartCharts
                     continue;
                 }
 
-                var mBpCol = Regex.Match(t, @"^(sm|md|lg|xl|2xl):col-span-(\d{1,2})$");
-                if (mBpCol.Success)
+                var mBpCol = Regex.Match(t, @"^(sm|md|lg|xl|2xl):col-span-(\d{1,2})$", RegexOptions.None, TimeSpan.FromMilliseconds(250)); if (mBpCol.Success)
                 {
                     var bp = mBpCol.Groups[1].Value;
                     var val = Clamp(int.Parse(mBpCol.Groups[2].Value), 1, 12);
@@ -1098,7 +1096,7 @@ namespace SmartFoundation.UI.ViewModels.SmartCharts
                     continue;
                 }
 
-                var mNum = Regex.Match(t, @"^0*(\d{1,2})$");
+                var mNum = Regex.Match(t, @"^0*(\d{1,2})$", RegexOptions.None, TimeSpan.FromMilliseconds(250));
                 if (mNum.Success)
                 {
                     var val = Clamp(int.Parse(mNum.Groups[1].Value), 1, 12);
@@ -1115,7 +1113,7 @@ namespace SmartFoundation.UI.ViewModels.SmartCharts
                 outTokens.Insert(0, "col-span-12");
 
             var result = string.Join(" ", outTokens.Distinct());
-            return Regex.Replace(result, @"\s+", " ").Trim();
+            return Regex.Replace(result, @"\s+", " ", RegexOptions.None, TimeSpan.FromMilliseconds(250)).Trim();
         }
 
         private static int Clamp(int v, int min, int max) => v < min ? min : (v > max ? max : v);

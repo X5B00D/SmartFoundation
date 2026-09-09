@@ -431,7 +431,8 @@ def main():
     for st in progress["completedStages"]:
         rows.append((st["conversation"], st["stage"], st["status"], outputs.get(st["stage"], "موثق في Documentation/")))
     n = progress["nextStage"]
-    rows.append((n["conversation"], n["stage"], n["status"], "لم يُنشأ محتوى مرحلي"))
+    if n:
+        rows.append((n["conversation"], n["stage"], n["status"], "لم يُنشأ محتوى مرحلي"))
     add_table(doc, ["المحادثة", "المرحلة", "الحالة", "الملفات الناتجة"], rows, [850, 2650, 1200, CONTENT_DXA-4700], 7.8)
     add_heading(doc, "التصنيف المرحلي", 2)
     add_table(doc, ["التصنيف", "المراحل"], [
@@ -519,19 +520,20 @@ def main():
     add_heading(doc, f"{chapter_no}. سجل الفجوات والمخاطر الحالية", 1)
     add_markdown(doc, DOC_DIR / "security-gap-status.md", heading_shift=1, include_title=False)
 
-    add_heading(doc, f"{chapter_no + 1}. المراحل والمحادثات المتبقية", 1)
+    add_heading(doc, f"{chapter_no + 1}. حالة المراحل والخطوة التالية", 1)
     remaining = [
-        ("9", "ElectronicBillSystem", "pending"),
-        ("10", "Home وLogin", "متبقية وفق خطة التنفيذ"),
-        ("11", "تحليل قاعدة البيانات وتتبع الجداول والـ Views والـ Functions والـ Triggers", "pending"),
-        ("12", "استكمال ERD والرسومات وWorkflows اللازمة بعد اكتمال التحليل", "pending"),
-        ("13", "التقارير والتكاملات والتشغيل والنشر والنسخ الاحتياطي واستكشاف الأخطاء", "pending"),
-        ("14", "دليل المطور واستكمال دليل المستخدم", "pending"),
-        ("15", "تجميع Word النهائي وتدقيقه", "pending"),
-        ("16", "PDF النهائي وCoverage Audit والتحقق النهائي", "pending"),
+        ("9", "ElectronicBillSystem", "مكتملة"),
+        ("10", "Home وLogin", "مكتملة"),
+        ("11", "تحليل قاعدة البيانات وتتبع الجداول والـ Views والـ Functions والـ Triggers", "مكتملة"),
+        ("12", "استكمال ERD والرسومات وWorkflows اللازمة بعد اكتمال التحليل", "مكتملة"),
+        ("13", "التقارير والتكاملات والتشغيل والنشر والنسخ الاحتياطي واستكشاف الأخطاء", "مكتملة"),
+        ("14", "دليل المطور واستكمال دليل المستخدم", "مكتملة"),
+        ("15", "تجميع Word النهائي وتدقيقه", "مكتملة"),
+        ("16", "PDF النهائي وCoverage Audit والتحقق النهائي", "مكتملة"),
+        ("التالي", "Final Security Assessment: SAST ثم SCA ثم SBOM ثم ZAP DAST ثم الاختبارات اليدوية ثم مصفوفة OWASP", "لم تبدأ"),
     ]
     add_table(doc, ["المحادثة/الترتيب", "المرحلة", "الحالة"], remaining, [1450, CONTENT_DXA-2850, 1400])
-    add_callout(doc, "خاتمة مرحلية", "لا تغيّر هذه النسخة lastCompletedStage أو nextStage أو الحالة العامة للمشروع، ولا تستبدل SmartFoundation_System_Documentation.docx.", "risk")
+    add_callout(doc, "خاتمة مرحلية", "أُغلق توثيق إزالة AI، وأصبحت المنظومة جاهزة لبدء التقييم الأمني النهائي، لكنه لم يبدأ بعد. تبقى SmartFoundation_System_Documentation.docx الوثيقة النهائية المعتمدة.", "info")
 
     doc.core_properties.title = "توثيق SmartFoundation — نسخة مرحلية للمراجعة"
     doc.core_properties.subject = "Interim documentation based on completed stages only"

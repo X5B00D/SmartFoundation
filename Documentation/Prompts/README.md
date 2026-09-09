@@ -1,11 +1,15 @@
 # برومبتات توثيق SmartFoundation
 
-يحتوي هذا المجلد على برومبت مستقل لكل مرحلة من مشروع التوثيق. المراحل 1–8 و7A مكتملة وقت إنشاء هذا الفهرس، والمرحلة التالية هي 9.
+يحتوي هذا المجلد على برومبت مستقل لكل مرحلة من مشروع التوثيق. اكتمل التوثيق وإغلاق إزالة المكون المستبعد بتاريخ 2026-08-30، والمرحلة التالية هي Final Security Assessment.
+
+## مصدر الحقيقة الحالي
+
+مصدر الحقيقة لأي إعادة توليد مستقبلية هو: Current Source Code + Current SQL Project + Current verified Live DATACORE state. المكونات المحذوفة لا تُعرض كمعمارية أو ميزة حالية، ولا يجوز ذكرها إلا ضمن Historical Changes مصنفة بوضوح.
 
 ## نقطة الاستكمال
 
-- آخر مرحلة مكتملة: `08 - توثيق IncomeSystem`.
-- المرحلة التالية: `09 - توثيق ElectronicBillSystem`.
+- آخر مرحلة مكتملة: `documentation_closure_after_component_removal`.
+- **ملاحظة تاريخية:** كانت المرحلة التالية عند إغلاق التوثيق السابق هي `Final Security Assessment` بالترتيب: SAST، SCA، SBOM، ZAP DAST، Manual Security Tests، OWASP Compliance Matrix. اكتملت هذه الأنشطة لاحقًا ضمن نطاقاتها للإصدار 1.0.0، بينما لم ينفذ IAST ضمن نطاق فريق التطوير.
 - ملف الحالة المعتمد: `Documentation/Documentation-Progress.json`.
 - مصدر حالة الفجوات المعتمد: `Documentation/security-gap-register.md` و`Documentation/security-gap-status.md`.
 - الحالة الرسمية بتاريخ 2026-08-24: جميع الفجوات 01–24 مغلقة؛ TOTAL 24، CLOSED 24، OPEN 0، DEFERRED 0، IN PROGRESS 0.
@@ -28,7 +32,7 @@
 
 - `01` إلى `08`: مراحل مكتملة.
 - `07A`: مصالحة تعريفات SQL السابقة مع القاعدة الحية، وهي مكتملة.
-- `09` إلى `15`: مراحل متبقية.
+- `09` إلى `15`: مراحل مكتملة ومحفوظة لإعادة التوليد وفق مصدر الحقيقة الحالي.
 
 ## الرفع إلى GitHub
 

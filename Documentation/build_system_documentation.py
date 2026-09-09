@@ -109,7 +109,7 @@ def setup(doc):
     font(header.add_run("SmartFoundation | التوثيق الفني والوظيفي"), 8.5, True, NAVY)
     footer = sec.footer.paragraphs[0]
     rtl(footer, WD_ALIGN_PARAGRAPH.CENTER)
-    r = font(footer.add_run("الإصدار 1.0  |  2026-08-23  |  صفحة "), 8, color=GRAY)
+    r = font(footer.add_run("الإصدار 1.0.0  |  2026-09-05  |  صفحة "), 8, color=GRAY)
     add_field(r, " PAGE ", "1")
     font(footer.add_run(" من "), 8, color=GRAY)
     add_field(footer.runs[-1], " NUMPAGES ", "1")
@@ -191,6 +191,27 @@ def geometry(table, widths):
     trpr = table.rows[0]._tr.get_or_add_trPr(); rep = OxmlElement("w:tblHeader"); rep.set(qn("w:val"), "true"); trpr.append(rep)
 
 
+def prevent_row_split(row):
+    """Keep a table row intact across page boundaries."""
+    trpr = row._tr.get_or_add_trPr()
+    node = trpr.find(qn("w:cantSplit"))
+    if node is None:
+        node = OxmlElement("w:cantSplit")
+        trpr.append(node)
+    node.set(qn("w:val"), "true")
+
+
+def keep_table_block(table, keep_whole=False):
+    """Prevent orphan headers and, for compact diagrams, keep the block together."""
+    for row_index, row in enumerate(table.rows):
+        prevent_row_split(row)
+        keep_next = row_index == 0 or (keep_whole and row_index < len(table.rows) - 1)
+        for cell in row.cells:
+            for paragraph in cell.paragraphs:
+                paragraph.paragraph_format.keep_together = True
+                paragraph.paragraph_format.keep_with_next = keep_next
+
+
 def table(doc, headers, rows, widths=None, size=8.0, caption=None):
     if caption:
         p = doc.add_paragraph(style="Caption"); rtl(p); font(p.add_run(caption), 9, True, GRAY)
@@ -213,6 +234,7 @@ def table(doc, headers, rows, widths=None, size=8.0, caption=None):
                 p.paragraph_format.space_after = Pt(2)
                 for r in p.runs: font(r, size)
     geometry(t, widths)
+    keep_table_block(t)
     para(doc, "", 2)
     return t
 
@@ -335,7 +357,7 @@ def diagram_content(path):
 def add_native_diagram(doc, path, index):
     title, labels = diagram_content(path)
     p=doc.add_paragraph(style="Caption"); rtl(p); font(p.add_run(f"شكل {index}: {title}"),9,True,GRAY)
-    p=doc.add_paragraph(); rtl(p,WD_ALIGN_PARAGRAPH.CENTER); font(p.add_run(title),12,True,NAVY)
+    p=doc.add_paragraph(); rtl(p,WD_ALIGN_PARAGRAPH.CENTER); p.paragraph_format.keep_with_next=True; font(p.add_run(title),12,True,NAVY)
     rows=[]
     for i in range(0,len(labels),3):
         group=labels[i:i+3]
@@ -358,6 +380,7 @@ def add_native_diagram(doc, path, index):
                 pp.paragraph_format.space_after=Pt(1)
                 for rr in pp.runs: font(rr,8.0,True if i%2 else False,GOLD if i%2 else NAVY)
     geometry(t,widths)
+    keep_table_block(t, keep_whole=True)
     para(doc,"",2)
     return title
 
@@ -390,14 +413,15 @@ def main():
     for _ in range(5): doc.add_paragraph()
     p=doc.add_paragraph(style="Title"); rtl(p,WD_ALIGN_PARAGRAPH.CENTER); font(p.add_run("توثيق نظام SmartFoundation"),28,True,NAVY)
     p=doc.add_paragraph(style="Subtitle"); rtl(p,WD_ALIGN_PARAGRAPH.CENTER); font(p.add_run("التوثيق الفني والوظيفي ودليل التشغيل والاستخدام"),15,True,GRAY)
-    para(doc,"الإصدار 1.0",12,True,GOLD,True); para(doc,"23 أغسطس 2026",11,False,GRAY,True)
+    para(doc,"الإصدار 1.0.0",12,True,GOLD,True); para(doc,"5 سبتمبر 2026",11,False,GRAY,True)
     for _ in range(5): doc.add_paragraph()
     callout(doc,"حالة الوثيقة","وثيقة نهائية معتمدة؛ القيم الحساسة والأسرار وبيانات الاتصال غير مضمنة.","info")
 
     page_break(doc); heading(doc,"سجل الإصدارات",1)
     table(doc,["الإصدار","التاريخ","الحالة","نطاق التغيير"],[
         ("0.1","2026-08-22","مرحلي","توثيق المراحل حتى IncomeSystem والمصالحة الحية 7A"),
-        ("1.0","2026-08-23","متحقق نهائياً","دمج المراحل 1–14، DATACORE الحية، Coverage Audit النهائي، ونسختي Word وPDF")],
+        ("1.0","2026-08-23","متحقق نهائياً","دمج المراحل 1–14، DATACORE الحية، Coverage Audit النهائي، ونسختي Word وPDF"),
+        ("1.0.0","2026-09-05","محدث للإصدار","حالة التحقق الأمني النهائية، البرمجة الآمنة، المكونات والتراخيص، SBOM، الاستضافة، النسخ والاستعادة، ومعمارية المصادقة والجلسات")],
         [1100,1500,1600,CONTENT_DXA-4200],caption="جدول 1: سجل إصدارات وثيقة SmartFoundation")
     heading(doc,"نطاق التوثيق",1)
     table(doc,["التصنيف","البرامج"],[
@@ -409,13 +433,14 @@ def main():
 
     page_break(doc); heading(doc,"فهرس المحتويات",1)
     toc_entries=[
-        ("1. الملخص التنفيذي","4"),("2. المعمارية","5"),("3. بنية الحل والنطاق","13"),
-        ("4. الأمان والصلاحيات","18"),("5. ControlPanel","22"),("6. Housing","29"),
-        ("7. IncomeSystem","46"),("8. ElectronicBillSystem","50"),("9. Home وLogin","55"),
-        ("10. قاعدة البيانات الحية","59"),("11. Schema drift","67"),("12. Workflows والرسومات","68"),
-        ("13. التقارير والتكاملات","74"),("14. بيئة التطوير والنشر","84"),("15. النسخ الاحتياطي والاستعادة","85"),
-        ("16. استكشاف الأخطاء","86"),("17. دليل المطور","88"),("18. دليل المستخدم","93"),
-        ("19. سجل الفجوات والمخاطر","99"),("20. Coverage Audit النهائي","100"),("21. المصطلحات والاختصارات","103"),
+        ("1. الملخص التنفيذي","4"),("2. المعمارية","5"),("3. بنية الحل والنطاق","14"),
+        ("4. الأمان والصلاحيات","19"),("5. ControlPanel","24"),("6. Housing","31"),
+        ("7. IncomeSystem","49"),("8. ElectronicBillSystem","53"),("9. Home وLogin","58"),
+        ("10. قاعدة البيانات الحية","62"),("11. Schema drift","71"),("12. Workflows والرسومات","72"),
+        ("13. التقارير والتكاملات","80"),("14. بيئة التطوير والنشر","91"),("15. النسخ الاحتياطي والاستعادة","92"),
+        ("16. استكشاف الأخطاء","93"),("17. دليل المطور","95"),("18. دليل المستخدم","100"),
+        ("19. سجل الفجوات والمخاطر","106"),("20. Coverage Audit النهائي","115"),("21. حالة الإصدار 1.0.0 والأمن والتشغيل","119"),
+        ("22. المصطلحات والاختصارات","124"),
     ]
     toc_rows=[]
     for i in range(0,len(toc_entries),2):
@@ -444,7 +469,8 @@ def main():
         ("18. دليل المستخدم",DOC/"User-Guide.md"),
         ("19. سجل الفجوات والمخاطر",DOC/"security-gap-status.md"),
         ("20. Coverage Audit النهائي",DOC/"Work/13-Final-Coverage-Audit.md"),
-        ("21. المصطلحات والاختصارات",None),
+        ("21. حالة الإصدار 1.0.0 والأمن والتشغيل",DOC/"Work/14-Release-1.0.0-Readiness-Security-and-Operations.md"),
+        ("22. المصطلحات والاختصارات",None),
     ]
     page_break(doc); heading(doc,chapters[0][0],1)
     para(doc,"SmartFoundation تطبيق ASP.NET Core MVC على .NET 8، ونقطة التشغيل الفعلية هي SmartFoundation.Mvc/Program.cs. يتكون المسار التشغيلي من MVC وUI وApplication وDataEngine، بينما يمثل مشروع SmartFoundation.Database لقطة مرجعية لا قاعدة التشغيل الحية.")
@@ -488,7 +514,10 @@ def main():
     page_break(doc); heading(doc,"20. Coverage Audit النهائي",1)
     add_markdown(doc,DOC/"Work/13-Final-Coverage-Audit.md",heading_shift=0,skip_local_audits=False)
 
-    page_break(doc); heading(doc,"21. المصطلحات والاختصارات",1)
+    page_break(doc); heading(doc,chapters[20][0],1)
+    add_markdown(doc,chapters[20][1],heading_shift=0,skip_local_audits=False)
+
+    page_break(doc); heading(doc,"22. المصطلحات والاختصارات",1)
     terms=[
         ("DATACORE","قاعدة SQL Server الحية والمصدر النهائي لتعريفات SQL ضمن هذا التوثيق."),
         ("Snapshot","مشروع SmartFoundation.Database المرجعي؛ يستخدم للمقارنة وفهم النية ولا يثبت الحالة الحية."),
@@ -503,12 +532,16 @@ def main():
         ("E2E","اختبار End-to-End من واجهة المستخدم إلى قاعدة البيانات والعودة."),
         ("Schema drift","اختلاف بنيوي أو وظيفي بين DATACORE الحية والـSnapshot."),
         ("RPO/RTO","أهداف نقطة الاستعادة ووقت الاستعادة في استمرارية الأعمال."),
+        ("SBOM","قائمة جرد للمكونات والتبعيات بصيغة معيارية؛ ليست اختبار ثغرات مستقلاً."),
+        ("SAST / SCA / DAST","فحص الشفرة الثابت، وتحليل المكونات، والفحص الديناميكي ضمن نطاقات التحقق المحددة."),
+        ("IAST","اختبار أمان تفاعلي لم ينفذ ضمن نطاق فريق التطوير للإصدار 1.0.0."),
     ]
     table(doc,["المصطلح","التعريف الموحد"],terms,[2200,CONTENT_DXA-2200],8.2,caption="جدول 5: المصطلحات والاختصارات")
 
-    doc.core_properties.title="توثيق نظام SmartFoundation"
-    doc.core_properties.subject="التوثيق الفني والوظيفي ودليل المطور والمستخدم"
-    doc.core_properties.author="SmartFoundation Documentation Project"
+    doc.core_properties.title="توثيق نظام SmartFoundation - التوثيق الفني والوظيفي ودليل التشغيل والاستخدام"
+    doc.core_properties.subject="التوثيق الفني والوظيفي والتشغيلي لنظام SmartFoundation"
+    doc.core_properties.author="sami alamri"
+    doc.core_properties.version="1.0.0"
     doc.core_properties.keywords="SmartFoundation, DATACORE, Housing, ControlPanel, IncomeSystem, ElectronicBillSystem"
     doc.core_properties.comments="لا تحتوي الوثيقة على أسرار اتصال أو قيم كلمات مرور أو بيانات مستخدمين فعلية."
     doc.save(OUT)

@@ -158,7 +158,7 @@ namespace SmartFoundation.UI.ViewModels.SmartPrint
             if (string.IsNullOrWhiteSpace(raw))
                 return "col-span-12";
 
-            var tokens = Regex.Split(raw, @"\s+").Where(t => !string.IsNullOrWhiteSpace(t)).ToList();
+            var tokens = Regex.Split(raw, @"\s+", RegexOptions.None, TimeSpan.FromMilliseconds(250)).Where(t => !string.IsNullOrWhiteSpace(t)).ToList();
             return string.Join(" ", tokens.Distinct());
         }
     }

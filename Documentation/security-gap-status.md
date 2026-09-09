@@ -1,5 +1,7 @@
 # Security Gap Status
 
+> Historical closure note (2026-08-30): component-specific evidence below is retained for audit history. Component removed from official release. Final security assessment status: NOT STARTED.
+
 ## Gap 01 — Client-controlled CRUD context
 
 - Status: CLOSED
@@ -10,8 +12,7 @@
 - fixed identity fallbacks removed
 - `pageName_` constrained
 - `ActionType` permission checked and explicitly constrained
-- AiChatHistory identity tampering protection PASS
-- AI feedback ownership PASS
+- The retired component's historical identity-tampering and feedback-ownership checks passed before removal from the official release.
 - Support ActionType whitelist tests PASS
 - unknown page/action rejection PASS
 - missing Session test PASS
@@ -19,7 +20,7 @@
 - MVC Build: 0 Errors / 0 Warnings
 - live changes applied successfully to:
   - `dbo.Masters_CRUD`
-  - `dbo.sp_AiChat_SaveFeedback`
+  - the retired component's feedback procedure (removed from the official release)
 - test records cleaned with ROLLBACK
 - final decision: `Gap 01 CLOSED`
 
@@ -300,7 +301,7 @@
   - Housing: `/Housing/BuildingType`
   - ElectronicBillSystem: `/ElectronicBillSystem/AllMeterRead`
 - Page Load, Data Load, User Actions, operation results, and absence of visible runtime errors were verified.
-- Prior integration evidence also covers Login, SessionGuard, Session loss after restart, CRUD Insert/Update/Delete, Antiforgery, ChangePassword, Excel import, PDF/Print, AJAX/Modals, AI Assistant, and Network/Console regression checks.
+- Prior integration evidence also covers Login, SessionGuard, Session loss after restart, CRUD Insert/Update/Delete, Antiforgery, ChangePassword, Excel import, PDF/Print, AJAX/Modals, and Network/Console regression checks.
 - Representative critical workflows were proven end-to-end across multiple modules; exhaustive testing of every page is not required for Gap 14 closure.
 - Final decision: `Gap 14 CLOSED`.
 
@@ -347,7 +348,8 @@
 
 - Status: CLOSED
 - Closed Date: 2026-08-24
-- Official production/work environment: SQL Server 2019 Developer Edition.
+- البيئة المرجعية المستخدمة في التطوير والتحقق: SQL Server 2019؛ وردت Developer Edition بوصفها Edition للبيئة المرجعية فقط.
+- بيئة الإنتاج تستخدم إصدار SQL Server مدعومًا وEdition مرخصة ومناسبة وفق سياسات الجهة المستضيفة؛ Developer Edition ليست Production Requirement.
 - A personal development-machine SQL Server installation is not the reference for this decision.
 - Final decision: `Gap 19 CLOSED`.
 
@@ -392,7 +394,7 @@
 - Closed Date: 2026-08-24
 - The system runs in a fully closed local network without Internet connectivity.
 - There are currently no operational external APIs, external SMTP/SMS/SSO, Internet web services, or Internet-dependent cloud integrations.
-- The AI assistant runs locally offline; the database and core services remain inside the internal environment.
+- The database and core services remain inside the internal environment.
 - Reassess only when a new external integration is introduced.
 - Final decision: `Gap 24 CLOSED`.
 

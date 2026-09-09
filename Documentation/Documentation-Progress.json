@@ -1,7 +1,22 @@
 {
-  "documentationVersion": "1.0",
+  "documentationVersion": "1.0.0",
   "status": "completed",
   "lastCompletedStage": "pdf_and_final_audit",
+  "release100CurrentStatus": {
+    "asOf": "2026-09-05",
+    "release": "1.0.0",
+    "securityAssessment": "completed_within_defined_scopes",
+    "sast": "pass_quality_gate_security_rating_a",
+    "sca": "pass_within_scan_scope_zero_known_vulnerable_packages_at_scan_time",
+    "sbom": "completed_cyclonedx_nuget_and_npm_with_sha256_manifest",
+    "dast": "pass_within_tested_scope",
+    "manualSecurityVerification": "pass_within_tested_scope_recorded_in_final_tracking_no_separate_manual_evidence_folder_observed",
+    "owaspAsvs50": "alignment_completed_within_assessed_scope_not_certification",
+    "iast": "not_performed_within_development_team_scope",
+    "authentication": "cookie_authentication_claims_session_authorization_and_session_guard",
+    "sessionDeploymentModel": "single_application_server_with_process_local_in_memory_session",
+    "historicalStatusPreserved": true
+  },
   "securityGapRegister": {
     "asOf": "2026-08-24",
     "sourceOfTruth": [
@@ -223,9 +238,7 @@
       "DATACORE",
       "internal APIs",
       "in-app notifications",
-      "file uploads",
-      "embedded LLamaSharp",
-      "unwired Ollama implementation"
+      "file uploads"
     ],
     "noEvidenceFoundFor": [
       "Email/SMTP",
@@ -785,6 +798,11 @@
     "ElectronicBillSystem repository documentation completed for Meters, AllMeterRead, MeterReadForOccubentAndExit, and MeterServiceTypeFixedAmount: 5 controller files including Base, 4 actions, 4 views, 25 ActionTypes, 8 Snapshot feature procedures, 2 diagrams, and one user manual.",
     "ElectronicBillSystem live catalog reconciliation completed on 2026-08-23 using PowerShell and System.Data.SqlClient against the local forwarded SQL endpoint: 8 feature procedures and 3 gateways are live verified and match Snapshot functionally; 284 dependency rows, 38 FK rows, and one active related trigger were read. No Business Stored Procedure or write was executed."
     ,"Home and Login documentation completed on 2026-08-23 from active code and SELECT-only live DATACORE catalogs: 3 controller files, 2 logical controllers, 6 actions, 3 views, 6 live matching procedures, 2 updated diagrams, and one user manual. No login, password mutation, Business Stored Procedure, or write was executed."
-    ,"Home active routing uses Masters_DataLoad to ChartsDL; HomeDL exists live and matches Snapshot but is not the active Home path. Home GET contains an unexecuted monthly billing side effect, and the AI permission-map result-set binding is misaligned."
+    ,"Home active routing uses Masters_DataLoad to ChartsDL; HomeDL exists live and matches Snapshot but is not the active Home path. Home GET contains an unexecuted monthly billing side effect."
+    ,"AI removal completed on 2026-08-30: current source, packages, configuration, runtime assets, publish rules, and SQL Project contain zero active AI components."
+    ,"Owner-supplied official live verification confirms the three shared procedures were refactored, all fourteen live DATACORE AI objects were removed, and the final sys.objects check returned zero matching rows."
+    ,"Post-removal Release build, 14 automated tests, startup smoke, clean publish, and owner-performed manual runtime regression all passed with no observed removal-related functional regression."
+    ,"Affected current documentation, diagrams, prompts, JSON metadata, and generated interim/system DOCX and PDF were updated and verified; stale active AI references equal zero."
+    ,"Historical status at AI-removal closure: Final Security Assessment was NOT STARTED and its required order was SAST, SCA, SBOM, ZAP DAST, Manual Security Tests, OWASP Compliance Matrix. Current release 1.0.0 status is recorded separately in release100CurrentStatus."
   ]
 }

@@ -37,7 +37,7 @@
 - `SmartFoundation.Mvc` يعتمد على Application وDataEngine وUI.
 - `SmartFoundation.Application` يعتمد على DataEngine.
 - `SmartFoundation.UI` يعتمد على DataEngine.
-- من الحزم المهمة المكتشفة: Dapper، Microsoft.Data.SqlClient، ExcelDataReader، QuestPDF، LLamaSharp، xUnit، Moq وFluentAssertions.
+- من الحزم المهمة المكتشفة: Dapper، Microsoft.Data.SqlClient، ExcelDataReader، QuestPDF، xUnit، Moq وFluentAssertions.
 
 ## التهيئة ونقطة التشغيل
 

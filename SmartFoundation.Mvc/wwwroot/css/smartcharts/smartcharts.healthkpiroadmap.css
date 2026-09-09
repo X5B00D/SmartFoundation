@@ -368,7 +368,7 @@
         content: "";
         position: absolute;
         inset: 0;
-        background exporter;
+        
     }
 
     /* fix invalid 'background exporter' */

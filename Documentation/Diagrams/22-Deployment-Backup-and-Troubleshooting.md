@@ -8,20 +8,21 @@ flowchart TD
     IIS --> APP["Dedicated App Pool / No Managed Code"]
     APP --> MVC["SmartFoundation.Mvc"]
     MVC --> DB["DATACORE"]
-    MVC --> FILES["Uploads + font + AI model/docs"]
+    MVC --> FILES["Uploads + fonts + static assets"]
     MVC --> LOGS["IIS / ANCM / ILogger / SQL ErrorLog"]
 
-    DB --> BDB["Encrypted database backup chain"]
+    DB --> BDB["Full + Differential + Transaction Log backups"]
+    BDB --> DRILL["Restore Drill\nTarget RPO 15m / RTO 1h"]
     FILES --> BFS["File backup by retention policy"]
     ART --> BAR["Artifact rollback copy"]
     CFG["Secret store + IIS settings + certificates"] --> BCFG["Protected configuration backup"]
-    KEYS["Shared Data Protection key ring - required gap"] --> BKEYS["Protected key backup"]
+    SCALE["Future multi-instance deployment"] --> KEYS["Distributed Session + shared Data Protection keys"] --> BKEYS["Protected key backup"]
 
     LOGS --> TRIAGE["Timestamp + URL + environment + correlation"]
-    TRIAGE --> CLASSIFY{"Startup / HTTP / SQL / Permission / File / AI"}
+    TRIAGE --> CLASSIFY{"Startup / HTTP / SQL / Permission / File"}
     CLASSIFY --> FIX["Scoped correction + smoke test"]
     FIX --> MON["Monitor or rollback"]
 ```
 
-هذا Runbook توثيقي. لا يثبت أن النشر أو النسخ أو الاستعادة مطبقة، ولم تُنفذ أي منها في مرحلة التوثيق.
+هذا Runbook توثيقي. أهداف RPO/RTO مستهدفة وتعتمد على سياسة وجدولة ومراقبة واختبارات بيئة الاستضافة؛ لا يثبت الرسم وحده قبول الإنتاج أو تحقيق الأهداف.
 

@@ -8,7 +8,6 @@ using System.Data;
 using System.Diagnostics.Metrics;
 using System.Linq;
 using System.Text.Json;
-using static LLama.Common.ChatHistory;
 using System.Net.Http.Json;
 
 

@@ -59,7 +59,7 @@ Home محمية محلياً عبر `InitPageContext`. قبل تحميلها ي�
 | العرض | `photoBase64`, `ThameName`, `OrganaiztionLogo`, `IdaraLogo` |
 | التشغيل | `HostName`, `LastActivityUtc` |
 
-القائمة تضيف `MENU_TREE` لاحقاً، ومحاولة Home لحفظ خريطة AI تستخدم `Ai.UserPermissionMap`. الإعداد العام: memory-backed session، مهلة خمول 10 دقائق، cookie بـHttpOnly وSecure Always وEssential. أسماء القراءة غير متسقة في بعض المواضع (`usersActive/useractive`, `usersID/UserId`).
+القائمة تضيف `MENU_TREE` لاحقاً. الإعداد العام: memory-backed session، مهلة خمول 10 دقائق، cookie بـHttpOnly وSecure Always وEssential. أسماء القراءة غير متسقة في بعض المواضع (`usersActive/useractive`, `usersID/UserId`).
 
 ### تغيير كلمة المرور
 
@@ -86,7 +86,7 @@ JavaScript يفرض فوق ذلك حرفاً كبيراً وحرفاً صغير�
 - `session-guard.js`: يعد نشاط المتصفح، يحذر بعد 8 دقائق، ويخرج بعد 10، ويرسل keepalive كل دقيقة عند النشاط.
 - `POST /session/keepalive`: يحدث `LastActivityUtc` حتى دون التحقق من هوية Session.
 
-`SessionGuardMiddleware` موجود لكنه غير مسجل في `Program.cs`. الحماية الفعلية تعتمد على فحوص موزعة داخل Controllers؛ ولا يوجد إثبات لتدوير Session ID بعد الدخول أو الخروج.
+**حالة تاريخية وقت تحليل 2026-08-23:** كان `SessionGuardMiddleware` موجودًا لكنه غير مسجل في `Program.cs`. في الإصدار 1.0.0 أصبح مسجلًا بعد Session وAuthentication وAuthorization؛ تحفظ هذه الفقرة لتوثيق الحالة السابقة.
 
 ## Home
 
@@ -99,8 +99,6 @@ JavaScript يفرض فوق ذلك حرفاً كبيراً وحرفاً صغير�
 3. يرسل `Home, IdaraId, usersId, HostName, usersId` إلى `Masters_DataLoad`.
 4. يقسم النتائج: table 0 صلاحيات Home، table 1 أسماء charts، table 2 إحصاءات المساكن.
 5. يبني `SmartPageViewModel` بعنوان «لوحة التحكم» ويعرض `SmartRenderer`. إعداد Charts الفعلي معلق، لذلك لا يربط النتائج ببطاقات Charts حالياً.
-
-هناك خطأ موثق: `UserPermissionSessionHelper.SaveFromDataTable(HttpContext, dt2)` يطلب table 3، بينما المسار الحي يعيد ثلاث جداول فقط (0..2)، فتكون `dt2` null وتُحذف `Ai.UserPermissionMap`. سجلات فحص صلاحيات AI التالية تكون بلا خريطة من هذا المسار.
 
 ### `Privacy`
 
@@ -128,10 +126,9 @@ JavaScript يفرض فوق ذلك حرفاً كبيراً وحرفاً صغير�
 
 ### المكونات المشتركة والعلاقة مع Dashboard
 
-- `_Layout`: القائمة، Breadcrumb، Toastr، Session guard، Notification، AI widget، وأصول الجداول/forms/charts.
+- `_Layout`: القائمة، Breadcrumb، Toastr، Session guard، Notification، وأصول الجداول/forms/charts.
 - `MenuItemsViewComponent` و`_SidebarNavbar`: التنقل، بيانات المستخدم، تغيير كلمة المرور والخروج.
 - `SmartRenderer`: يستقبل صفحة Home، لكن النموذج الحالي لا يحتوي Charts/Form/Table فعلية.
-- `UserPermissionSessionHelper`: مقصود لحفظ خريطة صلاحيات AI، لكن binding الحالي إلى `dt2` لا يجد result set.
 
 يوجد رابط ثابت `/Dashboard` في شعار Sidebar، كما أن View المستبعدة `Dashboard/Index` تشبه Home في عرض تغيير كلمة المرور و`SmartRenderer`. لم تُوثق وحدة Dashboard نفسها، ولا يثبت الرابط أن Home تعيد التوجيه إليها؛ المسار بعد الدخول هو Home حصراً.
 

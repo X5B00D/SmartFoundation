@@ -95,22 +95,8 @@
 
         var strFrameName = "printThis-" + (new Date()).getTime();
 
-        if (window.location.hostname !== document.domain && navigator.userAgent.match(/msie/i)) {
-            // Ugly IE hacks due to IE not inheriting document.domain from parent
-            // checks if document.domain is set by comparing the host name against document.domain
-            var iframeSrc = "javascript:document.write(\"<head><script>document.domain=\\\"" + document.domain + "\\\";</s" + "cript></head><body></body>\")";
-            var printI = document.createElement('iframe');
-            printI.name = "printIframe";
-            printI.id = strFrameName;
-            printI.className = "MSIE";
-            document.body.appendChild(printI);
-            printI.src = iframeSrc;
-
-        } else {
-            // other browsers inherit document.domain, and IE works if document.domain is not explicitly set
-            var $frame = $("<iframe id='" + strFrameName + "' name='printIframe' />");
-            $frame.appendTo("body");
-        }
+        var $frame = $("<iframe id='" + strFrameName + "' name='printIframe' />");
+        $frame.appendTo("body");
 
         var $iframe = $("#" + strFrameName);
 

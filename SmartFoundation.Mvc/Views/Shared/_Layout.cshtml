@@ -24,7 +24,6 @@
     <link rel="stylesheet" href="~/vendor/flatpickr/flatpickr.min.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/lib/select2/css/select2.min.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/SidebarNavbar.css" asp-append-version="true" />
-    <link rel="stylesheet" href="~/css/ai-assistant.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/layout-inline.css" asp-append-version="true" />
 
 
@@ -169,8 +168,6 @@
 
     @await RenderSectionAsync("Scripts", required: false)
 
-    @await Html.PartialAsync("_AiAssistantWidget")
-    <script src="~/js/ai-assistant.js" asp-append-version="true"></script>
     <script src="~/js/layout-init.js" asp-append-version="true"></script>
 
 </body>

@@ -86,6 +86,7 @@ namespace SmartFoundation.Mvc.Controllers
         }
 
         [HttpGet("get-latest")]
+        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public async Task<IActionResult> GetLatest()
         {
             var userId = HttpContext.Session.GetString("usersID") ?? "";

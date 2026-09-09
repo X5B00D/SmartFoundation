@@ -1,5 +1,7 @@
 # Security Gap Register
 
+> Historical closure note (2026-08-30): findings tied only to the retired component remain as evidence. Component removed from official release. This does not replace the final security assessment, which has not started.
+
 | Gap | Status | Closed Date |
 |---|---|---|
 | Gap 01 — Client-controlled CRUD context | CLOSED | 2026-08-24 |
@@ -130,7 +132,7 @@
   - `/Housing/BuildingType`
   - `/ElectronicBillSystem/AllMeterRead`
 - Page loading, data loading, user actions, operation results, and absence of visible runtime failures were verified.
-- Closure also relies on prior integration evidence covering Login, SessionGuard, Session loss after restart, CRUD, Antiforgery, ChangePassword, Excel import, PDF/Print, AJAX/Modals, AI Assistant, and Network/Console regression checks.
+- Closure also relies on prior integration evidence covering Login, SessionGuard, Session loss after restart, CRUD, Antiforgery, ChangePassword, Excel import, PDF/Print, AJAX/Modals, and Network/Console regression checks.
 - Critical representative workflows were proven end-to-end across multiple modules; testing every system page individually is not required for this gap.
 - Final decision: `Gap 14 CLOSED`.
 
@@ -159,12 +161,12 @@
 
 - Gap 17: Real users with and without permissions were tested; UI visibility and server-side authorization, including `Masters_CRUD`, ActionType, cross-page, unknown-page, and missing-session enforcement, passed.
 - Gap 18: Modal open/close, data loading, Save/Confirm/Cancel, UI refresh, allowed state transitions, and absence of HTTP 500 were verified in prior runtime CRUD/AJAX tests.
-- Gap 19: The official work environment uses SQL Server 2019 Developer Edition.
+- Gap 19: The reference development and verification environment uses SQL Server 2019; Developer Edition is not a production requirement. Production requires a supported and appropriately licensed SQL Server Edition.
 - Gap 20: `DATACORE` uses the `FULL` recovery model.
 - Gap 21: The actual SQL Server environment currently has no defined or used SQL Server Agent Jobs.
-- Gap 22: Official operational targets are RPO 15 minutes and RTO 1 hour.
+- Gap 22: Targeted operational objectives are RPO 15 minutes and RTO 1 hour; achievement depends on the production backup policy, log-backup schedule, storage, monitoring, and restore testing.
 - Gap 23: Daily Full, Differential, and Transaction Log backups exist; retention is one year and restore testing has been performed. The hosting operator owns scheduling needed to meet RPO/RTO. Explicit `DATACORE.dbo.*` references must be considered when restoring under another database name.
-- Gap 24: The system runs in a closed offline network with no active external API, external SMTP/SMS/SSO, internet web service, or cloud integration. The AI assistant operates locally offline; reassess when an external integration is introduced.
+- Gap 24: The system runs in a closed offline network with no active external API, external SMTP/SMS/SSO, internet web service, or cloud integration. Reassess when an external integration is introduced.
 - Closed Date for Gap 17–24: 2026-08-24.
 - Final decisions: `Gap 17 CLOSED` through `Gap 24 CLOSED`.
 

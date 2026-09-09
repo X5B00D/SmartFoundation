@@ -7,7 +7,6 @@ using SmartFoundation.UI.ViewModels.SmartTable;
 using System.Data;
 using System.Linq;
 using System.Text.Json;
-using static LLama.Common.ChatHistory;
 
 namespace SmartFoundation.Mvc.Controllers.Vehicle
 {

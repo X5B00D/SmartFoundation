@@ -39,16 +39,7 @@ namespace SmartFoundation.Mvc.Controllers.Login
 
         private static string ResolveClientHostName(HttpContext ctx)
         {
-            string? forwardedFor = ctx.Request.Headers["X-Forwarded-For"].FirstOrDefault();
-            IPAddress? remoteIp = null;
-            if (!string.IsNullOrWhiteSpace(forwardedFor))
-            {
-                var firstIp = forwardedFor.Split(',').First().Trim();
-                if (IPAddress.TryParse(firstIp, out var parsed))
-                    remoteIp = parsed;
-            }
-
-            remoteIp ??= ctx.Connection.RemoteIpAddress;
+            IPAddress? remoteIp = ctx.Connection.RemoteIpAddress;
             if (remoteIp == null)
                 return "unknown";
 

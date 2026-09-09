@@ -1,8 +1,14 @@
+import argparse
 from pathlib import Path
 from PIL import Image, ImageDraw
 
-src = Path("Documentation/.interim_qa/render6")
-out = Path("Documentation/.interim_qa/contact6")
+parser = argparse.ArgumentParser()
+parser.add_argument("--src", default="Documentation/.interim_qa/render6")
+parser.add_argument("--out", default="Documentation/.interim_qa/contact6")
+args = parser.parse_args()
+
+src = Path(args.src)
+out = Path(args.out)
 out.mkdir(parents=True, exist_ok=True)
 pages = sorted(src.glob("page-*.png"), key=lambda p: int(p.stem.split("-")[-1]))
 

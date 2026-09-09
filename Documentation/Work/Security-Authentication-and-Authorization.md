@@ -1,5 +1,15 @@
 # أمان SmartFoundation: المصادقة والترخيص والجلسات
 
+## الحالة الحالية للإصدار 1.0.0
+
+**مثبت من الكود الحالي:** يستخدم التطبيق Cookie Authentication وينشئ Claims بعد نجاح التحقق، مع Session لحفظ السياق التشغيلي للمستخدم. يسجل `AddAuthentication().AddCookie()`، ويستدعي `SignInAsync` في مسار الدخول و`SignOutAsync` في مسار الخروج. كما يطبق `SessionGuardMiddleware` لمقارنة هوية Claim مع `Session["usersID"]` والفشل المغلق عند فقد الجلسة أو عدم التطابق.
+
+ترتيب middleware ذي الصلة هو: `Routing -> Session -> Authentication -> Authorization -> SessionGuardMiddleware -> Endpoints`.
+
+النموذج التشغيلي الحالي Single Application Server، والتخزين المحلي In-Memory للجلسة مقبول لهذا النموذج. عند التوسع إلى عدة instances أو Load Balancer أو High Availability يجب إعادة تقييم distributed session storage ومفاتيح Data Protection المشتركة وload balancing وhealth checks والمراقبة المركزية.
+
+الأقسام التالية تحتفظ بتحليل 2026-08-21 بوصفه **Historical State**. العبارات التي تنفي Cookie Authentication أو Claims أو تسجيل SessionGuard لا تمثل Current State للإصدار 1.0.0؛ سجل الفجوات اللاحق يوثق الإغلاق والتحقق.
+
 > تحديث قاعدة البيانات 2026-08-23: يثبت [ERD ControlPanel والصلاحيات](../Diagrams/18-ControlPanel-Permissions-ERD.md) FKs الحية، ويصحح الافتراضات المبنية على أسماء `_FK`: روابط Idara في `Permission` وبعض روابط `DeptSecDiv` علاقات مستنتجة وليست قيوداً فعلية.
 
 ## الحالة والحدود
@@ -12,11 +22,11 @@
 
 ## الخلاصة التنفيذية
 
-المصادقة الفعلية ليست ASP.NET Core Identity ولا Cookie Authentication. POST الدخول يستدعي `dbo.GetSessionInfoForMVC`، وتحدد النتيجة نجاح الدخول، ثم يخزن التطبيق هوية المستخدم وسياقه التنظيمي في Session server-side.
+**الحالة التاريخية وقت تحليل 2026-08-21:** لم تكن المصادقة آنذاك ASP.NET Core Identity ولا Cookie Authentication. كان POST الدخول يستدعي `dbo.GetSessionInfoForMVC`، وتحدد النتيجة نجاح الدخول، ثم يخزن التطبيق هوية المستخدم وسياقه التنظيمي في Session server-side.
 
 لا ينشئ التطبيق `ClaimsIdentity/ClaimsPrincipal`، ولا يستدعي `SignInAsync`، ولا يسجل Authentication Scheme أو Authorization Policies. وجود `UseAuthentication()` و`UseAuthorization()` وحده لا يوفر حماية. الحماية الفعلية موزعة بين فحص Session داخل بعض Actions، وإظهار UI حسب `permissionTypeName_E`، وفحص SQL في بوابة CRUD.
 
-لا يوجد guard عام فعال: `SessionGuardMiddleware` موجود لكنه غير مسجل، ولا توجد `[Authorize]` في Controllers النشطة المفحوصة.
+**الحالة التاريخية وقت التحليل:** لم يكن guard العام فعالًا؛ كان `SessionGuardMiddleware` موجودًا لكنه غير مسجل. أغلقت هذه الحالة لاحقًا، والحالة الحالية موثقة في بداية الفصل.
 
 ## Authentication وLogin/Logout
 

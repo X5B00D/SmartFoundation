@@ -81,7 +81,7 @@
             }
 
             const stage = document.createElement("div");
-            stage.className = "smart-funnel__stage" + (clickable && (s.href || s.onClickJs) ? " smart-funnel__click" : "");
+            stage.className = "smart-funnel__stage" + (clickable && s.href ? " smart-funnel__click" : "");
 
             const left = document.createElement("div");
             left.className = "smart-funnel__left";
@@ -157,13 +157,9 @@
             stage.addEventListener("mouseleave", () => tip.classList.remove("is-show"));
 
             // click
-            if (clickable && (s.href || s.onClickJs)) {
+            if (clickable && s.href) {
                 stage.addEventListener("click", () => {
-                    if (s.onClickJs) {
-                        try { (new Function(s.onClickJs))(); } catch { }
-                        return;
-                    }
-                    if (s.href) window.location.href = s.href;
+                    window.location.href = s.href;
                 });
             }
 

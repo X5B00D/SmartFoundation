@@ -63,7 +63,6 @@ BEGIN
         BEGIN TRANSACTION;
 
         /* User preferences, notifications, photos, and direct account data. */
-        DELETE FROM dbo.AiChatHistory WHERE UserId > 12;
         DELETE FROM dbo.ChartListUsers WHERE UsersID_FK > 12;
         DELETE FROM dbo.MvcThameUser WHERE UsersID_FK > 12;
         DELETE FROM dbo.UserNotifications WHERE UserId_FK > 12;

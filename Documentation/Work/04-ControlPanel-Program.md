@@ -244,7 +244,7 @@
 - مثبت: كل POST يمر عبر antiforgery في CrudController وبفحص صلاحية مستقل في `Masters_CRUD`.
 - مثبت: SQL يستخدم معاملات وAuditLog ورسائل أخطاء business.
 - فجوة: لا توجد `[Authorize]` ولا authentication scheme مثبتة في التركيب الحالي؛ الحماية تعتمد على Session والبوابة.
-- فجوة: `SessionGuardMiddleware` غير مسجل كما وثقت المعمارية العامة.
+- ملاحظة تاريخية: لم يكن `SessionGuardMiddleware` مسجلًا وقت التحليل الأول؛ أغلقت الحالة لاحقًا وهي مسجلة في توثيق المعمارية الحالية للإصدار 1.0.0.
 - فجوة: قيم `entrydata`, `idaraID`, `hostname` تأتي كحقول hidden، ويلزم التأكد أن CrudController يعيد اشتقاقها من Session أو أن SQL لا يثق بها بلا تحقق. الكود الحالي يمرر posted form values.
 - فجوة: صلاحية `UPDATENATIONALID` مفروضة في UI فقط حسب المسار المقروء.
 - فجوة: اتساق زر `INSERTFULLACCESS` و`RESETUSERPASSWORD` مع flags الواجهة يحتاج اختباراً وظيفياً.

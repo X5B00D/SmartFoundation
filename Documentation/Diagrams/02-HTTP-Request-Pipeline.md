@@ -26,7 +26,7 @@ flowchart LR
     Response --> OnStarting["OnStarting يضيف headers"]
     OnStarting --> Client["Client"]
 
-    Guard["SessionGuardMiddleware\nموجود كملف لكنه غير مسجل"]
+    Guard["SessionGuardMiddleware\nمسجل بعد Authorization"]
     Guard -. "ليس ضمن pipeline المثبت" .-> Session
 ```
 

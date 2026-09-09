@@ -2,7 +2,9 @@
 
 اقرأ AGENTS.md وجميع Documentation المكتملة ونتائج القاعدة الحية. نفذ فقط: التقارير والطباعة والتصدير، التكاملات، بيئة التطوير والتشغيل، النشر، النسخ الاحتياطي والاستعادة، واستكشاف الأخطاء.
 
-وثق التقارير ومصادرها الحية وParameters/Filters والصلاحيات وPDF/Excel/Print والمكتبات. وثق APIs والبريد وSMS وLDAP/AD وFile Storage وUploads وقواعد البيانات الخارجية والخدمات الثالثة وAI/LLama إن كانت مرتبطة، مع Timeout/Retry ومعالجة الأخطاء.
+مصدر الحقيقة الحالي هو Current Source Code + Current SQL Project + Current verified Live DATACORE state. لا تُعد إدخال أي مكون محذوف كميزة أو معمارية حالية؛ يسمح بذكره فقط ضمن Historical Changes مصنفة بوضوح.
+
+وثق التقارير ومصادرها الحية وParameters/Filters والصلاحيات وPDF/Excel/Print والمكتبات. وثق APIs والبريد وSMS وLDAP/AD وFile Storage وUploads وقواعد البيانات الخارجية والخدمات الثالثة المرتبطة حاليًا، مع Timeout/Retry ومعالجة الأخطاء.
 
 وثق .NET 8 وSDK وVisual Studio وSQL Server وRestore/Build/Run وStartup Project والبيئات وConfiguration مخفية. وثق IIS وHosting Bundle وApp Pool وPermissions وLogs وReverse Proxy/TLS، ثم متطلبات النسخ الاحتياطي والاستعادة واستكشاف الأخطاء.
 

@@ -206,8 +206,7 @@ namespace SmartFoundation.UI.ViewModels.SmartForm
             if (string.IsNullOrWhiteSpace(raw))
                 return "col-span-12 md:col-span-6"; // افتراضي: نصف الشاشة
 
-            var tokens = Regex.Split(raw, @"\s+")
-                              .Where(t => !string.IsNullOrWhiteSpace(t))
+            var tokens = Regex.Split(raw, @"\s+", RegexOptions.None, TimeSpan.FromMilliseconds(250)).Where(t => !string.IsNullOrWhiteSpace(t))
                               .ToList();
 
             var outTokens = new List<string>();
@@ -216,7 +215,7 @@ namespace SmartFoundation.UI.ViewModels.SmartForm
             foreach (var t in tokens)
             {
                 // 1) sm|md|lg|xl|2xl:number  =>  sm|md|..:col-span-N
-                var mBpNum = Regex.Match(t, @"^(sm|md|lg|xl|2xl):(\d{1,2})$");
+                var mBpNum = Regex.Match(t, @"^(sm|md|lg|xl|2xl):(\d{1,2})$", RegexOptions.None, TimeSpan.FromMilliseconds(250));
                 if (mBpNum.Success)
                 {
                     var bp = mBpNum.Groups[1].Value;
@@ -226,7 +225,7 @@ namespace SmartFoundation.UI.ViewModels.SmartForm
                 }
 
                 // 2) col-span-N 
-                var mBase = Regex.Match(t, @"^col-span-(\d{1,2})$");
+                var mBase = Regex.Match(t, @"^col-span-(\d{1,2})$", RegexOptions.None, TimeSpan.FromMilliseconds(250));
                 if (mBase.Success)
                 {
                     var val = Clamp(int.Parse(mBase.Groups[1].Value), 1, 12);
@@ -236,8 +235,7 @@ namespace SmartFoundation.UI.ViewModels.SmartForm
                 }
 
                 // 3) sm|md|..:col-span-N –
-                var mBpCol = Regex.Match(t, @"^(sm|md|lg|xl|2xl):col-span-(\d{1,2})$");
-                if (mBpCol.Success)
+                var mBpCol = Regex.Match(t, @"^(sm|md|lg|xl|2xl):col-span-(\d{1,2})$", RegexOptions.None, TimeSpan.FromMilliseconds(250)); if (mBpCol.Success)
                 {
                     var bp = mBpCol.Groups[1].Value;
                     var val = Clamp(int.Parse(mBpCol.Groups[2].Value), 1, 12);
@@ -246,7 +244,7 @@ namespace SmartFoundation.UI.ViewModels.SmartForm
                 }
 
                 // 4)  رقم (1–12) → col-span-12 md:col-span-N
-                var mNum = Regex.Match(t, @"^0*(\d{1,2})$");
+                var mNum = Regex.Match(t, @"^0*(\d{1,2})$", RegexOptions.None, TimeSpan.FromMilliseconds(250));
                 if (mNum.Success)
                 {
                     var val = Clamp(int.Parse(mNum.Groups[1].Value), 1, 12);
@@ -266,7 +264,7 @@ namespace SmartFoundation.UI.ViewModels.SmartForm
 
             
             var result = string.Join(" ", outTokens.Distinct());
-            return Regex.Replace(result, @"\s+", " ").Trim();
+            return Regex.Replace(result, @"\s+", " ", RegexOptions.None, TimeSpan.FromMilliseconds(250)).Trim();
         }
 
         private static int Clamp(int v, int min, int max) => v < min ? min : (v > max ? max : v);

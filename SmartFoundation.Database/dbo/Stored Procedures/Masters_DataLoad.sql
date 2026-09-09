@@ -543,15 +543,6 @@ BEGIN
                     , @entryData                      = @entrydata
                     , @hostName                       = @hostName
                     , @UsersID                        = @parameter_01
-
-
-          SELECT    v.userID,
-                    v.menuName_E,
-                    v.menuName_A,
-                    v.permissionTypeName_E,
-                    v.permissionTypeName_A 
-          FROM [dbo].[ft_UserAllPermissionsForAi](@entrydata) v
-           
         END
 
 
